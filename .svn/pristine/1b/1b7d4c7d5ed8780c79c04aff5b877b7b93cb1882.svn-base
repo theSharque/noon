@@ -1,6 +1,0 @@
-name = Rotator
-description = Rotate and manage all banners.
-package = Banners
-version = 1.0dev
-core = 7.x
-

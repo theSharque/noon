@@ -1,6 +1,0 @@
-name = Step auction
-description = Manage all auctions and money accounts.
-package = Auction
-version = 1.0dev
-core = 7.x
-

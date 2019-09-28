@@ -1,0 +1,133 @@
+<?php
+
+  global $user;
+  $last = mt_rand( 100000, 999999 );
+
+  if( $user->place_type == 0 && $user->owner ) {
+    if( isset( $_GET['oid'] ) && is_numeric( $_GET['oid'] ) ) {
+      $x = $_GET['x'];
+      $y = 0;
+      $oid = $_GET['oid'];
+  
+      db_safe( $x );
+      db_safe( $oid );
+      $info = get_orbit_info( $x );
+  
+      $av_energy = get_energy();
+      if( $av_energy >= 0 ) {
+        $cnt = db_fetch_val( 'SELECT IFNULL( object_cnt, 0 ) cnt FROM warehouse WHERE place_type = '.$user->place_type.' AND place_id = '.$user->place_id.' AND object_id = '.$oid, 'cnt' );
+        $out = "dg_h=". t( "Цикл %s в наличии %s", array( time_to_str( get_make_time( $oid ) ), intval( $cnt ) ) );
+      } else {
+        $out = "dg_h=<b>".t( '<font color=\"#FF0000\">Недостаточно энергии</font>' );
+      }
+    
+      $out .= "&nsMin=1&nsStep=1&nsVal={$info->cyc}&nsMax=".($info->level);
+  
+      $items = db_fetch_array( "SELECT o.name, os.res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                  FROM objects_sub os
+                            INNER JOIN objects o ON o.id = os.res_id
+                             LEFT JOIN warehouse w ON w.object_id = os.res_id AND w.place_id = ".$user->place_id." AND w.place_type = ".$user->place_type."
+                                 WHERE os.object_id=$oid AND o.class IN( 1, 2, 9 )
+                              ORDER BY o.class, o.name" );
+
+      $out .= "&col0=".t( 'Ресурс' );
+      $out .= "&col1=".t( 'Требуется' );
+      $out .= "&col2=".t( 'Доступно' );
+    
+      $i=0;
+      $CanBuild = ( $av_energy >= 0 );
+    
+      $out .= "&cols=3&rows=".count( $items );
+    
+      foreach( $items as $item ) {
+        if( $item['res_cnt'] <= $item['object_cnt'] ) {
+          $out .= '&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+        } else {
+          $out .= '&l'.$i.'color=0xFF0000&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+          $CanBuild = false;
+        }
+        $i++;
+      }
+  
+      if( $CanBuild ) {
+/*
+        db_query( "INSERT INTO antibot ( user_id, coord, last )
+                        VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+       ON DUPLICATE KEY UPDATE last = $last" );
+*/
+        $out .= "&btLabel=".t( 'Начать сборку' )."&btOnClick=page.php?id=279%26oid=$oid%26l=$last%26x=$x%26count=";
+
+        $result = db_fetch_row( "SELECT count(*) cnt FROM robots WHERE user_id = {$user->uid} AND status = 0" );
+        if( $result['cnt'] > 0 ) {
+          $out .= "&btRobot=".$result['cnt'];
+        }
+      }
+  
+      printOut( $out );
+    }
+  }
+
+  if( $user->place_type == 1 && $user->owner ) {
+    if( isset( $_GET['oid'] ) && is_numeric( $_GET['oid'] ) ) {
+      $x = $_GET['x'];
+      $y = $_GET['y'];
+      $oid = $_GET['oid'];
+  
+      db_safe( $x );
+      db_safe( $y );
+      db_safe( $oid );
+      $info = get_planet_info( $x, $y );
+  
+      $av_energy = get_energy();
+      if( $av_energy >= 0 ) {
+        $cnt = db_fetch_val( 'SELECT IFNULL( object_cnt, 0 ) cnt FROM warehouse WHERE place_type = '.$user->place_type.' AND place_id = '.$user->place_id.' AND object_id = '.$oid, 'cnt' );
+        $out = "dg_h=". t( "Цикл %s в наличии %s", array( time_to_str( get_make_time( $oid ) ), intval( $cnt ) ) );
+      } else {
+        $out = "dg_h=<b>".t( '<font color=\"#FF0000\">Недостаточно энергии</font>' );
+      }
+    
+      $out .= "&nsMin=1&nsStep=1&nsVal={$info->cyc}&nsMax=".($info->level);
+  
+      $items = db_fetch_array( "SELECT o.name, os.res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                  FROM objects_sub os
+                            INNER JOIN objects o ON o.id = os.res_id
+                             LEFT JOIN warehouse w ON w.object_id = os.res_id AND w.place_id = ".$user->place_id." AND w.place_type = ".$user->place_type."
+                                 WHERE os.object_id=$oid AND o.class IN( 1, 2, 9 )
+                              ORDER BY o.class, o.name" );
+
+      $out .= "&col0=".t( 'Ресурс' );
+      $out .= "&col1=".t( 'Требуется' );
+      $out .= "&col2=".t( 'Доступно' );
+    
+      $i=0;
+      $CanBuild = ( $av_energy >= 0 );
+    
+      $out .= "&cols=3&rows=".count( $items );
+    
+      foreach( $items as $item ) {
+        if( $item['res_cnt'] <= $item['object_cnt'] ) {
+          $out .= '&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+        } else {
+          $out .= '&l'.$i.'color=0xFF0000&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+          $CanBuild = false;
+        }
+        $i++;
+      }
+  
+      if( $CanBuild ) {
+/*
+        db_query( "INSERT INTO antibot ( user_id, coord, last )
+                        VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+       ON DUPLICATE KEY UPDATE last = $last" );
+*/
+        $out .= "&btLabel=".t( 'Начать сборку' )."&btOnClick=page.php?id=279%26oid=$oid%26l=$last%26x=$x%26y=$y%26count=";
+
+        $result = db_fetch_row( "SELECT count(*) cnt FROM robots WHERE user_id = {$user->uid} AND status = 0" );
+        if( $result['cnt'] > 0 ) {
+          $out .= "&btRobot=".$result['cnt'];
+        }
+      }
+  
+      printOut( $out );
+    }
+  }

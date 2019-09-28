@@ -1,0 +1,91 @@
+<?php
+
+  global $user;
+
+  if( isset( $_GET['rf'] ) && is_numeric( $_GET['rf'] ) && $user->owner ) {
+    $rf = $_GET['rf'];
+
+    switch( $user->place_type ) {
+      case 0:
+        $out = "dg_h=Корабли на орбите";
+        $ships = db_fetch_array("SELECT u.id, s.name, u.login, fe.user_id foe, fr.user_id friend, u.aliance
+                                   FROM ships s
+                             INNER JOIN users u ON s.user_id = u.id
+                              LEFT JOIN foe fe ON fe.user_id = {$user->uid} AND fe.foe_id = s.user_id
+                              LEFT JOIN friend fr ON fr.user_id = {$user->uid} AND fr.friend_id = s.user_id
+                                  WHERE s.place_type = 0 AND s.place_id = ".$user->place_id);
+        break;
+      case 1:
+        $out = "dg_h=Корабли на планете";
+        $ships = db_fetch_array("SELECT u.id, s.name, u.login, fe.user_id foe, fr.user_id friend, u.aliance
+                                   FROM ships s
+                             INNER JOIN users u ON s.user_id = u.id
+                              LEFT JOIN foe fe ON fe.user_id = {$user->uid} AND fe.foe_id = s.user_id
+                              LEFT JOIN friend fr ON fr.user_id = {$user->uid} AND fr.friend_id = s.user_id
+                                  WHERE s.place_type = 1 AND s.place_id = ".$user->place_id);
+        break;
+    }
+    $out .= "&col0=Наименование";
+    $out .= "&col1=Владелец";
+    $out .= "&cols=2&rows=".count( $ships );
+
+    $i=0;
+    foreach( $ships as $ship ) {
+      switch( $rf ) {
+        case 0:
+          $out .= '&l'.$i.'color=0x003000';
+          break;
+        case 1:
+          if( $ship['id'] == $user->uid ) {
+            $out .= '&l'.$i.'color=0x003000';
+          } else {
+            $out .= '&l'.$i.'color=0x300000';
+          }
+          break;
+        case 2:
+          if( $ship['foe'] != null ) {
+            $out .= '&l'.$i.'color=0x300000';
+          } else {
+            $out .= '&l'.$i.'color=0x003000';
+          }
+          break;
+        case 3:
+          if( $ship['friend'] != null || $ship['id'] == $user->uid ) {
+            $out .= '&l'.$i.'color=0x003000';
+          } else {
+            $out .= '&l'.$i.'color=0x300000';
+          }
+          break;
+        case 4:
+          if( $ship['aliance'] == $user->aliance ) {
+            $out .= '&l'.$i.'color=0x003000';
+          } else {
+            $out .= '&l'.$i.'color=0x300000';
+          }
+          break;
+      }
+
+      $out .= '&l'.$i.'c0='.$ship['name'].'&l'.$i.'c1='.$ship['login'];
+
+      $i++;
+    }
+    switch( $rf ) {
+      case 0:
+        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=0";
+        break;
+      case 1:
+        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=1";
+        break;
+      case 2:
+        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=2";
+        break;
+      case 3:
+        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=3";
+        break;
+      case 4:
+        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=4";
+        break;
+    }
+
+    printOut( $out );
+  }

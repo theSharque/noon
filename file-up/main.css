@@ -1,0 +1,262 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #FFFFFF;
+  height: 100%;
+  color: #000000;
+  font-size: 12px;
+  font-family: Verdana, Tahoma, Geneva, Arial, Helvetica, sans-serif;
+}
+
+p {
+  font-size: 12px;
+  margin-bottom: 0px;
+  text-indent: 25px;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+.tizdiv {
+  float: left;
+}
+
+h1 {
+  font-family: Verdana, Tahoma, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 17px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  color: #416DFA;
+}
+
+h2 {
+  font-family: Verdana, Tahoma, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color: #416DFA;
+}
+
+h3 {
+  font-family: Verdana, Tahoma, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+div#articles {
+  width: 300px;
+}
+
+#btn1 {
+  display: inline-table;
+}
+
+#btn2 {
+  display: inline-table;
+}
+
+#btn3 {
+  display: inline-table;
+}
+
+td {
+  vertical-align: top;
+}
+.top td {
+  text-align: center;
+  vertical-align: bottom;
+}
+
+.ml {
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Verdana, Tahoma, Geneva, Arial, Helvetica, sans-serif;
+  color: #416DFA;
+  text-decoration: none;
+}
+
+.ml2 {
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Verdana, Tahoma, Geneva, Arial, Helvetica, sans-serif;
+  color: #FA4141;
+  text-decoration: none;
+}
+
+.ml input {
+  margin: -2px 0px 0px 0px;
+}
+
+.dlink {
+  width: 700px;
+  color: black;
+  font-weight: normal;
+  margin-bottom: 5px;
+}
+
+.btn {
+  display: inline-table;
+  margin-top: 5px;
+}
+
+#msg {
+  display: none;
+}
+
+#in_url {
+  display: none;
+}
+
+#in_file {
+  display: table-row;
+}
+
+input#URLF {
+  width: 362px;
+}
+
+td#urlsTD input {
+  width: 362px;
+}
+
+input#subj {
+  width: 590px;
+}
+
+textarea#body {
+  width: 700px;
+}
+
+#delete {
+  color: red;
+}
+
+.brd {
+  -moz-box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.glr {
+  -moz-box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.menu {
+  -moz-box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  background: #DDD;
+}
+
+.glr td {
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  text-align: center;
+  vertical-align: bottom;
+}
+.arr td {
+  text-align: center;
+  vertical-align: middle;
+  height: 24px;
+}
+
+.brd td {
+  vertical-align: top;
+}
+
+td input {
+  margin: 2px 0px 2px 0px;
+}
+
+td.rl input {
+  margin: 2px 0px 2px 0px;
+  width: 747px;
+}
+
+.rl {
+  color: #0000C0;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  padding: 0px 5px 5px 5px;
+}
+
+.upload {
+  height: 22px;
+  color: white;
+  background-color: #416DFA;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  border-width: 2px;
+  border-style: solid;
+  border-top-color: #0096FF;
+  border-right-color: #0096FF;
+  border-bottom-color: #000E74;
+  border-left-color: #000E74;
+  padding-bottom: 2px;
+  width: 100px;
+}
+
+.file_input_textbox {
+  margin: 2px;
+  height: 16px;
+  width: 260px;
+}
+
+.file_input_div {
+  float: left;
+  position: relative; 
+  width: 100px; 
+  height: 24px; 
+  overflow: hidden;
+}
+
+.file_input_button {
+  width: 100px; 
+  position: absolute; 
+  height: 22px;
+  color: white;
+  background-color: #416DFA;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  border-width: 2px;
+  border-style: solid;
+  border-top-color: #0096FF;
+  border-right-color: #0096FF;
+  border-bottom-color: #000E74;
+  border-left-color: #000E74;
+  padding-bottom: 2px;
+}
+
+.file_input_hidden {
+  font-size: 45px; 
+  position: absolute; 
+  right: 0px; 
+  top: 0px; 
+  opacity: 0; 
+
+  filter: alpha(opacity=0); 
+  -ms-filter: "alpha(opacity=0)"; 
+  -khtml-opacity: 0; 
+  -moz-opacity: 0;
+}
+
+.footertabletextcontainer, .footertabletextcontainer a {
+	font-size: 10px;
+	padding: 2px;
+}
+
+.tizers {
+  float: left;
+  margin-right: 5px;
+  -moz-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}

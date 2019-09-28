@@ -1,0 +1,16 @@
+<?php
+
+  $uname = $_GET['user'];
+  db_safe( $uname );
+
+  $uname = decode_in( $uname );
+
+  $ret = db_fetch_val( "SELECT id FROM users WHERE ( id >= 15 OR id IN ( 8, 9 ) ) AND login = '$uname' AND status = 1", 'id' );
+
+  if( $ret > 0 ) {
+    $out = 'err=0&uid='.$ret;
+  } else {
+    $out = 'err=1';
+  }
+
+  printOut( $out );

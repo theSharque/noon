@@ -1,0 +1,105 @@
+<?php
+
+  global $user;
+
+  $ship_id = null;
+
+  if( ( isset( $_GET['shid'] ) && isset( $_GET['cnt'] ) ) && ( is_numeric( $_GET['cnt'] ) && $_GET['cnt'] > 0 ) ) {
+
+    levelUp( 22, $user->uid );
+
+    $type = substr( $_GET['shid'], 0, 1 );
+    $shid = substr( $_GET['shid'], 1 );
+    $cnt = $_GET['cnt'];
+
+    if( isset( $_GET['gname'] ) ) {
+      $group = $_GET['gname'];
+      db_safe( $group );
+      $group = ereg_replace( "[^[a-zA-Z0-9à-ÿÀ-ß¸¨ `~!@#$^&*()_+-=\"]+", "", $group );
+    } else {
+      $group = '';
+    }
+
+    if( $type == 'C' ) {
+      $ware_item = db_fetch_row( "SELECT w.object_id, w.place_id, w.place_type, w.object_cnt FROM warehouse w WHERE w.wid = $shid" );
+
+      $place_type = 0;
+      if( $ware_item['place_type'] == 2 ) {
+        $result = db_fetch_row( 'SELECT s.group, s.place_type FROM ships s WHERE s.id = '.$ware_item['place_id'] );
+        $group = $result['group'];
+        $place_type = $result['place_type'];
+      }
+
+      if( $place_type != 5 && isset( $ware_item['object_id'] ) && is_numeric( $ware_item['object_id'] ) ) {
+
+        $type = db_fetch_row( "SELECT code, object_id, shield, interupt FROM ship_types WHERE conserv_id = ".$ware_item['object_id'] );
+        if( isset( $type['object_id'] ) && is_numeric( $type['object_id'] ) && $ware_item[ 'object_cnt' ] >= $cnt ) {
+
+          if( $type['object_id'] == 4001 ) {
+            levelUp( 29, $user->uid );
+          }
+
+          sub_warehouse_item( $ware_item['place_type'], $ware_item['place_id'], $ware_item['object_id'], $cnt );
+
+          if( $cnt > 1 && $ware_item['object_id'] != 9311 && $ware_item['object_id'] != 9356 ) {
+            if( $ware_item['place_type'] == 2 ) {
+              $place = db_fetch_row( "SELECT place_id, place_type, arg1, arg2 FROM ships WHERE id = ".$ware_item['place_id'] );
+              if( $place['arg1'] == 0 && $place['arg2'] == 0 ) {
+                db_query( "INSERT INTO fleets ( name,                   `group`,  user_id,      place_type,             place_id,             arg1, arg2 ) 
+                                       VALUES ( 'Ôëîò {$type['code']}', '$group', {$user->uid}, {$place['place_type']}, {$place['place_id']}, null, null )" );
+              } else {
+                db_query( "INSERT INTO fleets ( name,                   `group`,  user_id,      place_type,             place_id,             arg1,               arg2 ) 
+                                       VALUES ( 'Ôëîò {$type['code']}', '$group', {$user->uid}, {$place['place_type']}, {$place['place_id']}, '{$place['arg1']}', '{$place['arg2']}' )" );
+              }
+            } else {
+              db_query( "INSERT INTO fleets ( name             ,      `group`,  user_id,      place_type,                 place_id ) 
+                                     VALUES ( 'Ôëîò {$type['code']}', '$group', {$user->uid}, {$ware_item['place_type']}, {$ware_item['place_id']} )" );
+            }
+
+            $fleet_id = mysql_insert_id();
+          } else {
+            $fleet_id = 'null';
+          }
+
+          while( $cnt ) {
+            if( $ware_item['place_type'] == 2 ) {
+              $place = db_fetch_row( "SELECT place_id, place_type, arg1, arg2 FROM ships WHERE id = ".$ware_item['place_id'] );
+              if( $place['arg1'] == 0 && $place['arg2'] == 0 ) {
+                db_query( "INSERT INTO ships ( fleet_id,  object_id, place_id, place_type, arg1, arg2, user_id, shield, interupt )
+                                      VALUES ( $fleet_id, {$type['object_id']}, {$place['place_id']}, {$place['place_type']}, null, null, {$user->uid}, '{$type['shield']}', '{$type['interupt']}' )" );
+              } else {
+                db_query( "INSERT INTO ships ( fleet_id,  object_id, place_id, place_type, arg1, arg2, user_id, shield, interupt )
+                                      VALUES ( $fleet_id, {$type['object_id']}, {$place['place_id']}, {$place['place_type']}, '{$place['arg1']}', '{$place['arg2']}', {$user->uid}, '{$type['shield']}', '{$type['interupt']}' )" );
+              }
+            } else {
+              db_query( "INSERT INTO ships ( fleet_id,  object_id, place_id, place_type, user_id, shield, interupt )
+                                    VALUES ( $fleet_id, {$type['object_id']}, {$ware_item['place_id']}, {$ware_item['place_type']}, {$user->uid}, {$type['shield']}, {$type['interupt']} )" );
+            }
+
+            $ship_id = mysql_insert_id();
+            db_query( "UPDATE ships SET `group`='$group', name='".$type['code'].'-'.$ship_id."' WHERE id=$ship_id" );
+            $cnt--;
+          }
+
+          if( $fleet_id != 'null' ) {
+            update_fleet( $fleet_id );
+            enter_place( $fleet_id, true );
+            $out = 'err=0&fid=F'.$fleet_id;
+          } else {
+            enter_place( $ship_id, false );
+            $out = 'err=0&fid=S'.$ship_id;
+          }
+        } else {
+          $out = 'err=4';
+        }
+      } else {
+        $out = 'err=3';
+      }
+    } else {
+      $out = 'err=2';
+    }
+  } else {
+    $out = 'err=1';
+  }
+
+  printOut( $out );

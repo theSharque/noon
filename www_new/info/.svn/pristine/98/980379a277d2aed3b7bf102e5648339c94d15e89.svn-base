@@ -1,0 +1,24 @@
+
+
+<!-- IF .draftrow -->
+<div class="panel">
+	{$CA_BLOCK2_START}
+    	<h3>{L_LOAD_DRAFT}</h3>
+	{$CA_BLOCK2_START2}
+    	
+	<p>{L_LOAD_DRAFT_EXPLAIN}</p>
+
+	<!-- BEGIN draftrow -->
+	<p>
+		<a href="{draftrow.U_INSERT}" title="{L_LOAD_DRAFT}" class="topictitle">{draftrow.DRAFT_SUBJECT}</a>
+		    (<!-- IF not S_PRIVMSGS --><!-- IF draftrow.S_LINK_TOPIC -->{L_TOPIC}: <a href="{draftrow.U_VIEW}">{draftrow.TITLE}</a>, 
+				<!-- ELSEIF draftrow.S_LINK_FORUM -->{L_FORUM}: <a href="{draftrow.U_VIEW}">{draftrow.TITLE}</a>, 
+				<!-- ELSE -->{L_NO_TOPIC_FORUM}, 
+				<!-- ENDIF -->
+            <!-- ENDIF --><span class="lowercase">{L_SAVE_DATE}:</span> {draftrow.DATE})
+	</p>
+	<!-- END draftrow -->
+
+    {$CA_BLOCK2_END}
+</div>
+<!-- ENDIF -->

@@ -1,0 +1,104 @@
+/*
+    CSS for iPhone
+*/
+
+/* Layout */
+#global { width: 100%; }
+
+#main { background-image: none; }
+
+#search-box { display: none; }
+body { padding: 3px; }
+
+/* Header/footer */
+#logo, #logo a { height: auto; }
+#logo img { display: none; }
+#logo span { display: inline; line-height: 1.2em; }
+#logo a { text-decoration: underline; }
+
+ul.topnav { 
+    float: none;
+    margin: 0;
+    padding: 0;
+}
+ul.topnav li { 
+    max-width: 50px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    line-height: 1.2em;
+    margin: 0;
+    padding: 0;
+    padding-left: 3px;
+    margin-right: 3px;
+}
+ul.topnav li:first-child {
+    border-left-width: 0;
+    padding-left: 0;
+}
+ul.topnav a { text-decoration: underline; }
+
+.navbar ul li { font-weight: normal; }
+
+#copyrights { font-size: 0.8em; }
+
+/* Block headers */
+.block-caption {
+}
+div.block-caption, .block-caption div, .block-caption table, .block-caption table td, .block-caption span {
+    padding: 0;
+    background-image: none;
+    text-align: center;
+    float: none;
+    height: auto;
+}
+div.block-caption {
+    border: solid 1px #253140;
+    border-bottom-color: #15253a;
+    background-image: url("images/block_bg.png");
+    background-repeat: repeat;
+    margin: 0;
+    border-bottom-width: 1px;
+    border-bottom-style: dotted;
+    padding: 3px;
+    text-align: center;
+}
+
+
+/* Forums list */
+div.forabg li dd { display: none; }
+div.forumbg li dd { display: none; }
+
+li.header dl.icon dt {
+	/* Tweak for headers alignment when folder icon used */
+	padding-left: 6px;
+	text-align: left;
+}
+
+dl.icon {
+	min-height: 25px;
+	background-position: 3px 50%;		/* Position of folder icon */
+	background-repeat: no-repeat;
+}
+
+dl.icon dt {
+	padding-left: 32px;					/* Space for folder icon */
+	background-repeat: no-repeat;
+	background-position: 1px 95%;		/* Position of topic icon */
+}
+
+
+
+/* Post */
+.ca-bbcode { margin: 3px; }
+
+/* Editor */
+.section-posting #message-box textarea { width: 280px; }
+#smiley-box, #format-buttons { display: none; }
+.section-posting fieldset dt { width: 75px; }
+.section-posting fieldset dd { margin-left: 80px; }
+
+/* Misc stuff */
+p.rightside, p.leftside { 
+    float: none; 
+    text-align: left;
+}

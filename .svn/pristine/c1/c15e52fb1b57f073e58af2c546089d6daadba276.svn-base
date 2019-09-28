@@ -1,0 +1,95 @@
+<?php
+
+  if( isset( $_GET['object'] ) && isset( $_GET['obj_name'] ) && $_GET['obj_name'] != '' ) {
+    db_query( "UPDATE objects SET
+      name = '{$_GET['obj_name']}',
+      min_cnt = {$_GET['min_cnt']},
+      mass = {$_GET['mass']},
+      class = {$_GET['class']},
+      price = {$_GET['price']},
+      cprice = {$_GET['cprice']},
+      weight = {$_GET['weight']},
+      make_time = {$_GET['make_time']}
+    WHERE id = ".$_GET['object'] );
+  } else {
+    if( isset( $_GET['obj_name'] ) && $_GET['obj_name'] != '' ) {
+      db_query( "INSERT INTO objects ( name, min_cnt, mass, class, price, cprice, weight, make_time )
+                      VALUES ( '{$_GET['obj_name']}', {$_GET['min_cnt']}, {$_GET['mass']}, {$_GET['class']}, {$_GET['price']}, {$_GET['cprice']}, {$_GET['weight']}, {$_GET['make_time']} )" );
+    }
+  }
+  if( isset( $_GET['act'] ) && $_GET['act'] == 'del' ) {
+    db_query( "DELETE FROM objects WHERE id = {$_GET['object']}" );
+  }
+
+  $class = array( 0 => 'system object', 1 => 'resource', 2 => 'product', 3 => 'planet buildings', 4 => 'ships', 5 => 'minerals', 6 => 'layouts', 7 => 'model', 8 => 'orbit buildings', 9 => 'conserv ship' );
+
+  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset='><TITLE>admin objects</TITLE></HEAD>
+<BODY bgcolor=#000000 text=#00FF00 leftmargin=0 topmargin=0>
+<a href='/page.php?id=990'>Return back</a>
+<form action='/page.php' method=get>
+<input type=hidden value=992 name=id>";
+
+  echo "<script language='JavaScript'>function changer() {document.location='/page.php?id=992&object='+document.getElementById('object').value}</script>";
+
+  $obj = db_fetch_array( "SELECT o.class, o.make_time, o.name, o.id
+                            FROM objects o
+                        ORDER BY o.class, o.name, o.id" );
+
+  echo "<select size=20 id='object' name='object' OnChange=changer();>";
+  foreach( $obj as $item ) {
+    if( isset( $_GET['object'] ) && $_GET['object'] == $item['id'] ) {
+      echo "<option selected value='{$item['id']}'>{$item['class']}\t{$item['make_time']}\t{$item['name']}</option>\n";
+    } else {
+      echo "<option value='{$item['id']}'>{$item['class']}\t{$item['make_time']}\t{$item['name']}</option>\n";
+    }
+  }
+  echo "</select><input type=hidden value=del name=act><input type=submit value='Delete object'></form><form action='/page.php' method=get>";
+  echo "<input type=hidden value=992 name=id><table><tr align=right>";
+
+  if( isset( $_GET['object'] ) ) {
+    $obj = db_fetch_row( "SELECT * FROM objects o where o.id=".$_GET['object'] );
+    $mass = db_fetch_row( "SELECT SUM( o.mass * os.res_cnt ) mass
+                             FROM objects_sub os
+                       INNER JOIN objects o ON os.res_id = o.id AND o.id not in (1026, 1019, 1030, 1010)
+                            WHERE os.object_id = ".$_GET['object'] );
+    echo "<input type=hidden value={$_GET['object']} name=object>";
+    echo "<td>Name</td><td><input type=text value='{$obj['name']}' name='obj_name'></td>";
+    echo "<td>Minimal count</td><td><input type=text value='{$obj['min_cnt']}' name='min_cnt'></td>";
+    echo "<td>Mass</td><td><input type=text value='{$obj['mass']}' name='mass'> Calculated mass:{$mass['mass']}</td></tr><tr align=right>";
+    echo "<td>Price</td><td><input type=text value='{$obj['price']}' name='price'> Calculated price:{$obj['myprice']}</td>";
+    echo "<td>Weight</td><td><input type=text value='{$obj['weight']}' name='weight'></td>";
+    echo "<td>Make time</td><td align=left><input type=text value='{$obj['make_time']}' name='make_time'></td>";
+    echo "</tr><tr align=right><td>Class</td><td>";
+    echo "<select name='class'>";
+    foreach( $class as $id => $name ) {
+      if( $obj['class'] == $id ) {
+        echo "<option selected value='$id'>$name</option>\n";
+      } else {
+        echo "<option value='$id'>$name</option>\n";
+      }
+    }
+    echo "</select>";
+    echo "<td>Credits</td><td><input type=text value='{$obj['cprice']}' name='cprice'></td>";
+    echo "</td><td colspan=2 align=center><input type=submit value='Update object'></td>";
+  } else {
+    echo "<td>Name</td><td><input type=text value='' name='obj_name'></td>";
+    echo "<td>Minimal count</td><td><input type=text value='1' name='min_cnt'></td>";
+    echo "<td>Mass</td><td><input type=text value='1' name='mass'></td></tr><tr align=right>";
+    echo "<td>Price</td><td><input type=text value='0' name='price'></td>";
+    echo "<td>Weight</td><td><input type=text value='0' name='weight'></td>";
+    echo "<td>Make time</td><td><input type=text value='0' name='make_time'></td>";
+    echo "</tr><tr align=right><td>Class</td><td>";
+    echo "<select name='class'>";
+    foreach( $class as $id => $name ) {
+      if( isset( $_GET['class'] ) && $_GET['class'] == $id ) {
+        echo "<option selected value='$id'>$name</option>\n";
+      } else {
+        echo "<option value='$id'>$name</option>\n";
+      }
+    }
+    echo "</select>";
+    echo "<td>Credits</td><td><input type=text value='0' name='cprice'></td>";
+    echo "</td><td colspan=2 align=center><input type=submit value='Add object'></td>";
+  }
+
+  echo "</tr></table></form>";

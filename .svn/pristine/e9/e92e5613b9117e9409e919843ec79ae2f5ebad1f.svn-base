@@ -1,0 +1,477 @@
+<?php
+
+  global $user;
+
+  $out = 'err=0';
+
+  if( isset( $_GET['qt'] ) && is_numeric( $_GET['qt'] ) ) {
+
+    $qt = $_GET['qt'];
+    $pers = isset( $_GET['pers'] ) ? $_GET['pers'] : null;
+    $long = $_GET['long'];
+    $visible = $_GET['vis'];
+    $conf = $_GET['conf'];
+    $price = $_GET['price'];
+
+    $v0 = isset( $_GET['v0'] ) ? $_GET['v0'] : null;
+    $v1 = isset( $_GET['v1'] ) ? $_GET['v1'] : null;
+    $v2 = isset( $_GET['v2'] ) ? $_GET['v2'] : null;
+    $v3 = isset( $_GET['v3'] ) ? $_GET['v3'] : null;
+    $v4 = isset( $_GET['v4'] ) ? $_GET['v4'] : null;
+    $v5 = isset( $_GET['v5'] ) ? $_GET['v5'] : null;
+    $v6 = isset( $_GET['v6'] ) ? $_GET['v6'] : null;
+    $v7 = isset( $_GET['v7'] ) ? $_GET['v7'] : null;
+    $v8 = isset( $_GET['v8'] ) ? $_GET['v8'] : null;
+    $v9 = isset( $_GET['v9'] ) ? $_GET['v9'] : null;
+
+    db_safe( $qt );
+    db_safe( $pers );
+    db_safe( $long );
+    db_safe( $visible );
+    db_safe( $conf );
+    db_safe( $price );
+
+    db_safe( $v0 );
+    db_safe( $v1 );
+    db_safe( $v2 );
+    db_safe( $v3 );
+    db_safe( $v4 );
+    db_safe( $v5 );
+    db_safe( $v6 );
+    db_safe( $v7 );
+    db_safe( $v8 );
+    db_safe( $v9 );
+
+    $v0 = decode_in( $v0 );
+    $v1 = decode_in( $v1 );
+    $v2 = decode_in( $v2 );
+    $v3 = decode_in( $v3 );
+    $v4 = decode_in( $v4 );
+    $v5 = decode_in( $v5 );
+    $v6 = decode_in( $v6 );
+    $v7 = decode_in( $v7 );
+    $v8 = decode_in( $v8 );
+    $v9 = decode_in( $v9 );
+
+    $result = db_fetch_row( "SELECT ut.id, ut.name, ut.status,
+                                    ut.type0, ut.type1, ut.type2, ut.type3, ut.type4, ut.type5, ut.type6, ut.type7, ut.type8, ut.type9,
+                                    qt.arg0, qt.arg1, qt.arg2, qt.arg3, qt.arg4, qt.arg5, qt.arg6, qt.arg7, qt.arg8, qt.arg9
+                               FROM u2u_types ut
+                         INNER JOIN quest_types qt ON qt.type = ut.id
+                              WHERE ut.titul <= {$user->titul} AND ut.id = $qt" );
+
+    $long = quest_field( $user, 7, $long );
+
+    if( $conf == 0 ) {
+      $ptest = quest_field( $user, 4, $price );
+    } else {
+      $ptest = quest_field( $user, 5, $price );
+    }
+
+    if( $pers != null ) {
+      $pers = quest_field( $user, 6, $pers );
+    }
+
+    if( $result['id'] > 0 && $long['err'] == 0 && $ptest['err'] == 0 && ( $pers == null || $pers['err'] == 0 ) ) {
+
+      switch( $qt ) {
+
+        case 16: // Move planet
+          $from = quest_field( $user, $result['type0'], $v0 );
+          $to = quest_field( $user, $result['type2'], $v2 );
+
+          if( $from['err'] == 0 && $to['err'] == 0 && $from['ptype'] != 1 && $to['ptype'] != 1 && $from['pid'] != $to['pid'] ) {
+            $out = 'err=0';
+          } else {
+            $out = 'err=16&errtext=Планета не может быть родной планетой';
+          }
+          break;
+
+        case 17: // Kill planet
+        case 18: // Kill orbit
+          $star = quest_field( $user, $result['type0'], $v0 );
+          $planet = quest_field( $user, $result['type1'], $v1 );
+
+          if( !isset( $star['sid'] ) ) {
+            $out = 'err='.$qt.'&errtext=Система с таким именем не найдена.';
+            break;
+          }
+
+          if( !isset( $planet['pid'] ) ) {
+            $out = 'err='.$qt.'&errtext=Планета с таким именем не найдена.';
+            break;
+          }
+
+          if( $planet['sid'] != $star['sid'] ) {
+            $out = 'err='.$qt.'&errtext=Планета находится в другой системе, вам необходимо точно указать координаты.';
+            break;
+          }
+
+          if( $planet['err'] == 0 && $planet['ptype'] != 1 ) {
+            if( $qt == 17 ) {
+              $control = db_fetch_val( "SELECT count(*) cnt FROM orbits_buildings WHERE shield > 0 AND planet_id = {$planet['pid']}", 'cnt' );
+            } else {
+              $control = db_fetch_val( "SELECT count(*) cnt FROM planets_buildings WHERE shield > 0 AND planet_id = {$planet['pid']}", 'cnt' );
+            }
+
+            if( $control == 0 ) {
+              $out = 'err='.$qt.'&errtext=Обороны не обнаружено';
+            } else {
+              $out = 'err=0';
+            }
+          } else {
+            $out = 'err='.$qt.'&errtext=Неверно выбрана планета';
+          }
+          break;
+
+        case 19: // Build karier
+        case 20: // Build mines
+        case 21: // Build oil rings
+        case 22: // Build dispenser
+        case 23: // Build shield
+        case 24: // Build rokets
+        case 25: // Build lasers
+        case 26: // Build plasma
+        case 27: // Build quantum
+
+          $target = quest_field( $user, $result['type0'], $v0 );
+          if( $target['err'] != 0 ) {
+            $out = "err=$qt&errtext=Неверно выбрана планета";
+            break;
+          }
+
+          $cnt = db_fetch_val( "SELECT count(*) cnt
+                                  FROM u2u_quests u2
+                            INNER JOIN users_quests uq ON uq.id = u2.event_id
+                                 WHERE uq.status > 0 AND u2.type IN ( 19, 20, 21, 22, 23, 24, 25, 26, 27 ) AND u2.arg0 = ".$target['pid'], 'cnt' );
+          if( $cnt > 0 ) {
+            $out = "err=$qt&errtext=На эту планету уже назначено задание";
+            break;
+          }
+
+          $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT top FROM planets_maps WHERE id = {$target['pid']}", 'top' ) ) ) );
+          if( $content ) {
+//            $content = array_map( 'trim', file( "./pages/environment/planets/{$target['pid']}.top" ) );
+
+            $size = strlen( trim( $content[0] ) ) * count( $content );
+          } else {
+            $out = "err=$qt&errtext=Неверно выбрана планета";
+            break;
+          }
+
+          $closed = db_fetch_val( "SELECT status FROM defence WHERE user_id = {$user->uid} AND place_type = 1 AND place_id = ".$target['pid'], 'status' );
+          if( $closed != 1 ) {
+            $out = "err=$qt&errtext=Планета должна находится под вашим контролем в статусе \"Можно только мне\"";
+            break;
+          }
+
+          $buildings = db_fetch_array( "SELECT o.name, count(*) cnt
+                                          FROM planets_buildings pb
+                                    INNER JOIN objects o ON o.id = pb.object_id
+                                         WHERE pb.planet_id = {$target['pid']}
+                                      GROUP BY o.id" );
+
+          $bld_text = '';
+          foreach( $buildings as $item ) {
+            $bld_text .= "\n{$item['name']} {$item['cnt']}";
+          }
+
+          $cnt = quest_field( $user, $result['type2'], $v2 );
+          $busy = db_fetch_val( "SELECT count(*) cnt FROM planets_buildings WHERE planet_id = ".$target['pid'], 'cnt' );
+          if( $cnt['err'] != 0 ) {
+            $out = "err=$qt&errtext=Неправильное количество построек.\nСвободной поверхности ".( $size - $busy ).$bld_text;
+            break;
+          }
+
+          if( $size - $busy < $v2 ) {
+            $out = "err=$qt&errtext=Недостаточно свободной поверхности.\nСвободной поверхности ".( $size - $busy ).$bld_text;
+            break;
+          }
+
+          $energy_av = get_energy( $target['pid'], 1 );
+          $energy_nd = db_fetch_val( "SELECT b.energy FROM buildings b WHERE b.id = ".$result['arg3'], 'energy' );
+
+          if( $energy_av + $energy_nd * $v2 < 0 ) {
+            $out = "err=$qt&errtext=Недостаточно энергии, необходимо еще ".abs( $energy_av + $energy_nd * $v2 );
+            break;
+          }
+
+          $res = db_fetch_array( "SELECT o.name, ( os.res_cnt * $v2 ) - IFNULL( w.object_cnt, 0 ) cnt
+                                    FROM objects_sub os
+                              INNER JOIN objects o ON o.id = os.res_id
+                               LEFT JOIN warehouse w ON w.object_id = os.res_id AND w.place_id = {$target['pid']} AND w.place_type = 1
+                                   WHERE ( os.res_cnt * $v2 ) > IFNULL( w.object_cnt, 0 ) AND os.object_id = ".$result['arg3'] );
+
+          if( count( $res ) != 0 ) {
+            $out = "err=$qt&errtext=";
+            foreach( $res as $item ) {
+              $out .= 'Недостаточно '.$item['name'].' необходимо еще '.$item['cnt']."\n";
+            }
+            break;
+          }
+
+          $out = "err=0&errtext=Свободной поверхности ".( $size - $busy ).$bld_text;
+          break;
+
+        case 28: // Upgrade all +1
+
+          $target = quest_field( $user, $result['type0'], $v0 );
+          if( $target['err'] != 0 ) {
+            $out = "err=$qt&errtext=Неверно выбрана планета";
+            break;
+          }
+
+          $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT top FROM planets_maps WHERE id = {$target['pid']}", 'top' ) ) ) );
+          if( !$content ) {
+            $out = "err=$qt&errtext=Неверно выбрана планета";
+            break;
+          }
+
+          $cnt = db_fetch_val( "SELECT count(*) cnt
+                                  FROM u2u_quests u2
+                            INNER JOIN users_quests uq ON uq.id = u2.event_id
+                                 WHERE uq.status > 0 AND u2.type IN ( 28, 29 ) AND u2.arg0 = ".$target['pid'], 'cnt' );
+
+          if( $cnt > 0 ) {
+            $out = "err=$qt&errtext=На эту планету уже назначено задание";
+            break;
+          }
+
+          $closed = db_fetch_val( "SELECT status FROM defence WHERE user_id = {$user->uid} AND place_type = 1 AND place_id = ".$target['pid'], 'status' );
+          if( $closed != 1 ) {
+            $out = "err=$qt&errtext=Планета должна находится под вашим контролем в статусе \"Можно только мне\"";
+            break;
+          }
+
+          $tcnt = db_fetch_val( "SELECT COUNT(*) cnt FROM planets_buildings pb WHERE pb.planet_id = {$target['pid']} AND pb.level < 10", 'cnt' );
+          if( $tcnt == 0 ) {
+            $out = "err=$qt&errtext=На планете нет построек для улучшения.";
+            break;
+          }
+
+          $res = db_fetch_array( "SELECT o.id, o.name, SUM( ROUND( os.res_cnt / 4 * pb.level ) ) - IFNULL( w.object_cnt, 0 ) cnt
+                                    FROM objects_sub os
+                              INNER JOIN objects o ON o.id = os.res_id
+                              INNER JOIN planets_buildings pb ON pb.object_id = os.object_id
+                               LEFT JOIN warehouse w ON w.object_id = os.res_id AND place_id = {$target['pid']} AND place_type = 1
+                                   WHERE pb.planet_id = {$target['pid']} AND pb.level < 10
+                                GROUP BY o.id, o.name
+                                ORDER BY o.name" );
+
+          $err = '';
+          foreach( $res as $item ) {
+            if( $item['cnt'] > 0 ) {
+              $err .= 'Недостаточно '.$item['name'].' необходимо еще '.$item['cnt']."\n";
+            }
+          }
+
+          $buildings = db_fetch_array( "SELECT o.name, count(*) cnt
+                                          FROM planets_buildings pb
+                                    INNER JOIN objects o ON o.id = pb.object_id
+                                         WHERE pb.planet_id = {$target['pid']}
+                                      GROUP BY o.id" );
+
+          $bld_text = '';
+          foreach( $buildings as $item ) {
+            $bld_text .= "\n{$item['name']} {$item['cnt']}";
+          }
+
+          if( $err ) {
+            $out = "err=$qt&errtext=";
+            $out .= $err;
+            $out .= "\nСтроений на поверхности ".$tcnt.$bld_text;
+            break;
+          }
+
+          $out = "err=0&errtext=Строений на поверхности ".$tcnt.$bld_text;
+          break;
+
+        case 29: // Upgrade all 10
+
+          $target = quest_field( $user, $result['type0'], $v0 );
+          if( $target['err'] != 0 ) {
+            $out = "err=$qt&errtext=Неверно выбрана планета";
+            break;
+          }
+
+          $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT top FROM planets_maps WHERE id = {$target['pid']}", 'top' ) ) ) );
+          if( !$content ) {
+            $out = "err=$qt&errtext=Неверно выбрана планета";
+            break;
+          }
+
+          $cnt = db_fetch_val( "SELECT count(*) cnt
+                                  FROM u2u_quests u2
+                            INNER JOIN users_quests uq ON uq.id = u2.event_id
+                                 WHERE uq.status > 0 AND u2.type IN ( 28, 29 ) AND u2.arg0 = ".$target['pid'], 'cnt' );
+
+          if( $cnt > 0 ) {
+            $out = "err=$qt&errtext=На эту планету уже назначено задание";
+            break;
+          }
+
+          $closed = db_fetch_val( "SELECT status FROM defence WHERE user_id = {$user->uid} AND place_type = 1 AND place_id = ".$target['pid'], 'status' );
+          if( $closed != 1 ) {
+            $out = "err=$qt&errtext=Планета должна находится под вашим контролем в статусе \"Можно только мне\"";
+            break;
+          }
+
+          $tcnt = db_fetch_val( "SELECT COUNT(*) cnt FROM planets_buildings pb WHERE pb.planet_id = {$target['pid']} AND pb.level < 10", 'cnt' );
+          if( $tcnt == 0 ) {
+            $out = "err=$qt&errtext=На планете нет построек для улучшения.";
+            break;
+          }
+
+          for( $l = 0; $l < 9; $l++ ) {
+            $tmp = db_fetch_array( "SELECT o.id, o.name, SUM( ROUND( os.res_cnt / 4 * ( pb.level + $l ) ) ) ncnt, IFNULL( w.object_cnt, 0 ) cnt
+                                          FROM objects_sub os
+                                    INNER JOIN objects o ON o.id = os.res_id
+                                    INNER JOIN planets_buildings pb ON pb.object_id = os.object_id
+                                     LEFT JOIN warehouse w ON w.object_id = os.res_id AND place_id = {$target['pid']} AND place_type = 1
+                                         WHERE pb.planet_id = {$target['pid']} AND pb.level < ( 10 - $l )
+                                      GROUP BY o.id, o.name
+                                      ORDER BY o.name" );
+            foreach( $tmp as $item ) {
+              if( isset( $res[$item['id']] ) ) {
+                $res[$item['id']]['ncnt'] += $item['ncnt'];
+              } else {
+                $res[$item['id']]['id'] = $item['id'];
+                $res[$item['id']]['ncnt'] = $item['ncnt'];
+                $res[$item['id']]['name'] = $item['name'];
+                $res[$item['id']]['cnt'] = $item['cnt'];
+              }
+            }
+          }
+
+          $err = '';
+          foreach( $res as $item ) {
+            if( $item['ncnt'] > $item['cnt'] ) {
+              $err .= 'Недостаточно '.$item['name'].' необходимо еще '.( $item['ncnt'] - $item['cnt'] )."\n";
+            }
+          }
+
+          $buildings = db_fetch_array( "SELECT o.name, count(*) cnt
+                                          FROM planets_buildings pb
+                                    INNER JOIN objects o ON o.id = pb.object_id
+                                         WHERE pb.planet_id = {$target['pid']}
+                                      GROUP BY o.id" );
+
+          $bld_text = '';
+          foreach( $buildings as $item ) {
+            $bld_text .= "\n{$item['name']} {$item['cnt']}";
+          }
+
+          if( $err ) {
+            $out = "err=$qt&errtext=$err";
+            $out .= "\nСтроений на поверхности ".$tcnt.$bld_text;
+            break;
+          }
+
+          $out = "err=0&errtext=Строений на поверхности ".$tcnt.$bld_text;
+          break;
+
+        case 31: // Find colony
+          $victim = quest_field( $user, $result['type0'], $v0 );
+          if( $victim['err'] != 0 ) {
+            $out = "err=$qt&errtext=".$victim['errtext'];
+            break;
+          }
+          break;
+
+        case 33: // Duel
+          $victim = quest_field( $user, $result['type0'], $v0 );
+
+          if( $conf == 0 ) {
+            $out = "err=$qt&errtext=Вызвать на дуэль можно только за конфедераты.";
+            break;
+          }
+
+          if( floor( $price / 2 ) == 0 ) {
+            $out = "err=$qt&errtext=Не достаточная сумма.";
+            break;
+          }
+
+          if( $long < 2 ) {
+            $out = "err=$qt&errtext=Время на сборы не может быть менее 2-х часов.";
+            break;
+          }
+
+          if( $v1 < 1 ) {
+            $out = "err=$qt&errtext=Увеличте силу флота.";
+            break;
+          }
+
+          if( $v2 < 1 ) {
+            $out = "err=$qt&errtext=Увеличте защиту флота.";
+            break;
+          }
+
+          if( $victim['err'] != 0 ) {
+            $out = "err=$qt&errtext=".$victim['errtext'];
+            break;
+          }
+
+          if( $victim['active'] == false ) {
+            $out = "err=$qt&errtext=Оппонент должен присутствовать в эфире!";
+            break;
+          }
+
+          $test = db_fetch_row( "SELECT sum( st.w_sum ) power, sum( s.shield ) shield
+                                   FROM ships s
+                             INNER JOIN ship_types st ON st.object_id = s.object_id
+                                  WHERE s.shield > 0 AND s.user_id = ".$user->uid );
+
+          if( $test['power'] < $v1 ) {
+            $out = "err=$qt&errtext=У вас недостаточно кораблей что бы составить флот указанной силы.";
+            break;
+          }
+
+          if( $test['shield'] < $v2 ) {
+            $out = "err=$qt&errtext=У вас недостаточно кораблей что бы составить флот указанной защиты.";
+            break;
+          }
+
+          $test = db_fetch_row( "SELECT sum( st.w_sum ) power, sum( s.shield ) shield
+                                   FROM ships s
+                             INNER JOIN ship_types st ON st.object_id = s.object_id
+                                  WHERE s.shield > 0 AND s.user_id = ".$victim['uid'] );
+
+          if( $test['power'] < $v1 ) {
+            $out = "err=$qt&errtext=У оппонента недостаточно кораблей что бы составить флот указанной силы.";
+            break;
+          }
+
+          if( $test['shield'] < $v2 ) {
+            $out = "err=$qt&errtext=У оппонента недостаточно кораблей что бы составить флот указанной защиты.";
+            break;
+          }
+
+          $out = "err=0&errtext=Победитель получит ".floor( $price / 2 )." конфедерат.\nДо окончания дуэли для вас и вашего оппонента квесты будут не доступны.\nНаказание за неявку на дуэль - невозможность управлять кораблями в течении 6-ти часов.";
+          break;
+
+        default:
+          $out = 'err=3';
+          break;
+      }
+    } else {
+      if( !$result['id'] ) {
+        $out = 'err=2&errtext=Не тот титул';
+      }
+
+      if( $ptest['err'] ) {
+        $out = 'err=2&errtext='.$ptest['errtext'];
+      }
+
+      if( $long['err'] ) {
+        $out = 'err=2&errtext='.$long['errtext'];
+      }
+
+      if( $pers != null && $pers['err'] != 0 ) {
+        $out = 'err=2&errtext='.$pers['errtext'];
+      }
+    }
+  } else {
+    $out = 'err=1';
+  }
+
+  printOut( $out );

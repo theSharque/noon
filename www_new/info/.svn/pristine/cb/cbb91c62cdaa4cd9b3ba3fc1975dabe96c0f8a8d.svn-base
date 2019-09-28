@@ -1,0 +1,84 @@
+/* proSilver Style Sheet Tweaks
+
+These style definitions are mainly IE specific 
+tweaks required due to its poor CSS support.
+-------------------------------------------------*/
+
+/* Form styles */
+html>body dd label input { vertical-align: text-bottom; }	/* Align checkboxes/radio buttons nicely */
+
+/* Misc layout styles */
+* html .column1, * html .column2 { width: 45%; }
+
+/* Nice method for clearing floated blocks without having to insert any extra markup (like spacer above)
+   From http://www.positioniseverything.net/easyclearing.html 
+#tabs:after, #minitabs:after, .post:after, .navbar:after, fieldset dl:after, ul.topiclist dl:after, ul.linklist:after, dl.polls:after {
+	content: "."; 
+	display: block; 
+	height: 0; 
+	clear: both; 
+	visibility: hidden;
+}*/
+
+.clearfix, #tabs, #minitabs, fieldset dl, ul.topiclist dl, dl.polls {
+	height: 1%;
+	overflow: hidden;
+}
+
+* html .clearfix {
+	height: 4%;
+	overflow: hidden;
+}
+#page-header, #ie8#fix {
+	height: 4%;
+	overflow: hidden;
+}
+
+/* Simple fix so forum and topic lists always have a min-height set, even in IE6
+	From http://www.dustindiaz.com/min-height-fast-hack */
+dl.icon {
+	min-height: 35px;
+	height: auto !important;
+	height: 35px;
+}
+
+/* Correctly clear floating for details on profile view */
+*:first-child+html dl.details dd {
+	margin-left: 30%;
+	float: none;
+}
+
+* html dl.details dd {
+	margin-left: 30%;
+	float: none;
+}
+
+* html .profile-details {
+    clear: both;
+}
+
+* html .profile-buttons li a {
+    width: 250px;
+    white-space: nowrap;
+}
+
+* html .profile-buttons {
+    z-index: 2;
+}
+
+/* Profile buttons */
+* html ul.profile-icons {
+    height: 1px;
+}
+
+/* Page */
+* html #page-body {
+    position: relative;
+}
+* html .buttons, * html .buttons div, * html .topic-actions {
+    position: relative;
+}
+* html .profile-block {
+    position: relative;
+}
+

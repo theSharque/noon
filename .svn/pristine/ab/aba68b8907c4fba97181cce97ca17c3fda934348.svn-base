@@ -1,0 +1,98 @@
+<?php
+  global $user;
+
+  if( $user->owner ) {
+    if( isset( $_GET['x'] ) && $user->place_type == 0 ) {
+      $x = $_GET['x'];
+      db_safe( $x );
+      $planet_id = $user->place_id;
+
+      $line = db_fetch_val( "SELECT lin FROM orbits_map WHERE id = $planet_id", 'lin' );
+      if( is_numeric( $planet_id ) && $line ) {
+  
+        if( $line{ $x } != 'T' && 
+            $line{ $x } != 'B' && 
+            $line{ $x } != "\r" && 
+            $line{ $x } != "\n" && 
+            $line{ $x } != '' ) {
+          $line{ $x } = '0';
+
+          db_query( "UPDATE orbits_map SET lin = '$line' WHERE id = $planet_id" );
+  
+          $bid = db_fetch_val( "SELECT id FROM orbits_buildings WHERE x=$x AND planet_id=$planet_id", 'id' );
+          if( is_numeric( $bid ) ) {
+            db_query( "UPDATE ships SET place_type = 0, place_id = $planet_id WHERE place_type = 3 AND place_id = $bid" );  
+            db_query( "UPDATE fleets SET place_type = 0, place_id = $planet_id WHERE place_type = 3 AND place_id = $bid" );
+          }
+
+          $building = db_fetch_row( "SELECT object_id, level FROM orbits_buildings WHERE x=$x AND planet_id=$planet_id" );
+          if( isset( $building['object_id'] ) && $building['object_id'] ) {
+            $restore = db_fetch_array( "SELECT res_id, res_cnt FROM objects_sub WHERE object_id = ".$building['object_id'] );
+            $k = array( 0, 0.5, 0.625, 0.875, 1.25, 1.75, 2.375, 3.125, 4, 5, 6.125 );
+
+            foreach( $restore as $key => $item ) {
+              add_warehouse_item( 0, $planet_id, $restore[ $key ]['res_id'], $item['res_cnt'] * $k[ $building['level'] ] );
+            }
+          }
+
+          db_query( "DELETE FROM orbit_events WHERE x=$x AND planet_id=$planet_id" );
+          db_query( "DELETE FROM orbits_buildings WHERE x=$x AND planet_id=$planet_id" );
+          printOut( "err=0" );
+          return;
+        }
+        printOut( "err=1" );
+        return;
+      }
+      printOut( "err=2" );
+      return;
+    }
+  
+    if( isset( $_GET['x'] ) && isset( $_GET['y'] ) && $user->place_type == 1 ) {
+      $x = $_GET['x'];
+      $y = $_GET['y'];
+      db_safe( $x );
+      db_safe( $y );
+      $planet_id = $user->place_id;
+  
+      $buildings = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT bld FROM planets_maps WHERE id = $planet_id", 'bld' ) ) ) );
+      if( is_numeric( $planet_id ) && $buildings ) {
+        if( $buildings[ $y ]{ $x } != 'C' && 
+            $buildings[ $y ]{ $x } != 'B' && 
+            $buildings[ $y ]{ $x } != "\r" && 
+            $buildings[ $y ]{ $x } != "\n" && 
+            $buildings[ $y ]{ $x } != '' ) {
+
+          $buildings[ $y ]{ $x } = '0';
+          db_query( "UPDATE planets_maps SET bld = '".join( "\n", $buildings )."' WHERE id = $planet_id" );
+
+          $building = db_fetch_row( "SELECT id, object_id, level FROM planets_buildings WHERE x=$x AND y=$y AND planet_id=$planet_id" );
+          if( $building['object_id'] == 32 ) {
+            db_query( "DELETE FROM academy_build WHERE build_id = {$building['id']}" );
+          }
+
+          if( $building['object_id'] ) {
+            $restore = db_fetch_array( "SELECT res_id, res_cnt FROM objects_sub WHERE object_id = ".$building['object_id'] );
+            $k = array( 0, 0.5, 0.625, 0.875, 1.25, 1.75, 2.375, 3.125, 4, 5, 6.125 );
+
+            foreach( $restore as $key => $item ) {
+              add_warehouse_item( 1, $planet_id, $restore[ $key ]['res_id'], $item['res_cnt'] * $k[ $building['level'] ] );
+            }
+          }
+
+          db_query( "DELETE FROM planet_events WHERE x=$x AND y=$y AND planet_id=$planet_id" );
+          db_query( "DELETE FROM planets_buildings WHERE x=$x AND y=$y AND planet_id=$planet_id" );
+          printOut( "err=0" );
+          return;
+        }
+        printOut( "err=1" );
+        return;
+      }
+      printOut( "err=2" );
+      return;
+    }
+    printOut( "err=3" );
+    return;
+  } else {
+    printOut( "err=4" );
+    return;
+  }

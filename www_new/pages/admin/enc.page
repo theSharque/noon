@@ -1,0 +1,111 @@
+<?php
+
+$top_data = array(
+  '0' => array( 0 => "Вода", 1 => 10, 2 => 5010 ),
+  '1' => array( 0 => "Азурит", 1 => 10, 2 => 5000 ),
+  '2' => array( 0 => "Бадделеит", 1 => 10, 2 => 5005 ),
+  '3' => array( 0 => "Брукит", 1 => 10, 2 => 5007 ),
+  '4' => array( 0 => "Кварц", 1 => 10, 2 => 5032 ),
+  '5' => array( 0 => "Галенит", 1 => 10, 2 => 5012 ),
+  '6' => array( 0 => "Гематит", 1 => 10, 2 => 5015 ),
+  '7' => array( 0 => "Касситерит", 1 => 10, 2 => 5031 ),
+  '8' => array( 0 => "Гипс", 1 => 10, 2 => 5018 ),
+  '9' => array( 0 => "Ярозит", 1 => 10, 2 => 5060 )
+);
+
+$mdl_data = array(
+  '0' => array( 0 => "Алабандин", 1 => 10, 2 => 5001 ),
+  '1' => array( 0 => "Альбит", 1 => 10, 2 => 5002 ),
+  '2' => array( 0 => "Апатит", 1 => 10, 2 => 5003 ),
+  '3' => array( 0 => "Аргентит", 1 => 10, 2 => 5004 ),
+  '4' => array( 0 => "Берилл", 1 => 10, 2 => 5006 ),
+  '5' => array( 0 => "Вольфрамит", 1 => 10, 2 => 5011 ),
+  '6' => array( 0 => "Галит", 1 => 10, 2 => 5013 ),
+  '7' => array( 0 => "Гаусманит", 1 => 10, 2 => 5014 ),
+  '8' => array( 0 => "Гемиморфит", 1 => 10, 2 => 5016 ),
+  '9' => array( 0 => "Графит", 1 => 10, 2 => 5019 ),
+  'Q' => array( 0 => "Данбурит", 1 => 10, 2 => 5020 ),
+  'W' => array( 0 => "Дарапскит", 1 => 10, 2 => 5021 ),
+  'E' => array( 0 => "Дюмортьерит", 1 => 10, 2 => 5024 ),
+  'R' => array( 0 => "Жадеит", 1 => 10, 2 => 5025 ),
+  'T' => array( 0 => "Ильменит", 1 => 10, 2 => 5027 ),
+  'Y' => array( 0 => "Каинит", 1 => 10, 2 => 5028 ),
+  'U' => array( 0 => "Брусит", 1 => 10, 2 => 5008 ),
+  'I' => array( 0 => "Киноварь", 1 => 10, 2 => 5033 ),
+  'O' => array( 0 => "Корунд", 1 => 10, 2 => 5035 ),
+  'P' => array( 0 => "Магнетит", 1 => 10, 2 => 5036 ),
+  'A' => array( 0 => "Мирабилит", 1 => 10, 2 => 5037 ),
+  'S' => array( 0 => "Пентландит", 1 => 10, 2 => 5043 ),
+  'D' => array( 0 => "Реальгар", 1 => 10, 2 => 5047 ),
+  'F' => array( 0 => "Тальк", 1 => 10, 2 => 5052 ),
+  'G' => array( 0 => "Флюорит", 1 => 10, 2 => 5055 ),
+);
+
+$btm_data = array(
+  '0' => array( 0 => "Висмутин", 1 => 10, 2 => 5009 ),
+  '1' => array( 0 => "Диоптаз", 1 => 10, 2 => 5022 ),
+  '2' => array( 0 => "Доломит", 1 => 10, 2 => 5023 ),
+  '3' => array( 0 => "Иллит", 1 => 10, 2 => 5026 ),
+  '4' => array( 0 => "Калаверит", 1 => 10, 2 => 5029 ),
+  '5' => array( 0 => "Каломель", 1 => 10, 2 => 5030 ),
+  '6' => array( 0 => "Колвезит", 1 => 10, 2 => 5034 ),
+  '7' => array( 0 => "Молибденит", 1 => 10, 2 => 5038 ),
+  '8' => array( 0 => "Монацит", 1 => 10, 2 => 5039 ),
+  '9' => array( 0 => "Мусковит", 1 => 10, 2 => 5040 ),
+  'Q' => array( 0 => "Настуран", 1 => 10, 2 => 5041 ),
+  'W' => array( 0 => "Опал", 1 => 10, 2 => 5042 ),
+  'E' => array( 0 => "Перовскит", 1 => 10, 2 => 5044 ),
+  'R' => array( 0 => "Петалит", 1 => 10, 2 => 5045 ),
+  'T' => array( 0 => "Пираргирит", 1 => 10, 2 => 5046 ),
+  'Y' => array( 0 => "Ринерит", 1 => 10, 2 => 5048 ),
+  'U' => array( 0 => "Рубицин", 1 => 10, 2 => 5049 ),
+  'I' => array( 0 => "Сильванит", 1 => 10, 2 => 5050 ),
+  'O' => array( 0 => "Стронцианит", 1 => 10, 2 => 5051 ),
+  'P' => array( 0 => "Турманит", 1 => 10, 2 => 5053 ),
+  'A' => array( 0 => "Уваровит", 1 => 10, 2 => 5054 ),
+  'S' => array( 0 => "Циркон", 1 => 10, 2 => 5056 ),
+  'D' => array( 0 => "Шеелит", 1 => 10, 2 => 5057 ),
+  'F' => array( 0 => "Эвдиалит", 1 => 10, 2 => 5058 ),
+  'G' => array( 0 => "Эритрин", 1 => 10, 2 => 5059 ),
+);
+
+foreach( $top_data as $item ) {
+  $items = db_fetch_array( "SELECT o.name, os.res_cnt FROM objects o, objects_sub os WHERE o.id = os.res_id AND os.object_id = {$item[2]} ORDER BY res_cnt desc" );
+  $text = "<b>{$item[0]}</b>\nПриродный минерал <font color=\'#00FFFF\'>первой</font> группы.\n\nСодержит полезные ископаемые:";
+  foreach( $items as $line ) {
+    $add = str_repeat( "\t", 7 - strlen( $line['name'] ) / 3 );
+    $text .= "\n<u><a href=\'page.php?id=6%26itm={$line['name']}\'>{$line['name']}</a></u>$add{$line['res_cnt']}";
+  }
+  db_query( "UPDATE enciclopedia SET `desc` = '$text' WHERE object_id = ".$item[2] );
+}
+
+foreach( $mdl_data as $item ) {
+  $items = db_fetch_array( "SELECT o.name, os.res_cnt FROM objects o, objects_sub os WHERE o.id = os.res_id AND os.object_id = {$item[2]} ORDER BY res_cnt desc" );
+  $text = "<b>{$item[0]}</b>\nПриродный минерал <font color=\'#00FFFF\'>второй</font> группы.\n\nСодержит полезные ископаемые:";
+  foreach( $items as $line ) {
+    $add = str_repeat( "\t", 7 - strlen( $line['name'] ) / 3 );
+    $text .= "\n<u><a href=\'page.php?id=6%26itm={$line['name']}\'>{$line['name']}</a></u>$add{$line['res_cnt']}";
+  }
+  db_query( "UPDATE enciclopedia SET `desc` = '$text' WHERE object_id = ".$item[2] );
+}
+
+foreach( $btm_data as $item ) {
+  $items = db_fetch_array( "SELECT o.name, os.res_cnt FROM objects o, objects_sub os WHERE o.id = os.res_id AND os.object_id = {$item[2]} ORDER BY res_cnt desc" );
+  $text = "<b>{$item[0]}</b>\nПриродный минерал <font color=\'#00FFFF\'>третьей</font> группы.\n\nСодержит полезные ископаемые:";
+  foreach( $items as $line ) {
+    $add = str_repeat( "\t", 7 - strlen( $line['name'] ) / 3 );
+    $text .= "\n<u><a href=\'page.php?id=6%26itm={$line['name']}\'>{$line['name']}</a></u>$add{$line['res_cnt']}";
+  }
+  db_query( "UPDATE enciclopedia SET `desc` = '$text' WHERE object_id = ".$item[2] );
+}
+
+$res = db_fetch_array( "SELECT o.id, o.name FROM objects o WHERE o.class = 1" );
+foreach( $res as $item ) {
+  $items = db_fetch_array( "SELECT o.name, os.res_cnt FROM objects o, objects_sub os WHERE o.id = os.object_id AND os.res_id = {$item['id']} AND o.class = 5 ORDER BY res_cnt desc" );
+  $text = "<b>{$item['name']}</b>\nПолезное ископаемое.\n\nСодержится в минералах:";
+  foreach( $items as $line ) {
+    $add = str_repeat( "\t", 7 - strlen( $line['name'] ) / 3 );
+    $text .= "\n<u><a href=\'page.php?id=6%26itm={$line['name']}\'>{$line['name']}</a></u>$add{$line['res_cnt']}";
+  }
+  db_query( "UPDATE enciclopedia SET `desc` = '$text' WHERE object_id = ".$item['id'] );
+}

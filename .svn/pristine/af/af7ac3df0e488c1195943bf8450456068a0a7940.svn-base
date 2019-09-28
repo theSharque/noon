@@ -1,0 +1,343 @@
+<?php
+
+  global $user;
+
+  if( $user->place_type == 0 && isset( $_GET['x'] ) && $_GET['x'] >= 0 ) {
+    $out = '';
+    $planet_id = $user->place_id;
+    $x = $_GET['x'];
+
+    $line = db_fetch_val( "SELECT lin FROM orbits_map WHERE id = $planet_id", 'lin' );
+    if( strlen( $line ) >= $x ) {
+//      $line = file_get_contents( "./pages/environment/orbit/$planet_id.lin" );
+
+      $info = get_orbit_info( $x );
+
+      $def = db_fetch_row( "SELECT IFNULL( MAX( d.status ), 0 ) status, u.login
+                              FROM defence d
+                        INNER JOIN users u ON u.id = d.user_id
+                             WHERE d.place_type = 0 AND d.place_id = $planet_id AND d.user_id != ".$user->uid );
+
+      $defender = true;
+      if( $def['status'] == 0 ) {
+        $def_planet = db_fetch_row( "SELECT p.orbit_user, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(p.orbit_time) orbit_time, u.login
+                               FROM planets p
+                         INNER JOIN users u ON u.id = p.orbit_user
+                              WHERE p.id = ".$user->place_id );
+
+        if( $def_planet['orbit_user'] != '' && $def_planet['orbit_user'] != $user->uid ) {
+          if( $def_planet['orbit_time'] < 259200 ) {
+            $defender = false;
+            $def['login'] = $def_planet['login'];
+          }
+        }
+      }
+
+      switch( $line{$x} ) {
+
+        case 'V':
+          $out = "detail=<u><a href='page.php?id=6%26itm=Лазерный спутник'>Лазерный спутник</a></u>";
+          if( $def['status'] == 0 && $defender ) {
+            $out .= "&cb_h=Настройки защиты орбиты";
+            $defence = db_fetch_val( "SELECT MAX( status ) status FROM defence WHERE place_id = $planet_id AND place_type = 0", 'status' );
+            if( $user->aliance == 0 ) {
+              switch( $defence ) {
+                case 1 :
+                  $out .= "&cb_c=4&cb_l0=Атаковать всех&cb_d0=page.php?id=282%26rf=1&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3";
+                  break;
+                case 2 :
+                  $out .= "&cb_c=4&cb_l0=Атаковать врагов&cb_d0=page.php?id=282%26rf=2&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3";
+                  break;
+                case 3 :
+                  $out .= "&cb_c=4&cb_l0=Атаковать не друзей&cb_d0=page.php?id=282%26rf=3&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать врагов&cb_d3=page.php?id=282%26rf=2";
+                  break;
+                default :
+                  $out .= "&cb_c=4&cb_l0=Можно всем&cb_d0=page.php?id=282%26rf=0&cb_l1=Атаковать всех&cb_d1=page.php?id=282%26rf=1&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3";
+                  break;
+              }
+            } else {
+              switch( $defence ) {
+                case 1 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать всех&cb_d0=page.php?id=282%26rf=1&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+                case 2 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать врагов&cb_d0=page.php?id=282%26rf=2&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+                case 3 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать не друзей&cb_d0=page.php?id=282%26rf=3&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать врагов&cb_d3=page.php?id=282%26rf=2&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+                case 4 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать не альянс&cb_d0=page.php?id=282%26rf=4&cb_l1=Атаковать не друзей&cb_d1=page.php?id=282%26rf=3&cb_l2=Можно всем&cb_d2=page.php?id=282%26rf=0&cb_l3=Атаковать всех&cb_d3=page.php?id=282%26rf=1&cb_l4=Атаковать врагов&cb_d4=page.php?id=282%26rf=2";
+                  break;
+                default :
+                  $out .= "&cb_c=5&cb_l0=Можно всем&cb_d0=page.php?id=282%26rf=0&cb_l1=Атаковать всех&cb_d1=page.php?id=282%26rf=1&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+              }
+            }
+          } else {
+            $out .= "&cb_h=Управление заблокированно ".$def['login'];
+          }
+          break;
+  
+        case 'X':
+          $out = "detail=<u><a href='page.php?id=6%26itm=Плазменный спутник'>Плазменный спутник</a></u>";
+          if( $def['status'] == 0 && $defender ) {
+            $out .= "&cb_h=Настройки защиты орбиты";
+            $defence = db_fetch_val( "SELECT MAX( status ) status FROM defence WHERE place_id = $planet_id AND place_type = 0", 'status' );
+            if( $user->aliance == 0 ) {
+              switch( $defence ) {
+                case 1 :
+                  $out .= "&cb_c=4&cb_l0=Атаковать всех&cb_d0=page.php?id=282%26rf=1&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3";
+                  break;
+                case 2 :
+                  $out .= "&cb_c=4&cb_l0=Атаковать врагов&cb_d0=page.php?id=282%26rf=2&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3";
+                  break;
+                case 3 :
+                  $out .= "&cb_c=4&cb_l0=Атаковать не друзей&cb_d0=page.php?id=282%26rf=3&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать врагов&cb_d3=page.php?id=282%26rf=2";
+                  break;
+                default :
+                  $out .= "&cb_c=4&cb_l0=Можно всем&cb_d0=page.php?id=282%26rf=0&cb_l1=Атаковать всех&cb_d1=page.php?id=282%26rf=1&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3";
+                  break;
+              }
+            } else {
+              switch( $defence ) {
+                case 1 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать всех&cb_d0=page.php?id=282%26rf=1&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+                case 2 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать врагов&cb_d0=page.php?id=282%26rf=2&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+                case 3 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать не друзей&cb_d0=page.php?id=282%26rf=3&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать врагов&cb_d3=page.php?id=282%26rf=2&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+                case 4 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать не альянс&cb_d0=page.php?id=282%26rf=4&cb_l1=Атаковать не друзей&cb_d1=page.php?id=282%26rf=3&cb_l2=Можно всем&cb_d2=page.php?id=282%26rf=0&cb_l3=Атаковать всех&cb_d3=page.php?id=282%26rf=1&cb_l4=Атаковать врагов&cb_d4=page.php?id=282%26rf=2";
+                  break;
+                default :
+                  $out .= "&cb_c=5&cb_l0=Можно всем&cb_d0=page.php?id=282%26rf=0&cb_l1=Атаковать всех&cb_d1=page.php?id=282%26rf=1&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+              }
+            }
+          } else {
+            $out .= "&cb_h=Управление заблокированно ".$def['login'];
+          }
+          break;
+  
+        case 'Y':
+          $out = "detail=<u><a href='page.php?id=6%26itm=Квантовый генератор'>Квантовый генератор</a></u>";
+          if( $def['status'] == 0 && $defender ) {
+            $out .= "&cb_h=Настройки защиты орбиты";
+            $defence = db_fetch_val( "SELECT MAX( status ) status FROM defence WHERE place_id = $planet_id AND place_type = 0", 'status' );
+            if( $user->aliance == 0 ) {
+              switch( $defence ) {
+                case 1 :
+                  $out .= "&cb_c=4&cb_l0=Атаковать всех&cb_d0=page.php?id=282%26rf=1&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3";
+                  break;
+                case 2 :
+                  $out .= "&cb_c=4&cb_l0=Атаковать врагов&cb_d0=page.php?id=282%26rf=2&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3";
+                  break;
+                case 3 :
+                  $out .= "&cb_c=4&cb_l0=Атаковать не друзей&cb_d0=page.php?id=282%26rf=3&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать врагов&cb_d3=page.php?id=282%26rf=2";
+                  break;
+                default :
+                  $out .= "&cb_c=4&cb_l0=Можно всем&cb_d0=page.php?id=282%26rf=0&cb_l1=Атаковать всех&cb_d1=page.php?id=282%26rf=1&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3";
+                  break;
+              }
+            } else {
+              switch( $defence ) {
+                case 1 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать всех&cb_d0=page.php?id=282%26rf=1&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+                case 2 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать врагов&cb_d0=page.php?id=282%26rf=2&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+                case 3 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать не друзей&cb_d0=page.php?id=282%26rf=3&cb_l1=Можно всем&cb_d1=page.php?id=282%26rf=0&cb_l2=Атаковать всех&cb_d2=page.php?id=282%26rf=1&cb_l3=Атаковать врагов&cb_d3=page.php?id=282%26rf=2&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+                case 4 :
+                  $out .= "&cb_c=5&cb_l0=Атаковать не альянс&cb_d0=page.php?id=282%26rf=4&cb_l1=Атаковать не друзей&cb_d1=page.php?id=282%26rf=3&cb_l2=Можно всем&cb_d2=page.php?id=282%26rf=0&cb_l3=Атаковать всех&cb_d3=page.php?id=282%26rf=1&cb_l4=Атаковать врагов&cb_d4=page.php?id=282%26rf=2";
+                  break;
+                default :
+                  $out .= "&cb_c=5&cb_l0=Можно всем&cb_d0=page.php?id=282%26rf=0&cb_l1=Атаковать всех&cb_d1=page.php?id=282%26rf=1&cb_l2=Атаковать врагов&cb_d2=page.php?id=282%26rf=2&cb_l3=Атаковать не друзей&cb_d3=page.php?id=282%26rf=3&cb_l4=Атаковать не альянс&cb_d4=page.php?id=282%26rf=4";
+                  break;
+              }
+            }
+          } else {
+            $out .= "&cb_h=Управление заблокированно ".$def['login'];
+          }
+          break;
+  
+        case 'B':
+          $out = "detail=Ведется стройка или разработка&btLabel=Остановить строительство&btOnClick=page.php?id=277%26x=$x";
+          break;
+  
+        case '0':
+          $out = "detail=Открытый космос";
+          if( $user->owner ) {
+            $out .= "&cb_h=Возможные постройки";
+            if( $user->native ) {
+              $items = db_fetch_array( "SELECT o.id, o.name
+                                          FROM objects o, buildings b
+                                         WHERE o.class = 8 AND
+                                                  b.id = o.id AND
+                                              b.native IN( 1, 2 ) AND
+                                             ( b.req_id IS NULL OR
+                                               b.req_id IN ( SELECT DISTINCT object_id FROM orbits_buildings WHERE planet_id = {$user->place_id} ) )
+                                      ORDER BY IF(o.id={$info->last_build},0,1), o.weight DESC" );
+            } else {
+              $items = db_fetch_array( "SELECT o.id, o.name
+                                          FROM objects o, buildings b
+                                         WHERE o.class = 8 AND
+                                                  b.id = o.id AND
+                                              b.native IN ( 0, 1 ) AND
+                                             ( b.req_id IS NULL OR
+                                               b.req_id IN ( SELECT DISTINCT object_id FROM orbits_buildings WHERE planet_id = {$user->place_id} ) )
+                                      ORDER BY IF(o.id={$info->last_build},0,1), o.weight DESC" );
+            }
+            $out .= "&cb_c=".count( $items );
+            $i=0;
+            foreach( $items as $item ) {
+              $out .= "&cb_l$i=".$item['name']."&cb_d$i=page.php?id=28%26x=$x%26bid=".$item['id'];
+              $i++;
+            }
+          }
+          break;
+  
+        case 'T':
+          $out = "detail=Торговая станция";
+          if( $user->owner ) {
+            $out .= "&cb_h=Тип ресурсов";
+            $out .= "&cb_c=6&cb_l0=Все&cb_d0=page.php?id=29%26rf=0&cb_l1=Ископаемые&cb_d1=page.php?id=29%26rf=5&cb_l2=Ресурсы&cb_d2=page.php?id=29%26rf=1&cb_l3=Детали&cb_d3=page.php?id=29%26rf=2&cb_l4=Чертежи&cb_d4=page.php?id=29%26rf=6&cb_l5=Макеты&cb_d5=page.php?id=29%26rf=7";
+          }
+          $out .= "&btLabel=Пристыковаться&btOnClick=page.php?id=225%26x=$x";
+          break;
+  
+        case 'A':
+          $out = "detail=Солнечная электростанция";
+          if( $user->owner ) {
+            $out .= "&cb_h=Тип ресурсов";
+            $out .= "&cb_c=6&cb_l0=Все&cb_d0=page.php?id=29%26rf=0&cb_l1=Ископаемые&cb_d1=page.php?id=29%26rf=5&cb_l2=Ресурсы&cb_d2=page.php?id=29%26rf=1&cb_l3=Детали&cb_d3=page.php?id=29%26rf=2&cb_l4=Чертежи&cb_d4=page.php?id=29%26rf=6&cb_l5=Макеты&cb_d5=page.php?id=29%26rf=7";
+          }
+          break;
+  
+        case 'I':
+          $out = "detail=Орбитальное хранилище";
+          if( $user->owner ) {
+            $out .= "&cb_h=Тип ресурсов";
+            $out .= "&cb_c=6&cb_l0=Все&cb_d0=page.php?id=29%26rf=0&cb_l1=Ископаемые&cb_d1=page.php?id=29%26rf=5&cb_l2=Ресурсы&cb_d2=page.php?id=29%26rf=1&cb_l3=Детали&cb_d3=page.php?id=29%26rf=2&cb_l4=Чертежи&cb_d4=page.php?id=29%26rf=6&cb_l5=Макеты&cb_d5=page.php?id=29%26rf=7";
+          }
+          $out .= "&btLabel=Пристыковаться&btOnClick=page.php?id=225%26x=$x";
+          break;
+  
+        case 'G':
+          $out = "detail=Геологический спутник";
+          if( $user->owner ) {
+            $out .= "&cb_h=Тип ресурсов";
+            $out .= "&cb_c=6&cb_l0=Все&cb_d0=page.php?id=29%26rf=0&cb_l1=Ископаемые&cb_d1=page.php?id=29%26rf=5&cb_l2=Ресурсы&cb_d2=page.php?id=29%26rf=1&cb_l3=Детали&cb_d3=page.php?id=29%26rf=2&cb_l4=Чертежи&cb_d4=page.php?id=29%26rf=6&cb_l5=Макеты&cb_d5=page.php?id=29%26rf=7";
+          }
+          break;
+  
+        case 'Q':
+          if( !$user->owner ) {
+            $out = "detail=Орб. сборочный цех";
+          } else {
+            if( $info->busy == 0 ) {
+              $out = "detail=Орб. сборочный цех";
+              $items = db_fetch_array( "SELECT o1.id, o1.name, o.class
+                                          FROM warehouse w, objects o, objects_sub os, objects o1
+                                         WHERE w.place_id = $planet_id AND
+                                               w.place_type = 0 AND
+                                               o.id = w.object_id AND
+                                               o.class IN( 6, 7 )  AND
+                                               os.res_id = o.id AND
+                                               o1.id = os.object_id
+                                      ORDER BY IF(o1.id={$info->last},0,1), o.class, o1.name" );
+          
+              if( count( $items ) > 0 ) {
+                $out .= "&cb_h=Объект сборки";
+                $out .= "&cb_c=".count( $items );
+                $i=0;
+                foreach( $items as $item ) {
+                  switch( $item['class'] ) {
+                    case 6:
+                      $out .= "&cb_l$i={$item['name']}&cb_d$i=page.php?id=275%26x=$x%26oid={$item['id']}";
+                      break;
+                    case 7:
+                      $out .= "&cb_l$i={$item['name']}&cb_d$i=page.php?id=278%26x=$x%26oid={$item['id']}";
+                      break;
+                  }
+                  $i++;
+                }
+              }
+            } else {
+              if( $info->busy_type == 5 ) {
+                $obj = db_fetch_row( "SELECT o.name FROM orbits_make p, objects o WHERE p.event_id = {$info->busy_id} AND p.object_id = o.id" );
+                $out = "detail=Изготавливается {$obj['name']}&btLabel=Остановить сборку&btOnClick=page.php?id=277%26x=$x";
+              } else {
+                $out = "detail=Цех улучшается";
+              }
+            }
+          }
+          break;
+  
+        case 'W':
+          if( !$user->owner ) {
+            $out = "detail=Газодобывающий завод";
+          } else {
+            if( $info->busy == 0 ) {
+              $out = "detail=Газодобывающий завод";
+              $out .= "&cb_h=Количество циклов&cb_c=".$info->level;
+              for( $i = 0; $i < $info->level; $i++ ) {
+                $out .= "&cb_l$i=".($info->level - $i)."&cb_d$i=page.php?id=210%26x=$x%26cl=".($info->level - $i);
+              }
+            } else {
+              if( $info->busy_type == 2 ) {
+                $out = "detail=Газодобывающий завод занят&btLabel=Остановить добычу&btOnClick=page.php?id=277%26x=$x";
+              } else {
+                $out = "detail=Газодобывающий завод улучшается";
+              }
+            }
+          }
+          break;
+  
+        case 'Z':
+          if( !$user->owner ) {
+            $out = "detail=Термоядерный преобразователь";
+          } else {
+            if( $info->busy == 0 ) {
+              $out = "detail=Термоядерный преобразователь";
+              $items = db_fetch_array( "SELECT o.id, o.name, o2.name res
+                                          FROM sintez s
+                                    INNER JOIN objects o ON o.id = s.object_id
+                                    INNER JOIN objects o2 ON o2.id = s.res_id
+                                      ORDER BY IF(o.id={$info->last},0,1), o.name, o.id" );
+          
+              if( count( $items ) > 0 ) {
+                $out .= "&cb_h=Получаемый материал";
+                $out .= "&cb_c=".count( $items );
+                $i=0;
+                foreach( $items as $item ) {
+                  $out .= "&cb_l$i={$item['name']} ({$item['res']})&cb_d$i=page.php?id=284%26x=$x%26oid={$item['id']}";
+                  $i++;
+                }
+              }
+            } else {
+              if( $info->busy_type == 8 ) {
+                $obj = db_fetch_row( "SELECT o.name
+                                        FROM orbits_make p
+                                  INNER JOIN objects o ON p.object_id = o.id
+                                       WHERE p.event_id = {$info->busy_id}" );
+  
+                $out = "detail=Синтезируется {$obj['name']}&btLabel=Остановить&btOnClick=page.php?id=277%26x=$x";
+              } else {
+                $out = "detail=Термоядерный преобразователь улучшается";
+              }
+            }
+          }
+          break;
+        }
+      } else {
+        $out = "detail=Открытый космос";
+      }
+    printOut( $out );
+  }

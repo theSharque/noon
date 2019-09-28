@@ -1,0 +1,59 @@
+server {
+	listen			80;
+
+	server_name 5.9.140.7 thevendetta.pw www.thevendetta.pw vendetta.club www.vendetta.club;
+	root /var/www/vendetta;
+	access_log /var/log/nginx/vendetta.access.log;
+#	access_log off;
+	error_log /var/log/nginx/vendetta.error.log;
+
+	location ~* (\.inc|\.ttf|\.dic|\.log|\.dat)$ {
+	    deny all;
+	}
+
+	error_page	404	/404.php;
+
+	location / {
+	    index index.html index.php;
+	}
+
+	location ~ \.php$ {
+		include		fastcgi_params;
+		fastcgi_pass	unix:/var/run/php5-fpm.sock;
+		fastcgi_index	index.php;
+		error_page	404	/404.php;
+	}
+}
+
+server {
+	listen 81;
+
+	server_name 5.9.140.7 vendetta.club www.vendetta.club;
+	root /var/www/vendetta;
+	access_log /var/log/nginx/vendetta.access.log;
+#	access_log off;
+	error_log /var/log/nginx/vendetta.error.log;
+
+	ssl			on;
+	ssl_certificate		/etc/nginx/ssl/vendetta.club.crt;
+	ssl_certificate_key	/etc/nginx/ssl/vendetta.club.key;
+
+	add_header		Front-End-Https    on;
+
+	location ~* (\.inc|\.ttf|\.dic|\.log|\.dat)$ {
+	    deny all;
+	}
+
+	error_page	404	/404.php;
+
+	location / {
+	    index index.html index.php;
+	}
+
+	location ~ \.php$ {
+		include		fastcgi_params;
+		fastcgi_pass	unix:/var/run/php5-fpm.sock;
+		fastcgi_index	index.php;
+		error_page	404	/404.php;
+	}
+}

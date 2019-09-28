@@ -1,0 +1,163 @@
+<?php
+
+  global $user;
+
+  $pl = isset( $_GET['pl'] ) ? $_GET['pl'] : '*';
+  db_safe( $pl );
+
+  $pl = decode_in( $pl );
+
+  $gid = db_fetch_val( "SELECT gid FROM users WHERE id = ".$user->uid, 'gid' );
+  $oth = '';
+  if( $gid != '' ) {
+    if( strpos( $gid, ':' ) !== false ) {
+      $gid = explode( ':', $gid );
+      $oth = $gid[0].':';
+    }
+  }
+
+  if( $_GET['pl'] && $pl != '*' ) {
+    db_query( "UPDATE users SET gid = '$oth$pl' WHERE id = ".$user->uid );
+  }
+
+  if( isset( $_GET['ord'] ) && $_GET['ord'] == 0 ) {
+    $ord = 'ORDER BY name, place_type, place_id';
+  } else {
+    $ord = 'ORDER BY star_id, planet_id, place_type, place_id, guard, inwar, arg1, arg2, name';
+  }
+
+  $pt = null;
+  $pc = null;
+  if( $pl == '*' ) {
+    $where = "st.cargo > 0 AND s.user_id = ".$user->uid." AND s.place_type IN ( 1, 2, 3 )";
+  } else {
+    if( substr( $pl, 0, 1 ) == 'G' ) {
+      $gname = substr( $pl, 1 );
+      if( $gname == 'null' ) {
+        $where = "st.cargo > 0 AND s.group = '' AND s.user_id = ".$user->uid." AND s.place_type IN ( 1, 2, 3 )";
+      } else {
+        $where = "st.cargo > 0 AND s.group = '$gname' AND s.user_id = ".$user->uid." AND s.place_type IN ( 1, 2, 3 )";
+      }
+    } else {
+      if( is_numeric( substr( $pl, 0, 1 ) ) ) {
+        $pt = substr( $pl, 0, 1 );
+        $pc = substr( $pl, 2 );
+        switch( $pt ) {
+          case 1:
+            if( $pc != '*' && is_numeric( $pc ) ) {
+              $where = "st.cargo > 0 AND s.user_id = ".$user->uid." AND s.place_type = 1 AND s.place_id = $pc";
+            } else {
+              $where = "st.cargo > 0 AND s.user_id = ".$user->uid." AND s.place_type = 1";
+            }
+            break;
+
+          case 2:
+            if( $pc != '*' && is_numeric( $pc ) ) {
+              $where = "st.cargo > 0 AND s.user_id = ".$user->uid." AND s.place_type = 2 AND s.place_id = $pc";
+            } else {
+              $where = "st.cargo > 0 AND s.user_id = ".$user->uid." AND s.place_type = 2";
+            }
+            break;
+
+          case 3:
+            if( $pc != '*' && is_numeric( $pc ) ) {
+              $where = "st.cargo > 0 AND s.user_id = ".$user->uid." AND s.place_type = 3 AND pb.planet_id = $pc";
+            } else {
+              $where = "st.cargo > 0 AND s.user_id = ".$user->uid." AND s.place_type = 3";
+            }
+            break;
+        }
+      }
+    }
+  }
+
+  $shid = $_GET['shid'];
+  db_safe( $shid );
+
+  if( $user->real_type == 2 ) {
+    $ships = db_fetch_array( "SELECT DISTINCT s.id, s.name, s.place_id, s.place_type, st.cargo, s.fleet_id, f.name fleet
+                              FROM ships s
+                               INNER JOIN ship_types st ON s.object_id = st.object_id
+                                LEFT JOIN orbits_buildings pb ON pb.object_id IN ( 3001, 3004 ) AND s.place_type = 3 AND s.place_id = pb.id
+                                LEFT JOIN fleets f ON f.id = s.fleet_id
+                                LEFT JOIN planets p ON pb.planet_id = p.id
+                              WHERE $where 
+                              ORDER BY IF( s.id = ".$user->real_id.", -1, s.place_type ) , s.place_id, f.name, s.name" );
+  } else {
+    $ships = db_fetch_array( "SELECT DISTINCT s.id, s.name, s.place_id, s.place_type, st.cargo, s.fleet_id, f.name fleet
+                              FROM ships s
+                               INNER JOIN ship_types st ON s.object_id = st.object_id
+                                LEFT JOIN orbits_buildings pb ON pb.object_id IN ( 3001, 3004 ) AND s.place_type = 3 AND s.place_id = pb.id
+                                LEFT JOIN fleets f ON f.id = s.fleet_id
+                                LEFT JOIN planets p ON pb.planet_id = p.id
+                              WHERE $where
+                              ORDER BY s.place_type, s.place_id, f.name, s.name" );
+  }
+
+  $out = "cnt=".count( $ships );
+
+  levelUp( 32, $user->uid ); 
+
+  $l=0;
+  foreach( $ships as $ship ) {
+
+    $out .= "&id$l=".$ship['id'];
+    $out .= "&name$l=".$ship['name'];
+
+    switch( $ship['place_type'] ) {
+      case 1:
+        $place = db_fetch_row( "SELECT name FROM planets WHERE id=".$ship['place_id'], true );
+        $out .= "&place$l=".$place['name'];
+        break;
+      case 2:
+        $place = db_fetch_row( "SELECT name FROM ships s WHERE s.id=".$ship['place_id'], true );
+        $out .= "&place$l=".$place['name'];
+        break;
+      case 3:
+        $place = db_fetch_row( "SELECT p.name planet, o.name station
+                                  FROM orbits_buildings ob, objects o, planets p
+                                 WHERE p. id = ob.planet_id AND o.id = ob.object_id AND ob.id = ".$ship['place_id'], true );
+        $out .= "&place$l=".$place['planet']." - ".$place['station'];
+        break;
+      default :
+        $out .= "&place$l=Unknown";
+        break;
+    }
+
+    if( $ship['fleet_id'] > 0 ) {
+      $out .= " (".$ship['fleet'].")";
+    }
+
+    switch( $ship['place_type'] ) {
+      case 1:
+        $out .= "&c$l=0x006600";
+        break;
+      case 2:
+        $out .= "&c$l=0x000066";
+        break;
+      case 3:
+        $out .= "&c$l=0x000033";
+        break;
+      default :
+        $out .= "&c$l=0xFF0000";
+        break;
+    }
+
+    if( !isset( $pos ) && substr( $shid, 0, 1 ) == 'S' && $ship['id'] == substr( $shid, 1 ) ) {
+      $pos = $l;
+    }
+
+    if( !isset( $pos ) && substr( $shid, 0, 1 ) == 'F' && $ship['fleet_id'] == substr( $shid, 1 ) ) {
+      $pos = $l;
+    }
+
+    $out .= "&cargo$l=".number_format( $ship['cargo'], 0, '.', ' ' );
+
+    $l++;
+  }
+
+  if( isset( $pos ) ) {
+    $out .= "&pos=$pos";
+  }
+
+  printOut( $out );

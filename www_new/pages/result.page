@@ -1,0 +1,65 @@
+<?php
+
+  if( $_POST['LMI_PREREQUEST'] == 1 ) {
+    $tid = $_POST['LMI_PAYMENT_NO'];
+    db_safe( $tid );
+    $user_id = db_fetch_val( "SELECT user_id FROM pay_log WHERE trade_id = $tid", 'user_id' );
+    if( $user_id ) {
+      $summ = $_POST['LMI_PAYMENT_AMOUNT'];
+      $conf = $_POST['CONFCNT'];
+      $wall = $_POST['LMI_PAYEE_PURSE'];
+
+      if( $wall == 'Z116590410267' && $summ == $conf / 10 ) {
+        db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Prerequest confirmed summ $summ WMZ' )" );
+        echo 'YES';
+      } elseif( $wall == 'R314296320350' && $summ == $conf * 30 / 10 ) {
+        db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Prerequest confirmed summ $summ WMR' )" );
+        echo 'YES';
+      } else {
+        db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Prerequest ERROR summ=$summ conf=$conf' )" );
+        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'Ошибка покупки конфедератов, номер транзакции $tid. Если ошибка повторится, обратитесь к администрации.' )" );
+        echo 'NO';
+      }
+    }
+  } else {
+    $tid = $_POST['LMI_PAYMENT_NO'];
+    db_safe( $tid );
+    $user_id = db_fetch_val( "SELECT user_id FROM pay_log WHERE trade_id = $tid", 'user_id' );
+    if( $user_id ) {
+      $summ = $_POST['LMI_PAYMENT_AMOUNT'];
+      $conf = $_POST['CONFCNT'];
+      $wall = $_POST['LMI_PAYEE_PURSE'];
+      $hash = $_POST['LMI_HASH'];
+
+      $test_hash  = $_POST['LMI_PAYEE_PURSE'];
+      $test_hash .= $_POST['LMI_PAYMENT_AMOUNT'];
+      $test_hash .= $_POST['LMI_PAYMENT_NO'];
+      $test_hash .= $_POST['LMI_MODE'];
+      $test_hash .= $_POST['LMI_SYS_INVS_NO'];
+      $test_hash .= $_POST['LMI_SYS_TRANS_NO'];
+      $test_hash .= $_POST['LMI_SYS_TRANS_DATE'];
+      $test_hash .= 'a2630081966c3b2051231309f1e227be';
+      $test_hash .= $_POST['LMI_PAYER_PURSE'];
+      $test_hash .= $_POST['LMI_PAYER_WM'];
+
+      $test_md5 = strtoupper( md5( $test_hash ) );
+
+      if( $wall == 'Z116590410267' && $summ == $conf / 10 && $test_md5 == $hash ) {
+        db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Request confirmed $conf summ $summ WMZ from ".$_POST['LMI_PAYER_PURSE']." ".$_POST['LMI_PAYER_WM']."' )" );
+        db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'DBG: ".serialize( $_POST )."' )" );
+        db_query( "UPDATE users SET credits = credits + $conf WHERE id = $user_id" );
+        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'На ваш игровой счет зачислено $conf конфедератов, номер транзакции $tid.' )" );
+        echo 'YES';
+      } elseif( $wall == 'R314296320350' && $summ == $conf * 30 / 10 && $test_md5 == $hash ) {
+        db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Request confirmed $conf summ $summ WMR from ".$_POST['LMI_PAYER_PURSE']." ".$_POST['LMI_PAYER_WM']."' )" );
+        db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'DBG: ".serialize( $_POST )."' )" );
+        db_query( "UPDATE users SET credits = credits + $conf WHERE id = $user_id" );
+        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'На ваш игровой счет зачислено $conf конфедератов, номер транзакции $tid.' )" );
+        echo 'YES';
+      } else {
+        db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Request ERROR $conf summ $summ WMR from ".$_POST['LMI_PAYER_PURSE']." ".$_POST['LMI_PAYER_WM']."' )" );
+        db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'DBG: ".serialize( $_POST )."' )" );
+        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'Ошибка покупки конфедератов, номер транзакции $tid. Если ошибка повторится, обратитесь к администрации.' )" );
+      }
+    }
+  }

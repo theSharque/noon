@@ -1,0 +1,641 @@
+<?php
+
+
+  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset='><TITLE>Log read</TITLE></HEAD>
+<BODY bgcolor=#000000 text=#00FF00 leftmargin=0 topmargin=0>
+<a href='/page.php?id=990'>Return back</a>
+<form action='/page.php?id=999' method=post>";
+
+  if( isset( $_POST['login'] ) && $_POST['login'] != '' ) {
+    $login = $_POST['login'];
+    if( isset( $_POST['time'] ) && $_POST['time'] != '' ) {
+      $time = $_POST['time'];
+    } else {
+      $time = '0000-00-00 00:00:00';
+    }
+
+    echo "Login:<input type=text value='$login' name='login'>";
+    echo "Time:<input type=text value='$time' name='time'>";
+    echo "<input type=submit></form>";
+
+    echo "<h1>User log</h1>";
+
+    $data = db_fetch_array( "SELECT fl.line, fl.log_time
+                               FROM full_log fl 
+                         INNER JOIN users u ON u.id = fl.uid
+                              WHERE u.login = '$login' AND fl.log_time > '$time'
+                           ORDER BY fl.log_time
+                              LIMIT 0, 100" );
+
+    foreach( $data as $item ) {
+      $line = unserialize( stripslashes( $item['line'] ) );
+
+    switch( $line['id'] ) {
+      case 0:
+        $out = 'Загрузка меню';
+        break;
+
+      case 62731:
+        $out = 'Загрузка условий оплаты';
+        break;
+
+      case 83910:
+        $out = 'Загрузка странички 2пэй';
+        break;
+
+      case 83911:
+        $out = 'Загрузка новой странички 2пэй';
+        break;
+
+      case 83692:
+        $out = 'Предварительный расчет стоимости конфедерат';
+        break;
+
+      case 9234:
+        $out = 'Тестовая страничка';
+        break;
+
+      case 1:
+        $out = 'Загрузка страницы "персонаж"';
+        break;
+
+      case 11:
+        $out = 'Загрузка квестов';
+        break;
+
+      case 12:
+        $out = 'Загрузка описания квеста';
+        break;
+
+      case 122:
+        $out = 'Загрузка книг';
+        break;
+
+      case 123:
+        $out = 'Загрузка описания книги';
+        break;
+
+      case 124:
+        $out = 'Начал изучение навыка';
+        break;
+
+      case 125:
+        $out = 'Загрузка сообщений';
+        break;
+
+      case 126:
+        $out = 'Читает сообщение';
+        break;
+
+      case 127:
+        $out = 'Удалил сообщение';
+        break;
+
+      case 128:
+        $out = 'Проверка "кому"';
+        break;
+
+      case 129:
+        $out = 'Отправил сообщение';
+        break;
+
+      case 13:
+        $out = 'Информация о пользователе';
+        break;
+
+      case 131:
+        $out = 'Загрузка "Статистики"';
+        break;
+
+      case 132:
+        $out = 'Загрузка информации по планете или орбите';
+        break;
+
+      case 133:
+        $out = 'Отдал приказ по планете или орбите';
+        break;
+
+      case 134:
+        $out = 'Купил защиту конфедерации';
+        break;
+
+      case 14:
+        $out = 'Загрузка окна обучалки';
+        break;
+
+      case 15:
+        $out = 'Проверка напоминалки почты и пинг';
+        break;
+
+      case 16:
+        $out = 'Взял квест на выполнение';
+        break;
+
+      case 17:
+        $out = 'Прервал выполнение квеста';
+        break;
+
+      case 18:
+        $out = 'Загрузка странички "об игроке"';
+        break;
+
+      case 181:
+        $out = 'Загрузка информации по медалям';
+        break;
+
+      case 182:
+        $out = 'Загрузка параметров медали';
+        break;
+
+      case 183:
+        $out = 'Наградил медалью';
+        break;
+
+      case 19:
+        $out = 'Страничка общей информации';
+        break;
+
+      case 191:
+        $out = 'Установил отношение';
+        break;
+
+      case 192:
+        $out = 'Назначил награду';
+        break;
+
+      case 151:
+        $out = 'Страничка отношений';
+        break;
+
+      case 2:
+        $out = 'Страничка местность';
+        break;
+
+      case 21:
+        $out = 'Загрузка карты планеты';
+        break;
+
+      case 22:
+        $out = 'Загрузка карты орбиты';
+        break;
+
+      case 221:
+        $out = 'Загрузка вкладки Инфо по орбите';
+        break;
+
+      case 222:
+        $out = 'Загрузка вкладки Использовать по орбите';
+        break;
+
+      case 225:
+        $out = 'Пристыковать';
+        break;
+
+      case 23:
+        $out = 'Страничка станции';
+        break;
+
+      case 231:
+        $out = 'Страничка информации по торговле';
+        break;
+
+      case 232:
+        $out = 'Сохранение торговых данных';
+        break;
+
+      case 233:
+        $out = 'Информация по товарам';
+        break;
+
+      case 240:
+        $out = 'Информация по таймеру перемещения';
+        break;
+
+      case 25:
+        $out = 'Начал строительство';
+        break;
+
+      case 26:
+        $out = 'Панель информации на планете';
+        break;
+
+      case 261:
+        $out = 'Уничтожил постройку';
+        break;
+
+      case 27:
+        $out = 'Панель использовать на планете';
+        break;
+
+      case 282:
+        $out = 'Список кораблей в местности';
+        break;
+
+      case 283:
+        $out = 'Установил тип защиты';
+        break;
+
+      case 28:
+        $out = 'Список ресурсов для строительства';
+        break;
+
+      case 29:
+        $out = 'Список ресурсов на складе';
+        break;
+
+      case 210:
+        $out = 'Список ресурсов при добыче';
+        break;
+
+      case 211:
+        $out = 'Начал добычу';
+        break;
+
+      case 271:
+        $out = 'Список ресурсов на переработку';
+        break;
+
+      case 272:
+        $out = 'Начал переработку';
+        break;
+
+      case 273:
+        $out = 'Вкладка апгрейда на планете';
+        break;
+
+      case 274:
+        $out = 'Начал апгрейд';
+        break;
+
+      case 275:
+        $out = 'Список ресурсов для изготовления';
+        break;
+
+      case 276:
+        $out = 'Начал изготовление';
+        break;
+
+      case 277:
+        $out = 'Остановил действие';
+        break;
+
+      case 278:
+        $out = 'Список ресурсов для сборки';
+        break;
+
+      case 279:
+        $out = 'Начал сборку';
+        break;
+
+      case 280:
+        $out = 'Список ресурсов для лаборатории';
+        break;
+
+      case 281:
+        $out = 'Начал исследование';
+        break;
+
+      case 284:
+        $out = 'Список ресурсов для синтеза';
+        break;
+
+      case 285:
+        $out = 'Начал синтез';
+        break;
+
+      case 3:
+        $out = 'Страничка "Корабли"';
+        break;
+
+      case 31:
+        $out = 'Список кораблей';
+        break;
+
+      case 311:
+        $out = 'Фильтр кораблей';
+        break;
+
+      case 32:
+        $out = 'Список приказов';
+        break;
+
+      case 321:
+        $out = 'Список товаров в трюме';
+        break;
+
+      case 33:
+        $out = 'Отдал приказ';
+        break;
+
+      case 331:
+        $out = 'Отдал приказ атаковать';
+        break;
+
+      case 34:
+        $out = 'Список приказов флота';
+        break;
+
+      case 35:
+        $out = 'Объединил в флот';
+        break;
+
+      case 351:
+        $out = 'Атаковал выбранной группой';
+        break;
+
+      case 352:
+        $out = 'Список кораблей флота';
+        break;
+
+      case 353:
+        $out = 'Раформировать флот';
+        break;
+
+      case 354:
+        $out = 'Главнокомандующий';
+        break;
+
+      case 355:
+        $out = 'Главнокомандующий установлен шаг';
+        break;
+
+      case 36:
+        $out = 'Информация по кораблю';
+        break;
+
+      case 37:
+        $out = 'Карта системы';
+        break;
+
+      case 371:
+        $out = 'Карта галактики';
+        break;
+
+      case 372:
+        $out = 'Расчет расстояния в галактике';
+        break;
+
+      case 373:
+        $out = 'Отправил корабль в гипер';
+        break;
+
+      case 38:
+        $out = 'Расчет расстояния в системе';
+        break;
+
+      case 39:
+        $out = 'Отправил корабль в простой полет';
+        break;
+
+      case 391:
+        $out = 'Расконсервировал';
+        break;
+
+      case 4:
+        $out = 'Загрузка вкладки "Склад"';
+        break;
+
+      case 41:
+        $out = 'Список кораблей';
+        break;
+
+      case 42:
+        $out = 'Склад корабля';
+        break;
+
+      case 43:
+        $out = 'Список складов';
+        break;
+
+      case 44:
+        $out = 'Склад в окружении корабля';
+        break;
+
+      case 45:
+        $out = 'Перемещение 1 ресурса';
+        break;
+
+      case 46:
+        $out = 'Фильтр кораблей';
+        break;
+
+      case 47:
+        $out = 'Перемещение множества';
+        break;
+
+      case 5:
+        $out = 'Вкладка "торговля"';
+        break;
+
+      case 51:
+        $out = 'Список кораблей в торговле';
+        break;
+
+      case 52:
+        $out = 'Список ресурсов на торговом кораблей';
+        break;
+
+      case 53:
+        $out = 'Список ресурсов на покупку';
+        break;
+
+      case 54:
+        $out = 'Список ресурсов на продажу';
+        break;
+
+      case 55:
+        $out = 'Покупка корабля';
+        break;
+
+      case 56:
+        $out = 'Продажа корабля';
+        break;
+
+      case 57:
+        $out = 'Покупка ресурса';
+        break;
+
+      case 58:
+        $out = 'Продажа ресурса';
+        break;
+
+      case 59:
+        $out = 'Запоминалка';
+        break;
+
+      case 63:
+        $out = 'Торговый компьютер';
+        break;
+
+      case 65:
+        $out = 'Список цен у конфедерации';
+        break;
+
+      case 651:
+        $out = 'Информация по товару конфедерации';
+        break;
+
+      case 652:
+        $out = 'Покупка у конфедерации';
+        break;
+
+      case 6:
+        $out = 'Загрузка вкладки "Прочее"';
+        break;
+
+      case 61:
+        $out = 'Энциклопедия';
+        break;
+
+      case 62:
+        $out = 'Энциклопедия - описание';
+        break;
+
+      case 64:
+        $out = 'Роботы';
+        break;
+
+      case 641:
+        $out = 'Наемники - поля';
+        break;
+
+      case 642:
+        $out = 'Наемники - список квестов';
+        break;
+
+      case 643:
+        $out = 'Наемники - создание квеста';
+        break;
+
+      case 644:
+        $out = 'Наемники - загрузка данных по квесту';
+        break;
+
+      case 645:
+        $out = 'Наемники - валидация квеста';
+        break;
+
+      case 66:
+        $out = 'Настройки';
+        break;
+
+      case 67:
+        $out = 'Сохранение настроек';
+        break;
+
+      case 68:
+        $out = 'Альянсы';
+        break;
+
+      case 681:
+        $out = 'Альянсы - информация';
+        break;
+
+      case 682:
+        $out = 'Альянсы - приказ';
+        break;
+
+      case 69:
+        $out = 'Альянсы - список участников';
+        break;
+
+      case 691:
+        $out = 'Альянсы - инфо по пользователю';
+        break;
+
+      case 692:
+        $out = 'Альянсы - приказ по пользователю';
+        break;
+
+      case 7:
+        $out = 'Выход';
+        break;
+
+      case 8:
+        $out = 'Получил подсказку';
+        break;
+
+      case 9:
+        $out = 'Чат';
+        break;
+
+      case 91:
+        $out = 'Чат - читалка';
+        break;
+
+      case 92:
+        $out = 'Чат - писалка';
+        break;
+
+      case 93:
+        $out = 'Чат - обновил';
+        break;
+
+      case 94:
+        $out = 'Чат - написал';
+        break;
+
+      case 95:
+        $out = 'Чат - пользователи';
+        break;
+
+      case 990:
+        $out = 'Админка';
+        break;
+
+      case 980:
+        $out = 'Админка - Информация о пользователе';
+        break;
+
+      case 991:
+        $out = 'Админка - Редактор сложных объектов';
+        break;
+
+      case 992:
+        $out = 'Админка - Редактор объектов';
+        break;
+
+      case 993:
+        $out = 'Админка - Статистика';
+        break;
+
+      case 994:
+        $out = 'Админка - энциклопедия';
+        break;
+
+      case 995:
+        $out = 'Админка - ценообразование';
+        break;
+
+      case 996:
+        $out = 'Админка - исследования';
+        break;
+
+      case 997:
+        $out = 'Админка - корабли';
+        break;
+
+      case 998:
+        $out = 'Админка - обучалка';
+        break;
+
+      case 999:
+        $out = 'Админка - логер';
+        break;
+
+      default :
+        $out = 'НЕИЗВЕСТНЫЙ ИД';
+        break;
+    }
+
+    $out .= ' ( ';
+    foreach( $line as $key => $field ) {
+      $out .= $key.'='.$field.' ';
+    }
+    $out .= ' ).<br>';
+
+    echo $item['log_time'].' - '.$out;
+    }
+  } else {
+    echo "Login:<input type=text name='login'></form>";
+  }

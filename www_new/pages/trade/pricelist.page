@@ -1,0 +1,39 @@
+<?php
+
+  global $user;
+
+//  $out = "link='https://secure.xsolla.com/paystation/?projectid=4032%26id_theme=34%26fix_email={$user->email}%26fix_v1={$user->login}%27 target=%27main%27";
+  $out = "link='http://21noon.com/pre_pay.php'";
+
+  $result = db_fetch_array( "SELECT id, name, class FROM objects WHERE price > 0 OR cprice > 0 ORDER BY class, name" );
+
+  $out .= "&cnt=".count( $result );
+  $l=0;
+  foreach( $result as $item ) {
+    $out.= "&id$l=".$item['id']."&n$l=".$item['name'];
+    switch( $item['class'] ) {
+      case 0:
+        $out.= "&c$l=0x003300";
+        break;
+      case 1:
+        $out.= "&c$l=0x330033";
+        break;
+      case 2:
+      case 9:
+        $out.= "&c$l=0x330000";
+        break;
+      case 6:
+        $out.= "&c$l=0x333300";
+        break;
+      case 7:
+        $out.= "&c$l=0x000033";
+        break;
+
+      default:
+        $out.= "&c$l=0xFF0000";
+        break;
+    }
+    $l++;
+  }
+
+  printOut( $out );

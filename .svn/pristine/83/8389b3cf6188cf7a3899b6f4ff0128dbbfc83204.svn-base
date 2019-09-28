@@ -1,0 +1,23 @@
+<?php
+
+  global $user;
+
+  if( isset( $_GET['rf'] ) && is_numeric( $_GET['rf'] ) && $user->owner && 
+      $user->place_type == 1 && isset( $_GET['x'] ) && isset( $_GET['y'] ) && $_GET['x'] >= 0 && $_GET['y'] >= 0 ) {
+
+    $x = $_GET['x'];
+    $y = $_GET['y'];
+    $rf = $_GET['rf'];
+
+    $info = get_planet_info( $x, $y );
+
+    db_query( "INSERT INTO academy_build (     build_id,      user_id, type )
+                    VALUES               ( {$info->bid}, {$user->uid},  $rf )
+   ON DUPLICATE KEY UPDATE type = $rf" );
+
+    $out = 'err=0';
+  } else {
+    $out = 'err=1';
+  }
+
+  printOut( $out );

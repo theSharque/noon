@@ -1,0 +1,117 @@
+<?php
+
+  $result = db_fetch_array( "SELECT o.id, o.class, o.name
+                               FROM objects o
+                          LEFT JOIN enciclopedia e1 ON o.class IN (0, 3, 8) AND o.id = e1.object_id
+                          LEFT JOIN objects_sub os ON o.class IN (2, 9) AND os.object_id = o.id
+                          LEFT JOIN objects o2 ON o2.id = os.res_id AND o2.class IN (6, 7)
+                          LEFT JOIN enciclopedia e2 ON o2.id = e2.object_id
+                              WHERE e1.object_id IS NOT NULL OR e2.object_id IS NOT NULL
+                           ORDER BY o.class, o.name" );
+
+  $links = '';
+  foreach( $result as $item ) {
+    switch( $item['class'] ) {
+      case 0:
+        $color = "#330000";
+        break;
+      case 1:
+        $color = "#003300";
+        break;
+      case 2:
+        $color = "#333300";
+        break;
+      case 3:
+        $color = "#000033";
+        break;
+      case 5:
+        $color = "#333333";
+        break;
+      case 8:
+        $color = "#000033";
+        break;
+      case 9:
+        $color = "#330033";
+        break;
+      default:
+        $color = "#FF0000";
+        break;
+    }
+    $links .= "<div width=100% style='background-color:$color;'><a href='index.php?pid=enc&oid={$item['id']}'>{$item['name']}</a></div>";
+  }
+
+  $oid = intval( isset( $_GET['oid'] ) ? $_GET['oid'] : 9166 );
+  db_safe( $oid );
+
+  $mass = '';
+  $result = db_fetch_row( "SELECT o.class, o.mass, o.name FROM objects o WHERE o.id = $oid" );
+
+  $title .= ' - '.$result['name'];
+
+  switch( $result['class'] ) {
+    case 2:
+      $mass = $result['mass'];
+      $result = db_fetch_row( "SELECT e.desc, o.class
+                                 FROM enciclopedia e, objects o, objects_sub os
+                                WHERE o.class = 6 AND o.id = e.object_id AND os.res_id = e.object_id AND os.object_id = $oid" );
+      break;
+    case 9:
+      $mass = $result['mass'];
+      $result = db_fetch_row( "SELECT e.desc, o.class, st.agrav, st.planet, st.hyper, st.shield, st.cargo, st.w_power, st.w_count, st.missile,
+                                      st.code, st.planet_cnt, st.hyper_cnt, st.radar, st.remote, st.interupt, st.cloak
+                                 FROM enciclopedia e, objects o, objects_sub os, ship_types st
+                                WHERE o.class = 7 AND o.id = e.object_id AND os.res_id = e.object_id AND st.conserv_id = os.object_id AND os.object_id = $oid" );
+      break;
+    default:
+      $result = db_fetch_row( "SELECT e.desc, o.class FROM enciclopedia e, objects o WHERE o.id = e.object_id AND e.object_id = $oid" );
+      break;
+  }
+
+  switch( $result['class'] ) {
+    case 3:
+    case 6:
+    case 7:
+    case 8:
+      $subs = db_fetch_array( "SELECT o.name, os.res_cnt FROM objects o, objects_sub os WHERE o.class NOT IN ( 6, 7, 4 ) AND os.res_id = o.id AND os.object_id = $oid ORDER BY o.class, o.name" );
+      break;
+    default:
+      $subs = array();
+      break;
+  }
+
+  $desc = str_replace( array( '%2B', '%25' ), array( '+', '%' ), $result['desc'] );
+  if( $mass ) {
+    $desc .= "\n\nМасса объекта: $mass";
+  }
+
+  if( $result['class'] == 7 ) {
+    $desc .= "\n\nТТХ корабля:\n";
+    $desc .= 'Вместительность трюма: '.$result['cargo']."\n";
+    $desc .= 'Максимальный уровень защиты: '.$result['shield']."\n";
+    $desc .= 'Количество выстрелов: '.$result['w_count']."\n";
+    $desc .= 'Мощность выстрела: '.$result['w_power']."\n";
+    $desc .= 'Скорость перемещения в пространстве: '.$result['planet']."\n";
+    $desc .= 'Потребление водорода: '.$result['planet_cnt']."\n";
+    $desc .= 'Скорость перемещения в гиперпространстве: '.$result['hyper']."\n";
+    $desc .= 'Потребление урана: '.$result['hyper_cnt']."\n";
+    $desc .= 'Именование по реестру: '.$result['code']."\n";
+    $desc .= 'Антигравитационный двигатель: '.($result['agrav']?'установлен':'не установлен')."\n";
+    $desc .= 'Радар: '.$result['radar']."\n";
+    $desc .= 'Антирадар: '.$result['cloak']."\n";
+    $desc .= 'Модуль удаленного управления: '.($result['remote']?'установлен':'не установлен')."\n";
+    $desc .= 'Модуль гиперперехвата: '.($result['interupt']?'установлен':'не установлен')."\n";
+    $desc .= 'Максимальный тип ракет: '.$result['missile'];
+  }
+
+  if( count( $subs ) ) {
+    $desc .= "\n\nДля изготовления необходимо:\n";
+
+    foreach( $subs as $item ) {
+      $desc .= $item['res_cnt']."\t{$item['name']}\n";
+    }
+  }
+  if( $oid == 9166 ) {
+    $main_content = "<table><tr><td width=250 valign=top>$links</td><td valign=top><pre>$desc</pre></td></tr></table>";
+  } else {
+    $main_content = "<table><tr><td valign=top><a href=/index.php?pid=enc>&lt;&lt; В энциклопедию</a><pre>$desc</pre></td></tr></table>";
+  }

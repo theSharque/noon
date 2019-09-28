@@ -1,0 +1,1663 @@
+<?php
+
+  global $user;
+
+  if( !isset( $user->uid ) ) {
+    return;
+  }
+
+  levelUp( 21, $user->uid );
+
+  levelUp( 28, $user->uid );
+
+  $all = array();
+  $pl = isset( $_GET['pl'] ) ? $_GET['pl'] : '*';
+  $oth = ( isset( $_GET['oth'] ) && $_GET['oth'] == 'true' ) ? true : false;
+
+  $pl = decode_in( $pl );
+
+  db_query( "UPDATE users SET gid = '".( $oth ? '1' : '0' ).":$pl' WHERE id = ".$user->uid );
+
+  $iq = false;
+  if( $user->iq ) {
+    if( $user->qt >= 19 && $user->qt <= 29 ) {
+      $iq = true;
+    }
+  }
+
+  if( isset( $_GET['ord'] ) ) {
+    if( $_GET['ord'] == 0 ) {
+      $ord = 0;
+    } else {
+      $ord = 1;
+    }
+
+    db_query( "UPDATE users SET ord = $ord WHERE id = ".$user->uid );
+  } else {
+    $ord = db_fetch_val( "SELECT ord FROM users WHERE id = ".$user->uid, 'ord' );
+  }
+
+  $pt = null;
+  $pc = null;
+  $places = array();
+
+// Show totaly all ships
+  if( $pl == '*' ) {
+    $places = array( 0 => array( $user->planet_id ),
+                     1 => array( $user->planet_id ) );
+
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type IN (0,1) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type IN (0,1)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 3 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 3
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+WHERE s.user_id = {$user->uid} AND s.place_type = 5 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+WHERE f.user_id = {$user->uid} AND f.place_type = 5
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type IN (7,8) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+LEFT JOIN stars a ON a.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type IN (7,8)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2
+) union (".( $oth ? "
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s2.user_id = {$user->uid} AND s.place_type = 2
+) union (" : "" )."
+SELECT CONCAT( 'A', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships us ON s.place_type = us.place_type AND s.place_id = us.place_id AND s.arg1 = us.arg1 AND s.arg2 = us.arg2 AND us.user_id = {$user->uid} AND us.place_type IN( 7, 8 )
+LEFT JOIN stars a ON a.id = s.place_id AND s.place_type = 7
+WHERE s.user_id IS NULL AND s.fleet_id IS NULL
+) " );
+
+  } else {
+
+// Show totaly filtered ships
+    if( ( substr( $pl, 0, 1 ) != 'G' && substr( $pl, 1, 1 ) == 'S' ) || ( substr( $pl, 0, 1 ) == '8' ) ) {
+      $pt = substr( $pl, 0, 1 );
+      $pc = substr( $pl, 2 );
+
+      switch( $pt ) {
+
+// Show orbit
+        case 0:
+
+// Show all orbits
+          if( $pc == '*' ) {
+    $places = array( 0 => array( $user->planet_id ) );
+
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 0 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 0
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 0 )
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 0 )
+) ".( $oth ? "union (
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 0 )
+) " : "" ) );
+          } else {
+// Show one orbit
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 0 AND s.place_id = $pc AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 0 AND f.place_id = $pc
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 0 AND s3.place_id = $pc )
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 0 AND s3.place_id = $pc )
+) ".( $oth ? "union (
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 0 AND s3.place_id = $pc )
+) " : "" ) );
+          }
+          break;
+
+// Show planets
+        case 1:
+
+// Show all planets
+          if( $pc == '*' ) {
+    $places = array( 1 => array( $user->planet_id ) );
+
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 1 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 1
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 1 )
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 1 )
+) ".( $oth ? "union (
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 1 )
+) " : "" ) );
+          } else {
+
+// Show one planet
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 1 AND s.place_id = $pc AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 1 AND f.place_id = $pc
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 1 AND s3.place_id = $pc )
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 1 AND s3.place_id = $pc )
+) ".( $oth ? "union (
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 1 AND s3.place_id = $pc )
+) " : "" ) );
+          }
+          break;
+
+// Show in ships
+        case 2:
+
+// Show in all ships
+          if( $pc == '*' ) {
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE s.user_id = {$user->uid} AND s2.place_type = 2 AND s.place_type IN (0,1) AND s.fleet_id is null
+) union (
+SELECT DISTINCT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM ships s
+INNER JOIN fleets f ON f.id = s.fleet_id
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE f.user_id = {$user->uid} AND s2.place_type = 2 AND f.place_type IN (0,1)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE s.user_id = {$user->uid} AND s2.place_type = 2 AND s.place_type = 3 AND s.fleet_id is null
+) union (
+SELECT DISTINCT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM ships s
+INNER JOIN fleets f ON f.id = s.fleet_id
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE f.user_id = {$user->uid} AND s2.place_type = 2 AND f.place_type = 3
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE s.user_id = {$user->uid} AND s2.place_type = 2 AND s.place_type = 5 AND s.fleet_id is null
+) union (
+SELECT DISTINCT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM ships s
+INNER JOIN fleets f ON f.id = s.fleet_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE f.user_id = {$user->uid} AND s2.place_type = 2 AND f.place_type = 5
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE s.user_id = {$user->uid} AND s2.place_type = 2 AND s.place_type IN (7,8) AND s.fleet_id is null
+) union (
+SELECT DISTINCT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM ships s
+INNER JOIN fleets f ON f.id = s.fleet_id
+LEFT JOIN stars a ON a.id = f.place_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE f.user_id = {$user->uid} AND s2.place_type = 2 AND f.place_type IN (7,8)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2
+) ".( $oth ? "union (
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 2 )
+) " : "" ) );
+          } else {
+            if( $pc == '' ) {
+              $pc = '0';
+            }
+
+// Show in one ships
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE s.user_id = {$user->uid} AND s2.place_type = 2 AND s2.place_id = $pc AND s.place_type IN (0,1) AND s.fleet_id is null
+) union (
+SELECT DISTINCT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM ships s
+INNER JOIN fleets f ON f.id = s.fleet_id
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE f.user_id = {$user->uid} AND s2.place_type = 2 AND s2.place_id = $pc AND f.place_type IN (0,1)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE s.user_id = {$user->uid} AND s2.place_type = 2 AND s2.place_id = $pc AND s.place_type = 3 AND s.fleet_id is null
+) union (
+SELECT DISTINCT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM ships s
+INNER JOIN fleets f ON f.id = s.fleet_id
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE f.user_id = {$user->uid} AND s2.place_type = 2 AND s2.place_id = $pc AND f.place_type = 3
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE s.user_id = {$user->uid} AND s2.place_type = 2 AND s2.place_id = $pc AND s.place_type = 5 AND s.fleet_id is null
+) union (
+SELECT DISTINCT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM ships s
+INNER JOIN fleets f ON f.id = s.fleet_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE f.user_id = {$user->uid} AND s2.place_type = 2 AND s2.place_id = $pc AND f.place_type = 5
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE s.user_id = {$user->uid} AND s2.place_type = 2 AND s2.place_id = $pc AND s.place_type IN (7,8) AND s.fleet_id is null
+) union (
+SELECT DISTINCT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM ships s
+INNER JOIN fleets f ON f.id = s.fleet_id
+LEFT JOIN stars a ON a.id = f.place_id
+INNER JOIN ships s2 ON s2.place_id = s.id
+WHERE f.user_id = {$user->uid} AND s2.place_type = 2 AND s2.place_id = $pc AND f.place_type IN (7,8)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.place_id = $pc AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id = $pc
+) ".( $oth ? "union (
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 2 AND s3.place_id = $pc )
+) " : "" ) );
+          }
+          break;
+
+// Show on station
+        case 3:
+
+// Show on all station
+          if( $pc == '*' ) {
+//    $places = array( 0 => array( $user->planet_id ) );
+
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 3 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 3
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 3 )
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 3 )
+) ".( $oth ? "union (
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 3 )
+) " : "" ) );
+          } else {
+
+// Show on one station
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 3 AND p.id = $pc AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 3 AND p.id = $pc
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 3 AND s3.place_id = $pc )
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 3 AND s3.place_id = $pc )
+) ".( $oth ? "union (
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 3 AND s3.place_id = $pc )
+) " : "" ) );
+          }
+          break;
+
+        case 6:
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type IN (0,1) AND s.place_id != {$user->planet_id} AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type IN (0,1) AND f.place_id != {$user->planet_id}
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 3 AND s.fleet_id is null AND p.id != {$user->planet_id}
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 3 AND p.id != {$user->planet_id}
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+WHERE s.user_id = {$user->uid} AND s.place_type = 5 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+WHERE f.user_id = {$user->uid} AND f.place_type = 5
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type IN (7,8) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+LEFT JOIN stars a ON a.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type IN (7,8)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2
+) union (".( $oth ? "
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s2.user_id = {$user->uid} AND s.place_type = 2
+) union (" : "" )."
+SELECT CONCAT( 'A', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships us ON s.place_type = us.place_type AND s.place_id = us.place_id AND s.arg1 = us.arg1 AND s.arg2 = us.arg2 AND us.user_id = {$user->uid} AND us.place_type IN( 7, 8 )
+LEFT JOIN stars a ON a.id = s.place_id AND s.place_type = 7
+WHERE s.user_id IS NULL AND s.fleet_id IS NULL
+) " );
+          break;
+
+// Show in systems
+        case 7:
+
+// Show in all systems
+          if( $pc == '*' ) {
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 7 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+LEFT JOIN stars a ON a.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 7
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 7 )
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 7 )
+) union (".( $oth ? "
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 7 )
+) union (" : "" )."
+SELECT CONCAT( 'A', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships us ON s.place_type = us.place_type AND s.place_id = us.place_id AND s.arg1 = us.arg1 AND s.arg2 = us.arg2 AND us.user_id = {$user->uid} AND us.place_type = 7
+LEFT JOIN stars a ON a.id = s.place_id AND s.place_type = 7
+WHERE s.user_id IS NULL AND s.fleet_id IS NULL
+) " );
+          } else {
+
+// Show one systems
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 7 AND s.place_id = $pc AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+LEFT JOIN stars a ON a.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 7 AND f.place_id = $pc
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 7 AND s3.place_id = $pc )
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 7 AND s3.place_id = $pc )
+) union (".( $oth ? "
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 7 AND s3.place_id = $pc )
+) union (" : "" )."
+SELECT CONCAT( 'A', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships us ON s.place_type = us.place_type AND s.place_id = us.place_id AND s.arg1 = us.arg1 AND s.arg2 = us.arg2 AND us.user_id = {$user->uid} AND us.place_type = 7
+LEFT JOIN stars a ON a.id = s.place_id AND s.place_type = 7
+WHERE s.user_id IS NULL AND s.fleet_id IS NULL
+) " );
+          }
+          break;
+
+// Show in open space
+        case 8:
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 8 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+LEFT JOIN stars a ON a.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 8
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 8 )
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.user_id = {$user->uid} AND f.place_type = 2 AND f.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 8 )
+) union (".( $oth ? "
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.user_id != {$user->uid} AND s.place_type = 2 AND s.place_id IN ( SELECT s3.id FROM ships s3 WHERE s3.user_id = {$user->uid} AND s3.place_type = 8 )
+) union (" : "" )."
+SELECT CONCAT( 'A', s.id ) id, s.name, s.group, '' star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships us ON s.place_type = us.place_type AND s.place_id = us.place_id AND s.arg1 = us.arg1 AND s.arg2 = us.arg2 AND us.user_id = {$user->uid} AND us.place_type = 8
+WHERE s.user_id IS NULL AND s.fleet_id IS NULL
+) " );
+          break;
+
+// Show not in war
+        case 9:
+    $places = array( 0 => array( $user->planet_id ),
+                     1 => array( $user->planet_id ) );
+
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.inwar = 0 AND s.user_id = {$user->uid} AND s.place_type IN (0,1) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.inwar = 0 AND f.user_id = {$user->uid} AND f.place_type IN (0,1)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.inwar = 0 AND s.user_id = {$user->uid} AND s.place_type = 3 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.inwar = 0 AND f.user_id = {$user->uid} AND f.place_type = 3
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+WHERE s.inwar = 0 AND s.user_id = {$user->uid} AND s.place_type = 5 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+WHERE f.inwar = 0 AND f.user_id = {$user->uid} AND f.place_type = 5
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+WHERE s.inwar = 0 AND s.user_id = {$user->uid} AND s.place_type IN (7,8) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+LEFT JOIN stars a ON a.id = f.place_id
+WHERE f.inwar = 0 AND f.user_id = {$user->uid} AND f.place_type IN (7,8)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.inwar = 0 AND s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.inwar = 0 AND f.user_id = {$user->uid} AND f.place_type = 2
+) union (".( $oth ? "
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.inwar = 0 AND s.user_id != {$user->uid} AND s2.user_id = {$user->uid} AND s.place_type = 2
+) union (" : "" )."
+SELECT CONCAT( 'A', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships us ON s.place_type = us.place_type AND s.place_id = us.place_id AND s.arg1 = us.arg1 AND s.arg2 = us.arg2 AND us.user_id = {$user->uid} AND us.place_type IN( 7, 8 )
+LEFT JOIN stars a ON a.id = s.place_id AND s.place_type = 7
+WHERE us.inwar = 0 AND s.user_id IS NULL AND s.fleet_id IS NULL
+) " );
+          break;
+
+// Show in war
+        case 4:
+/*
+    $places = array( 0 => array( $user->planet_id ),
+                     1 => array( $user->planet_id ) );
+*/
+
+    $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.inwar != 0 AND s.user_id = {$user->uid} AND s.place_type IN (0,1) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.inwar != 0 AND f.user_id = {$user->uid} AND f.place_type IN (0,1)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.inwar != 0 AND s.user_id = {$user->uid} AND s.place_type = 3 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.inwar != 0 AND f.user_id = {$user->uid} AND f.place_type = 3
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+WHERE s.inwar != 0 AND s.user_id = {$user->uid} AND s.place_type = 5 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+WHERE f.inwar != 0 AND f.user_id = {$user->uid} AND f.place_type = 5
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+WHERE s.inwar != 0 AND s.user_id = {$user->uid} AND s.place_type IN (7,8) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+LEFT JOIN stars a ON a.id = f.place_id
+WHERE f.inwar != 0 AND f.user_id = {$user->uid} AND f.place_type IN (7,8)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.inwar != 0 AND s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.inwar != 0 AND f.user_id = {$user->uid} AND f.place_type = 2
+) union (".( $oth ? "
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.inwar != 0 AND s.user_id != {$user->uid} AND s2.user_id = {$user->uid} AND s.place_type = 2
+) union (" : "" )."
+SELECT CONCAT( 'A', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships us ON s.place_type = us.place_type AND s.place_id = us.place_id AND s.arg1 = us.arg1 AND s.arg2 = us.arg2 AND us.user_id = {$user->uid} AND us.place_type IN( 7, 8 )
+LEFT JOIN stars a ON a.id = s.place_id AND s.place_type = 7
+WHERE us.inwar != 0 AND s.user_id IS NULL AND s.fleet_id IS NULL
+) " );
+          break;
+      }
+    } else {
+
+// Show in group
+      if( substr( $pl, 0, 1 ) == 'G' ) {
+        $group = substr( $pl, 1 );
+
+        if( $group == 'null' ) {
+
+// Show in no group
+          $all = db_fetch_array( "(
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.group = '' AND s.user_id = {$user->uid} AND s.place_type IN (0,1) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.group = '' AND f.user_id = {$user->uid} AND f.place_type IN (0,1)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.group = '' AND s.user_id = {$user->uid} AND s.place_type = 3 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.group = '' AND f.user_id = {$user->uid} AND f.place_type = 3
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+WHERE s.group = '' AND s.user_id = {$user->uid} AND s.place_type = 5 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+WHERE f.group = '' AND f.user_id = {$user->uid} AND f.place_type = 5
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+WHERE s.group = '' AND s.user_id = {$user->uid} AND s.place_type IN (7,8) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+LEFT JOIN stars a ON a.id = f.place_id
+WHERE f.group = '' AND f.user_id = {$user->uid} AND f.place_type IN (7,8)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.group = '' AND s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.group = '' AND f.user_id = {$user->uid} AND f.place_type = 2
+) union (".( $oth ? "
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.group = '' AND s.user_id != {$user->uid} AND s2.user_id = {$user->uid} AND s.place_type = 2
+) union (" : "" )."
+SELECT CONCAT( 'A', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships us ON s.place_type = us.place_type AND s.place_id = us.place_id AND s.arg1 = us.arg1 AND s.arg2 = us.arg2 AND us.user_id = {$user->uid} AND us.place_type IN( 7, 8 )
+LEFT JOIN stars a ON a.id = s.place_id AND s.place_type = 7
+WHERE us.group = '' AND s.user_id IS NULL AND s.fleet_id IS NULL
+) " );
+        } else {
+
+// Show in one group
+          $all = db_fetch_array( "(
+
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN planets p ON s.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.group = '$group' AND s.user_id = {$user->uid} AND s.place_type IN (0,1) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN planets p ON f.place_id = p.id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.group = '$group' AND f.user_id = {$user->uid} AND f.place_type IN (0,1)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, p.name planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN orbits_buildings ob ON ob.id = s.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE s.group = '$group' AND s.user_id = {$user->uid} AND s.place_type = 3 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, p.name planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN orbits_buildings ob ON ob.id = f.place_id
+INNER JOIN planets p ON p.id = ob.planet_id
+INNER JOIN stars a ON a.id = p.star_id
+WHERE f.group = '$group' AND f.user_id = {$user->uid} AND f.place_type = 3
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+WHERE s.group = '$group' AND s.user_id = {$user->uid} AND s.place_type = 5 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+WHERE f.group = '$group' AND f.user_id = {$user->uid} AND f.place_type = 5
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+LEFT JOIN stars a ON a.id = s.place_id
+WHERE s.group = '$group' AND s.user_id = {$user->uid} AND s.place_type IN (7,8) AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, a.name star, '' planet, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+LEFT JOIN stars a ON a.id = f.place_id
+WHERE f.group = '$group' AND f.user_id = {$user->uid} AND f.place_type IN (7,8)
+) union (
+SELECT CONCAT( 'S', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.group = '$group' AND s.user_id = {$user->uid} AND s.place_type = 2 AND s.fleet_id is null
+) union (
+SELECT CONCAT( 'F', f.id ) id, f.name, f.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, f.interupt, f.harvest object_id
+FROM fleets f
+INNER JOIN ships s2 ON s2.id = f.place_id
+WHERE f.group = '$group' AND f.user_id = {$user->uid} AND f.place_type = 2
+) union (".( $oth ? "
+SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, '' star, s2.name planet, IFNULL( CONCAT( 'F', s2.fleet_id ), CONCAT( 'S', s2.id ) ) place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships s2 ON s2.id = s.place_id
+WHERE s.group = '$group' AND s.user_id != {$user->uid} AND s2.user_id = {$user->uid} AND s.place_type = 2
+) union (" : "" )."
+SELECT CONCAT( 'A', s.id ) id, s.name, s.group, a.name star, '' planet, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, s.interupt, s.object_id
+FROM ships s
+INNER JOIN ships us ON s.place_type = us.place_type AND s.place_id = us.place_id AND s.arg1 = us.arg1 AND s.arg2 = us.arg2 AND us.user_id = {$user->uid} AND us.place_type IN( 7, 8 )
+LEFT JOIN stars a ON a.id = s.place_id AND s.place_type = 7
+WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
+) " );
+        }
+      }
+    }
+  }
+
+  foreach( $all as $item ) {
+    switch( $item['place_type'] ) {
+      case 0:
+      case 1:
+      case 3:
+        $places[$item['place_type']][] = $item['place_id'];
+        break;
+      case 7:
+        $places[$item['place_type']][] = '('.$item['place_id'].','.$item['arg1'].','.$item['arg2'].')';
+        break;
+      case 8:
+        $places[$item['place_type']][] = '('.$item['arg1'].','.$item['arg2'].')';
+        break;
+    }
+  }
+
+  $conserv = array();
+  $g_all = array();
+
+  if( $pl == '*' ) {
+    if( !$iq ) {
+      if( $user->place_type == 0 || $user->place_type == 1 ) {
+        $places[$user->place_type][] = $user->place_id;
+      }
+    }
+
+    $result = db_fetch_array( "SELECT CONCAT( 'C', w.wid ) id, o.name, w.place_id, w.place_type, w.object_cnt cnt, a.name star, p.name planet
+                                 FROM warehouse w
+                           INNER JOIN objects o ON o.id = w.object_id
+                           INNER JOIN planets p ON p.id = w.place_id
+                           INNER JOIN stars a ON a.id = p.star_id
+                                WHERE o.class = 9 AND
+                                      w.object_cnt > 0 AND
+                                      w.place_type IN( 0, 1 ) AND
+                                      p.user_id = ".$user->uid );
+    $conserv = array_merge( $conserv, $result );
+
+    $result = db_fetch_array( "SELECT CONCAT( 'C', w.wid ) id, o.name, IFNULL( CONCAT( 'F', s.fleet_id ), CONCAT( 'S', s.id ) ) place_id, w.place_type, w.object_cnt cnt, s.name planet
+                                 FROM warehouse w
+                           INNER JOIN objects o ON o.id = w.object_id
+                           INNER JOIN ships s ON s.id = w.place_id
+                                WHERE o.class = 9 AND
+                                      w.object_cnt > 0 AND
+                                      w.place_type = 2 AND
+                                      s.place_type IN( 0, 1, 2, 3, 7, 8 ) AND
+                                      s.user_id = ".$user->uid );
+    $conserv = array_merge( $conserv, $result );
+  }
+
+  ksort( $places );
+
+  foreach( $places as $place_type => $type ) {
+
+    $guests = array();
+
+    switch( $place_type ) {
+      case 0:
+      case 1:
+        $place = implode( ',', array_unique( $type ) );
+
+        $result = db_fetch_array( "SELECT CONCAT( 'C', w.wid ) id, o.name, w.place_id, w.place_type, w.object_cnt cnt, a.name star, p.name planet
+                                     FROM warehouse w
+                               INNER JOIN objects o ON w.object_id = o.id AND o.class = 9
+                               INNER JOIN planets p ON p.id = w.place_id AND ( p.user_id IS NULL OR p.user_id = {$user->uid})
+                               INNER JOIN stars a ON a.id = p.star_id
+                                    WHERE w.object_cnt > 0 AND w.place_id IN ( $place ) AND w.place_type = $place_type", true );
+        $conserv = array_merge( $conserv, $result );
+
+        if( $oth ) {
+          $guests = db_fetch_array( "SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, p.name planet, a.name star
+                                       FROM ships s
+                                 INNER JOIN ship_types st ON st.object_id = s.object_id
+                                 INNER JOIN planets p ON p.id = s.place_id
+                                 INNER JOIN stars a ON a.id = p.star_id
+                                      WHERE s.place_type = $place_type AND s.place_id IN ( $place ) AND
+                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+        }
+        break;
+
+      case 2:
+        if( $oth ) {
+          $place = implode( ',', array_unique( $type ) );
+
+          $guests = db_fetch_array( "SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, '' planet, '' star
+                                       FROM ships s
+                                 INNER JOIN ship_types st ON st.object_id = s.object_id
+                                      WHERE s.place_type = $place_type AND s.place_id IN ( $place ) AND
+                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+        }
+
+      case 3:
+        if( $oth ) {
+          $place = implode( ',', array_unique( $type ) );
+
+          $guests = db_fetch_array( "SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, p.name planet, a.name star
+                                       FROM ships s
+                                 INNER JOIN ship_types st ON st.object_id = s.object_id
+                                 INNER JOIN orbits_buildings ob ON s.place_type = 3 AND ob.id = s.place_id
+                                 INNER JOIN planets p ON p.id = ob.planet_id
+                                 INNER JOIN stars a ON a.id = p.star_id
+                                      WHERE s.place_type = $place_type AND s.place_id IN ( $place ) AND
+                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+        }
+        break;
+
+      case 7:
+        if( $oth ) {
+          $place = implode( ',', array_unique( $type ) );
+
+          $guests = db_fetch_array( "SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, '' planet, a.name star
+                                       FROM ships s
+                                 INNER JOIN ship_types st ON st.object_id = s.object_id
+                                 INNER JOIN stars a ON a.id = s.place_id
+                                      WHERE s.place_type = $place_type AND ( s.place_id, s.arg1, s.arg2 ) IN ( $place ) AND
+                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+        }
+        break;
+
+      case 8:
+        if( $oth ) {
+          $place = implode( ',', array_unique( $type ) );
+
+          $guests = db_fetch_array( "SELECT CONCAT( 'Z', s.id ) id, s.name, s.group, s.place_id, s.place_type, s.arg1, s.arg2, s.inwar, s.guard, '' planet, '' star
+                                       FROM ships s
+                                 INNER JOIN ship_types st ON st.object_id = s.object_id
+                                      WHERE s.place_type = $place_type AND ( s.arg1, s.arg2 ) IN ( $place ) AND
+                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+        }
+        break;
+    }
+
+    $g_all = array_merge( $g_all, $guests );
+    unset( $guests );
+
+    $result = db_fetch_array( "SELECT CONCAT( 'C', w.wid ) id, o.name, IFNULL( CONCAT( 'F', s.fleet_id ), CONCAT( 'S', s.id ) ) place_id, w.place_type, w.object_cnt cnt, s.name planet
+                                 FROM ships s
+                           INNER JOIN warehouse w ON w.object_cnt > 0 AND w.place_id = s.id AND w.place_type = 2
+                           INNER JOIN objects o ON o.id = w.object_id AND o.class = 9
+                                WHERE s.place_type = $place_type AND s.user_id = ".$user->uid, true );
+
+    $conserv = array_merge( $conserv, $result );
+    unset( $result );
+  }
+
+  $ship_list = array();
+  foreach( $all as $item ) {
+    switch( $item['place_type'] ) {
+      case 0:
+      case 1:
+        $ship_list[$item['star']][$item['planet']][$item['place_type']]['0'.$item['name'].':'.$item['id']] = $item;
+        $parents[$item['id']] = array(
+          'place_type' => $item['place_type'],
+          'planet' => $item['planet'],
+          'star' => $item['star'],
+          'order' => '0'.$item['name'],
+          'name' => $item['name']
+        );
+        break;
+
+      case 5:
+        $ship_list[' '][$item['planet']][$item['place_type']]['0'.$item['name'].':'.$item['id']] = $item;
+        $parents[$item['id']] = array(
+          'place_type' => $item['place_type'],
+          'planet' => $item['planet'],
+          'star' => 1,
+          'order' => '0'.$item['name'],
+          'name' => $item['name']
+        );
+        break;
+
+      case 7:
+      case 8:
+        $ship_list[$item['star']][$item['arg1'].':'.$item['arg2']][$item['place_type']]['0'.$item['name'].':'.$item['id']] = $item;
+        $parents[$item['id']] = array(
+          'place_type' => $item['place_type'],
+          'planet' => $item['arg1'].':'.$item['arg2'],
+          'star' => $item['star'],
+          'order' => '0'.$item['name'],
+          'name' => $item['name']
+        );
+        break;
+
+      case 2:
+        if( isset( $parents[$item['place_id']] ) ) {
+          $item['parent'] = $parents[$item['place_id']]['name'];
+          $ship_list[$parents[$item['place_id']]['star']][$parents[$item['place_id']]['planet']][$parents[$item['place_id']]['place_type']][$parents[$item['place_id']]['order'].':'.$item['place_id'].':'.$item['planet'].':0'.$item['name'].':'.$item['id']] = $item;
+          $parents[$item['id']] = array(
+            'place_type' => $item['place_type'],
+            'planet' => $item['planet'],
+            'parent' => $item['place_id'],
+            'star' => $item['star'],
+            'order' => '2'.$item['name'],
+            'name' => $item['name']
+          );
+        } else {
+          $ship_list[$item['star']][$item['planet']][$item['place_type']][$item['place_id'].':'.$item['planet'].':0'.$item['name'].':'.$item['id']] = $item;
+          $parents[$item['id']] = array(
+            'place_type' => $item['place_type'],
+            'planet' => $item['planet'],
+            'parent' => $item['place_id'],
+            'star' => $item['star'],
+            'order' => '2'.$item['name'],
+            'name' => $item['name']
+          );
+        }
+        break;
+
+      case 3:
+        $ship_list[$item['star']][$item['planet']][3]['0'.$item['name'].':'.$item['id']] = $item;
+        $parents[$item['id']] = array(
+          'place_type' => $item['place_type'],
+          'planet' => $item['planet'],
+          'star' => $item['star'],
+          'order' => '0'.$item['name'],
+          'name' => $item['name']
+        );
+        break;
+    }
+  }
+
+  unset( $all );
+
+  foreach( $g_all as $item ) {
+    switch( $item['place_type'] ) {
+      case 0:
+      case 1:
+        $ship_list[$item['star']][$item['planet']][$item['place_type']]['1'.$item['name'].':'.$item['id']] = $item;
+        $parents[$item['id']] = array(
+          'place_type' => $item['place_type'],
+          'planet' => $item['planet'],
+          'star' => $item['star'],
+          'order' => '1'.$item['name'],
+          'name' => $item['name']
+        );
+        break;
+
+      case 7:
+      case 8:
+        $ship_list[$item['star']][$item['arg1'].':'.$item['arg2']][$item['place_type']]['1'.$item['name'].':'.$item['id']] = $item;
+        $parents[$item['id']] = array(
+          'place_type' => $item['place_type'],
+          'planet' => $item['arg1'].':'.$item['arg2'],
+          'star' => $item['star'],
+          'order' => '1'.$item['name'],
+          'name' => $item['name']
+        );
+        break;
+
+      case 2:
+        $item['parent'] = $parents[$item['place_id']]['name'];
+        $ship_list[$parents[$item['place_id']]['star']][$parents[$item['place_id']]['planet']][$parents[$item['place_id']]['place_type']][$parents[$item['place_id']]['order'].':'.$item['place_id'].':'.$item['planet'].':1'.$item['name'].':'.$item['id']] = $item;
+        $parents[$item['id']] = array(
+          'place_type' => $item['place_type'],
+          'planet' => $item['planet'],
+          'star' => $item['star'],
+          'order' => '1'.$item['name'],
+          'name' => $item['name']
+        );
+        break;
+
+      case 3:
+        $ship_list[$item['star']][$item['planet']][3]['1'.$item['name'].':'.$item['id']] = $item;
+        $parents[$item['id']] = array(
+          'place_type' => $item['place_type'],
+          'planet' => $item['planet'],
+          'star' => $item['star'],
+          'order' => '1'.$item['name'],
+          'name' => $item['name']
+        );
+        break;
+    }
+  }
+
+  unset( $g_all );
+
+  foreach( $conserv as $item ) {
+    switch( $item['place_type'] ) {
+      case 0:
+        $ship_list[$item['star']][$item['planet']][3]['2'.$item['name'].':'.$item['id']] = $item;
+        break;
+
+      case 1:
+        $ship_list[$item['star']][$item['planet']][$item['place_type']]['2'.$item['name'].':'.$item['id']] = $item;
+        break;
+
+      case 2:
+        if( isset( $parents[$item['place_id']]['name'] ) ) {
+          if( $parents[$item['place_id']]['place_type'] == 2 ) {
+            $item['parent'] = $parents[$item['place_id']]['name'];
+            $ship_list[$parents[$item['place_id']]['star']][$parents[$item['place_id']]['planet']][$parents[$item['place_id']]['place_type']][$parents[$item['place_id']]['order'].':'.$item['place_id'].':'.$item['planet'].':2'.$item['name'].':'.$item['id']] = $item;
+          } else {
+            $item['parent'] = $parents[$item['place_id']]['name'];
+            $ship_list[$parents[$item['place_id']]['star']][$parents[$item['place_id']]['planet']][$parents[$item['place_id']]['place_type']][$parents[$item['place_id']]['order'].':'.$item['place_id'].':'.$item['planet'].':2'.$item['name'].':'.$item['id']] = $item;
+          }
+        }
+        break;
+    }
+  }
+
+  unset( $conserv );
+
+  // Now we need to sort this all
+  $all = array();
+
+  if( $ord == 1 ) {
+    ksort( $ship_list );
+    foreach( $ship_list as $key => $arr ) {
+      ksort( $ship_list[$key] );
+      foreach( $ship_list[$key] as $key2 => $arr2 ) {
+        ksort( $ship_list[$key][$key2] );
+        foreach( $ship_list[$key][$key2] as $key3 => $arr3 ) {
+          ksort( $ship_list[$key][$key2][$key3] );
+        }
+      }
+    }
+
+    $hint = 0;
+    foreach( $ship_list as $key => $arr ) {
+      if( $key ) {
+        if( $key == ' ' ) {
+          $all = array_merge( $all, array( 'H'.$hint => array( 'id' => 'H'.$hint, 'name' => '', 'place_type' => 12, 'place_id' => 0 ) ) );
+          $hint++;
+        } else {
+          $all = array_merge( $all, array( 'H'.$hint => array( 'id' => 'H'.$hint, 'name' => $key, 'place_type' => 9, 'place_id' => 0 ) ) );
+          $hint++;
+        }
+      } else {
+        $all = array_merge( $all, array( 'H'.$hint => array( 'id' => 'H'.$hint, 'name' => '', 'place_type' => 11, 'place_id' => 0 ) ) );
+        $hint++;
+      }
+
+      foreach( $ship_list[$key] as $key2 => $arr2 ) {
+        if( $user->show_planet == 1 && $key2 && !is_numeric( $key2{0} ) && $key2{0} != '-' ) {
+          $all = array_merge( $all, array( 'H'.$hint => array( 'id' => 'H'.$hint, 'name' => $key2, 'place_type' => 10, 'place_id' => 0 ) ) );
+          $hint++;
+        }
+
+        foreach( $ship_list[$key][$key2] as $key3 => $arr3 ) {
+          $all = array_merge( $all, $ship_list[$key][$key2][$key3] );
+        }
+      }
+    }
+
+// print_r( $ship_list );
+
+  } else {
+    $l = 0;
+
+    foreach( $ship_list as $arr ) {
+      foreach( $arr as $arr2 ) {
+        foreach( $arr2 as $arr3 ) {
+          foreach( $arr3 as $arr4 ) {
+            switch( $arr4['id']{0} ) {
+              case 'S':
+              case 'F':
+                $type = '0';
+                break;
+
+              case 'C':
+                $type = '1';
+                break;
+
+              case 'Z':
+                $type = '2';
+                break;
+            }
+
+            $all[$type.':'.$arr4['name'].':'.$l] = $arr4;
+            $l++;
+          }
+        }
+      }
+    }
+
+    ksort( $all );
+  }
+
+
+// print_r( $all );
+
+  if( $user->fid != '0' ) {
+    $out = "err=0&fid={$user->fid}&cnt=".count( $all );
+  } else {
+    switch( $user->real_type ) {
+      case 2:
+        $out = "err=0&fid=S{$user->real_id}&cnt=".count( $all );
+        break;
+
+      case 6:
+        $out = "err=0&fid=F{$user->real_id}&cnt=".count( $all );
+        break;
+
+      default:
+        $out = "err=0&cnt=".count( $all );
+        break;
+    }
+  }
+
+// print_r( $g_all );
+// print_r( $all );
+
+  $l=0;
+  foreach( $all as $item ) {
+
+    $title = '';
+    $color = '';
+
+    $out .= "&id$l=".$item['id'];
+    $shid = substr( $item['id'], 1 );
+    $type = substr( $item['id'], 0, 1 );
+    $event = null;
+
+    switch( $type ) {
+      case 'C':
+        $title = "&name$l=(".$item['cnt'].') '.$item['name'];
+        break;
+
+      case 'A':
+      case 'S':
+      case 'F':
+        $title = "&group$l={$item['group']}&name$l=".$item['name'];
+        break;
+
+      case 'Z':
+        $title = "&group$l={$item['group']}&name$l=- ".$item['name'];
+        break;
+    }
+
+    if( isset( $item['cnt'] ) ) {
+      $out .= "&cnt$l=".$item['cnt'];
+    }
+
+    switch( $item['place_type'] ) {
+      case 0:
+        if( $type == 'C' ) {
+          $title .= "&place$l=".$item['planet']." - орбитальный склад";
+          $color = "&c$l=0x111111";
+        } else {
+          if( $type == 'S' && ( $item['object_id'] == 9452 || $item['object_id'] == 9321 ) ) {
+            $event = db_fetch_row( "SELECT id, event_type, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain
+                                      FROM space_events WHERE event_type < 100 AND ship_id = $shid", true );
+          }
+
+          if( $type == 'F' && $item['object_id'] = 1 ) {
+            $event = db_fetch_row( "SELECT id, event_type, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain
+                                      FROM space_events WHERE event_type >= 100 AND ship_id = $shid", true );
+          }
+
+          if( isset( $event['id'] ) ) {
+            switch( $event['event_type'] ) {
+              case 7:
+                $title .= "&place$l=Врата ".$item['planet']." &tp$l=".$event['remain'];
+                $color = "&c$l=0x330033";
+                break;
+
+              case 9:
+              case 109:
+                $title .= "&place$l=Сбор: ".$item['planet']." - орбита"."&tp$l=".$event['remain'];
+                $color = "&c$l=0x330033";
+                break;
+            }
+          } else {
+            $title .= "&place$l=".$item['planet']." - орбита";
+            $color = "&c$l=0x003300";
+          }
+        }
+        break;
+
+      case 1:
+        if( $type == 'S' && ( $item['object_id'] == 9452 || $item['object_id'] == 9321 ) ) {
+          $event = db_fetch_row( "SELECT id, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain
+                                    FROM space_events WHERE event_type = 9 AND ship_id = $shid", true );
+        }
+
+        if( $type == 'F' && $item['object_id'] = 1 ) {
+          $event = db_fetch_row( "SELECT id, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain
+                                    FROM space_events WHERE event_type = 109 AND ship_id = $shid", true );
+        }
+
+        if( isset( $event['id'] ) ) {
+          $title .= "&place$l=Сбор: ".$item['planet'].' - планета'."&tp$l=".$event['remain'];
+          $color = "&c$l=0x330033";
+        } else {
+          $title .= "&place$l=".$item['planet'].' - планета';
+
+          if( $type == 'C' ) {
+            $color = "&c$l=0x111111";
+          } else {
+            $color = "&c$l=0x006600";
+          }
+        }
+        break;
+
+      case 2:
+        if( isset( $item['parent'] ) ) {
+          if( ( isset( $item['planet'] ) && ( $item['planet'] != $item['parent'] ) ) ) {
+            $title .= "&place$l=(".$item['planet'].') '.$item['parent'];
+          } else {
+            $title .= "&place$l=".$item['parent'];
+          }
+        } else {
+          $title .= "&place$l=(".$item['planet'].')';
+        }
+
+        if( $type == 'C' ) {
+          $color = "&c$l=0x111111";
+        } else {
+          $color = "&c$l=0x000033";
+        }
+        break;
+      case 3:
+        $title .= "&place$l=".$item['planet']." - пристыкован";
+        $color = "&c$l=0x000033";
+        break;
+
+      case 5:
+        if( $type == 'S' ) {
+          $event = db_fetch_row( "SELECT event_type, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain, timer, arg1, arg2 FROM space_events WHERE event_type < 100 AND ship_id = $shid" );
+        }
+
+        if( $type == 'F' ) {
+          $event = db_fetch_row( "SELECT event_type, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain, timer, arg1, arg2 FROM space_events WHERE event_type >= 100 AND ship_id = $shid" );
+        }
+
+        if( isset( $event['event_type'] ) ) {
+          switch( $event['event_type'] ) {
+            case 0:
+            case 100:
+              $place = db_fetch_row( "SELECT name FROM planets WHERE id=".$item['place_id'], true );
+              $title .= "&place$l=Посадка на ".$place['name']."&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+            case 1:
+            case 101:
+              $place = db_fetch_row( "SELECT name FROM planets WHERE id=".$item['place_id'], true );
+              $title .= "&place$l=Взлет с ".$place['name']."&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+            case 2:
+            case 102:
+              $title .= "&place$l=->".$event['arg1'].":".$event['arg2']."&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+            case 3:
+            case 103:
+              $place = db_fetch_row( "SELECT name FROM planets WHERE id=".$event['arg2'], true );
+              $title .= "&place$l=->".$place['name']."&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+            case 4:
+            case 104:
+              $place = db_fetch_row( "SELECT name FROM stars WHERE id=".$event['arg2'], true );
+              $title .= "&place$l=>>>".$place['name']."&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+            case 5:
+            case 105:
+              $title .= "&place$l=>>>".$event['arg1'].":".$event['arg2']."&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+            case 6:
+              $place = db_fetch_row( "SELECT name FROM planets WHERE id=".$item['place_id'], true );
+              $title .= "&place$l=Исследование ".$place['name']."&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+            case 7:
+              $place = db_fetch_row( "SELECT name FROM planets WHERE id=".$item['place_id'], true );
+              $title .= "&place$l=Перемещение планеты ".$place['name']."&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+            case 8:
+              $place = db_fetch_row( "SELECT name FROM planets WHERE id=".$item['place_id'], true );
+              $title .= "&place$l=Саботаж ".$place['name']."&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+            case 10:
+            case 11:
+            case 110:
+            case 111:
+              $title .= "&place$l=Идет по следу&tp$l=".$event['remain'];
+              $color = "&c$l=0x000000";
+              break;
+
+            default :
+              $title .= "&place$l=Unknown place".$item['place_type'];
+              $color = "&c$l=0xFF0000";
+              break;
+          }
+        }
+        break;
+
+      case 7:
+        if( $type == 'S' && ( $item['object_id'] == 9452 || $item['object_id'] == 9321 ) ) {
+          $event = db_fetch_row( "SELECT id, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain
+                                    FROM space_events WHERE event_type = 9 AND ship_id = $shid", true );
+        }
+
+        if( $type == 'F' && $item['object_id'] = 1 ) {
+          $event = db_fetch_row( "SELECT id, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain
+                                    FROM space_events WHERE event_type = 109 AND ship_id = $shid", true );
+        }
+
+        if( isset( $event['id'] ) ) {
+          $place = db_fetch_row( "SELECT name FROM stars WHERE id=".$item['place_id'], true );
+
+          $title .= "&place$l=Сбор: ".$place['name']." ".$item['arg1'].":".$item['arg2']." - точка"."&tp$l=".$event['remain'];
+          $color = "&c$l=0x330033";
+        } else {
+          $place = db_fetch_row( "SELECT name FROM stars WHERE id=".$item['place_id'], true );
+          $title .= "&place$l=".$place['name']." ".$item['arg1'].":".$item['arg2']." - точка";
+          $color = "&c$l=0x000066";
+        }
+        break;
+
+      case 8:
+        if( $type == 'S' && ( $item['object_id'] == 9452 || $item['object_id'] == 9321 ) ) {
+          $event = db_fetch_row( "SELECT id, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain
+                                    FROM space_events WHERE event_type = 9 AND ship_id = $shid", true );
+        }
+
+        if( $type == 'F' && $item['object_id'] = 1 ) {
+          $event = db_fetch_row( "SELECT id, UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain
+                                    FROM space_events WHERE event_type = 109 AND ship_id = $shid", true );
+        }
+
+        if( isset( $event['id'] ) ) {
+          $title .= "&place$l=Сбор: ".$item['arg1'].":".$item['arg2']."&tp$l=".$event['remain'];
+          $color = "&c$l=0x330033";
+        } else {
+          $title .= "&place$l=Гипер: ".$item['arg1'].":".$item['arg2'];
+          $color = "&c$l=0x000066";
+        }
+        break;
+
+      case 9:
+        $title .= "&name$l=  Система&place$l=".$item['name'];
+        $color = "&c$l=0x000000";
+        break;
+
+      case 10:
+        $title .= "&name$l=    Планета&place$l=".$item['name'];
+        $color = "&c$l=0x663300";
+        break;
+
+      case 11:
+        $title .= "&name$l=Гипер&place$l=";
+        $color = "&c$l=0x000000";
+        break;
+
+      case 12:
+        $title .= "&name$l=В пути&place$l=";
+        $color = "&c$l=0x000000";
+        break;
+
+      default :
+        $title .= "&place$l=Unknown place".$item['place_type'];
+        $color = "&c$l=0xFF0000";
+        break;
+    }
+
+    if( $type == 'A' ) {
+      $color = "&c$l=0x009900";
+    }
+
+    if( isset( $item['interupt'] ) && $item['interupt'] > 1 ) {
+      $color = "&c$l=0x666600";
+    }
+
+    if( isset( $item['guard'] ) && $item['guard'] != 0 ) {
+      $color = "&c$l=0x660000";
+    }
+
+    if( isset( $item['inwar'] ) && $item['inwar'] != 0 ) {
+      if( $item['place_type'] != 5 ) {
+        $title .= "&tp$l=10";
+      }
+      $color = "&c$l=0xCC0000";
+    }
+
+    if( isset( $item['name'] ) && $item['name'] == 'S-O-S' ) {
+      $color = "&c$l=0x660000";
+    }
+
+    if( ( ( $user->real_type == 2 && $type == 'S' ) || ( $user->real_type == 6 && $type == 'F' ) ) && $user->real_id == $shid ) {
+      $color = "&c$l=0x990099";
+    }
+
+    $out .= $title;
+    $out .= $color;
+
+    $l++;
+  }
+
+  printOut( $out );

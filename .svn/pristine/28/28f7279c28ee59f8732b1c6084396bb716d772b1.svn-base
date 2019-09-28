@@ -1,0 +1,139 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	background-color: #000000;
+}
+
+html, body, table, td, a {
+	color: #ffffff;
+	font-family: Verdana, Tahoma, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+
+body {
+	background-image: url("../images/underbg_hi.jpg");
+	background-position: top;
+	background-repeat: repeat-x;
+}
+
+a {
+	text-decoration: underline;
+}
+
+#maincontainer {
+	background-image: url("../images/mainbg_hi.jpg");
+	background-position: top;
+	background-repeat: repeat-x;
+}
+
+.leftborder {
+	background-image: url("../images/mainborderleftmiddle.jpg");
+	background-repeat: repeat;
+}
+
+.rightborder {
+	background-image: url("../images/mainborderrightmiddle.jpg");
+	background-repeat: repeat;
+}
+
+#statscontainer {
+	position: absolute;
+	left: 35px;
+	top: 30px;
+	width: 285px;
+	height: 140px;
+	overflow: auto;
+}
+
+#statscontainer h3 {
+	margin: 0px;
+	font-size: 18px;
+}
+
+#topmenu {
+	background-image: url("../images/topmenubg.png");
+	background-repeat: repeat-x;
+}
+
+.maintexttableinternal {
+	background-color: #00152c;
+	background-image: url("../images/maintexttablebg.jpg");
+	background-position: top;
+	background-repeat: repeat-x;
+}
+
+.maintexttableleft {
+	background-image: url("../images/maintexttableleftbg.gif");
+	background-repeat: repeat-y;
+}
+
+.maintexttableright {
+	background-image: url("../images/maintexttablerightbg.gif");
+	background-repeat: repeat-y;
+}
+
+.maintextcontainer {
+	background-image: url("../images/maintexttabletextbg.png");
+	background-position: top right;
+	background-repeat: no-repeat;
+	padding: 20px;
+}
+
+.maintextcontainer h3 {
+	margin: 0px;
+	font-size: 18px;
+}
+
+.secondarytableinternal {
+	background-color: #00152c;
+	background-image: url("../images/secondarytablebg.jpg");
+	background-position: top;
+	background-repeat: repeat-x;
+}
+
+.secondarytableleft {
+	background-image: url("../images/secondarytableleftbg.gif");
+	background-repeat: repeat-y;
+}
+
+.secondarytableright {
+	background-image: url("../images/secondarytablerightbg.gif");
+	background-repeat: repeat-y;
+}
+
+.secondarytabletextcontainer {
+	background-image: url("../images/secondarytabletextbg.png");
+	background-position: top right;
+	background-repeat: no-repeat;
+	padding: 13px;
+}
+
+.secondarytabletextcontainer h3 {
+	margin: 0px;
+	font-size: 18px;
+}
+
+.logintablecontainer h3 {
+	margin: 0px;
+	font-size: 18px;
+}
+
+.logintextfield {
+	width: 150px;
+	border: 2px solid #085394;
+}
+
+.statstablecontainer h3 {
+	margin: 0px;
+	font-size: 18px;
+}
+
+.footertable {
+	background-image: url("../images/footerbg.png");
+	background-repeat: repeat;
+}
+
+.footertabletextcontainer, .footertabletextcontainer a {
+	font-size: 10px;
+	padding: 2px;
+}

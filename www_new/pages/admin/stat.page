@@ -1,0 +1,236 @@
+<?php
+
+  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset='><TITLE>admin objects</TITLE></HEAD>
+<BODY bgcolor=#000000 text=#00FF00 leftmargin=0 topmargin=0>
+<a href='/page.php?id=990'>Return back</a><br>";
+
+  echo '<br>Total statistic<br>';
+  $res = db_fetch_array( "SELECT sum(money) credit, sum(credits) confederate FROM users u WHERE u.id > 16 AND u.status = 1" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>In game statistic<br>';
+  $res = db_fetch_array( "SELECT sum(u.money) credit, sum(u.credits) confederate
+                            FROM users u
+                      INNER JOIN users_active ua ON ua.id = u.id
+                           WHERE u.id > 16 AND u.status = 1 AND DATE_ADD( ua.lastlogin, INTERVAL 14 DAY ) > NOW()" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>Bay_log statistic<br>';
+  $res = db_fetch_array( "SELECT LEFT(log_time, 10) log_date, sum(IF(conf=1,summ,0)) confederats, round( sum(IF(conf=1,summ,0)) * 0.15, 2 ) real_money, sum(IF(conf=0,summ,0)) credits FROM bay_log bl WHERE bl.user_id > 15 GROUP BY log_date ORDER BY id DESC LIMIT 0,20" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>Last confederate trade<br>';
+  $res = db_fetch_array( "SELECT bl.log_time log_time, u.login user, bl.log_text text, IF(bl.conf=1,bl.summ,0) confederats, IF(bl.conf=0,bl.summ,0) credits
+                            FROM bay_log bl
+                      INNER JOIN users u ON u.id = bl.user_id
+                           WHERE bl.user_id > 15 AND bl.conf = 1
+                        ORDER BY bl.id DESC
+                           LIMIT 0,30" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      switch( $name ) {
+        case 'user' :
+          echo '<td>'.$name.'</td><td><a href="http://21noon.com/page.php?id=980&login='.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        default :
+          echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+          break;
+      }
+
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>History statistic<br>';
+  $res = db_fetch_array( "SELECT logdate ld, credits cr, confederates cnf, confederates_all acnf, users, online, stars FROM history_log ORDER BY id DESC LIMIT 0,20" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>By credits<br>';
+  $res = db_fetch_array( "SELECT login, money, credits FROM users u WHERE u.status = 1 ORDER BY money DESC LIMIT 0,20" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      switch( $name ) {
+        case 'login' :
+          echo '<td>'.$name.'</td><td><a href="http://21noon.com/page.php?id=980&login='.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        default :
+          echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+          break;
+      }
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>By confederate<br>';
+  $res = db_fetch_array( "SELECT login, money, credits FROM users u WHERE u.status = 1 ORDER BY credits DESC LIMIT 0,20" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      switch( $name ) {
+        case 'login' :
+          echo '<td>'.$name.'</td><td><a href="http://21noon.com/page.php?id=980&login='.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        default :
+          echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+          break;
+      }
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>Registrant<br>';
+  $res = db_fetch_array( "SELECT SUBSTR( register_date, 1, 10 ) Reg, COUNT( id ) cnt, SUM( IF( level < 7, 1, 0 ) ) low, SUM( IF( level >= 7, 1, 0 ) ) high, SUM( IF( level >= 42, 1, 0 ) ) fin FROM  users u WHERE u.id > 15 AND u.status = 1 GROUP BY Reg ORDER BY Reg DESC LIMIT 0,20" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>Last fin level<br>';
+  $res = db_fetch_array( "SELECT SUBSTR( register_date, 1, 10 ) Reg, SUBSTR( tutorial_time, 1, 10 ) Tutor, login, level, ref_link FROM users u WHERE level >= 42 AND u.id > 15 AND u.status = 1 ORDER BY tutorial_time DESC LIMIT 0,20" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      switch( $name ) {
+        case 'login' :
+          echo '<td>'.$name.'</td><td><a href="http://21noon.com/page.php?id=980&login='.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        case 'ref_link' :
+          echo '<td>'.$name.'</td><td><a href="'.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        default :
+          echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+          break;
+      }
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>Last high level<br>';
+  $res = db_fetch_array( "SELECT register_date Reg, login, level, ref_link FROM users u WHERE level >= 7 AND u.id > 15 AND u.status = 1 ORDER BY register_date DESC LIMIT 0,20" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      switch( $name ) {
+        case 'login' :
+          echo '<td>'.$name.'</td><td><a href="http://21noon.com/page.php?id=980&login='.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        case 'ref_link' :
+          echo '<td>'.$name.'</td><td><a href="'.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        default :
+          echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+          break;
+      }
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>Last low level<br>';
+  $res = db_fetch_array( "SELECT register_date Reg, login, level, ref_link FROM users u WHERE level < 7 AND u.id > 15 AND u.status = 1 ORDER BY register_date DESC LIMIT 0,20" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      switch( $name ) {
+        case 'login' :
+          echo '<td>'.$name.'</td><td><a href="http://21noon.com/page.php?id=980&login='.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        case 'ref_link' :
+          echo '<td>'.$name.'</td><td><a href="'.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        default :
+          echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+          break;
+      }
+    }
+    echo '</tr>';
+  }
+  echo '</table>';
+
+  echo '<br>Donators<br>';
+//  $res = db_fetch_array( "SELECT pay_date, full_output FROM 2pay_log WHERE command = 'pay' ORDER BY id DESC LIMIT 0,15" );
+  $res = db_fetch_array( "SELECT pl.log_time, u.login, pl.mess, u.ref_link
+                            FROM pay_log pl
+                      INNER JOIN users u ON u.id = pl.user_id
+                           WHERE pl.type = 1
+                        ORDER BY pl.id DESC
+                           LIMIT 0,30" );
+  echo '<table>';
+  foreach( $res as $item ) {
+    echo '<tr>';
+    foreach( $item as $name => $cell ) {
+      switch( $name ) {
+        case 'login' :
+          echo '<td>'.$name.'</td><td><a href="http://21noon.com/page.php?id=980&login='.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        case 'ref_link' :
+          echo '<td>'.$name.'</td><td><a href="'.$cell.'">'.substr( $cell, 0, 40 ).'</a></td>';
+          break;
+
+        default :
+          echo '<td>'.$name.'</td><td '.(is_numeric( $cell ) ? 'align=right' : '').'>'.(is_numeric( $cell ) ? number_format( $cell, 2, '.', ' ' ) : $cell).'</td>';
+          break;
+      }
+    }
+    echo '</tr>';
+  }
+  echo '</table>';

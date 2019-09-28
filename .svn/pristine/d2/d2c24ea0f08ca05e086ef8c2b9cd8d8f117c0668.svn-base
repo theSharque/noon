@@ -1,0 +1,1816 @@
+<?php
+
+  include( './pages/environment/planets.dic' );
+
+  global $user;
+
+  if( isset( $_GET['shid'] ) && isset( $_GET['orid'] ) ) {
+    $pre_shid = $_GET['shid'];
+    db_safe( $pre_shid );
+
+    $orid = $_GET['orid'];
+    db_safe( $orid );
+
+    $limit = get_ship_limit( $user->uid );
+//$limit = 10;
+
+    if( strpos( $orid, ':' ) > 0 ) {
+      $x = substr( $orid, strpos( $orid, ':' ) + 1 );
+      $orid = substr( $orid, 0, strpos( $orid, ':' ) );
+      db_safe( $x );
+      db_safe( $orid );
+    }
+
+    $shid = substr( $pre_shid, 1 );
+    $type = substr( $pre_shid, 0, 1 );
+
+    if( $limit < 0 ) {
+      if( $user->real_type == 2 && $user->real_id == $shid ) {
+        $limit = 1;
+      }
+
+      if( $user->real_type == 6 && $user->real_id == $shid ) {
+        $over = db_fetch_val( "SELECT count(*) cnt FROM ships WHERE fleet_id = $shid", 'cnt' );
+        if( $over <= 20 ) {
+          $limit = 1;
+        }
+      }
+    }
+
+    switch( $type ) {
+      case 'Z' :
+      case 'S' :
+      case 'A' :
+        $table = 'ships';
+        $plt = 2;
+        $add = 0;
+        break;
+      case 'F' :
+        $table = 'fleets';
+        $plt = 6;
+        $add = 100;
+        break;
+    }
+
+    $out = "err=0";
+    switch( $type ) {
+
+      case 'A' :
+        $test = db_fetch_row( "SELECT s.id, st.planet, st.planet_cnt, s.place_id, s.place_type, s.arg1, s.abordage, 
+                                      s.arg2, st.radar, st.remote, st.interupt, st.agrav, s.inwar, st.cloak, s.user_id
+                                 FROM ships s
+                           INNER JOIN ship_types st ON st.object_id = s.object_id
+                                WHERE s.id = $shid AND s.user_id IS NULL" );
+        break;
+
+      case 'Z' :
+        $test = db_fetch_row( "SELECT s.id, st.planet, st.planet_cnt, s.place_id, s.place_type, s.arg1, s.fleet_id, s.abordage,
+                                      s.arg2, st.radar, st.remote, st.interupt, st.agrav, s.inwar, s.user_id, st.cloak
+                                 FROM ships s
+                           INNER JOIN ship_types st ON st.object_id = s.object_id
+                                WHERE s.id = $shid AND s.user_id != ".$user->uid );
+        break;
+
+      case 'F' :
+        $test = db_fetch_row( "SELECT f.id, f.planet, f.planet_cnt, f.place_id, f.place_type, f.arg1, f.abordage,
+                                      f.arg2, f.radar, f.remote, f.interupt, f.agrav, f.inwar, f.cloak, f.user_id, f.titul, f.harvest
+                                 FROM fleets f
+                                WHERE f.id = $shid AND f.user_id = ".$user->uid );
+        break;
+
+      case 'S' :
+        $test = db_fetch_row( "SELECT s.id, st.planet, st.planet_cnt, s.place_id, s.place_type, s.arg1, s.abordage, s.user_id,
+                                      s.arg2, st.radar, st.remote, s.interupt, st.agrav, s.inwar, s.object_id, st.cloak, st.dock, st.titul, st.harvest
+                                 FROM ships s
+                           INNER JOIN ship_types st ON st.object_id = s.object_id
+                                WHERE s.id = $shid AND s.user_id = ".$user->uid );
+        break;
+    }
+    
+    if( !isset( $test['id'] ) || ( isset( $test['titul'] ) && $test['titul'] > $user->titul && $orid != 7 ) ) {
+      $out = 'err=4';
+    } else {
+      switch( $orid ) {
+
+        case 1: // land
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          levelUp( 34, $user->uid );
+
+          if( $test['place_type'] == 0 && $test['agrav'] ) {
+            $total_time = get_land_time();
+            db_query( "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1 )
+                                         VALUES ( $add, $shid, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid}, {$test['place_id']} )" );
+            db_query( "UPDATE $table SET place_type = 5, guard = 0 WHERE id = $shid" );
+            if( $plt == 6 ) {
+              db_query( "UPDATE ships SET place_type = 5, guard = 0 WHERE fleet_id = $shid" );
+            }
+          }
+
+          if( $plt == 6 ) {
+            $fid = 'F'.$shid;
+          } else {
+            $fid = 'S'.$shid;
+          }
+
+          $out .= '&fid='.$fid;
+          break;
+
+        case 2: // flyout
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          levelUp( 24, $user->uid );
+
+          if( $test['place_type'] == 1 && $test['agrav'] ) {
+            $total_time = get_land_time();
+            db_query( "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1 )
+                                         VALUES ( $add+1, $shid, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid}, {$test['place_id']} )" );
+            db_query( "UPDATE $table SET place_type = 5, guard = 0 WHERE id = $shid" );
+            if( $plt == 6 ) {
+              db_query( "UPDATE ships SET place_type = 5, guard = 0 WHERE fleet_id = $shid" );
+            }
+          }
+
+          if( $plt == 6 ) {
+            $fid = 'F'.$shid;
+          } else {
+            $fid = 'S'.$shid;
+          }
+
+          $out .= '&fid='.$fid;
+          break;
+
+        case 3: // undock
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 3 ) {
+            $parent = get_place_info( $test['place_id'], $test['place_type'] );
+            db_query( "UPDATE $table SET place_id = ".$parent->place_id.", place_type = ".$parent->place_type.", guard = 0 WHERE id = $shid" );
+            if( $plt == 6 ) {
+              db_query( "UPDATE ships SET place_id = ".$parent->place_id.", place_type = ".$parent->place_type.", guard = 0 WHERE fleet_id = $shid" );
+            }
+          }
+
+          if( $test['place_type'] == 2 ) {
+            $parent = get_place_info( $test['place_id'], $test['place_type'] );
+            if( $parent->place_type == 0 || $parent->place_type == 1 || $parent->place_type == 3 ) {
+              db_query( "UPDATE $table SET place_id = ".$parent->place_id.", place_type = ".$parent->place_type.", guard = 0 WHERE id = $shid" );
+              if( $plt == 6 ) {
+                db_query( "UPDATE ships SET place_id = ".$parent->place_id.", place_type = ".$parent->place_type.", guard = 0 WHERE fleet_id = $shid" );
+              }
+            }
+            if( $parent->place_type == 7 || $parent->place_type == 8 ) {
+              db_query( "UPDATE $table SET place_id = ".$parent->place_id.", place_type = ".$parent->place_type.", arg1 = ".$parent->arg1.", arg2 = ".$parent->arg2.", guard = 0 WHERE id = $shid" );
+              if( $plt == 6 ) {
+                db_query( "UPDATE ships SET place_id = ".$parent->place_id.", place_type = ".$parent->place_type.", arg1 = ".$parent->arg1.", arg2 = ".$parent->arg2.", guard = 0 WHERE fleet_id = $shid" );
+              }
+            }
+
+            if( $type == 'Z' && $test['fleet_id'] ) {
+              db_query( "UPDATE ships SET fleet_id = null WHERE id = $shid" );
+              $fcnt = update_fleet( $test['fleet_id'] );
+
+              if( $fcnt <= 1 ) {
+                db_query( "UPDATE ships SET guard = 0, fleet_id = null WHERE fleet_id = ".$test['fleet_id'] );
+                db_query( "UPDATE ships s, ship_types st SET s.interupt = st.interupt
+                            WHERE st.object_id = s.object_id AND fleet_id = ".$test['fleet_id'] );
+                db_query( "DELETE FROM fleets WHERE id = ".$test['fleet_id'] );
+              }
+            }
+
+            if( $plt == 6 ) {
+              enter_place( $shid, true );
+            } else {
+              enter_place( $shid, false );
+            }
+          }
+
+          if( $plt == 6 ) {
+            $fid = 'F'.$shid;
+          } else {
+            $fid = 'S'.$shid;
+          }
+
+          $out .= '&fid='.$fid;
+          break;
+
+        case 4: // dock
+          $station = db_fetch_row( "SELECT id FROM orbits_buildings WHERE object_id IN( 3001, 3004 ) AND x = $x AND planet_id = ".$test['place_id'] );
+
+          $no_dock = db_fetch_val( "SELECT f.foe_id
+                                      FROM foe f
+                                INNER JOIN planets p ON p.user_id = f.user_id
+                                     WHERE f.foe_id = {$user->uid} AND p.id = ".$test['place_id'], 'foe_id' );
+
+          levelUp( 31, $user->uid );
+          if( isset( $station['id'] ) && !$no_dock ) {
+            db_query( "UPDATE $table SET guard = 0, place_type = 3, place_id = ".$station['id']." WHERE id = $shid" );
+            if( $plt == 6 ) {
+              db_query( "UPDATE ships SET guard = 0, place_type = 3, place_id = ".$station['id']." WHERE fleet_id = $shid" );
+            }
+          }
+          if( $plt == 6 ) {
+            $fid = 'F'.$shid;
+          } else {
+            $fid = 'S'.$shid;
+          }
+
+          $out .= '&fid='.$fid;
+          break;
+
+        case 5: // leave fleet or ship
+          if( ( $user->real_type == 2 || $user->real_type == 6 ) && $user->real_id == $shid ) {
+            if( $test['place_type'] == 2 ) {
+              $fleet = db_fetch_row( "SELECT s.fleet_id FROM ships s WHERE s.id = ".$test['place_id'] );
+              if( $fleet['fleet_id'] ) {
+                db_query( "UPDATE users SET place_type = 6, place_id = {$fleet['fleet_id']} WHERE id = ".$user->uid );
+              } else {
+                db_query( "UPDATE users SET place_type = 2, place_id = {$test['place_id']} WHERE id = ".$user->uid );
+              }
+            } else {
+              db_query( "UPDATE users SET place_type = {$test['place_type']}, place_id = {$test['place_id']} WHERE id = ".$user->uid );
+            }
+          }
+          break;
+
+        case 6: // enter fleet or ship
+          if( ( $user->real_type == 1 || $user->real_type == 3 ) && $user->real_id == $test['place_id'] && $user->real_type == $test['place_type'] ) {
+            db_query( "UPDATE users SET place_type = $plt, place_id = $shid WHERE id = ".$user->uid );
+          }
+          if( $user->real_type == 2 && $user->real_id == $test['place_id'] && $test['place_type'] == 2 ) {
+            db_query( "UPDATE users SET place_type = $plt, place_id = $shid WHERE id = ".$user->uid );
+          }
+          if( $user->real_type == 6 ) {
+            $fleet = db_fetch_row( "SELECT s.fleet_id FROM ships s WHERE s.id = ".$test['place_id'] );
+            if( $fleet['fleet_id'] && $user->real_id == $fleet['fleet_id'] && $test['place_type'] == 2 ) {
+              db_query( "UPDATE users SET place_type = $plt, place_id = $shid WHERE id = ".$user->uid );
+            }
+          }
+          break;
+
+        case 7: // disband fleet
+          if( $test['place_type'] != 5 && $test['inwar'] == 0 ) {
+            if( $add == 100 ) {
+
+              $ship = db_fetch_val( "SELECT id FROM ships WHERE fleet_id = $shid LIMIT 1", 'id' );
+              if( $user->real_id == $shid && $user->real_type == 6 ) {
+                db_query( "UPDATE users SET place_type = 2, place_id = $ship WHERE id = ".$user->uid );
+              }
+
+              $message = db_fetch_val( "SELECT message FROM interupt_msg WHERE type = 1 AND ship_id = $shid", 'message' );
+
+              if( strlen( trim( $message ) ) && $test['interupt'] > 0 ) {
+                $ship = db_fetch_val( "SELECT id FROM ships WHERE interupt > 0 AND fleet_id = $shid LIMIT 1", 'id' );
+                if( $ship ) {
+                  db_query( "INSERT IGNORE INTO interupt_msg ( type, ship_id, message ) VALUES ( 0, $ship, '$message' )" );
+                }
+              }
+
+              db_query( "UPDATE ships SET fleet_id = null WHERE fleet_id = $shid" );
+              db_query( "UPDATE ships s, ship_types st SET s.interupt = st.interupt WHERE s.object_id = st.object_id AND s.fleet_id = $shid" );
+              db_query( "DELETE FROM interupt_msg WHERE type = 1 AND ship_id = $shid" );
+              db_query( "DELETE FROM fleets WHERE id = $shid" );
+
+              $out .= '&fid=S'.$ship;
+            }
+          }
+          break;
+
+        case 11: // rename ship or fleet
+          if( isset( $_GET['nname'] ) ) {
+            $new_name = $_GET['nname'];
+
+            db_safe( $new_name );
+            $new_name = decode_in( $new_name );
+            $new_name = preg_replace( "/[^a-zA-Z0-9а-яА-ЯёЁ ,.`~!@#$\^\*()_\+\-\=\"]/", "", $new_name );
+
+            if( isset( $_GET['gname'] ) ) {
+              $new_grp = $_GET['gname'];
+              db_safe( $new_grp );
+              $new_grp = decode_in( $new_grp );
+              $new_grp = preg_replace( "/[^a-zA-Z0-9а-яА-ЯёЁ ,.`~!@#$\^\*()_\+\-\=\"]/", "", $new_grp );
+
+              db_query( "UPDATE $table SET name = '$new_name', `group` = '$new_grp' WHERE id = $shid" );
+              switch( $plt ) {
+                case 2:
+                  db_query( "UPDATE ships SET `group` = '$new_grp' WHERE place_type = 2 AND place_id = $shid" );
+                  break;
+                case 6:
+                  db_query( "UPDATE ships SET `group` = '$new_grp' WHERE fleet_id = $shid" );
+                  db_query( "UPDATE ships s1, ships s2
+                                SET s1.group = '$new_grp'
+                              WHERE s1.place_type = 2 AND s1.place_id = s2.id AND s2.fleet_id = $shid" );
+                  break;
+              }
+            } else {
+              db_query( "UPDATE $table SET name = '$new_name' WHERE id = $shid" );
+            }
+          }
+          break;
+
+        case 12: // Conserve ship (fleet ?)
+          switch( $test['place_type'] ) {
+            case 1:
+              $free = get_warehouse( $test['place_id'], 1 );
+              break;
+
+            case 3:
+              $planet = get_place_info( $test['place_id'], $test['place_type'] );
+              $free = get_warehouse( $planet->place_id, 0 );
+              break;
+
+            default:
+              $free = 0;
+              break;
+          }
+
+          if( $free > 0 && ( $test['place_type'] == 1 || $test['place_type'] == 3 ) && $test['inwar'] == 0 ) {
+
+            if( $add == 100 ) {
+
+              $ships = db_fetch_array( "SELECT count( s.id ) cnt, st.conserv_id
+                                          FROM ships s 
+                                    INNER JOIN ship_types st ON st.object_id = s.object_id
+                                         WHERE s.fleet_id = $shid
+                                      GROUP BY s.object_id, st.dock" );
+
+              if( $user->real_type == 6 && $user->real_id == $shid ) {
+                db_query( "UPDATE users SET place_type = {$test['place_type']}, place_id = {$test['place_id']} WHERE id = ".$user->uid );
+              }
+
+              if( $test['place_type'] == 3 ) {
+                $place = get_place_info( $test['place_id'], $test['place_type'] );
+              } else {
+                $place = new stdClass();
+
+                $place->place_type = $test['place_type'];
+                $place->place_id = $test['place_id'];
+              }
+
+              if( $test['arg1'] == '' ) {
+                $test['arg1'] = 'null';
+              }
+
+              if( $test['arg2'] == '' ) {
+                $test['arg2'] = 'null';
+              }
+
+              db_query( "UPDATE ships s
+                     INNER JOIN ships s2 ON s2.id = s.place_id
+                            SET s.place_type={$test['place_type']}, s.place_id = {$test['place_id']},
+                                s.arg1={$test['arg1']}, s.arg2={$test['arg2']}
+                          WHERE s.place_type = 2 AND s2.fleet_id = $shid" );
+
+              db_query( "UPDATE fleets f
+                     INNER JOIN ships s2 ON s2.id = f.place_id
+                            SET f.place_type={$test['place_type']}, f.place_id = {$test['place_id']},
+                                f.arg1={$test['arg1']}, f.arg2={$test['arg2']}
+                          WHERE f.place_type = 2 AND s2.fleet_id = $shid" );
+
+              $items = db_fetch_array( "SELECT s.id, w.object_id, w.object_cnt
+                                          FROM warehouse w
+                                    INNER JOIN ships s ON s.id = w.place_id
+                                         WHERE s.fleet_id = $shid AND w.place_type = 2" );
+
+              foreach( $items as $ware ) {
+                sub_warehouse_item( 2, $ware['id'], $ware['object_id'], $ware['object_cnt'] );
+                add_warehouse_item( $place->place_type, $place->place_id, $ware['object_id'], $ware['object_cnt'] );
+              }
+
+              foreach( $ships as $ship ) {
+                add_warehouse_item( $place->place_type, $place->place_id, $ship['conserv_id'], $ship['cnt'] );
+              }
+
+              db_query( "DELETE FROM ships WHERE fleet_id = $shid" );
+              db_query( "DELETE FROM fleets WHERE id = $shid" );
+            } else {
+              $ship = db_fetch_row( "SELECT s.id, s.object_id, st.dock
+                                       FROM ships s 
+                                 INNER JOIN ship_types st ON st.object_id = s.object_id
+                                      WHERE s.id = $shid" );
+              if( $ship['id'] ) {
+
+                if( $user->real_type == 6 && $user->real_id == $shid ) {
+                  db_query( "UPDATE users SET place_type = {$test['place_type']}, place_id = {$test['place_id']} WHERE id = ".$user->uid );
+                }
+                if( $test['place_type'] == 3 ) {
+                  $place = get_place_info( $test['place_id'], $test['place_type'] );
+                } else {
+                  $place = new stdClass();
+
+                  $place->place_type = $test['place_type'];
+                  $place->place_id = $test['place_id'];
+                }
+
+                if( $ship['dock'] > 0 ) {
+                  if( $test['arg1'] == '' ) {
+                    $test['arg1'] = 'null';
+                  }
+                  if( $test['arg2'] == '' ) {
+                    $test['arg2'] = 'null';
+                  }
+                  db_query( "UPDATE ships s
+                                SET s.place_type={$test['place_type']}, s.place_id = {$test['place_id']},
+                                    s.arg1={$test['arg1']}, s.arg2={$test['arg2']}
+                              WHERE place_type = 2 AND place_id = {$ship['id']}" );
+
+                  db_query( "UPDATE fleets f
+                                SET f.place_type={$test['place_type']}, f.place_id = {$test['place_id']},
+                                    f.arg1={$test['arg1']}, f.arg2={$test['arg2']}
+                              WHERE f.place_type = 2 AND f.place_id = {$ship['id']}" );
+                }
+
+                $items = db_fetch_array( "SELECT object_id, object_cnt FROM warehouse WHERE place_id = $shid AND place_type = 2" );
+                foreach( $items as $ware ) {
+                  sub_warehouse_item( 2, $shid, $ware['object_id'], $ware['object_cnt'] );
+                  add_warehouse_item( $place->place_type, $place->place_id, $ware['object_id'], $ware['object_cnt'] );
+                }
+
+                $type = db_fetch_row( "SELECT conserv_id FROM ship_types WHERE object_id = ".$ship['object_id'] );
+                db_query( "DELETE FROM ships WHERE id = $shid" );
+                add_warehouse_item( $place->place_type, $place->place_id, $type['conserv_id'], 1 );
+              }
+            }
+          }
+          break;
+
+        case 20: // Set guard
+          $type = db_fetch_val( "SELECT type FROM planets WHERE id = ".$test['place_id'], 'type' );
+          if( ( ( ( $test['place_type'] == 0 || $test['place_type'] == 1 ) && $type != 1 ) || $test['place_type'] == 7 || $test['place_type'] == 8 ) && $test['inwar'] == 0 ) {
+            if( is_numeric( $x ) && $x > 0 && $x < 5 ) {
+              db_query( "UPDATE $table SET guard = $x WHERE id = $shid" );
+
+              if( $plt == 6 ) {
+                db_query( "UPDATE ships SET guard = $x WHERE fleet_id = $shid" );
+              }
+            }
+          }
+          break;
+
+        case 21: // Release guard
+          if( ( $test['place_type'] == 0 || $test['place_type'] == 1 || $test['place_type'] == 7 || $test['place_type'] == 8 ) && $test['inwar'] == 0 ) {
+            db_query( "UPDATE $table SET guard = 0 WHERE id = $shid" );
+
+            if( $plt == 6 ) {
+              db_query( "UPDATE ships SET guard = 0 WHERE fleet_id = $shid" );
+            }
+          }
+          break;
+
+        case 22: // Start all mines
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 0 && $test['remote'] > 0 ) {
+            $planet_id = $test['place_id'];
+
+            $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                       FROM planets p
+                                 INNER JOIN stars s ON s.id = p.star_id
+                                      WHERE p.id = $planet_id" );
+            $planet_type = $planet['type'];
+
+            $energy_av = get_energy( $planet_id, 0 );
+            $warehouse = get_warehouse( $planet_id, 0 );
+
+            if( $energy_av >= 0 && $warehouse > 0 && $planet_type != 1 ) {
+              $mines = db_fetch_array( "SELECT SQL_NO_CACHE ob.x, ob.level
+                                          FROM orbits_buildings ob
+                                     LEFT JOIN orbit_events oe ON ( ob.planet_id = oe.planet_id AND ob.x = oe.x )
+                                         WHERE ob.object_id = 3006 AND oe.id IS NULL and ob.planet_id = $planet_id" );
+
+              $bid = 3006;
+              $total_time = get_mine_time( $bid );
+              $total_count = get_mine_count( $bid, $planet_type );
+              foreach( $mines as $item ) {
+                $x = $item['x'];
+                $cycle = $item['level'];
+
+                db_query( "INSERT INTO orbit_events ( event_type, x, planet_id, object_id, event_time, timer, user_id )
+                                             VALUES ( 2, $x, $planet_id, $bid, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
+                $id = mysql_insert_id();
+                switch( $planet_type ) {
+                  case 1:
+                    db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1030, $total_count, $cycle )" );
+                    break;
+                  case 2:
+                    db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1019, $total_count, $cycle )" );
+                    break;
+                  case 3:
+                    db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1010, $total_count, $cycle )" );
+                    break;
+                  case 4:
+                    db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1026, $total_count, $cycle )" );
+                    break;
+                }
+              }
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} запущена добыча материалов на ".count($mines)." объектах.", 4 );
+            } else {
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} невозможно запустить добычу. Энергии $energy_av, места на складе $warehouse", 4 );
+            }
+          }
+
+          if( $test['place_type'] == 1 && $test['remote'] > 0 ) {
+            $planet_id = $test['place_id'];
+
+            $qid = db_fetch_val( "SELECT qu.id
+                                    FROM users_quests qu
+                              INNER JOIN users u ON u.id = qu.user_id
+                                   WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
+            if( $qid ) {
+              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              break;
+            }
+
+            $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                       FROM planets p
+                                 INNER JOIN stars s ON s.id = p.star_id
+                                      WHERE p.id = $planet_id" );
+            $ptype = $planet['type'];
+
+            $energy_av = get_energy( $planet_id, 1 );
+            $warehouse = get_warehouse( $planet_id, 1 );
+
+            if( $energy_av >= 0 && $warehouse > 0 && $ptype != 1 ) {
+              $mines = db_fetch_array( "SELECT SQL_NO_CACHE pb.object_id, pb.x, pb.y, pb.level
+                                          FROM planets_buildings pb LEFT JOIN planet_events pe ON ( pb.planet_id = pe.planet_id AND pb.x = pe.x AND pb.y = pe.y )
+                                         WHERE pb.object_id IN ( 23, 36, 37 ) AND pe.id IS NULL and pb.planet_id = $planet_id" );
+              foreach( $mines as $item ) {
+                $bid = $item['object_id'];
+                $x = $item['x'];
+                $y = $item['y'];
+                $cycle = $item['level'];
+                $total_time = get_mine_time( $bid );
+                $total_count = get_mine_count( $bid, $ptype );
+
+                db_query( "INSERT INTO planet_events ( event_type, x, y, planet_id, object_id, event_time, timer, user_id )
+                                              VALUES ( 2, $x, $y, $planet_id, $bid, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
+                $id = mysql_insert_id();
+  
+                switch( $bid ) {
+                  case 23 :
+                    $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT top FROM planets_maps WHERE id = $planet_id", 'top' ) ) ) );
+                    db_query( "INSERT INTO planets_mines ( event_id, res_id, res_cnt, cycle )
+                                                  VALUES ( $id,".$top_data[ $content[ $y ]{ $x } ][ 2 ].", $total_count, $cycle )" );
+                    break;
+
+                  case 36 :
+                    $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT mdl FROM planets_maps WHERE id = $planet_id", 'mdl' ) ) ) );
+                    db_query( "INSERT INTO planets_mines ( event_id, res_id, res_cnt, cycle )
+                                                  VALUES ( $id,".$mdl_data[ $content[ $y ]{ $x } ][ 2 ].", $total_count, $cycle )" );
+                    break;
+
+                  case 37 :
+                    $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT btm FROM planets_maps WHERE id = $planet_id", 'btm' ) ) ) );
+                    db_query( "INSERT INTO planets_mines ( event_id, res_id, res_cnt, cycle )
+                                                  VALUES ( $id,".$btm_data[ $content[ $y ]{ $x } ][ 2 ].", $total_count, $cycle )" );
+                    break;
+                }
+              }
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущена добыча материалов на ".count($mines)." объектах.", 4 );
+            } else {
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить добычу. Энергии $energy_av, места на складе $warehouse", 4 );
+            }
+          }
+          break;
+
+        case 23: // Start all dispence
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 1 && $test['remote'] > 0 ) {
+            $planet_id = $test['place_id'];
+
+            $qid = db_fetch_val( "SELECT qu.id
+                                    FROM users_quests qu
+                              INNER JOIN users u ON u.id = qu.user_id
+                                   WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
+            if( $qid ) {
+              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              break;
+            }
+
+            $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                       FROM planets p
+                                 INNER JOIN stars s ON s.id = p.star_id
+                                      WHERE p.id = $planet_id" );
+            $ptype = $planet['type'];
+
+            $energy_av = get_energy( $planet_id, 1 );
+            $warehouse = get_warehouse( $planet_id, 1 );
+
+            if( $energy_av >= 0 && $warehouse > 0 && $ptype != 1 ) {
+              $disps = db_fetch_array( "SELECT SQL_NO_CACHE pb.x, pb.y, pb.level
+                                          FROM planets_buildings pb
+                                     LEFT JOIN planet_events pe ON ( pb.planet_id = pe.planet_id AND pb.x = pe.x AND pb.y = pe.y )
+                                         WHERE pb.object_id = 24 AND pe.id IS NULL and pb.planet_id = $planet_id" );
+              if( count( $disps ) ) {
+                $res = db_fetch_array( "SELECT SQL_NO_CACHE w.object_id, w.object_cnt
+                                          FROM warehouse w, objects o
+                                         WHERE w.object_cnt >= o.min_cnt AND o.id = w.object_id AND o.class IN( 9, 5, 2 ) AND w.place_id = $planet_id AND w.place_type = 1 ORDER BY w.object_cnt DESC LIMIT ".count( $disps ) );
+                foreach( $disps as $item ) {
+                  $res_item = array_shift( $res );
+                  $rid = $res_item['object_id'];
+                  if( $rid ) {
+                    $count = $res_item['object_cnt'];
+                    $x = $item['x'];
+                    $y = $item['y'];
+                    $res_data = db_fetch_row( "SELECT SQL_NO_CACHE SUM( w.object_cnt ) cnt, MIN( o.min_cnt ) need, o.name
+                                                 FROM warehouse w, objects o
+                                                WHERE w.place_type = 1 AND w.place_id = $planet_id AND o.id = w.object_id AND o.id = $rid
+                                             GROUP BY o.id" );
+                  
+                    if( $res_data['cnt'] >= $res_data['need'] ) {
+                      sub_warehouse_item( 1, $planet_id, $rid, $count );
+                      $total_time = get_disp_time( $rid );
+                      db_query( "INSERT INTO planet_events ( event_type, x, y, planet_id, object_id, event_time, timer, user_id )
+                                                    VALUES ( 3, $x, $y, $planet_id, 24, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
+                      $id = mysql_insert_id();
+                      db_query(  "INSERT INTO planets_disp ( event_id, res_id, res_cnt, level )
+                                                    VALUES ( $id, $rid, $count, {$item['level']} )" );
+                      send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} запущена переработка {$res_data['name']}({$res_data['cnt']}) длительностью $total_time секунд.", 4 );
+                    }
+                  }
+                }
+              } else {
+                send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} нет свободных нанодиспенсеров.", 4 );
+              }
+            } else {
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} невозможно запустить переработку. Энергии $energy_av, места на складе $warehouse", 4 );
+            }
+          }
+          break;
+
+        case 24: // Start dispence minerals
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 1 && $test['remote'] > 0 ) {
+            $planet_id = $test['place_id'];
+
+            $qid = db_fetch_val( "SELECT qu.id
+                                    FROM users_quests qu
+                              INNER JOIN users u ON u.id = qu.user_id
+                                   WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
+            if( $qid ) {
+              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              break;
+            }
+
+            $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                       FROM planets p
+                                 INNER JOIN stars s ON s.id = p.star_id
+                                      WHERE p.id = $planet_id" );
+            $ptype = $planet['type'];
+
+            $energy_av = get_energy( $planet_id, 1 );
+            $warehouse = get_warehouse( $planet_id, 1 );
+
+            if( $energy_av >= 0 && $warehouse > 0 && $ptype != 1 ) {
+              $disps = db_fetch_array( "SELECT SQL_NO_CACHE pb.x, pb.y, pb.level
+                                          FROM planets_buildings pb
+                                     LEFT JOIN planet_events pe ON ( pb.planet_id = pe.planet_id AND pb.x = pe.x AND pb.y = pe.y )
+                                         WHERE pb.object_id = 24 AND pe.id IS NULL and pb.planet_id = $planet_id" );
+              if( count( $disps ) ) {
+                $res = db_fetch_array( "SELECT SQL_NO_CACHE w.object_id, w.object_cnt
+                                          FROM warehouse w, objects o
+                                         WHERE w.object_cnt >= o.min_cnt AND o.id = w.object_id AND o.class = 5 AND w.place_id = $planet_id AND w.place_type = 1 ORDER BY w.object_cnt DESC LIMIT ".count( $disps ) );
+                foreach( $disps as $item ) {
+                  $res_item = array_shift( $res );
+                  $rid = $res_item['object_id'];
+                  if( $rid ) {
+                    $count = $res_item['object_cnt'];
+                    $x = $item['x'];
+                    $y = $item['y'];
+                    $res_data = db_fetch_row( "SELECT SQL_NO_CACHE SUM( w.object_cnt ) cnt, MIN( o.min_cnt ) need, o.name
+                                                 FROM warehouse w, objects o
+                                                WHERE w.place_type = 1 AND w.place_id = $planet_id AND o.id = w.object_id AND o.id = $rid
+                                             GROUP BY o.id" );
+                  
+                    if( $res_data['cnt'] >= $res_data['need'] ) {
+                      sub_warehouse_item( 1, $planet_id, $rid, $count );
+                      $total_time = get_disp_time( $rid );
+                      db_query( "INSERT INTO planet_events ( event_type, x, y, planet_id, object_id, event_time, timer, user_id )
+                                                    VALUES ( 3, $x, $y, $planet_id, 24, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
+                      $id = mysql_insert_id();
+                      db_query(  "INSERT INTO planets_disp ( event_id, res_id, res_cnt, level )
+                                                    VALUES ( $id, $rid, $count, {$item['level']} )" );
+                      send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущена переработка {$res_data['name']}({$res_data['cnt']}) длительностью $total_time секунд.", 4 );
+                    }
+                  }
+                }
+              } else {
+                send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} нет свободных нанодиспенсеров.", 4 );
+              }
+            } else {
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить переработку. Энергии $energy_av, места на складе $warehouse", 4 );
+            }
+          }
+          break;
+
+        case 25: // Rob the ship
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          $rob = db_fetch_row( "SELECT s1.user_id u1, s2.user_id u2, s2.group
+                                   FROM ships s1, ships s2
+                                  WHERE s1.place_id = s2.place_id AND s1.place_type = s2.place_type AND s1.id = $shid AND
+                                        s1.arg1 = s2.arg1 AND s1.arg2 = s2.arg2 AND s1.user_id IS NULL AND s2.user_id = {$user->uid}
+                                  LIMIT 0,1" );
+
+          if( isset( $rob['u2'] ) && is_numeric( $rob['u2'] ) ) {
+            db_query( "UPDATE users_active SET abandon = abandon + 1 WHERE id = ".$user->uid );
+
+            db_query( "UPDATE $table SET `group` = '{$rob['group']}', guard = 0, user_id = {$user->uid} WHERE id = $shid" );
+            $fid = 'S'.$shid;
+
+            if( $plt == 6 ) {
+              db_query( "UPDATE ships SET `group` = '{$rob['group']}', guard = 0, user_id = {$user->uid} WHERE fleet_id = $shid" );
+              $fid = 'F'.$shid;
+            }
+
+            $out .= '&fid='.$fid;
+          }
+          break;
+
+        case 26: // Set interupt all
+          if( $test['place_type'] == 7 && $test['interupt'] == 1 ) {
+            $inter = db_fetch_array( "SELECT event_type, ship_id, event_time FROM space_events WHERE event_type IN ( 4, 104 ) AND arg2 = ".$test['place_id'] );
+            foreach( $inter as $item ) {
+              switch( $item['event_type'] ) {
+                case 4 :
+                  $mass = db_fetch_val( "SELECT o.mass FROM ships s, ship_types st, objects o WHERE st.object_id = s.object_id AND st.conserv_id = o.id AND s.id = ".$item['ship_id'], 'mass' );
+                  send_msg( 1, $user->uid, "Перехвачен объект общей массой $mass. Ориентировочное время прибытия ".$item['event_time'], 4 );
+                  break;
+                case 104 :
+                  $mass = db_fetch_val( "SELECT SUM( o.mass ) mass FROM ships s, ship_types st, objects o WHERE st.object_id = s.object_id AND st.conserv_id = o.id AND s.fleet_id = ".$item['ship_id'], 'mass' );
+                  send_msg( 1, $user->uid, "Перехвачен объект общей массой $mass. Ориентировочное время прибытия ".$item['event_time'], 4 );
+                  break;
+              }
+            }
+
+            if( is_numeric( $x ) && $x > 1 && $x < 9 ) {
+              db_query( "UPDATE $table SET interupt = $x WHERE id = $shid" );
+              if( $plt == 6 ) {
+                db_query( "UPDATE ships SET interupt = $x WHERE interupt > 0 AND fleet_id = $shid" );
+              }
+            }
+          }
+          break;
+
+        case 27: // Release interupt
+          if( $test['place_type'] == 7 && $test['interupt'] > 1 ) {
+            db_query( "UPDATE $table SET interupt = 1 WHERE id = $shid" );
+            if( $plt == 6 ) {
+              db_query( "UPDATE ships SET interupt = 1 WHERE interupt > 0 AND fleet_id = $shid" );
+            }
+          }
+          break;
+
+        case 28: // Conserve into ship
+          if( ( $test['place_type'] == 7 || $test['place_type'] == 8 ) && $test['inwar'] == 0 ) {
+            $mother = db_fetch_row( "SELECT id, fleet_id FROM ships
+                                      WHERE object_id IN (9161, 9180, 9399) AND place_type={$test['place_type']} AND place_id={$test['place_id']} AND
+                                            arg1={$test['arg1']} AND arg2={$test['arg2']} AND id=$x" );
+          } else {
+            $mother = db_fetch_row( "SELECT id, fleet_id FROM ships
+                                      WHERE ( object_id IN (9161, 9180, 9399) AND place_type={$test['place_type']} AND place_id={$test['place_id']} AND id=$x ) OR
+                                            ( id=$x AND {$test['place_type']} = 2 AND $x = {$test['place_id']} )" );
+          }
+          if( $mother['fleet_id'] ) {
+            $out .= '&fid=F'.$mother['fleet_id'];
+          } else {
+            $out .= '&fid=S'.$mother['id'];
+          }
+
+          if( isset( $mother['id'] ) && is_numeric( $mother['id'] ) ) {
+            if( $add == 100 ) {
+              if( $user->real_id == $shid && $user->real_type == 6 ) {
+                if( $mother['fleet_id'] && $mother['fleet_id'] != $shid ) {
+                  db_query( "UPDATE users SET place_type = 6, place_id = {$mother['fleet_id']} WHERE id = ".$user->uid );
+                } else {
+                  db_query( "UPDATE users SET place_type = 2, place_id = {$mother['id']} WHERE id = ".$user->uid );
+                }
+              }
+
+              $ships = db_fetch_array( "SELECT id, object_id FROM ships WHERE fleet_id = $shid" );
+              foreach( $ships as $ship ) {
+                if( $ship['id'] != $mother['id'] ) {
+                  db_query( "UPDATE warehouse SET place_type = 7 WHERE place_type = 2 AND place_id = {$ship['id']}" );
+
+                  $type = db_fetch_row( "SELECT st.conserv_id, o.mass
+                                           FROM ship_types st
+                                     INNER JOIN objects o ON o.id = st.conserv_id
+                                          WHERE st.object_id = ".$ship['object_id'] );
+    
+                  if( get_cargo( $mother['id'], true ) >= $type['mass'] ) {
+                    db_query( "DELETE FROM ships WHERE id = ".$ship['id'] );
+                    add_warehouse_item( 2, $mother['id'], $type['conserv_id'], 1 );
+                  }
+
+                  $items = db_fetch_array( "SELECT w.object_id, w.object_cnt, o.mass
+                                              FROM warehouse w
+                                        INNER JOIN objects o ON o.id = w.object_id
+                                             WHERE w.place_id = {$ship['id']} AND w.place_type = 7" );
+                  foreach( $items as $ware ) {
+                    sub_warehouse_item( 7, $ship['id'], $ware['object_id'], $ware['object_cnt'] );
+
+                    $mcargo = get_cargo( $mother['id'], true );
+                    if( $mcargo >= $ware['object_cnt'] * $ware['mass'] ) {
+                      add_warehouse_item( 2, $mother['id'], $ware['object_id'], $ware['object_cnt'] );
+                    } else {
+                      add_warehouse_item( 2, $mother['id'], $ware['object_id'], floor( $mcargo / $ware['mass'] ) );
+                    }
+                  }
+                }
+              }
+              db_query( "UPDATE ships SET fleet_id = null WHERE fleet_id = $shid" );
+              db_query( "DELETE FROM fleets WHERE id = $shid" );
+            } else {
+              if( isset( $test['id'] ) && is_numeric( $test['id'] ) ) {
+
+                if( $user->real_id == $shid && $user->real_type == 2 ) {
+                  if( $mother['fleet_id'] ) {
+                    db_query( "UPDATE users SET place_type = 6, place_id = {$mother['fleet_id']} WHERE id = ".$user->uid );
+                  } else {
+                    db_query( "UPDATE users SET place_type = 2, place_id = {$mother['id']} WHERE id = ".$user->uid );
+                  }
+                }
+
+                db_query( "UPDATE warehouse SET place_type = 7 WHERE place_type = 2 AND place_id = {$test['id']}" );
+                $type = db_fetch_row( "SELECT st.conserv_id, o.mass
+                                         FROM ship_types st
+                                   INNER JOIN objects o ON o.id = st.conserv_id
+                                        WHERE st.object_id = ".$test['object_id'] );
+
+                if( get_cargo( $mother['id'], true ) >= $type['mass'] ) {
+                  db_query( "DELETE FROM ships WHERE id = ".$test['id'] );
+                  add_warehouse_item( 2, $mother['id'], $type['conserv_id'], 1 );
+                }
+
+                $items = db_fetch_array( "SELECT w.object_id, w.object_cnt, o.mass
+                                            FROM warehouse w INNER JOIN objects o ON o.id = w.object_id
+                                           WHERE w.place_id = {$test['id']} AND w.place_type = 7" );
+
+                foreach( $items as $ware ) {
+                  sub_warehouse_item( 7, $shid, $ware['object_id'], $ware['object_cnt'] );
+
+                  $mcargo = get_cargo( $mother['id'], true );
+                  if( $mcargo >= $ware['object_cnt'] * $ware['mass'] ) {
+                    add_warehouse_item( 2, $mother['id'], $ware['object_id'], $ware['object_cnt'] );
+                  } else {
+                    add_warehouse_item( 2, $mother['id'], $ware['object_id'], floor( $mcargo / $ware['mass'] ) );
+                  }
+                }
+              }
+            }
+          }
+          break;
+
+        case 29: // Return back
+          $timer = db_fetch_row( "SELECT se.id, se.event_type, se.from_type, se.timer - (UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW())) least
+                                    FROM space_events se WHERE se.ship_id = $shid" );
+
+          if( $timer['from_type'] ) {
+            switch( $timer['event_type'] ) {
+              case 2:
+              case 3:
+              case 4:
+              case 5:
+              case 102:
+              case 103:
+              case 104:
+              case 105:
+                db_query( "UPDATE space_events
+                              SET arg1 = from_arg1, arg2 = from_arg2, event_type = from_type, timer = {$timer['least']}, event_time = DATE_ADD( NOW(), INTERVAL {$timer['least']} SECOND )
+                            WHERE id = ".$timer['id'] );
+
+                db_query( "UPDATE space_events SET from_arg1 = 0, from_arg2 = 0, from_type = 0 WHERE id = ".$timer['id'] );
+                break;
+
+              default:
+                $out = 'err=3';
+                exit;
+            }
+          }
+          break;
+
+        case 30: // Deconserve all
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          switch( $test['place_type'] ) {
+            case 0:
+            case 1:
+            case 7:
+            case 8:
+              switch( $type ) {
+                case 'S' :
+                  $wares = db_fetch_array( "SELECT w.object_id wid, w.place_id, w.place_type, w.object_cnt,
+                                                   st.code, st.object_id, st.shield, st.interupt
+                                              FROM warehouse w
+                                        INNER JOIN ship_types st ON st.conserv_id = w.object_id
+                                        INNER JOIN objects o ON o.id = w.object_id AND o.class = 9
+                                        INNER JOIN ships s ON s.id = w.place_id AND s.user_id = {$user->uid}
+                                             WHERE w.place_id = $shid AND w.place_type = 2" );
+                  break;
+
+                case 'F' :
+                  $wares = db_fetch_array( "SELECT w.object_id wid, w.place_id, w.place_type, w.object_cnt,
+                                                   st.code, st.object_id, st.shield, st.interupt
+                                              FROM warehouse w
+                                        INNER JOIN ship_types st ON st.conserv_id = w.object_id
+                                        INNER JOIN objects o ON o.id = w.object_id AND o.class = 9
+                                        INNER JOIN ships s ON s.id = w.place_id AND s.user_id = {$user->uid}
+                                             WHERE s.fleet_id = $shid AND w.place_type = 2" );
+                  break;
+
+                default :
+                  $out='err=2';
+                  break;
+              }
+
+              foreach( $wares as $ware_item ) {
+                $cnt = $ware_item['object_cnt'];
+
+                $group = '';
+                sub_warehouse_item( $ware_item['place_type'], $ware_item['place_id'], $ware_item['wid'], $cnt );
+                if( $ware_item['place_type'] == 2 ) {
+                  $group = db_fetch_val( 'SELECT s.group FROM ships s WHERE s.id = '.$ware_item['place_id'], 'group' );
+                }
+                while( $cnt > 0 ) {
+                  if( $test['arg1'] == 0 && $test['arg2'] == 0 ) {
+                    db_query( "INSERT INTO ships ( object_id, place_id, place_type, arg1, arg2, user_id, shield, interupt )
+                                          VALUES ( {$ware_item['object_id']}, {$test['place_id']}, {$test['place_type']}, null, null, {$user->uid}, '{$ware_item['shield']}', '{$ware_item['interupt']}' )" );
+                  } else {
+                    db_query( "INSERT INTO ships ( object_id, place_id, place_type, arg1, arg2, user_id, shield, interupt )
+                                          VALUES ( {$ware_item['object_id']}, {$test['place_id']}, {$test['place_type']}, '{$test['arg1']}', '{$test['arg2']}', {$user->uid}, '{$ware_item['shield']}', '{$ware_item['interupt']}' )" );
+                  }
+
+                  $ship_id = mysql_insert_id();
+                  db_query( "UPDATE ships SET `group` = '$group', name='".$ware_item['code'].'-'.$ship_id."' WHERE id=$ship_id" );
+                  $cnt--;
+                }
+              }
+              break;
+
+            default:
+              break;
+          }
+          break;
+
+        case 31: // Dock to ship
+          $mks = db_fetch_row( "SELECT s.id, s.place_id, s.place_type, s.fleet_id
+                                  FROM ships s
+                            INNER JOIN ship_types st ON st.object_id = s.object_id
+                                 WHERE st.dock = 1 AND s.id = $x" );
+
+          if( $mks['fleet_id'] != $shid && $mks['place_id'] == $test['place_id'] && $mks['place_type'] == $test['place_type'] && $test['inwar'] == 0 ) {
+            if( $type == 'S' ) {
+              $need_free = db_fetch_row( "SELECT o2.mass omass
+                                            FROM ships s
+                                      INNER JOIN objects o2 ON o2.id = s.object_id
+                                           WHERE s.id = $shid" );
+
+              if( get_cargo( $mks['id'], true ) >= $need_free['omass'] && $mks['id'] != $shid ) {
+                db_query( "UPDATE ships SET guard = 0, place_id = $x, place_type = 2, arg1=null, arg2=null WHERE id = $shid" );
+              }
+            } else {
+              $need_free = db_fetch_row( "SELECT SUM( o2.mass ) omass
+                                            FROM ships s
+                                      INNER JOIN objects o2 ON o2.id = s.object_id
+                                           WHERE s.fleet_id = $shid" );
+
+              if( get_cargo( $mks['id'], true ) >= $need_free['omass'] && $mks['fleet_id'] != $shid ) {
+                db_query( "UPDATE fleets SET guard = 0, place_id = $x, place_type = 2, arg1=null, arg2=null WHERE id = $shid" );
+                db_query( "UPDATE ships SET guard = 0, place_id = $x, place_type = 2, arg1=null, arg2=null WHERE fleet_id = $shid" );
+              }
+            }
+
+            $out = 'err=0';
+            if( $mks['fleet_id'] ) {
+              $out .= '&fid=F'.$mks['fleet_id'];
+            } else {
+              $out .= '&fid=S'.$mks['id'];
+            }
+          } else {
+            $out = 'err=1';
+          }
+          break;
+
+        case 32: // Abordage on
+          if( $test['abordage'] == 0 && $test['user_id'] == $user->uid ) {
+            db_query( "UPDATE $table SET abordage = 1 WHERE id = $shid" );
+            if( $plt == 6 ) {
+              db_query( "UPDATE ships SET abordage = 1 WHERE fleet_id = $shid" );
+            }
+          }
+          break;
+
+        case 33: // Abordage off
+          if( $test['abordage'] == 1 && $test['user_id'] == $user->uid ) {
+            db_query( "UPDATE $table SET abordage = 0 WHERE id = $shid" );
+            if( $plt == 6 ) {
+              db_query( "UPDATE ships SET abordage = 0 WHERE fleet_id = $shid" );
+            }
+          }
+          break;
+
+        case 34: // Start all factorys
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 1 && $test['remote'] > 0 ) {
+            $planet_id = $test['place_id'];
+
+            $qid = db_fetch_val( "SELECT qu.id
+                                    FROM users_quests qu
+                              INNER JOIN users u ON u.id = qu.user_id
+                                   WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
+            if( $qid ) {
+              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              break;
+            }
+
+            $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                       FROM planets p
+                                 INNER JOIN stars s ON s.id = p.star_id
+                                      WHERE p.id = $planet_id" );
+            $ptype = $planet['type'];
+
+            $energy_av = get_energy( $planet_id, 1 );
+            $warehouse = get_warehouse( $planet_id, 1 );
+
+            if( $energy_av >= 0 && $warehouse > 0 && $ptype != 1 ) {
+              $facts = db_fetch_array( "SELECT SQL_NO_CACHE pb.x, pb.y, pb.level, pb.last_id, o.name
+                                          FROM planets_buildings pb
+                                     LEFT JOIN objects o ON o.id = pb.last_id
+                                     LEFT JOIN planet_events pe ON ( pb.planet_id = pe.planet_id AND pb.x = pe.x AND pb.y = pe.y )
+                                         WHERE pb.object_id = 33 AND pe.id IS NULL and pb.planet_id = $planet_id" );
+              if( count( $facts ) ) {
+                $layouts = db_fetch_array( "SELECT o1.id, o1.name
+                                              FROM warehouse w
+                                        INNER JOIN objects o ON o.id = w.object_id
+                                        INNER JOIN objects_sub os ON os.res_id = o.id
+                                        INNER JOIN objects o1 ON o1.id = os.object_id
+                                             WHERE w.place_id = $planet_id AND
+                                                   w.place_type = 1 AND
+                                                   o.class = 6" );
+
+                foreach( $facts as $factory ) {
+                  if( count( $layouts ) == 1 ) {
+                    $def = $layouts[0]['id'];
+                    $def_name = $layouts[0]['name'];
+                  } else {
+                    $def = $factory['last_id'];
+                    $def_name = $factory['name'];
+                  }
+
+                  if( $def > 0 ) {
+                    $items = db_fetch_array( "SELECT o.id, o.class, os.res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                                FROM objects_sub os
+                                          INNER JOIN objects o ON o.id = os.res_id AND o.class IN( 1, 2, 6, 7, 9 )
+                                           LEFT JOIN warehouse w ON w.object_id = o.id AND w.place_id = $planet_id AND w.place_type = 1
+                                               WHERE os.object_id = ".$def );
+                    $can_build = true;
+                    foreach( $items as $item ) {
+                      if( $item['res_cnt'] > $item['object_cnt'] ) {
+                        $can_build = false;
+                      }
+                    }
+
+                    if( $can_build ) {
+                      $x = $factory['x'];
+                      $y = $factory['y'];
+
+                      foreach( $items as $item ) {
+                        if( $item['class'] == 1 || $item['class'] == 2 || $item['class'] == 9 ) {
+                          sub_warehouse_item( 1, $planet_id, $item['id'], $item['res_cnt'] );
+                        }
+                      }
+
+                      $total_time = get_make_time( $def );
+                      db_query( "INSERT INTO planet_events ( event_type, x, y, planet_id, object_id, event_time, timer, user_id )
+                                                    VALUES ( 5, $x, $y, $planet_id, 33, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
+                      $id = mysql_insert_id();
+                      db_query( "INSERT INTO planets_make ( event_id, object_id, cycle ) VALUES ( $id, $def, {$factory['level']} )" );
+                      send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущено изготовление $def_name ({$factory['level']}) каждый цикл длительностью $total_time секунд.", 4 );
+                    }
+                  }
+                }
+              } else {
+                send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} нет свободных заводов.", 4 );
+              }
+            } else {
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить заводы. Энергии $energy_av, места на складе $warehouse", 4 );
+            }
+          }
+          break;
+
+        case 35: // Start all sintez
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 0 && $test['remote'] > 0 ) {
+            $planet_id = $test['place_id'];
+
+            $qid = db_fetch_val( "SELECT qu.id
+                                    FROM users_quests qu
+                              INNER JOIN users u ON u.id = qu.user_id
+                                   WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
+            if( $qid ) {
+              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              break;
+            }
+
+            $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                       FROM planets p
+                                 INNER JOIN stars s ON s.id = p.star_id
+                                      WHERE p.id = $planet_id" );
+            $ptype = $planet['type'];
+
+            $energy_av = get_energy( $planet_id, 0 );
+            $warehouse = get_warehouse( $planet_id, 0 );
+
+            if( $energy_av >= 0 && $warehouse > 0 && $ptype != 1 ) {
+              $ware_obj = db_fetch_array( "SELECT o.id, o.name
+                                             FROM warehouse w
+                                       INNER JOIN sintez s ON s.res_id = w.object_id
+                                       INNER JOIN objects o ON o.id = s.object_id
+                                            WHERE w.place_id = $planet_id AND
+                                                  w.place_type = 0 AND
+                                                  w.object_cnt > 0 AND
+                                                  o.class = 1" );
+
+              $sintezers = db_fetch_array( "SELECT SQL_NO_CACHE ob.x, ob.level, ob.last_id, o.name
+                                              FROM orbits_buildings ob
+                                         LEFT JOIN objects o ON o.id = ob.last_id
+                                         LEFT JOIN orbit_events oe ON ( ob.planet_id = oe.planet_id AND ob.x = oe.x )
+                                             WHERE ob.object_id = 3010 AND oe.id IS NULL and ob.planet_id = $planet_id" );
+
+              foreach( $sintezers as $sintez ) {
+                if( count( $ware_obj ) == 1 ) {
+                  $def = $ware_obj[0]['id'];
+                  $def_name = $ware_obj[0]['name'];
+
+                  $items = db_fetch_row( "SELECT w.object_id, IFNULL( w.object_cnt, 0 ) object_cnt
+                                            FROM sintez s
+                                       LEFT JOIN warehouse w ON w.place_id = $planet_id AND w.place_type = 0 AND s.res_id = w.object_id
+                                           WHERE s.object_id = $def" );
+                } else {
+                  $def = $sintez['last_id'];
+                  $def_name = $sintez['name'];
+
+                  $items = db_fetch_row( "SELECT w.object_id, IFNULL( w.object_cnt, 0 ) object_cnt
+                                            FROM sintez s
+                                       LEFT JOIN warehouse w ON w.place_id = $planet_id AND w.place_type = 0 AND s.res_id = w.object_id
+                                           WHERE s.object_id = $def" );
+                }
+
+                $x = $sintez['x'];
+                $level = $sintez['level'];
+
+                if( $items['object_cnt'] >= 1000 ) {
+                  sub_warehouse_item( 0, $planet_id, $items['object_id'], 1000 );
+  
+                  $total_time = get_sintez_time( $def );
+                  db_query( "INSERT INTO orbit_events ( event_type, x,  planet_id, object_id,                                     event_time,       timer,      user_id )
+                                               VALUES ( 8,         $x, $planet_id,      3010, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
+                  $id = mysql_insert_id();
+                  db_query( "INSERT INTO orbits_make ( event_id, object_id, cycle ) VALUES ( $id, $def, $level )" );
+
+                  send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущено преобразование $def_name", 4 );
+                }
+              }
+            } else {
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить преобразование. Энергии $energy_av, места на складе $warehouse", 4 );
+            }
+          }
+          break;
+
+        case 36: // Start all assemble
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['remote'] > 0 ) {
+            if( $test['place_type'] == 1 ) {
+              $planet_id = $test['place_id'];
+
+              $qid = db_fetch_val( "SELECT qu.id
+                                      FROM users_quests qu
+                                INNER JOIN users u ON u.id = qu.user_id
+                                     WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
+              if( $qid ) {
+                send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+                break;
+              }
+
+              $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                         FROM planets p
+                                   INNER JOIN stars s ON s.id = p.star_id
+                                        WHERE p.id = $planet_id" );
+              $ptype = $planet['type'];
+
+              $energy_av = get_energy( $planet_id, 1 );
+              $warehouse = get_warehouse( $planet_id, 1 );
+              if( $energy_av >= 0 && $warehouse > 0 && $ptype != 1 ) {
+                $facts = db_fetch_array( "SELECT SQL_NO_CACHE pb.x, pb.y, pb.level, pb.last_id, o.name
+                                            FROM planets_buildings pb
+                                      INNER JOIN objects o ON o.id = pb.last_id
+                                       LEFT JOIN planet_events pe ON ( pb.planet_id = pe.planet_id AND pb.x = pe.x AND pb.y = pe.y )
+                                           WHERE pb.object_id = 39 AND pe.id IS NULL and pb.planet_id = $planet_id" );
+                if( count( $facts ) ) {
+                  $layouts = db_fetch_array( "SELECT o1.id, o1.name
+                                                FROM warehouse w
+                                          INNER JOIN objects o ON o.id = w.object_id
+                                          INNER JOIN objects_sub os ON os.res_id = o.id
+                                          INNER JOIN objects o1 ON o1.id = os.object_id
+                                               WHERE w.place_id = $planet_id AND
+                                                     w.place_type = 1 AND
+                                                     o.class = 7" );
+
+                  foreach( $facts as $factory ) {
+                    if( count( $layouts ) == 1 ) {
+                      $def = $layouts[0]['id'];
+                      $def_name = $layouts[0]['name'];
+                    } else {
+                      $def = $factory['last_id'];
+                      $def_name = $factory['name'];
+                    }
+
+                    if( $def > 0 ) {
+                      $items = db_fetch_array( "SELECT o.id, o.class, os.res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                                  FROM objects_sub os
+                                            INNER JOIN objects o ON o.id = os.res_id AND o.class IN( 1, 2, 6, 7, 9 )
+                                             LEFT JOIN warehouse w ON w.object_id = o.id AND w.place_id = $planet_id AND w.place_type = 1
+                                                 WHERE os.object_id = ".$def );
+                      $can_build = true;
+                      foreach( $items as $item ) {
+                        if( $item['res_cnt'] > $item['object_cnt'] ) {
+                          $can_build = false;
+                        }
+                      }
+
+                      if( $can_build ) {
+                        $x = $factory['x'];
+                        $y = $factory['y'];
+
+                        foreach( $items as $item ) {
+                          if( $item['class'] == 1 || $item['class'] == 2 || $item['class'] == 9 ) {
+                            sub_warehouse_item( 1, $planet_id, $item['id'], $item['res_cnt'] );
+                          }
+                        }
+
+                        $total_time = get_make_time( $def );
+                        db_query( "INSERT INTO planet_events ( event_type, x, y, planet_id, object_id, event_time, timer, user_id )
+                                                      VALUES ( 5, $x, $y, $planet_id, 39, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
+                        $id = mysql_insert_id();
+                        db_query( "INSERT INTO planets_make ( event_id, object_id, cycle ) VALUES ( $id, $def, {$factory['level']} )" );
+                        send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущено изготовление $def_name ({$factory['level']}) каждый цикл длительностью $total_time секунд.", 4 );
+                      }
+                    }
+                  }
+                } else {
+                  send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} нет свободных сборочных цехов.", 4 );
+                }
+              } else {
+                send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить сборочные цеха. Энергии $energy_av, места на складе $warehouse", 4 );
+              }
+            } else {
+              $planet_id = $test['place_id'];
+
+              $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                         FROM planets p
+                                   INNER JOIN stars s ON s.id = p.star_id
+                                        WHERE p.id = $planet_id" );
+              $ptype = $planet['type'];
+
+              $energy_av = get_energy( $planet_id, 0 );
+              $warehouse = get_warehouse( $planet_id, 0 );
+              if( $energy_av >= 0 && $warehouse > 0 && $ptype != 1 ) {
+                $facts = db_fetch_array( "SELECT SQL_NO_CACHE ob.x, ob.level, ob.last_id, o.name
+                                            FROM orbits_buildings ob
+                                      INNER JOIN objects o ON o.id = ob.last_id
+                                       LEFT JOIN orbit_events oe ON ob.planet_id = oe.planet_id AND ob.x = oe.x
+                                           WHERE ob.object_id = 3005 AND oe.id IS NULL and ob.planet_id = $planet_id" );
+                if( count( $facts ) ) {
+                  $layouts = db_fetch_array( "SELECT o1.id, o1.name
+                                                FROM warehouse w
+                                          INNER JOIN objects o ON o.id = w.object_id
+                                          INNER JOIN objects_sub os ON os.res_id = o.id
+                                          INNER JOIN objects o1 ON o1.id = os.object_id
+                                               WHERE w.place_id = $planet_id AND
+                                                     w.place_type = 0 AND
+                                                     o.class = 7" );
+
+                  foreach( $facts as $factory ) {
+                    if( count( $layouts ) == 1 ) {
+                      $def = $layouts[0]['id'];
+                      $def_name = $layouts[0]['name'];
+                    } else {
+                      $def = $factory['last_id'];
+                      $def_name = $factory['name'];
+                    }
+
+                    if( $def > 0 ) {
+                      $items = db_fetch_array( "SELECT o.id, o.class, os.res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                                  FROM objects_sub os
+                                            INNER JOIN objects o ON o.id = os.res_id AND o.class IN( 1, 2, 6, 7 )
+                                             LEFT JOIN warehouse w ON w.object_id = o.id AND w.place_id = $planet_id AND w.place_type = 0
+                                                 WHERE os.object_id = ".$def );
+                      $can_build = true;
+                      foreach( $items as $item ) {
+                        if( $item['res_cnt'] > $item['object_cnt'] ) {
+                          $can_build = false;
+                        }
+                      }
+
+                      if( $can_build ) {
+                        $x = $factory['x'];
+  
+                        foreach( $items as $item ) {
+                          if( $item['class'] == 1 || $item['class'] == 2 ) {
+                            sub_warehouse_item( 0, $planet_id, $item['id'], $item['res_cnt'] );
+                          }
+                        }
+
+                        $total_time = get_make_time( $def );
+                        db_query( "INSERT INTO orbit_events ( event_type, x, planet_id, object_id, event_time, timer, user_id )
+                                                     VALUES ( 5, $x, $planet_id, 3005, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
+                        $id = mysql_insert_id();
+                        db_query( "INSERT INTO orbits_make ( event_id, object_id, cycle ) VALUES ( $id, $def, {$factory['level']} )" );
+  
+                        send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} запущено изготовление $def_name ({$factory['level']}) каждый цикл длительностью $total_time секунд.", 4 );
+                      }
+                    }
+                  }
+                } else {
+                  send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} нет свободных сборочных цехов.", 4 );
+                }
+              } else {
+                send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} невозможно запустить сборочные цеха. Энергии $energy_av, места на складе $warehouse", 4 );
+              }
+            }
+          }
+          break;
+
+        case 37: // Spy planet
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 0 && $test['agrav'] && isset( $test['object_id'] ) && $test['object_id'] == 9310 ) {
+            $total_time = get_land_time();
+            db_query( "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1 )
+                                         VALUES ( 6, $shid, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid}, {$test['place_id']} )" );
+            db_query( "UPDATE $table SET place_type = 5, guard = 0 WHERE id = $shid" );
+          }
+          break;
+
+        case 38: // Open hyper gate
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 0 && isset( $test['object_id'] ) && $test['object_id'] == 9321 ) {
+
+            $orbit = db_fetch_row( "SELECT type, user_id FROM planets WHERE id = ".$test['place_id'] );
+
+            if( ( $orbit['type'] == 1 && $user->uid == $orbit['user_id'] ) || $orbit['type'] == 2 || $orbit['type'] == 3 || $orbit['type'] == 4 || $orbit['type'] == 5 ) {
+
+              $se_id = db_fetch_row( "SELECT id, arg2 FROM space_events WHERE event_type = 7 AND ship_id = $shid" );
+              if( isset( $se_id['id'] ) && $se_id['id'] > 0 ) {
+                db_query( "DELETE FROM space_events WHERE id = ".$se_id['id'] );
+                if( $se_id['arg2'] ) {
+                  db_query( "DELETE FROM space_events WHERE id = ".$se_id['arg2'] );
+                }
+              } else {
+                $total_time = get_gate_time();
+                $gates = db_fetch_array( "SELECT se.id, se.arg1
+                                            FROM space_events se
+                                      INNER JOIN ships s ON s.id = se.ship_id
+                                           WHERE se.event_type = 7 AND se.arg2 IS NULL AND s.user_id = ".$user->uid );
+
+                if( count( $gates ) == 0 ) {
+                  db_query( "INSERT INTO space_events ( event_type, ship_id,                                   event_time,       timer,      user_id,                arg1,   arg2 )
+                                               VALUES (          7,   $shid, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid}, {$test['place_id']}, null )" );
+                }
+
+                if( count( $gates ) == 1 ) {
+                  $gates = array_shift( $gates );
+                  $planets = db_fetch_array( "SELECT p.type, p.star_id
+                                                FROM planets p
+                                               WHERE p.id IN ( {$test['place_id']}, {$gates['arg1']} )" );
+
+                  if( count( $planets ) == 2 && $planets[0]['type'] != 1 && $planets[1]['type'] != 1 ) {
+                    db_query( "INSERT INTO space_events ( event_type, ship_id,                                     event_time,       timer,      user_id,                arg1,           arg2 )
+                                                 VALUES (          7,   $shid, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid}, {$test['place_id']}, {$gates['id']} )" );
+                    $id = mysql_insert_id();
+
+                    db_query( "UPDATE space_events se
+                                  SET event_time = DATE_ADD( NOW(), INTERVAL $total_time SECOND ), arg2 = $id
+                                WHERE se.id = ".$gates['id'] );
+                  }
+
+                  if( $planets[0]['type'] == 1 xor $planets[1]['type'] == 1 ) {
+                    $apposite = $planets[0]['type'] == 1 ? $planets[1]['star_id'] : $planets[0]['star_id'];
+                    $allow = db_fetch_val( "SELECT count(*) cnt FROM planets p WHERE type = 1 AND star_id = $apposite", 'cnt' );
+                    if( $allow == 0 ) {
+
+                      $check = db_fetch_val( "SELECT count(*) cnt
+                                                FROM space_events se
+                                               WHERE ( se.user_id != {$user->uid} OR se.arg2 IS NOT NULL ) AND se.arg1 IN (SELECT id FROM planets WHERE star_id = $apposite)", 'cnt' );
+                      if( $check == 0 ) {
+                        db_query( "INSERT INTO space_events ( event_type, ship_id,                                     event_time,       timer,      user_id,                arg1,           arg2 )
+                                                     VALUES (          7,   $shid, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid}, {$test['place_id']}, {$gates['id']} )" );
+                        $id = mysql_insert_id();
+
+                        db_query( "UPDATE space_events se
+                                      SET event_time = DATE_ADD( NOW(), INTERVAL $total_time SECOND ), arg2 = $id
+                                    WHERE se.id = ".$gates['id'] );
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          break;
+
+        case 39: // Undock all
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $type == 'F' ) {
+            $can_dock = db_fetch_row( "SELECT MAX( st.dock ) dock
+                                         FROM ships s
+                                   INNER JOIN ship_types st ON st.object_id = s.object_id
+                                        WHERE s.fleet_id = $shid" );
+          } else {
+            $can_dock = db_fetch_row( "SELECT st.dock dock
+                                         FROM ships s
+                                   INNER JOIN ship_types st ON st.object_id = s.object_id
+                                        WHERE s.id = $shid" );
+          }
+
+          $ships = array();
+          $fleets = array();
+          if( $can_dock['dock'] > 0 ) {
+            if( $test['place_type'] == 7 || $test['place_type'] == 8 ) {
+              if( $type == 'F' ) {
+                $ships = db_fetch_array( "SELECT s.id FROM ships s WHERE s.fleet_id IS null AND s.place_type = 2 AND s.place_id IN ( SELECT s2.id FROM ships s2 WHERE s2.fleet_id = $shid )" );
+                $fleets = db_fetch_array( "SELECT f.id FROM fleets f WHERE f.place_type = 2 AND f.place_id IN ( SELECT s2.id FROM ships s2 WHERE s2.fleet_id = $shid )" );
+
+                db_query( "UPDATE ships s1, ships s2
+                              SET s1.place_id = {$test['place_id']}, s1.place_type = {$test['place_type']},
+                                  s1.arg1 = {$test['arg1']}, s1.arg2 = {$test['arg2']}
+                            WHERE s1.place_type = 2 AND s1.place_id = s2.id AND s2.fleet_id = $shid" );
+  
+                db_query( "UPDATE fleets f1, ships s2
+                              SET f1.place_id = {$test['place_id']}, f1.place_type = {$test['place_type']},
+                                  f1.arg1 = {$test['arg1']}, f1.arg2 = {$test['arg2']}
+                            WHERE f1.place_type = 2 AND f1.place_id = s2.id AND s2.fleet_id = $shid" );
+              } else {
+                $ships = db_fetch_array( "SELECT s.id FROM ships s WHERE s.fleet_id IS null AND s.place_type = 2 AND s.place_id = $shid" );
+                $fleets = db_fetch_array( "SELECT f.id FROM fleets f WHERE f.place_type = 2 AND f.place_id = $shid" );
+
+                db_query( "UPDATE ships SET place_id = {$test['place_id']}, place_type = {$test['place_type']},
+                                  arg1 = {$test['arg1']}, arg2 = {$test['arg2']}
+                            WHERE place_type = 2 AND place_id = $shid" );
+  
+                db_query( "UPDATE fleets SET place_id = {$test['place_id']}, place_type = {$test['place_type']},
+                                  arg1 = {$test['arg1']}, arg2 = {$test['arg2']}
+                            WHERE place_type = 2 AND place_id = $shid" );
+              }
+            } else {
+              if( $type == 'F' ) {
+                $ships = db_fetch_array( "SELECT s.id FROM ships s WHERE s.fleet_id IS null AND s.place_type = 2 AND s.place_id IN ( SELECT s2.id FROM ships s2 WHERE s2.fleet_id = $shid )" );
+                $fleets = db_fetch_array( "SELECT f.id FROM fleets f WHERE f.place_type = 2 AND f.place_id IN ( SELECT s2.id FROM ships s2 WHERE s2.fleet_id = $shid )" );
+
+                db_query( "UPDATE ships s1, ships s2
+                              SET s1.place_id = {$test['place_id']}, s1.place_type = {$test['place_type']}
+                            WHERE s1.place_type = 2 AND s1.place_id = s2.id AND s2.fleet_id = $shid" );
+  
+                db_query( "UPDATE fleets f1, ships s2
+                              SET f1.place_id = {$test['place_id']}, f1.place_type = {$test['place_type']}
+                            WHERE f1.place_type = 2 AND f1.place_id = s2.id AND s2.fleet_id = $shid" );
+              } else {
+                $ships = db_fetch_array( "SELECT s.id FROM ships s WHERE s.fleet_id IS null AND s.place_type = 2 AND s.place_id = $shid" );
+                $fleets = db_fetch_array( "SELECT f.id FROM fleets f WHERE f.place_type = 2 AND f.place_id = $shid" );
+
+                db_query( "UPDATE ships SET place_id = {$test['place_id']}, place_type = {$test['place_type']}
+                            WHERE place_type = 2 AND place_id = $shid" );
+  
+                db_query( "UPDATE fleets SET place_id = {$test['place_id']}, place_type = {$test['place_type']}
+                            WHERE place_type = 2 AND place_id = $shid" );
+              }
+            }
+          }
+
+          if( count( $ships ) ) {
+            foreach( $ships as $item ) {
+              enter_place( $item['id'], false );
+            }
+          }
+
+          if( count( $fleets ) ) {
+            foreach( $fleets as $item ) {
+              enter_place( $item['id'], true );
+            }
+          }
+          break;
+
+        case 40: // Saboteur
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 0 && $test['agrav'] && isset( $test['object_id'] ) && $test['object_id'] == 9355 ) {
+            $total_time = get_land_time();
+            db_query( "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1 )
+                                         VALUES ( 8, $shid, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid}, {$test['place_id']} )" );
+            db_query( "UPDATE $table SET place_type = 5, guard = 0 WHERE id = $shid" );
+          } else {
+            $out = 'err=2';
+          }
+          break;
+
+        default:
+          $out = 'err=1';
+          break;
+
+        case 43: // Stop all mines
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 0 && $test['remote'] > 0 ) {
+            $planet_id = $test['place_id'];
+
+            $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                       FROM planets p
+                                 INNER JOIN stars s ON s.id = p.star_id
+                                      WHERE p.id = $planet_id" );
+            $ptype = $planet['type'];
+
+            if( $ptype != 1 ) {
+              db_query( "UPDATE robots r, orbits_buildings ob
+                            SET r.status = 0
+                          WHERE r.build_id = ob.id AND ob.object_id = 3006 AND ob.planet_id = ".$planet_id );
+
+              db_query( "DELETE om.*, oe.*
+                           FROM orbits_mines om, orbit_events oe
+                          WHERE om.event_id = oe.id AND oe.event_type = 2 AND oe.planet_id = ".$planet_id );
+
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} остановлена добыча материалов.", 4 );
+            }
+          }
+
+          if( $test['place_type'] == 1 && $test['remote'] > 0 ) {
+            $planet_id = $test['place_id'];
+
+            $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                       FROM planets p
+                                 INNER JOIN stars s ON s.id = p.star_id
+                                      WHERE p.id = $planet_id" );
+            $ptype = $planet['type'];
+
+            if( $ptype != 1 ) {
+              db_query( "UPDATE robots r, planets_buildings pb
+                            SET r.status = 0
+                          WHERE r.build_id = pb.id AND pb.object_id IN ( 23, 36, 37 ) AND pb.planet_id = ".$planet_id );
+
+              db_query( "DELETE pm.*, pe.*
+                           FROM planets_mines pm, planet_events pe
+                          WHERE pm.event_id = pe.id AND pe.event_type = 2 AND pe.planet_id = ".$planet_id );
+
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} остановлена добыча материалов на всей планете.", 4 );
+            }
+          }
+          break;
+
+        case 44: // Harvest
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['harvest'] > 0 ) {
+            if( $type == 'S' ) {
+              $se_id = db_fetch_row( "SELECT id, arg2 FROM space_events WHERE event_type = 9 AND ship_id = $shid" );
+            } else {
+              $se_id = db_fetch_row( "SELECT id, arg2 FROM space_events WHERE event_type = 109 AND ship_id = $shid" );
+            }
+            if( isset( $se_id['id'] ) && $se_id['id'] > 0 ) {
+              db_query( "DELETE FROM space_events WHERE id = ".$se_id['id'] );
+            } else {
+              if( $test['place_type'] == 7 || $test['place_type'] == 8 ) {
+                $trash = db_fetch_val( "SELECT SUM( object_cnt ) cnt
+                                          FROM trash
+                                         WHERE place_type = {$test['place_type']} AND place_id = {$test['place_id']} AND
+                                               arg1 = {$test['arg1']} AND arg2 = {$test['arg2']}", 'cnt' );
+              } else {
+                $trash = db_fetch_val( "SELECT SUM( object_cnt ) cnt
+                                          FROM trash
+                                         WHERE place_type = {$test['place_type']} AND place_id = {$test['place_id']}", 'cnt' );
+              }
+
+              if( $trash > 0 ) {
+                $harvest_time = get_harvest_time();
+                db_query( "INSERT INTO space_events ( event_type, ship_id,                                       event_time,         timer,      user_id )
+                                             VALUES (     $add+9,   $shid, DATE_ADD( NOW(), INTERVAL $harvest_time SECOND ), $harvest_time, {$user->uid} )" );
+              }
+            }
+          }
+          break;
+
+        case 45: // Set interupt message
+// debug_it( $test );
+          if( $test['place_type'] == 7 && $test['interupt'] > 0 && isset( $_GET['msg'] ) ) {
+            $msg = $_GET['msg'];
+            $msg = decode_in( $msg );
+            db_safe( $msg );
+
+            if( $msg != '' ) {
+              if( $type == 'S' ) {
+                db_query( "INSERT INTO interupt_msg ( type, ship_id, message ) 
+                                VALUES ( 0, $shid, '$msg' )
+               ON DUPLICATE KEY UPDATE message = '$msg'" );
+              } else {
+                db_query( "INSERT INTO interupt_msg ( type, ship_id, message )
+                                VALUES ( 1, $shid, '$msg' )
+               ON DUPLICATE KEY UPDATE message = '$msg'" );
+              }
+            } else {
+              if( $type == 'S' ) {
+                db_query( "DELETE FROM interupt_msg WHERE type = 0 AND ship_id = $shid" );
+              } else {
+                db_query( "DELETE FROM interupt_msg WHERE type = 1 AND ship_id = $shid" );
+              }
+            }
+          }
+          break;
+
+        case 46: // Send coords
+          $rob = db_fetch_row( "SELECT s1.user_id u1, o.name, s2.user_id u2, s.name sname, s1.arg1, s1.arg2
+                                   FROM ships s1
+                             INNER JOIN objects o ON o.id = s1.object_id
+                             INNER JOIN stars s ON s.id = s1.place_id
+                             INNER JOIN ships s2 ON s1.place_id = s2.place_id AND s1.place_type = s2.place_type AND s1.arg1 = s2.arg1 AND s1.arg2 = s2.arg2
+                                  WHERE s1.id = $shid AND s1.user_id IS NULL AND s2.user_id = {$user->uid}" );
+
+          if( isset( $rob['u2'] ) && is_numeric( $rob['u2'] ) ) {
+            db_query( "INSERT INTO chat (user_id, to_user, text) VALUES ( $uid, null, 'Найден корабль {$rob['name']} в системе {$rob['sname']} с координатами {$rob['arg1']}:{$rob['arg2']}' )" );
+          }
+          break;
+
+        case 47: // follow hot way
+          $hot = db_fetch_row( "SELECT id_to, to_arg1, to_arg2, len FROM hot_way WHERE id = $x" );
+
+          if( $type == 'S' ) {
+            $place = db_fetch_row( "SELECT st.hyper_cnt, s.place_id, s.place_type, s.arg1, s.arg2, s.name
+                                      FROM ships s, ship_types st
+                                     WHERE st.object_id = s.object_id AND s.id = $shid" );
+            $fuel = db_fetch_row( "SELECT object_cnt cnt FROM warehouse WHERE object_id = 1044 AND place_type = 2 AND place_id = $shid" );
+            $add = 0;
+          } else {
+            $place = db_fetch_row( "SELECT hyper_cnt, place_id, place_type, arg1, arg2, name
+                                      FROM fleets WHERE id = $shid" );
+            $fuel = db_fetch_row( "SELECT SUM(w.object_cnt) cnt FROM warehouse w, ships s WHERE w.object_id = 1044 AND s.fleet_id = $shid AND w.place_type = 2 AND w.place_id = s.id" );
+            $add = 100;
+          }
+
+          if( isset( $hot['id_to'] ) && $hot['id_to'] > 8 ) {
+            $len = $hot['len'];
+            $time = get_smove_time( $len * 20, 50 );
+            $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
+
+            if( $fuel_need > $fuel['cnt'] ) {
+              $out = "err=3";
+            } else {
+              $out = "err=0";
+              $sql = "INSERT INTO space_events ( event_type, ship_id,                               event_time, timer,      user_id, arg1,            arg2, from_arg1, from_arg2, from_type )
+                                        VALUES (    $add+10,   $shid, DATE_ADD( NOW(), INTERVAL $time SECOND ), $time, {$user->uid},    0, {$hot['id_to']},         0,         0,         0 )";
+            }
+          } else {
+            $len = $hot['len'];
+            $time = get_smove_time( $len * 20, 50 );
+            $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
+
+            if( $fuel_need > $fuel['cnt'] ) {
+              $out = "err=2";
+            } else {
+              $out = "err=0";
+              $sql = "INSERT INTO space_events ( event_type, ship_id,                               event_time, timer,      user_id,              arg1,              arg2, from_arg1, from_arg2, from_type )
+                                        VALUES (     $add+11,  $shid, DATE_ADD( NOW(), INTERVAL $time SECOND ), $time, {$user->uid}, {$hot['to_arg1']}, {$hot['to_arg2']},         0,         0,         0 )";
+            }
+          }
+
+          if( $out == "err=0" ) {
+            if( $type == 'S' ) {
+              db_query( "UPDATE ships SET guard = 0, arg1 = null, arg2 = null, place_type = 5, place_id = 0 WHERE id = $shid" );
+      
+              if( $fuel_need > 0 ) {
+                sub_warehouse_item( 2, $shid, 1044, $fuel_need );
+              }
+            } else {
+              db_query( "UPDATE fleets SET guard = 0, arg1 = null, arg2 = null, place_type = 5, place_id = 0 WHERE id = $shid" );
+              db_query( "UPDATE ships SET guard = 0, arg1 = null, arg2 = null, place_type = 5, place_id = 0 WHERE fleet_id = $shid" );
+      
+              $ships = db_fetch_array( "SELECT s.id, w.object_cnt
+                                          FROM ships s
+                                     LEFT JOIN warehouse w ON w.place_id = s.id AND w.place_type = 2 AND w.object_id = 1044
+                                         WHERE s.fleet_id = $shid ORDER BY w.object_cnt DESC" );
+      
+              $total = $fuel_need;
+      
+              if( $fuel_need > 0 ) {
+                foreach( $ships as $item ) {
+                  if( $total < $item['object_cnt'] ) {
+                    sub_warehouse_item( 2, $item['id'], 1044, $total );
+                    break;
+                  } else {
+                    sub_warehouse_item( 2, $item['id'], 1044, $item['object_cnt'] );
+                    $total -= $item['object_cnt'];
+                  }
+                }
+              }
+            }
+            db_query( $sql );
+          }
+          break;
+
+        case 48: // Stop sintez
+          if( $limit < 0 ) {
+            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            break;
+          }
+
+          if( $test['place_type'] == 0 && $test['remote'] > 0 ) {
+            $planet_id = $test['place_id'];
+
+            $planet = db_fetch_row( "SELECT p.type, p.name pname, s.name sname
+                                       FROM planets p
+                                 INNER JOIN stars s ON s.id = p.star_id
+                                      WHERE p.id = $planet_id" );
+            $ptype = $planet['type'];
+
+            if( $ptype != 1 ) {
+              db_query( "UPDATE robots r, orbits_buildings ob
+                            SET r.status = 0
+                          WHERE r.build_id = ob.id AND ob.object_id = 3010 AND ob.planet_id = ".$planet_id );
+
+              $reslist = db_fetch_array( "SELECT s.res_id
+                                            FROM orbits_make om
+                                      INNER JOIN sintez s ON s.object_id = om.object_id
+                                      INNER JOIN orbit_events oe ON oe.id = om.event_id
+                                           WHERE oe.planet_id = $planet_id AND oe.event_type = 8" );
+
+              foreach( $reslist as $item ) {
+                add_warehouse_item( 0, $planet_id, $item['res_id'], 1000 );
+              }
+
+              db_query( "DELETE om.*, oe.*
+                           FROM orbits_make om, orbit_events oe
+                          WHERE om.event_id = oe.id AND oe.event_type = 8 AND oe.planet_id = ".$planet_id );
+
+              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} остановлены термоядерные преобразователи.", 4 );
+            }
+          }
+          break;
+      }
+
+      printOut( $out );
+    } 
+  }

@@ -1,0 +1,18 @@
+<HTML>
+<HEAD>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<TITLE>write</TITLE>
+</HEAD>
+<BODY bgcolor=#000000 TOPMARGIN=0 LEFTMARGIN=0 MARGINHEIGHT=0 MARGINWIDTH=0>
+<OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"
+ WIDTH="100%" HEIGHT="500" id="topmenu" ALIGN="">
+ <PARAM NAME=movie VALUE="swf/write.jpg">
+ <PARAM NAME=quality VALUE=high>
+ <PARAM NAME=bgcolor VALUE=#000000>
+ <PARAM NAME=wmode VALUE=window>
+ <PARAM NAME=flashvars VALUE="nick=<?php if( isset( $_GET['nick'] ) ) echo $_GET['nick']; ?>">
+ <EMBED src="swf/write.jpg" quality=high bgcolor=#000000 WIDTH="100%" HEIGHT="500" NAME="topmenu" ALIGN="" wmode="window"
+ TYPE="application/x-shockwave-flash" PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer" flashvars="nick=<?php if( isset( $_GET['nick'] ) ) echo $_GET['nick']; ?>"></EMBED>
+</OBJECT>
+</BODY>
+</HTML>

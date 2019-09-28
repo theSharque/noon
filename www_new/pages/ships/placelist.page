@@ -1,0 +1,134 @@
+<?php
+
+  global $user;
+
+  if( !isset( $user->uid ) || !$user->uid ) {
+    return;
+  }
+
+  $gid = db_fetch_val( "SELECT gid FROM users WHERE id = {$user->uid}", 'gid' );
+
+  $groups = db_fetch_array( "SELECT s.group, COUNT(*) cnt
+                               FROM ships s
+                              WHERE s.user_id = {$user->uid}
+                           GROUP BY `group`" );
+
+  $places = db_fetch_array( "SELECT * FROM (
+                               SELECT s.place_type, pn.name,
+                                      IFNULL( p.id, IFNULL( p2.id, st.id ) ) pid,
+                                      IFNULL( p.name, IFNULL( p2.name, st.name ) ) pname,
+                                      count(*) cnt
+                                 FROM ships s
+                           INNER JOIN place_name pn ON s.place_type = pn.id
+                            LEFT JOIN planets p ON s.place_type IN (0,1) AND s.place_id = p.id
+                            LEFT JOIN orbits_buildings ob ON s.place_type = 3 AND s.place_id = ob.id
+                            LEFT JOIN planets p2 ON p2.id = ob.planet_id
+                            LEFT JOIN stars st ON s.place_type = 7 AND s.place_id = st.id
+                                WHERE s.user_id = {$user->uid}
+                             GROUP BY s.place_type, pn.name, p.id, p.name, p2.id, p2.name, st.id, st.name
+UNION
+                               SELECT s.place_type, pn.name,
+                                      s2.id pid,
+                                      s2.name pname,
+                                      count(*) cnt
+                                 FROM ships s
+                           INNER JOIN place_name pn ON s.place_type = pn.id
+                           INNER JOIN ships s2 ON s.place_type = 2 AND s.place_id = s2.id
+                           INNER JOIN ships s3 ON s3.id = s.place_id
+                                WHERE s.place_type = 2 AND s3.user_id = {$user->uid}
+                             GROUP BY s.place_type, pn.name, s2.id, s2.name
+) t ORDER BY pname, name" );
+
+  $l = 0;
+  $out = 'err=0';
+
+  if( count( $places ) ) {
+    if( $gid != '' ) {
+      if( strpos( $gid, ':' ) !== false ) {
+        $gid = explode( ':', $gid );
+        $out .= '&others='.$gid[0];
+        $out .= '&lastPlace='.$gid[1];
+      } else {
+        $out .= '&lastPlace='.$gid;
+      }
+    }
+
+    if( count( $groups ) && get_implant_level( 9308, $user->uid ) > 0 ) {
+      foreach( $groups as $item ) {
+        if( $item['group'] ) {
+          $out .= "&id$l=G{$item['group']}";
+          $out .= "&name$l=Группа {$item['group']} ({$item['cnt']})";
+          $l++;
+        } else {
+          $out .= "&id$l=Gnull";
+          $out .= "&name$l=Без группы ({$item['cnt']})";
+          $l++;
+        }
+      }
+    }
+
+    $counter = array( 0 => 0, 1 => 0, 2 => 0, 3 => 0, 5 => 0, 7 => 0, 8 => 0 );
+    foreach( $places as $item ) {
+      $counter[$item['place_type']] += $item['cnt'];
+    }
+
+    $out .= "&id$l=9S*";
+    $out .= "&name$l=Все кто не в бою";
+    $l++;
+    $out .= "&id$l=4S*";
+    $out .= "&name$l=Все кто в бою";
+    $l++;
+    $out .= "&id$l=6S*";
+    $out .= "&name$l=Все без родной";
+    $l++;
+    $out .= "&id$l=7S*";
+    $out .= "&name$l=Все в пространстве ({$counter[7]})";
+    $l++;
+    $out .= "&id$l=0S*";
+    $out .= "&name$l=Все на орбитах ({$counter[0]})";
+    $l++;
+    $out .= "&id$l=1S*";
+    $out .= "&name$l=Все на планетах ({$counter[1]})";
+    $l++;
+    $out .= "&id$l=2S*";
+    $out .= "&name$l=Все в кораблях ({$counter[2]})";
+    $l++;
+    $out .= "&id$l=3S*";
+    $out .= "&name$l=Все на станциях ({$counter[3]})";
+    $l++;
+
+    foreach( $places as $item ) {
+      switch( $item['place_type'] ) {
+        case 0:
+        case 1:
+          $out .= "&id$l={$item['place_type']}S{$item['pid']}";
+          $out .= "&name$l={$item['name']} {$item['pname']} ({$item['cnt']})";
+          break;
+        case 2:
+          $out .= "&id$l={$item['place_type']}S{$item['pid']}";
+          $out .= "&name$l={$item['name']} {$item['pname']} ({$item['cnt']})";
+          break;
+        case 3:
+          $out .= "&id$l={$item['place_type']}S{$item['pid']}";
+          $out .= "&name$l={$item['name']} {$item['pname']} ({$item['cnt']})";
+          break;
+        case 5:
+          $out .= "&id$l={$item['place_type']}";
+          $out .= "&name$l={$item['name']} ({$item['cnt']})";
+          break;
+        case 7:
+          $out .= "&id$l={$item['place_type']}S{$item['pid']}";
+          $out .= "&name$l={$item['name']} {$item['pname']} ({$item['cnt']})";
+          break;
+        case 8:
+          $out .= "&id$l={$item['place_type']}";
+          $out .= "&name$l={$item['name']} ({$item['cnt']})";
+          break;
+      }
+
+      $l++;
+    }
+    $out .= "&cnt=$l";
+  }
+
+  printOut( $out );

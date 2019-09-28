@@ -1,0 +1,11 @@
+<!-- INCLUDE mcp_header.html -->
+
+<div class="panel" id="message">
+	{$CA_BLOCK2_START}
+	    <h2>{MESSAGE_TITLE}</h2>
+	{$CA_BLOCK2_START2}
+	<p>{MESSAGE_TEXT}</p>
+	{$CA_BLOCK2_END}
+</div>
+
+<!-- INCLUDE mcp_footer.html -->

@@ -1,0 +1,192 @@
+<?php
+
+  global $user;
+
+  if( isset( $_GET['wid'] ) ) {
+    $place_hash = $_GET['wid'];
+    db_safe( $place_hash );
+
+    $move_id = db_fetch_val( "SELECT max( move_id ) move_id FROM war_online WHERE place_hash = '$place_hash'", 'move_id' );
+    $wars = db_fetch_array( "SELECT id, a_user_id, a_type, a_object_id, d_user_id, d_type, d_object_id FROM war_events WHERE place_hash = '$place_hash'" );
+
+    if( count( $wars ) > 0 ) {
+
+      $a_list = array();
+      $d_list = array();
+
+      $side = 0;
+
+      foreach( $wars as $war ) {
+        if( $war['a_user_id'] == $uid ) {
+          $side = 0;
+        }
+
+        if( $war['d_user_id'] == $uid ) {
+          $side = 1;
+        }
+
+        switch( $war['a_type'] ) {
+
+          case 0 :
+            $a_res = db_fetch_array( "SELECT CONCAT( 's', s.object_id ) id, st.pic, 1 cnt, s.shield, st.code name, st.shield shtot
+                                         FROM ships s
+                                   INNER JOIN ship_types st ON st.object_id = s.object_id
+                                        WHERE s.id = ".$war['a_object_id'] );
+            break;
+
+          case 1 :
+            $a_res = db_fetch_array( "SELECT CONCAT( 's', s.object_id ) id, st.pic, count(*) cnt, SUM( s.shield ) shield, st.code name, SUM( st.shield ) shtot
+                                         FROM ships s
+                                   INNER JOIN ship_types st ON st.object_id = s.object_id
+                                        WHERE s.fleet_id = ".$war['a_object_id']."
+                                     GROUP BY s.object_id" );
+            break;
+
+          case 2 :
+            $a_res = db_fetch_array( "SELECT CONCAT( 'p', pb.object_id ) id, b.pic, count(*) cnt, SUM( pb.shield ) shield, o.name, SUM( pb.shield ) shtot
+                                         FROM planets_buildings pb
+                                   INNER JOIN objects o ON o.id = pb.object_id
+                                   INNER JOIN buildings b ON b.id = pb.object_id
+                                        WHERE pb.planet_id = {$war['a_object_id']}
+                                     GROUP BY pb.object_id" );
+            break;
+
+          case 3 :
+            $a_res = db_fetch_array( "SELECT CONCAT( 'o', ob.object_id ) id, b.pic, count(*) cnt, SUM( ob.shield ) shield, o.name, SUM( ob.shield ) shtot
+                                         FROM orbits_buildings ob
+                                   INNER JOIN objects o ON o.id = ob.object_id
+                                   INNER JOIN buildings b ON b.id = ob.object_id
+                                        WHERE ob.planet_id = {$war['a_object_id']}
+                                     GROUP BY ob.object_id" );
+            break;
+        }
+
+        foreach( $a_res as $warior ) {
+          if( isset( $a_list[$warior['id']] ) ) {
+            if( $a_list[$warior['id']]['a_object_id'] != $war['a_object_id'] ) {
+              $a_list[$warior['id']]['cnt'] += $warior['cnt'];
+              $a_list[$warior['id']]['shield'] += $warior['shield'];
+            }
+          } else {
+            $a_list[$warior['id']] = $warior;
+            $a_list[$warior['id']]['a_object_id'] = $war['a_object_id'];
+          }
+        }
+
+        switch( $war['d_type'] ) {
+
+          case 0 :
+            $d_res = db_fetch_array( "SELECT CONCAT( 's', s.object_id ) id, st.pic, 1 cnt, s.shield, st.code name, st.shield shtot
+                                        FROM ships s
+                                  INNER JOIN ship_types st ON st.object_id = s.object_id
+                                       WHERE s.id = ".$war['d_object_id'] );
+            break;
+
+          case 1 :
+            $d_res = db_fetch_array( "SELECT CONCAT( 's', s.object_id ) id, st.pic, count(*) cnt, SUM( s.shield ) shield, st.code name, SUM( st.shield ) shtot
+                                        FROM ships s
+                                  INNER JOIN ship_types st ON st.object_id = s.object_id
+                                       WHERE s.fleet_id = ".$war['d_object_id']."
+                                    GROUP BY s.object_id" );
+            break;
+
+          case 2 :
+            $d_res = db_fetch_array( "SELECT CONCAT( 'p', pb.object_id ) id, b.pic, count(*) cnt, SUM( pb.shield ) shield, o.name, SUM( pb.shield ) shtot
+                                        FROM planets_buildings pb
+                                  INNER JOIN objects o ON o.id = pb.object_id
+                                  INNER JOIN buildings b ON b.id = pb.object_id
+                                       WHERE pb.planet_id = ".$war['d_object_id'] );
+            break;
+
+          case 3 :
+            $d_res = db_fetch_array( "SELECT CONCAT( 'o', ob.object_id ) id, b.pic, count(*) cnt, SUM( ob.shield ) shield, o.name, SUM( ob.shield ) shtot
+                                        FROM orbits_buildings ob
+                                  INNER JOIN objects o ON o.id = ob.object_id
+                                  INNER JOIN buildings b ON b.id = ob.object_id
+                                       WHERE ob.planet_id = ".$war['d_object_id'] );
+            break;
+        }
+
+        foreach( $d_res as $warior ) {
+          if( isset( $d_list[$warior['id']] ) ) {
+            if( $d_list[$warior['id']]['d_object_id'] != $war['d_object_id'] ) {
+              $d_list[$warior['id']]['cnt'] += $warior['cnt'];
+              $d_list[$warior['id']]['shield'] += $warior['shield'];
+            }
+          } else {
+            $d_list[$warior['id']] = $warior;
+            $d_list[$warior['id']]['d_object_id'] = $war['d_object_id'];
+          }
+        }
+      }
+
+      $war_current = db_fetch_row( "SELECT count(*) cnt, sum(id) id FROM war_events WHERE place_hash = '$place_hash'" );
+      $war_hash = md5( $war_current['id'].':'.$war_current['cnt'] );
+
+      $out = "err=0&lm=$move_id&ph=$place_hash,$war_hash";
+
+      if( $side == 0 ) {
+        $out .= "&side=0";
+
+        $out .= '&ncnt='.count( $a_list )."&ntp={$war['a_type']}";
+        $l=0;
+
+        foreach( $a_list as $item ) {
+          if( $item['pic'] ) {
+            $out .= "&nid$l=a{$item['id']}&npc$l=n{$item['pic']}&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
+          } else {
+            $out .= "&nid$l=a{$item['id']}&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
+          }
+          $l++;
+        }
+
+        $out .= '&fcnt='.count( $d_list )."&ftp={$war['d_type']}";
+        $l=0;
+
+        foreach( $d_list as $item ) {
+          if( $item['pic'] ) {
+            $out .= "&fid$l=d{$item['id']}&fpc$l=f{$item['pic']}&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
+          } else {
+            $out .= "&fid$l=d{$item['id']}&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
+          }
+          $l++;
+        }
+      } else {
+        $out .= "&side=1";
+
+        $out .= '&ncnt='.count( $d_list )."&ntp={$war['d_type']}";
+        $l=0;
+
+        foreach( $d_list as $item ) {
+          if( $item['pic'] ) {
+            $out .= "&nid$l=a{$item['id']}&npc$l=n{$item['pic']}&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
+          } else {
+            $out .= "&nid$l=a{$item['id']}&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
+          }
+          $l++;
+        }
+
+        $out .= '&fcnt='.count( $a_list )."&ftp={$war['a_type']}";
+        $l=0;
+
+        foreach( $a_list as $item ) {
+          if( $item['pic'] ) {
+            $out .= "&fid$l=d{$item['id']}&fpc$l=f{$item['pic']}&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
+          } else {
+            $out .= "&fid$l=d{$item['id']}&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
+          }
+          $l++;
+        }
+      }
+
+//debug_it( $out );
+
+    } else {
+      $out = 'err=2';
+    }
+
+  } else {
+    $out = 'err=1';
+  }
+
+  printOut( $out );

@@ -1,0 +1,149 @@
+<?php
+
+  if( isset( $_GET['ord'] ) && isset( $_GET['mid'] ) && is_numeric( $_GET['ord'] ) && is_numeric( $_GET['mid'] ) ) {
+    $ord = $_GET['ord'];
+    $mid = $_GET['mid'];
+
+    db_safe( $ord );
+    db_safe( $mid );
+
+    switch( $ord ) {
+      case 1 : // remove
+        $out = 'err=0';
+        $info = db_fetch_row( "SELECT um.id, um.user_id, mt.status, o.cprice, mt.book_id
+                                 FROM users_medal um
+                           INNER JOIN medals_type mt ON mt.object_id = um.object_id
+                           INNER JOIN objects o ON o.id = um.object_id
+                                WHERE um.id = $mid" );
+
+        if( isset( $info['id'] ) && is_numeric( $info['id'] ) && $info['user_id'] == $user->uid &&
+            $info['status'] == 0 && $user->credits >= $info['cprice'] * 2 ) {
+          $out = 'err=0';
+          db_query( 'UPDATE users SET credits = credits - '.( $info['cprice'] * 2 ).' WHERE id = '.$user->uid );
+          db_query( 'DELETE FROM users_medal WHERE id = '.$mid );
+
+          if( $info['book_id'] = 20 ) {
+            $lvl = get_book_level( 20, $uid );
+
+            db_query( "UPDATE planets_buildings
+                          SET shield = level * 1000 + (level * 250 * $lvl)
+                        WHERE planet_id IN ( SELECT place_id
+                                               FROM defence
+                                              WHERE place_type = 1 AND user_id = $uid ) AND
+                              shield > 0" );
+          }
+        } else {
+          $out = 'err=3';
+        }
+
+        break;
+
+      case 2 : // Graduate
+        $text = $_GET['txt'];
+
+        $text = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode( $text ));
+        $text = html_entity_decode( $text, null, 'UTF-8' );;
+        $text = mb_convert_encoding( $text, "Windows-1251", "UTF-8" );
+        $text = preg_replace( array( '/\'/i', '/</i', '/>/i' ), array( '"', '"', '"' ), $text ); 
+        $text = preg_replace( '/([^a-zA-Z0-9а-яА-ЯёЁ])/e', '"%".str_pad(dechex(ord("$1")),2,"0",STR_PAD_LEFT)', $text ); 
+        $text = preg_replace( '/%5c/i', '', $text ); 
+
+        $login = $_GET['login'];
+
+        db_safe( $text );
+        db_safe( $login );
+
+        $login = decode_in( $login );
+
+        $row = db_fetch_row( "SELECT u.id, u.titul, t.name tname, p.name pname
+                                FROM users u
+                          INNER JOIN tituls t ON t.id = u.titul
+                          INNER JOIN planets p ON p.user_id = u.id
+                               WHERE u.status = 1 AND u.login='$login'" );
+
+        $info = db_fetch_row( "SELECT o.name, w.object_id id, w.object_cnt cnt, mt.book_id
+                                 FROM warehouse w
+                           INNER JOIN medals_type mt ON mt.object_id = w.object_id
+                           INNER JOIN objects o ON o.id = w.object_id
+                                WHERE w.place_type = 0 AND w.place_id = {$user->planet_id} AND w.object_id = $mid" );
+
+        if( isset( $info['id'] ) && is_numeric( $info['id'] ) && is_numeric( $row['id'] ) && $info['cnt'] > 0 ) {
+          $uid = $row['id'];
+          $medal = $info['name'];
+          sub_warehouse_item( 0, $user->planet_id, $mid, 1 );
+          db_query( "INSERT INTO users_medal 
+                            ( user_id, object_id, user_desc )
+                     VALUES ( $uid, $mid, '$text' )" );
+
+          if( $info['book_id'] = 20 ) {
+            $lvl = get_book_level( 20, $uid );
+
+            db_query( "UPDATE planets_buildings
+                          SET shield = level * 1000 + (level * 250 * $lvl)
+                        WHERE planet_id IN ( SELECT place_id
+                                               FROM defence
+                                              WHERE place_type = 1 AND user_id = $uid ) AND
+                              shield > 0" );
+          }
+
+          switch( $row['titul'] % 11 ) {
+            case 0:
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Пилот %s удостоен награды %s.</font>', array( $login, $medal ) )."' )" );
+              break;
+            case 1:
+              if( $row['titul'] < 12 ) {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">%s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              } else {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">%s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              }
+              break;
+            case 2:
+            case 3:
+            case 4:
+              if( $row['titul'] < 12 ) {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Его милость %s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              } else {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Ее милость %s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              }
+              break;
+            case 5:
+              if( $row['titul'] < 12 ) {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Его сиятельство %s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              } else {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Ее сиятельство %s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              }
+              break;
+            case 6:
+            case 7:
+            case 8:
+              if( $row['titul'] < 12 ) {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Его светлость %s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              } else {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Ее светлость %s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              }
+              break;
+            case 9:
+              if( $row['titul'] < 12 ) {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Его высочество %s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              } else {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Ее высочество %s %s удостоен награды %s.</font>', array( $row['tname'], $login, $medal ) )."' )" );
+              }
+              break;
+            case 10:
+              if( $row['titul'] < 12 ) {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Его королевское величество, повелитель планеты %s, %s %s удостоен награды %s.</font>', array( $row['pname'], $row['tname'], $login, $medal ) )."' )" );
+              } else {
+                db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $uid, '".t( '<font color=\"#CCCCCC\">Ее королевское величество, повелительница планеты %s, %s %s удостоен награды %s.</font>', array( $row['pname'], $row['tname'], $login, $medal ) )."' )" );
+              }
+              break;
+          }
+        }
+        break;
+
+      default :
+        $out = 'err=2';
+        break;
+    }
+  } else {
+    $out = 'err=1';
+  }

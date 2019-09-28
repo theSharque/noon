@@ -1,0 +1,180 @@
+<?php
+
+  global $user;
+  $last = mt_rand( 100000, 999999 );
+
+  if( $user->place_type == 0 && $user->owner ) {
+    if( isset( $_GET['bid'] ) && isset( $_GET['x'] ) ) {
+  
+      $x = $_GET['x'];
+      $y = 0;
+      $bid = $_GET['bid'];
+    
+      db_safe( $x );
+      db_safe( $bid );
+    
+      $out = "dg_h=".t( "Длительность %s", array( time_to_str( get_build_time( $bid ) ) ) );
+    
+      $res = db_fetch_array( "SELECT o.id, o.name, os.res_cnt
+                                FROM objects_sub os
+                          INNER JOIN objects o ON o.id = os.res_id
+                               WHERE os.object_id=$bid ORDER BY o.class, o.name" );
+      foreach( $res as $item ) {
+        $items[$item['id']] = $item;
+        $items[$item['id']]['object_cnt'] = 0;
+      }
+
+      $res = db_fetch_array( "SELECT w.object_id, w.object_cnt
+                                FROM warehouse w
+                          INNER JOIN objects_sub os ON w.object_id = os.res_id AND os.object_id = $bid
+                               WHERE w.place_id = ".$user->place_id." AND w.place_type = ".$user->place_type );
+
+      foreach( $res as $item ) {
+        if( isset( $items[$item['object_id']] ) ) {
+          $items[$item['object_id']]['object_cnt'] += $item['object_cnt'];
+        }
+      }
+
+      $res = db_fetch_array( "SELECT w.object_id, SUM( w.object_cnt ) object_cnt
+                                FROM warehouse w
+                          INNER JOIN ships s ON s.place_id = ".$user->place_id." AND s.place_type = 0 AND s.user_id = ".$user->uid." AND w.place_id = s.id
+                          INNER JOIN objects_sub os ON os.object_id = $bid AND w.object_id = os.res_id
+                               WHERE w.place_type = 2
+                            GROUP BY w.object_id" );
+
+      foreach( $res as $item ) {
+        if( isset( $items[$item['object_id']] ) ) {
+          $items[$item['object_id']]['object_cnt'] += $item['object_cnt'];
+        }
+      }
+
+      $energy_av = get_energy();
+    
+      $energy_nd = db_fetch_row( "SELECT b.energy FROM buildings b WHERE b.id = $bid" );
+    
+      $out .= "&col0=".t( 'Ресурс' );
+      $out .= "&col1=".t( 'Требуется' );
+      $out .= "&col2=".t( 'Доступно' );
+    
+      $i=0;
+      $CanBuild = true;
+    
+      if( $energy_nd['energy'] < 0 ) {
+        $out .= "&cols=3&rows=".(count( $items ) + 1);
+        if( $energy_av + $energy_nd['energy'] >= 0 ) {
+          $out .= "&l0c0=".t( 'Энергия' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
+        } else {
+          $out .= "&l0color=0xFF0000&l0c0=".t( 'Энергия' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
+          $CanBuild = false;
+        }
+        $i++;
+      } else {
+        $out .= "&cols=3&rows=".count( $items );
+      }
+    
+      foreach( $items as $item ) {
+        if( $item['res_cnt'] <= $item['object_cnt'] ) {
+          $out .= '&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+        } else {
+          $out .= '&l'.$i.'color=0xFF0000&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+          $CanBuild = false;
+        }
+        $i++;
+      }
+  
+      if( $CanBuild ) {
+/*
+        db_query( "INSERT INTO antibot ( user_id, coord, last )
+                        VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+       ON DUPLICATE KEY UPDATE last = $last" );
+*/
+        $out .= "&btLabel=".t( 'Начать строительство' )."&btOnClick=page.php?id=25%26bid=$bid%26x=$x%26l=$last";
+      }
+  
+      printOut( $out );
+    }    
+  }
+
+  if( $user->place_type == 1 && $user->owner ) {
+
+    $bq = false;
+    if( $user->iq ) {
+      $qid = $user->iq;
+      if( $user->qt >= 19 && $user->qt <= 27 ) {
+        $bq = true;
+        $bt = db_fetch_val( "SELECT arg3 FROM users_quests WHERE id = ".$user->iq, 'arg3' );
+      }
+    }
+
+    if( isset( $_GET['bid'] ) && isset( $_GET['x'] ) && isset( $_GET['y'] ) ) {
+  
+      $x = $_GET['x'];
+      $y = $_GET['y'];
+      $bid = $_GET['bid'];
+    
+      db_safe( $bid );
+    
+      $out = "dg_h=".t( 'Длительность %s', array( time_to_str( get_build_time( $bid ) ) ) );
+    
+      if( !$bq ) {
+        $items = db_fetch_array( "SELECT o.name, os.res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                    FROM objects_sub os
+                              INNER JOIN objects o ON o.id = os.res_id
+                               LEFT JOIN warehouse w ON w.object_id = os.res_id AND w.place_id = ".$user->place_id." AND w.place_type = ".$user->place_type."
+                                   WHERE os.object_id=$bid
+                                ORDER BY o.class, o.name" );
+      } else {
+        $items = db_fetch_array( "SELECT o.name, os.res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                    FROM objects_sub os
+                              INNER JOIN objects o ON o.id = os.res_id
+                               LEFT JOIN warequest w ON w.quest_id = $qid AND w.object_id = os.res_id AND w.place_id = ".$user->place_id." AND w.place_type = ".$user->place_type."
+                                   WHERE os.object_id=$bid
+                                ORDER BY o.class, o.name" );
+      }
+    
+      $energy_av = get_energy();
+    
+      $energy_nd = db_fetch_row( "SELECT b.energy FROM buildings b WHERE b.id = $bid" );
+    
+      $out .= "&col0=".t( 'Ресурс' );
+      $out .= "&col1=".t( 'Требуется' );
+      $out .= "&col2=".t( 'Доступно' );
+    
+      $i=0;
+      $CanBuild = true;
+    
+      if( $energy_nd['energy'] < 0 ) {
+        $out .= "&cols=3&rows=".(count( $items ) + 1);
+        if( $energy_av + $energy_nd['energy'] >= 0 ) {
+          $out .= "&l0c0=".t( 'Энергия' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
+        } else {
+          $out .= "&l0color=0xFF0000&l0c0=".t( 'Энергия' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
+          $CanBuild = false;
+        }
+        $i++;
+      } else {
+        $out .= "&cols=3&rows=".count( $items );
+      }
+    
+      foreach( $items as $item ) {
+        if( $item['res_cnt'] <= $item['object_cnt'] ) {
+          $out .= '&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+        } else {
+          $out .= '&l'.$i.'color=0xFF0000&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+          $CanBuild = false;
+        }
+        $i++;
+      }
+  
+      if( $CanBuild ) {
+/*
+        db_query( "INSERT INTO antibot ( user_id, coord, last )
+                        VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+       ON DUPLICATE KEY UPDATE last = $last" );
+*/
+        $out .= "&btLabel=".t( 'Начать строительство' )."&btOnClick=page.php?id=25%26bid=$bid%26l=$last%26x=$x%26y=$y";
+      }
+  
+      printOut( $out );
+    }
+  }

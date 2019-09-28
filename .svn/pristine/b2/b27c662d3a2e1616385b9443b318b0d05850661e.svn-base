@@ -1,0 +1,238 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  auction.inc: n/a
+#  auction.module: n/a
+#  auction.info: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2013-06-22 12:34+0400\n"
+"PO-Revision-Date: 2013-06-22 12:34+0400\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+
+#: auction.inc:9
+msgid "Status"
+msgstr "Статус"
+
+#: auction.inc:10;339
+msgid "Start date"
+msgstr "Время начала"
+
+#: auction.inc:11;519
+msgid "End date"
+msgstr "Время окончания"
+
+#: auction.inc:12
+msgid "Name"
+msgstr "Название"
+
+#: auction.inc:13
+msgid "Price"
+msgstr "Текущая цена"
+
+#: auction.inc:14
+msgid "Winner"
+msgstr "Победитель"
+
+#: auction.inc:40
+msgid "Deleted"
+msgstr "Удалено"
+
+#: auction.inc:44
+msgid "Active"
+msgstr "Активен"
+
+#: auction.inc:54
+msgid "No content available."
+msgstr "Нет доступного материала."
+
+#: auction.inc:59
+msgid "Close"
+msgstr "Закрыто"
+
+#: auction.inc:64
+msgid "Open"
+msgstr "Открыто"
+
+#: auction.inc:125
+msgid "Auction name"
+msgstr "Название аукциона"
+
+#: auction.inc:132
+msgid "Enter description of this lot."
+msgstr "Введите описание для этого лота"
+
+#: auction.inc:142
+msgid "Main time in hours"
+msgstr "Основное время в часах"
+
+#: auction.inc:151
+msgid "Time added after each last bet in minutes"
+msgstr ""
+"Время добавляемое после каждой ставки "
+"в минутах"
+
+#: auction.inc:160
+msgid "Start price (usaly equal one step)"
+msgstr ""
+"Начальная цена (обычна равна одному "
+"шагу)"
+
+#: auction.inc:169
+msgid "Step price for each bid"
+msgstr "Шаг повышения цены"
+
+#: auction.inc:178
+msgid "Start date of auction with this lot. In format YYYY-MM-DD HH:MM:SS"
+msgstr ""
+"Время начала аукциона по этому лоту. В "
+"формате ГГГГ-ММ-ДД ЧЧ:ММ:СС"
+
+#: auction.inc:184;192;200;208;216
+msgid "Image"
+msgstr "Изображение"
+
+#: auction.inc:225
+msgid "Save"
+msgstr "Сохранить"
+
+#: auction.inc:387
+msgid "Please share us on your wall!"
+msgstr "Пожалуйста, разместите у себя ссылку"
+
+#: auction.inc:389
+msgid "Link count as your first bet"
+msgstr "Засчитывается как ваша ставка"
+
+#: auction.inc:393
+msgid "Price: !price$"
+msgstr "Цена: !price$"
+
+#: auction.inc:427
+msgid "Current price"
+msgstr "Текущая цена"
+
+#: auction.inc:435
+msgid "Auction start countdown"
+msgstr "Отсчет до начала аукциона"
+
+#: auction.inc:443;503;579
+msgid "Add money to account"
+msgstr "Пополнить счет"
+
+#: auction.inc:448;508;651
+msgid "Make bid !summ$"
+msgstr "Сделать ставку !summ$"
+
+#: auction.inc:459;583
+msgid "Register"
+msgstr "Регистрация"
+
+#: auction.inc:467;646
+msgid "You are in winner."
+msgstr "Ваша ставка последняя"
+
+#: auction.inc:476
+msgid "Winner is %name."
+msgstr "Последняя ставка %name."
+
+#: auction.inc:479
+msgid "Nobody - make a bid!"
+msgstr "Ставок пока нет - будьте первым!"
+
+#: auction.inc:496
+msgid "Auction end countdown, main time"
+msgstr ""
+"Отсчет окончания аукциона, основное "
+"время"
+
+#: auction.inc:531
+msgid "Update"
+msgstr "Обновить"
+
+#: auction.inc:742
+msgid "Amount"
+msgstr "Сумма"
+
+#: auction.inc:759
+msgid "Start pay of !summ"
+msgstr "Начало оплаты на сумму !summ"
+
+#: auction.inc:780
+msgid "Select type of money"
+msgstr "Выберите способ оплаты"
+
+#: auction.inc:793
+msgid "Pay of !summ for user !name"
+msgstr ""
+"Оплата на сумму !summ для пользователя "
+"!name"
+
+#: auction.inc:801 auction.module:90;99
+msgid "Pay"
+msgstr "Пополнить"
+
+#: auction.module:10
+msgid "User of auction system"
+msgstr "Пользователь аукциона"
+
+#: auction.module:14
+msgid "Administrator of auction system"
+msgstr "Администратор аукциона"
+
+#: auction.module:129
+msgid "Your money"
+msgstr "Ваш счет"
+
+#: auction.module:27;36
+msgid "Auction admin"
+msgstr "Администратор аукциона"
+
+#: auction.module:28;37;69;79
+msgid "Show current auction."
+msgstr "Показать текущий аукцион."
+
+#: auction.module:47
+msgid "Add auction"
+msgstr "Добавить аукцион"
+
+#: auction.module:48
+msgid "Add new auction."
+msgstr "Добавить новый аукцион"
+
+#: auction.module:58
+msgid "Edit auction"
+msgstr "Редактировать аукцион"
+
+#: auction.module:59
+msgid "Edit selected auction."
+msgstr "Редактировать "
+
+#: auction.module:68;78 auction.info:0
+msgid "Auction"
+msgstr "Аукцион"
+
+#: auction.module:91;100
+msgid "Pay to your account."
+msgstr "Пополнить ваш счет."
+
+#: auction.info:0
+msgid "Step auction"
+msgstr "Аукцион одного клика"
+
+#: auction.info:0
+msgid "Manage all auctions and money accounts."
+msgstr ""
+"Управление всеми аукционами и "
+"счетами."
+

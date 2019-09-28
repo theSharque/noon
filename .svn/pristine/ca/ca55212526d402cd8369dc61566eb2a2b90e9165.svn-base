@@ -1,0 +1,295 @@
+<?php
+
+  if( isset( $_GET['cid'] ) ) {
+    $cid = $_GET['cid'];
+    db_safe( $cid );
+  } else {
+    $cid = 0;
+  }
+
+  $user_hash = $_GET['uh'];
+  db_safe( $user_hash );
+
+  $sid = isset( $_COOKIE[ 'chat_sid' ] ) ? $_COOKIE[ 'chat_sid' ] : null;
+  db_safe( $sid );
+
+  $out = "err=1";
+  $pre_hash = '';
+
+  for( $i = 0; $i < 1; $i++ ) {
+
+    $me = db_fetch_row( "SELECT id, aliance, login, admin FROM users WHERE ssid = '$sid'" );
+
+    if( isset( $me['id'] ) && is_numeric( $me['id'] ) ) {
+      db_query( "UPDATE users_active SET lastlogin = NOW() WHERE id=".$me['id'] );
+      $adm = $me['admin'];
+      $login = $me['login'];
+      $aliance = $me['aliance'];
+      $me = $me['id'];
+
+      $login = preg_replace( array( '/\'/i', '/</i', '/>/i' ), array( '"', '"', '"' ), $login ); 
+      $login = preg_replace( '/([^a-zA-Z0-9а-€ј-яЄ®])/e', '"%".dechex(ord("$1"))', $login ); 
+      $login = preg_replace( '/%5c/i', '', $login ); 
+
+      $lim = 200;
+
+      if( is_numeric( $cid ) && $cid > 0 ) {
+        $result = db_fetch_array("SELECT c.id, c.msgtime, t.name titul, u.login, c.text, c.to_user, c.user_id, u.level
+                                    FROM chat c
+                               LEFT JOIN chat_ignore ci ON ci.user_id = $me AND ci.ignore_user = c.user_id
+                              INNER JOIN users u ON u.id = c.user_id
+                              INNER JOIN tituls t ON t.id = u.titul
+                                   WHERE ci.user_id IS NULL AND c.id > $cid AND ( c.user_id = $me OR c.to_user = $me OR c.to_user IS NULL )
+                                ORDER BY c.id DESC LIMIT $lim");
+      } else {
+        $main = db_fetch_array("SELECT c.id, c.msgtime, t.name titul, u.login, c.text, c.to_user, c.user_id, u.level
+                                  FROM chat c
+                             LEFT JOIN chat_ignore ci ON ci.user_id = $me AND ci.ignore_user = c.user_id
+                            INNER JOIN users u ON u.id = c.user_id
+                            INNER JOIN tituls t ON t.id = u.titul
+                                 WHERE c.to_user IS NULL AND ci.user_id IS NULL
+                              ORDER BY c.id DESC
+                                 LIMIT $lim");
+
+        if( $me == 16 ) {
+          $priv = db_fetch_array("SELECT c.id, c.msgtime, t.name titul, u.login, c.text, c.to_user, c.user_id, u.level
+                                    FROM chat c
+                               LEFT JOIN chat_ignore ci ON ci.user_id = $me AND ci.ignore_user = c.user_id
+                              INNER JOIN users u ON u.id = c.user_id
+                              INNER JOIN tituls t ON t.id = u.titul
+                                   WHERE ci.user_id IS NULL AND (
+                                           ( c.user_id = $me OR ( c.user_id > 1 AND c.to_user = $me ) ) OR
+                                           ( c.text LIKE '%http%' OR c.text LIKE '%.ru%' OR c.text LIKE '%.com%' )
+                                         )
+                                ORDER BY c.id DESC
+                                   LIMIT $lim");
+        } else {
+          $priv = db_fetch_array("SELECT c.id, c.msgtime, t.name titul, u.login, c.text, c.to_user, c.user_id, u.level
+                                    FROM chat c
+                               LEFT JOIN chat_ignore ci ON ci.user_id = $me AND ci.ignore_user = c.user_id
+                              INNER JOIN users u ON u.id = c.user_id
+                              INNER JOIN tituls t ON t.id = u.titul
+                                   WHERE ci.user_id IS NULL AND ( c.user_id = $me OR ( c.user_id > 1 AND c.to_user = $me ) )
+                                ORDER BY c.id DESC
+                                   LIMIT $lim");
+        }
+
+        $sys = db_fetch_array("SELECT c.id, c.msgtime, t.name titul, u.login, c.text, c.to_user, c.user_id, u.level
+                                 FROM chat c
+                           INNER JOIN users u ON u.id = c.user_id
+                           INNER JOIN tituls t ON t.id = u.titul
+                                WHERE c.user_id = 1 AND c.to_user = $me
+                             ORDER BY c.id DESC
+                                LIMIT $lim");
+
+        $result = array_merge( $main, $priv, $sys );
+      }
+
+      if( count( $result ) && $cid != $result[0]['id'] && isset( $result[0]['id'] ) && is_numeric( $result[0]['id'] ) ) {
+        $out = "err=0&id=".$result[0]['id'];
+        $msg_sys = '';
+        $msg_priv = '';
+        $msg_main = '';
+        foreach( $result as $line ) {
+          if( $line['titul'] ) {
+            $titul = "<font color=\"#CCCCCC\">{$line['titul']}</font> <b><i>";
+            $tend = '</i></b>';
+          } else {
+            $titul = '';
+            $tend = '';
+          }
+
+          if( $line['level'] < 43 ) {
+            $lcolor = '#F0F0F0';
+          } else {
+            $lcolor = '#FFFF00';
+          }
+
+          if( $line['user_id'] == 8 || $line['user_id'] == 9 ) {
+            $lcolor = '#FF0000';
+          }
+
+          if( $line['user_id'] == 1 ) {
+            $msg_sys .= "<font color=\"#00FF00\">{$line['msgtime']}</font> - <font color=\"#CCCCCC\">{$line['login']}: {$line['text']}</font><br>";
+          } elseif( $line['user_id'] == $me && $line['to_user'] > 1 ) {
+            $msg_priv .= "<font color=\"#FF0000\">{$line['msgtime']}</font> - $titul<font color=\"$lcolor\">{$line['login']}:</font>$tend {$line['text']}<br>";
+            $msg_main .= "<font color=\"#FF0000\">{$line['msgtime']}</font> - $titul<font color=\"$lcolor\">{$line['login']}:</font>$tend {$line['text']}<br>";
+          } elseif( $line['user_id'] > 1 && $line['to_user'] == $me ) {
+            $msg_priv .= "<font color=\"#FF0000\">{$line['msgtime']}</font> - $titul<font color=\"$lcolor\"><u><a href='page.php?id=92%26nick=({$line['login']})' target='write'>{$line['login']}</a></u>:</font>$tend {$line['text']}<br>";
+            $msg_main .= "<font color=\"#FF0000\">{$line['msgtime']}</font> - $titul<font color=\"$lcolor\"><u><a href='page.php?id=92%26nick=({$line['login']})' target='write'>{$line['login']}</a></u>:</font>$tend {$line['text']}<br>";
+          } elseif( $line['user_id'] > 1 ) {
+            $line['text'] = str_ireplace( "$login%3a", "<font color=\"#00FF00\">$login%3a</font>", $line['text'] );
+            if( $adm >= 1 ) {
+              $delete = "<a href='page.php?id=91%26del={$line['id']}' target='read'>X </a>";
+            } else {
+              $delete = "";
+            }
+
+            if( $line['user_id'] == $me ) {
+              $msg_main .= "$delete<font color=\"#00FFFF\">{$line['msgtime']}</font> - $titul<font color=\"#00FF00\">{$line['login']}:</font>$tend {$line['text']}<br>";
+            } else {
+              $msg_main .= "$delete<font color=\"#00FFFF\">{$line['msgtime']}</font> - $titul<font color=\"$lcolor\"><u><a href='page.php?id=92%26nick={$line['login']}' target='write'>{$line['login']}</a></u>:</font>$tend {$line['text']}<br>";
+            }
+          }
+        }
+
+        $out .= "&msgs=$msg_sys";
+        $out .= "&msgp=$msg_priv";
+        $out .= "&msgm=$msg_main";
+      
+        db_query( "UPDATE LOW_PRIORITY users_active ua SET lastlogin = NOW() WHERE id IN ( 3, 4 )" );
+
+// Death souls
+        $cnt = db_fetch_val( "SELECT count(*) cnt
+                                FROM users u
+                          INNER JOIN users_active ua ON ua.id = u.id
+                               WHERE u.status = 1 AND UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.lastlogin) <= 60", 'cnt' );
+        if( $cnt < 80 ) {
+          db_query( "UPDATE LOW_PRIORITY users_active ua
+                        SET lastlogin = NOW()
+                      WHERE id IN ( SELECT id FROM users WHERE status = 5 ) LIMIT ".(80 - $cnt) );
+        }
+
+        $pre_hash .= "&users=";
+
+        if( $aliance > 0 ) {
+          $pre_hash .= "<a href='page.php?id=92%26nick=".t( '(Aliance)' )."' target='write'>".t( 'Aliance' )."</a><br>";
+        }
+
+        $result = db_fetch_array("SELECT u.id, u.aliance, u.login, t.name titul, ua.char_status, up.premium,
+                                         fe.user_id myfoe, ef.user_id ifoe, fr.user_id myfriend, rf.user_id ifriend, ci.user_id myign, ic.user_id iign,
+                                         ( SELECT count(*) FROM users_medal um WHERE um.user_id = u.id ) medals
+                                    FROM users u
+                              INNER JOIN tituls t ON t.id = u.titul
+                              INNER JOIN users_active ua ON ua.id = u.id
+                               LEFT JOIN foe fe ON fe.user_id = $me AND fe.foe_id = u.id
+                               LEFT JOIN foe ef ON ef.foe_id = $me AND ef.user_id = u.id
+                               LEFT JOIN friend fr ON fr.user_id = $me AND fr.friend_id = u.id
+                               LEFT JOIN friend rf ON rf.friend_id = $me AND rf.user_id = u.id
+                               LEFT JOIN chat_ignore ci ON ci.user_id = $me AND ci.ignore_user = u.id
+                               LEFT JOIN chat_ignore ic ON ic.ignore_user = $me AND ic.user_id = u.id
+                               LEFT JOIN users_premium up ON up.user_id = u.id
+                                   WHERE UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.lastlogin) <= 90 ORDER BY u.login");
+        foreach( $result as $line ) {
+
+          if( $line['char_status'] < 0 ) {
+            $premium = round( $line['char_status'] ) * -1;
+          } else {
+            $premium = 0;
+          }
+
+          if( $premium + $line['premium'] < 1000 ) {
+            $premium = round( $premium + $line['premium'] );
+          } elseif( $premium + $line['premium'] < 1000000 ) {
+            $premium = round( ( $premium + $line['premium'] ) / 1000 ).'K ';
+          } elseif( $premium + $line['premium'] < 1000000000 ) {
+            $premium = round( ( $premium + $line['premium'] ) / 1000000 ).'M ';
+          }
+          
+          $color = '#FFFFFF';
+          $pr = '';
+          if( $line['char_status'] < 0 ) {
+            $color = '#FFFF00';
+            $pr  = ' ('.$premium.'кр)';
+          }
+          if( $line['char_status'] < -100 ) {
+            $color = '#FFAA00';
+            $pr  = ' ('.$premium.'кр)';
+          }
+          if( $line['char_status'] < -1000 ) {
+            $color = '#FF6600';
+            $pr  = ' ('.$premium.'кр)';
+          }
+          if( $line['char_status'] < -10000 ) {
+            $color = '#FF0000';
+            $pr  = ' ('.$premium.'кр)';
+          }
+          if( $line['char_status'] > 0 ) {
+            $color = '#CCFFCC';
+            if( $premium ) {
+              $pr  = ' ('.$premium.'кр)';
+            }
+          }
+          if( $line['char_status'] > 100 ) {
+            $color = '#88FF88';
+            if( $premium ) {
+              $pr  = ' ('.$premium.'кр)';
+            }
+          }
+          if( $line['char_status'] > 1000 ) {
+            $color = '#44FF44';
+            if( $premium ) {
+              $pr  = ' ('.$premium.'кр)';
+            }
+          }
+          if( $line['char_status'] > 10000 ) {
+            $color = '#00FF00';
+            if( $premium ) {
+              $pr  = ' ('.$premium.'кр)';
+            }
+          }
+
+          if( $adm >= 1 ) {
+            $block = "<a href='page.php?id=91%26blk={$line['id']}' target='read'> X </a>";
+          } else {
+            $block = "";
+          }
+
+          if( $line['myfoe'] ) {
+            $myrel = '<font color="#FF0000">*</font>';
+          } elseif( $line['myfriend'] ) {
+            $myrel = '<font color="#00FF00">*</font>';
+          } else {
+            $myrel = '';
+          }
+
+          if( $line['myign'] ) {
+            $myrel = '<font color="#FF0000"> i</font>';
+          }
+
+          if( $aliance == $line['aliance'] && $aliance > 0 ) {
+            $irel = '<font color="#FFFF00">*</font>';
+          } elseif( $line['ifoe'] ) {
+            $irel = '<font color="#FF0000">*</font>';
+          } elseif( $line['ifriend'] ) {
+            $irel = '<font color="#00FF00">*</font>';
+          } else {
+            $irel = '';
+          }
+
+          if( $line['iign'] ) {
+            $irel = '<font color="#FF0000">i </font>';
+          }
+
+          if( $line['titul'] ) {
+            $tstart = '<b><i>';
+            $tend = '</i></b>';
+          } else {
+            $tstart = '';
+            $tend = '';
+          }
+
+          if( $line['medals'] > 0 ) {
+            $medals = '<font color="#FFFFFF"> * '.$line['medals'].'</font>';
+          } else {
+            $medals = '';
+          }
+
+          $pre_hash .= "<a href='page.php?id=92%26nick=({$line['login']})' target='write'><img src='images/lock.gif' hspace='2' vspace='2'></a>";
+          $pre_hash .= $block;
+          $pre_hash .= "<font color=\"$color\">$irel<a href='page.php?id=92%26nick={$line['login']}' target='write'>$tstart<u>{$line['login']}</u>$tend</a>$pr</font>";
+          $pre_hash .= "<a href='page.php?id=18%26login={$line['login']}' target='main'>$myrel ?$medals</a><br>";
+        }
+        if( $user_hash != md5( $pre_hash ) ) {
+          $out .= $pre_hash.'&uh='.md5( $pre_hash );
+        }
+        break;
+      } else {
+//        sleep( 1 );
+      }
+    } else {
+//      sleep( 1 );
+    }
+  }
+
+  printOut( $out );

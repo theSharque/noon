@@ -1,0 +1,80 @@
+<?php
+  global $user;
+
+  $result = db_fetch_array( "SELECT b.id, UNIX_TIMESTAMP(t.end_time) - UNIX_TIMESTAMP(NOW()) remain
+                               FROM books_teach t
+                         INNER JOIN books b ON b.id = t.book_id
+                              WHERE t.user_id = {$user->uid}" );
+
+  $learn = array();
+  foreach( $result as $item ) {
+    $learn[$item['id']] = $item['remain'];
+  }
+
+  $max = get_implant_level( 9302, $user->uid ) + get_implant_level( 9304, $user->uid );
+
+  $books = db_fetch_array( "SELECT b.id, b.name, IFNULL( ub.level, 0 ) level, b.price,
+                                   IF( b.parent_id IS NULL OR (
+                                         b.parent_id IN ( SELECT u.book_id
+                                                            FROM users_books u
+                                                           WHERE u.user_id = {$user->uid}
+                                         ) AND b.parent_level <= ( SELECT u.level
+                                                               FROM users_books u
+                                                              WHERE u.user_id = {$user->uid} AND u.book_id = b.parent_id
+                                         )
+                                       ),
+                                     IF( IFNULL( ub.level, 0 ) < 10, ( POW( 2, IFNULL( ub.level, 0 ) + 1 ) ) * b.teach_time, 0 ),
+                                     IF( IFNULL( ub.level, 0 ) < 10, -1000, 0 )
+                                   ) teach_time
+                              FROM books b
+                         LEFT JOIN users_books ub ON ( b.id = ub.book_id AND ub.user_id = {$user->uid} )
+                          ORDER BY IF( ub.level = 10, 1, 0 ), b.name" );
+
+  $imps = db_fetch_array( "SELECT o.id, o.name, b.name bname, i.level, ui.object_id
+                             FROM implants i
+                       INNER JOIN objects o ON o.id = i.object_id
+                       INNER JOIN books b ON b.id = i.book_id
+                        LEFT JOIN users_imp ui ON i.object_id = ui.object_id AND ui.user_id = {$user->uid}
+                        LEFT JOIN users u ON u.id = {$user->uid}
+                        LEFT JOIN warehouse w ON w.place_id = u.place_id AND w.place_type = u.place_type AND w.object_id = i.object_id
+                            WHERE ui.object_id IS NOT NULL OR w.object_cnt IS NOT NULL" );
+
+  if( count( $books ) == 0 ) {
+    $out = 'err=1&cnt=-1';
+  } else {
+    $out = 'err=0&lmax='.$max.'&cnt='.( count( $books ) + count( $imps ) );
+  }
+  $i = 0;
+
+  foreach( $books as $key => $value ) {
+    if( $value['teach_time'] > 0 ) {
+      $time = time_to_str( teach_time( $value['teach_time'] ) );
+    } else {
+      $time = $value['teach_time'];
+    }
+
+    if( isset( $learn[$value['id']] ) ) {
+      $out .= '&id'.$i.'='.$value['id'].'&name'.$i.'='.$value['name'].'&lev'.$i.'='.$value['level'].'&time'.$i.'='.$time.'&tp'.$i.'='.$learn[$value['id']];
+    } else {
+      if( $value['level'] < 10 && $value['price'] > $user->credits ) {
+        $time = -1000;
+      }
+      $out .= '&id'.$i.'='.$value['id'].'&name'.$i.'='.$value['name'].'&lev'.$i.'='.$value['level'].'&time'.$i.'='.$time;
+    }
+    $i++;
+  }
+
+  foreach( $imps as $item ) {
+    if( $item['object_id'] ) {
+      $out .= '&id'.$i.'='.$item['id'].'&name'.$i.'='.$item['name'].' ('.$item['bname'].')'.'&lev'.$i.'='.$item['level'].'&time'.$i.'=-200';
+    } else {
+      $out .= '&id'.$i.'='.$item['id'].'&name'.$i.'='.$item['name'].' ('.$item['bname'].')'.'&lev'.$i.'='.$item['level'].'&time'.$i.'=-100'.'&inst'.$i.'=1';
+    }
+    $i++;
+  }
+
+  if( count( $learn ) ) {
+    $out .= '&bid='.count( $learn );
+  }
+
+  printOut( $out );

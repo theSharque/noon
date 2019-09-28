@@ -1,0 +1,49 @@
+<?php
+
+  global $user;
+  $last = mt_rand( 100000, 999999 );
+
+  if( isset( $_GET['oid'] ) && is_numeric( $_GET['oid'] ) && isset( $user->owner ) ) {
+    $x = $_GET['x'];
+    $y = $_GET['y'];
+    $oid = $_GET['oid'];
+
+    db_safe( $x );
+    db_safe( $y );
+    db_safe( $oid );
+    $info = get_planet_info( $x, $y );
+    $av_energy = get_energy();
+    $class = db_fetch_row( "SELECT o.class FROM objects o WHERE o.id = $oid" );
+    if( $av_energy >= 0 ) {
+      if( get_lab_time( $oid, $x, $y ) > 0 ) {
+        if( $class['class'] == 2 || $class['class'] == 9 ) {
+          $out = "dg_h=".t( 'Исследовать %s вероятность %s%%25', array( time_to_str( get_lab_time( $oid, $x, $y ) ), get_book_level( 7, $user->uid ) * 8 ) );
+
+          $out .= "&btLabel=".t('Начать исследование')."&btOnClick=page.php?id=281%26oid=$oid%26l=$last%26x=$x%26y=$y";
+        } else {
+          $count = db_fetch_row( "SELECT IFNULL( SUM( w.object_cnt ), 0 ) cnt
+                                    FROM warehouse w
+                                   WHERE place_type = 1 AND place_id = {$user->place_id} AND w.object_id = $oid" );
+
+          if( $count['cnt'] > 0 ) {
+            $cnt = db_fetch_val( 'SELECT IFNULL( object_cnt, 0 ) cnt FROM warehouse WHERE place_type = '.$user->place_type.' AND place_id = '.$user->place_id.' AND object_id = '.$oid, 'cnt' );
+            $out = "dg_h=".t( 'Скопировать %s в наличии %s', array( time_to_str( get_lab_time( $oid, $x, $y ) ), intval( $cnt ) ) );
+
+            $out .= "&btLabel=".t( 'Начать копирование' )."&btOnClick=page.php?id=281%26oid=$oid%26l=$last%26x=$x%26y=$y";
+          } else {
+            $out = "dg_h=".t( 'Разработать %s', array( time_to_str( get_lab_time( $oid, $x, $y ) * 2 ) ) );
+
+            db_query( "INSERT INTO antibot ( user_id, coord, last )
+                            VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+           ON DUPLICATE KEY UPDATE last = $last" );
+            $out .= "&btLabel=".t('Начать разработку')."&btOnClick=page.php?id=281%26oid=$oid%26l=$last%26x=$x%26y=$y";
+          }
+        }
+      } else {
+        $out = "dg_h=".t('Технологически неосуществимо');
+      }
+    } else {
+      $out = "dg_h=<b><font color=\"#FF0000\">".t('Недостаточно энергии')."</font>";
+    }
+    printOut( $out );
+  }

@@ -1,0 +1,32 @@
+<?php
+  global $user;
+
+  if( $user->admin >= 1 ) {
+    if( isset( $_GET['del'] ) && is_numeric( $_GET['del'] ) ) {
+      db_query( "UPDATE chat SET to_user = 1, user_id = 1 WHERE id = ".$_GET['del'] );
+    }
+
+    if( isset( $_GET['blk'] ) && is_numeric( $_GET['blk'] ) ) {
+      db_query( "UPDATE users SET mute = DATE_ADD( NOW(), INTERVAL 7 DAY ) WHERE id = ".$_GET['blk'] );
+      db_query( "DELETE FROM chat WHERE user_id = ".$_GET['blk'] );
+    }
+  }
+  
+?>
+<HTML>
+<HEAD>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<TITLE>read</TITLE>
+</HEAD>
+<BODY bgcolor=#000000 TOPMARGIN=0 LEFTMARGIN=0 MARGINHEIGHT=0 MARGINWIDTH=0>
+<OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"
+ WIDTH="100%" HEIGHT="500" id="topmenu" ALIGN="">
+ <PARAM NAME=movie VALUE="swf/read.jpg?ver7">
+ <PARAM NAME=quality VALUE=high>
+ <PARAM NAME=bgcolor VALUE=#000000>
+ <PARAM NAME=wmode VALUE=window>
+ <EMBED src="swf/read.jpg?ver7" quality=high bgcolor=#000000 WIDTH="100%" HEIGHT="500" NAME="topmenu" ALIGN="" wmode="window"
+ TYPE="application/x-shockwave-flash" PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer"></EMBED>
+</OBJECT>
+</BODY>
+</HTML>

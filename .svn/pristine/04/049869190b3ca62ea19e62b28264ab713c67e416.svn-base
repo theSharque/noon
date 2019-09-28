@@ -1,0 +1,526 @@
+<?php
+
+function GenerateSystem( $user_id ) {
+
+  $pCount = mt_rand( 6, 8 );
+  $pLeave = mt_rand( 1, 3 );
+  $planets = array();
+
+  $planets[ mt_rand( 0, $pCount - 1 ) ] = 1;
+
+  for( $i = 0; $i < $pLeave; ) {
+    $t = mt_rand( 0, $pCount - 1 );
+    if( !isset( $planets[ $t ] ) ) {
+      $planets[ $t ] = mt_rand( 3, 4 );
+      $i++;
+    }
+  }
+
+  for( $i = 0; $i < $pCount; $i++ ) {
+    do {
+      $pNames[ $i ] = generate_name();
+      $pTst = db_fetch_val( "SELECT count(*) cnt FROM planets WHERE name = '{$pNames[ $i ]}'", 'cnt' );
+    } while( $pTst > 0 );
+
+    if( !isset( $planets[ $i ] ) ) {
+      $planets[ $i ] = 2;
+    }
+  }
+
+  do {
+    $sName = generate_name();
+    $sTst = db_fetch_val( "SELECT count(*) cnt FROM stars WHERE name = '$sName'", 'cnt' );
+  } while( $sTst > 0 );
+
+/*
+  $min_len = mt_rand( 20, 45 );
+//  $len = $min_len;
+//  $len = db_fetch_row( "SELECT MAX( ROUND( SQRT( x*x + y*y ) ) ) len FROM stars s" );
+  $len = db_fetch_val( "SELECT ROUND( SQRT( POW( s.x, 2 ) + POW( s.y, 2 ) ) ) mlen
+                          FROM ( SELECT s1.id, MIN( ROUND( SQRT( POW( s1.x - s2.x, 2 ) + POW( s1.y - s2.y, 2 ) ) ) ) len
+                                   FROM stars s1, stars s2
+                                  WHERE s1.id != s2.id
+                               GROUP BY s1.id ) ns
+                    INNER JOIN stars s ON s.id = ns.id
+                         WHERE ns.len > ( $min_len + 5 )
+                      ORDER BY SQRT( POW( s.x, 2 ) + POW( s.y, 2 ) )
+                         LIMIT 0,1", 'mlen' );
+  $cont = true;
+
+  for( $rad = $len['len'] - $min_len; $rad < 10000 && $cont; $rad+=5 ) {
+    for( $ang = 0; $ang < 360 && $cont; $ang++ ) {
+      $nx = round( sin( deg2rad( $ang ) ) * $rad );
+      $ny = round( cos( deg2rad( $ang ) ) * $rad );
+      $nlen = db_fetch_row( "SELECT MIN( ROUND( SQRT( (x-$nx)*(x-$nx) + (y-$ny)*(y-$ny) ) ) ) len FROM stars s" );
+      if( $nlen['len'] >= $min_len || $nlen['len'] === null ) {
+        $cont = false;
+      }
+    }
+  }
+*/
+
+  $prob = db_fetch_array( "SELECT id, x, y FROM star_pos ORDER BY id" );
+  for( $i = 0; $i < count( $prob ); $i++ ) {
+    $nx = $prob[$i]['x'];
+    $ny = $prob[$i]['y'];
+    $nlen = db_fetch_row( "SELECT MIN( ROUND( SQRT( (x-$nx)*(x-$nx) + (y-$ny)*(y-$ny) ) ) ) len FROM stars s" );
+
+    db_query( "DELETE FROM star_pos WHERE id = ".$prob[$i]['id'] );
+
+    if( $nlen['len'] >= 20 || $nlen['len'] === null ) {
+      break;
+    }
+  }
+  db_query( "INSERT INTO stars ( name, x, y, type ) VALUES ( '$sName ($nx:$ny)', $nx, $ny, ".(mt_rand(1,3))." )" );
+  $star_id = mysql_insert_id();
+  db_query( "UPDATE stars SET bg = right( concat( '0', id % 60 ), 2 ) WHERE id = $star_id" );
+
+  for( $i = 0; $i < $pCount; $i++ ) {
+    if( $planets[$i] == 1 ) {
+      db_query( "INSERT INTO planets ( type,           name,            user_id,  star_id,  planet_pos, rad,                  orb )
+                              VALUES ( {$planets[$i]}, '{$pNames[$i]}', $user_id, $star_id, ".($i+1).", ".(mt_rand( 0, 359 )).", ".($i * 30 + 60)."   )" );
+    } else {
+      db_query( "INSERT INTO planets ( type,           name,            star_id,  planet_pos, rad,                  orb )                     
+                              VALUES ( {$planets[$i]}, '{$pNames[$i]}', $star_id, ".($i+1).", ".(mt_rand( 0, 359 )).", ".($i * 30 + 60)."   )" );
+    }
+    $planet_id = mysql_insert_id();
+
+    db_query( "INSERT INTO planets_active ( id ) VALUES ( $planet_id )" );
+
+    switch( $planets[$i] ) {
+      case 1:
+        generate_planet( $planet_id, 30, 30, 1, 30, $user_id );
+        generate_orbit( $planet_id, 1 );
+        db_query( "UPDATE users SET place_id = $planet_id WHERE id = $user_id" );
+
+        db_query( "INSERT INTO foe ( user_id, foe_id ) VALUES ( $user_id, 3 )" );
+        db_query( "INSERT INTO foe ( user_id, foe_id ) VALUES ( $user_id, 4 )" );
+
+        db_query( "INSERT INTO foe ( user_id, foe_id ) VALUES ( 3, $user_id )" );
+        db_query( "INSERT INTO foe ( user_id, foe_id ) VALUES ( 4, $user_id )" );
+
+        db_query( "INSERT INTO robots ( user_id, usedtime ) VALUES ( $user_id, 604800 )" );
+        db_query( "INSERT INTO robots ( user_id, usedtime ) VALUES ( $user_id, 604800 )" );
+        db_query( "INSERT INTO robots ( user_id, usedtime ) VALUES ( $user_id, 604800 )" );
+        db_query( "INSERT INTO robots ( user_id, usedtime ) VALUES ( $user_id, 604800 )" );
+        db_query( "INSERT INTO robots ( user_id, usedtime ) VALUES ( $user_id, 604800 )" );
+        db_query( "INSERT INTO robots ( user_id, usedtime ) VALUES ( $user_id, 2592000 )" );
+        db_query( "INSERT INTO robots ( user_id, usedtime ) VALUES ( $user_id, 2592000 )" );
+        db_query( "INSERT INTO robots ( user_id, usedtime ) VALUES ( $user_id, 2592000 )" );
+
+        db_query( "INSERT INTO `users_msg_settings` (`user_id`, `type`, `chat`, `mail`) VALUES ($user_id, 1, 0, 1), ($user_id, 2, 1, 0),
+                   ($user_id, 3, 1, 0), ($user_id, 4, 1, 0), ($user_id, 5, 1, 0), ($user_id, 6, 1, 0), ($user_id, 7, 1, 0), ($user_id, 15, 0, 1),
+                   ($user_id, 16, 1, 1),($user_id, 17, 1, 0), ($user_id, 18, 1, 1), ($user_id, 19, 1, 0)" );
+
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 1013, 60 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 1016, 500 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 1037, 500 )" );
+
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 6000, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 6001, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 6002, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 6003, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 6004, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 6005, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 7001, 1 )" );
+
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 6006, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 6008, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 7002, 1 )" );
+
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 6007, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 6009, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 6010, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 6011, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 7007, 1 )" );
+
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 9153, 1 )" );
+        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 9153, 1 )" );
+
+        break;
+      case 2:
+        generate_orbit( $planet_id, 2 );
+        break;
+      case 3:
+        generate_planet( $planet_id, 30, 30, 3, 35 );
+        generate_orbit( $planet_id, 3 );
+        break;
+      case 4:
+        generate_planet( $planet_id, 20, 20, 4, 25 );
+        generate_orbit( $planet_id, 4 );
+        break;
+      default :
+        generate_orbit( $planet_id, 0 );
+    }
+  }  
+}
+
+function generate_name() {
+
+  $dic = array(
+    0 => 'або',
+    1 => 'аве',
+    2 => 'ад',
+    3 => 'ажу',
+    4 => 'аз',
+    5 => 'акс',
+    6 => 'ало',
+    7 => 'ами',
+    8 => 'анц',
+    9 => 'апе',
+   10 => 'ба', 
+   11 => 'бос',
+   12 => 'бин',
+   13 => 'бал',
+   14 => 'бон',
+   15 => 'бе', 
+   16 => 'би', 
+   17 => 'бу', 
+   18 => 'бор',
+   19 => 'вос',
+   20 => 'вон',
+   21 => 'ви', 
+   22 => 'го', 
+   23 => 'гас',
+   24 => 'гот',
+   25 => 'гу', 
+   26 => 'ген',
+   27 => 'гус',
+   28 => 'гет',
+   29 => 'год',
+   30 => 'гет',
+   31 => 'до', 
+   32 => 'дас',
+   33 => 'дум',
+   34 => 'дот',
+   35 => 'ди',
+   36 => 'дач',
+   37 => 'дум',
+   38 => 'дом',
+   39 => 'дос',
+   40 => 'жет',
+   41 => 'жус',
+   42 => 'жа',
+   43 => 'за',
+   44 => 'зот',
+   45 => 'зен',
+   46 => 'зод',
+   47 => 'зос',
+   48 => 'зу',
+   49 => 'ко',
+   50 => 'ку',
+   51 => 'кас',
+   52 => 'кат',
+   53 => 'кон',
+   54 => 'ке',
+   55 => 'ла',
+   56 => 'лот',
+   57 => 'лас',
+   58 => 'лу',
+   59 => 'лен',
+   60 => 'лет',
+   61 => 'лоз',
+   62 => 'мос',
+   63 => 'ми',
+   64 => 'мет',
+   65 => 'моз',
+   66 => 'меф',
+   67 => 'муз',
+   68 => 'мег',
+   69 => 'мад',
+   70 => 'нот',
+   71 => 'нас',
+   72 => 'нит',
+   73 => 'ну',
+   74 => 'не',
+   75 => 'наз',
+   76 => 'ноф',
+   77 => 'па',
+   78 => 'поз',
+   79 => 'пат',
+   80 => 'под',
+   81 => 'пу',
+   82 => 'пан',
+   83 => 'пер',
+   84 => 'пуш',
+   85 => 'пуз',
+   86 => 'рад',
+   87 => 'ров',
+   88 => 'руд',
+   89 => 'ред',
+   90 => 'руз',
+   91 => 'рог',
+   92 => 'рав',
+   93 => 'ром',
+   94 => 'рыс',
+   95 => 'сот',
+   96 => 'сын',
+   97 => 'суе',
+   98 => 'сто',
+   99 => 'сам',
+  100 => 'ес',
+  101 => 'ет',
+  102 => 'еф',
+  103 => 'ед',
+  104 => 'он',
+  105 => 'ор',
+  106 => 'от',
+  107 => 'ост',
+  108 => 'онд',
+  109 => 'ок',
+  110 => 'сыт',
+  111 => 'сов',
+  112 => 'суд',
+  113 => 'саж',
+  114 => 'сом',
+  115 => 'таф',
+  116 => 'тим',
+  117 => 'тор',
+  118 => 'те',
+  119 => 'ту',
+  120 => 'тор',
+  121 => 'тик',
+  122 => 'так',
+  123 => 'тус',
+  124 => 'уф',
+  125 => 'ур',
+  126 => 'ус',
+  127 => 'унд',
+  128 => 'ук',
+  129 => 'уг',
+  130 => 'фан',
+  131 => 'фат',
+  132 => 'фас',
+  133 => 'фот',
+  134 => 'феа',
+  135 => 'фос',
+  136 => 'хо',
+  137 => 'хат',
+  138 => 'хен',
+  139 => 'ца',
+  140 => 'цен',
+  141 => 'цет',
+  142 => 'ци',
+  143 => 'цон',
+  144 => 'цот',
+  145 => 'шот',
+  146 => 'шен',
+  147 => 'шуд',
+  148 => 'ют',
+  149 => 'юф',
+  150 => 'юк',
+  151 => 'як',
+  152 => 'яд',
+  153 => 'ян',
+  154 => 'яз',
+  155 => 'яр',
+  156 => 'уст',
+  157 => 'цио',
+  158 => 'туе',
+  159 => 'фиа',
+  );
+
+  $name = '';
+  for( $i = 0; $i < mt_rand( 2, 3 ); $i++ ) {
+    $t = mt_rand( 0, 159 );
+    $name .= $dic[ $t ];
+  }
+
+  $name = capital( $name );
+  return $name;
+}
+
+function capital( $text ) {
+  $reparr = array(
+    'й' => 'Й',
+    'ц' => 'Ц',
+    'у' => 'У',
+    'к' => 'К',
+    'е' => 'Е',
+    'н' => 'Н',
+    'г' => 'Г',
+    'ш' => 'Ш',
+    'щ' => 'Щ',
+    'з' => 'З',
+    'х' => 'Х',
+    'ъ' => 'Ъ',
+    'ф' => 'Ф',
+    'ы' => 'Ы',
+    'в' => 'В',
+    'а' => 'А',
+    'п' => 'П',
+    'р' => 'Р',
+    'о' => 'О',
+    'л' => 'Л',
+    'д' => 'Д',
+    'ж' => 'Ж',
+    'э' => 'Э',
+    'я' => 'Я',
+    'ч' => 'Ч',
+    'с' => 'С',
+    'м' => 'М',
+    'и' => 'И',
+    'т' => 'Т',
+    'ь' => 'Ь',
+    'б' => 'Б',
+    'ю' => 'Ю',
+    'ё' => 'Ё',
+  );
+
+  $f = substr( $text, 0, 1 );
+  return $reparr[$f].substr( $text, 1 );
+}
+
+function generate_orbit( $planet_id, $ptype ) {
+  $orbit = str_repeat( '0', 50 );
+  if( $ptype == 1 ) {
+    $orbit{4} = 'T';
+    db_query( "INSERT INTO orbits_buildings ( object_id,  planet_id, x, level )
+                                     VALUES (      3001, $planet_id, 4, 0     )" );
+  }
+//  file_put_contents( "./pages/environment/orbit/$planet_id.lin", $orbit );
+
+  db_query( "INSERT IGNORE INTO orbits_map ( id, lin ) VALUES ( $planet_id, '$orbit' )" );
+}
+
+function generate_planet( $planet_id, $width = 50, $height = 50, $ptype, $max_cnt = 94, $user_id = 0 ) {
+
+  $empty = str_repeat( '0', $width )."\n";
+  if( $ptype == 1 ) {
+    $variant = "0123456789QWERTYUIOPASDFG";
+  } else {
+    switch( mt_rand( 0, 4 ) ) {
+      case 0:
+        $variant = "56789QWERTYUIOPASDFG";
+        break;
+      case 1:
+        $variant = "01234QWERTYUIOPASDFG";
+        break;
+      case 2:
+        $variant = "0123456789YUIOPASDFG";
+        break;
+      case 3:
+        $variant = "0123456789QWERTASDFG";
+        break;
+      case 4:
+        $variant = "0123456789QWERTYUIOP";
+        break;
+    }
+  }
+
+  $val = array();
+  for( $i=0; $i<$height; $i++ ) {
+    $val[ $i ] = $empty;
+  }
+  $buldings = $val;
+  $founds = $val;
+  $top = $val;
+  $mdl = $val;
+  $btm = $val;
+
+  for( $i=0; $i < count( $btm ); $i++ ) {
+    for( $t=0; $t < strlen( trim( $btm[ $i ] ) ); $t++ ) {
+      $btm[ $i ]{ $t } = $variant{ mt_rand( 0, strlen( $variant ) - 1 ) };
+      $mdl[ $i ]{ $t } = $variant{ mt_rand( 0, strlen( $variant ) - 1 ) };
+    }
+  }
+
+  // seeder
+  $seed = '1';
+  while( $seed <= '9' ) {
+    $x = mt_rand( 0, $width - 1 );
+    $y = mt_rand( 0, $height - 1 );
+
+    if( $top[ $y ]{ $x } == '0' ) {
+      $top[ $y ]{ $x } = $seed;
+      if( $ptype == 1 && $seed == 6 ) {
+        $buldings[ $y ]{ $x } = 'C';
+        db_query( "UPDATE planets_active SET last_pos = '$x:$y' WHERE id = $planet_id" );
+        db_query( "INSERT INTO planets_buildings ( object_id, planet_id, x, y, level )
+                                          VALUES (        26,$planet_id,$x,$y, 0 )" );
+      }
+      $seed++;
+    }
+  }
+
+  do {
+
+    // magnifer
+    $plant = array();
+    for( $i=0; $i < count( $btm ); $i++ ) {
+      for( $t=0; $t < strlen( trim( $btm[ $i ] ) ); $t++ ) {
+        if( $top[ $i ]{ $t } != '0' ) {
+          $seed = $top[ $i ]{ $t };
+          $around = array();
+          if( $i>0  && $top[ $i - 1 ]{ $t } == '0' ) {
+            $around[] = 1;
+          }
+          if( $i<($width-1) && $top[ $i + 1 ]{ $t } == '0' ) {
+            $around[] = 2;
+          }
+          if( $t>0  && $top[ $i ]{ $t - 1 } == '0' ) {
+            $around[] = 3;
+          }
+          if( $t<($height-1) && $top[ $i ]{ $t + 1 } == '0' ) {
+            $around[] = 4;
+          }
+          if( count( $around ) && ( !isset( $plant[ $seed ] ) || $plant[ $seed ] < 8 ) ) {
+            $pl = mt_rand( 0, count( $around ) - 1 );
+            switch( $around[ $pl ] ) {
+              case 1:
+                $top[ $i - 1 ]{ $t } = $seed;
+              break;
+              case 2:
+                $top[ $i + 1 ]{ $t } = $seed;
+              break;
+              case 3:
+                $top[ $i ]{ $t - 1 } = $seed;
+              break;
+              case 4:
+                $top[ $i ]{ $t + 1 } = $seed;
+              break;
+            }
+            if( isset( $plant[ $seed ] ) ) {
+              $plant[ $seed ]++;
+            } else {
+              $plant[ $seed ] = 1;
+            }
+          }
+        }
+      }
+    }
+    
+    // counter
+    unset( $counter );
+    $counter = array();
+    for( $i=0; $i < count( $btm ); $i++ ) {
+      for( $t=0; $t < strlen( trim( $btm[ $i ] ) ); $t++ ) {
+        if( isset( $counter[ $top[ $i ]{ $t } ] ) ) {
+          $counter[ $top[ $i ]{ $t } ]++;
+        } else {
+          $counter[ $top[ $i ]{ $t } ] = 1;
+        }
+      }
+    }
+  
+    $big = 0;
+    foreach( $counter as $asc => $cnt ) {
+      if( $asc != '0' ) {
+        if( $big < $cnt ) {
+          $big = $cnt;
+        }
+      }
+    }
+  } while( $big < $max_cnt );
+
+/*
+  file_put_contents( "./pages/environment/planets/$planet_id.bld", join( '', $buldings ) );
+  file_put_contents( "./pages/environment/planets/$planet_id.fnd", join( '', $founds ) );
+  file_put_contents( "./pages/environment/planets/$planet_id.top", join( '', $top ) );
+  file_put_contents( "./pages/environment/planets/$planet_id.mdl", join( '', $mdl ) );
+  file_put_contents( "./pages/environment/planets/$planet_id.btm", join( '', $btm ) );
+*/
+
+  db_query( "INSERT IGNORE INTO planets_maps ( id, top, mdl, btm, fnd, bld )
+                         VALUES ( $planet_id, '".join( '', $top )."', '".join( '', $mdl )."', '".join( '', $btm )."', '".join( '', $founds )."', '".join( '', $buldings )."' )" );
+}

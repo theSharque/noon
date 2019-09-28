@@ -1,0 +1,93 @@
+<?php
+
+  include( './pages/character/char.dic' );
+
+  global $user;
+
+  $iq = false;
+  if( $user->iq ) {
+    if( $user->qt >= 19 && $user->qt <= 29 ) {
+      $iq = true;
+    }
+  }
+
+  if( !$iq ) {
+    switch( $user->place_type ) {
+      case 0:
+      case 1:
+      case 5:
+        $result = db_fetch_row( "SELECT p.name pname, s.name sname FROM planets p, stars s WHERE p.star_id = s.id AND p.id = ".$user->place_id );
+        $out = "err=0&pname=".$result['pname']."&sname=".$result['sname'];
+        break;
+      case 3:
+        $result = db_fetch_row( "SELECT p.name pname, s.name sname FROM planets p, stars s, orbits_buildings ob WHERE p.star_id = s.id AND p.id = ob.planet_id AND ob.id = ".$user->place_id );
+        $out = "err=0&pname=".$result['pname']."&sname=".$result['sname'];
+        break;
+      case 7:
+        $result = db_fetch_row( "SELECT s.name sname FROM stars s WHERE s.id = ".$user->place_id );
+        $out = "err=0&pname=&sname=".$result['sname'];
+        break;
+      case 8:
+        $out = "err=0&pname=&sname=";
+        break;
+    }
+  } else {
+    $out = "err=0&pname=&sname=";
+  }
+
+  $result = db_fetch_row( "SELECT p.name hplanet, s.name hstar
+                             FROM planets p
+                       INNER JOIN stars s ON p.star_id = s.id
+                            WHERE p.user_id = ".$user->uid );
+  $out .= "&hplanet=".$result['hplanet']."&hstar=".$result['hstar'];
+
+  $out .= "&summ=".number_format( $user->money, 2, '.', ' ' );
+  $out .= "&conf=".number_format( $user->credits, 0, '', ' ' );;
+
+  if( $user->insur == 0 ) {
+    $out .= "&insur=".t( "<font color='#FF0000'>Отсутствует</font>" );
+  } else {
+    $out .= "&insur=".t( "Есть %d", array( $user->insur ) );
+  }
+
+  $result = db_fetch_row( "SELECT count(*) cnt FROM robots WHERE user_id = ".$user->uid );
+  $out .= "&robots=".$result['cnt'];
+
+  if( $user->char_status < 0 ) {
+    $correct = -1;
+  } elseif( $user->char_status > 0 ) {
+    $correct = 1;
+  } else {
+    $correct = 0;
+  }
+  
+  $out .= "&c_st=".$stat_dic[ strlen( abs( $user->char_status ) ) * $correct ].'('.$user->char_status.') ';
+
+  if( $user->char_war < 0 ) {
+    $correct = -1;
+  } elseif( $user->char_war > 0 ) {
+    $correct = 1;
+  } else {
+    $correct = 0;
+  }
+  $out .= "&c_wr=".$war_dic[ strlen( abs( $user->char_war ) ) * $correct ].'('.$user->char_war.') ';
+
+  if( $user->char_level < 0 ) {
+    $correct = -1;
+  } elseif( $user->char_level > 0 ) {
+    $correct = 1;
+  } else {
+    $correct = 0;
+  }
+  $out .= "&c_lv=".$lev_dic[ strlen( abs( $user->char_level ) ) * $correct ].'('.$user->char_level.') ';
+
+//  $out .= "&link='https://secure.xsolla.com/paystation/?projectid=4032%26id_theme=34%26fix_email={$user->email}%26fix_v1={$user->login}%27 target=%27main%27";
+  $out .= "&link='http://21noon.com/pre_pay.php'";
+
+  $out .= "&referal=21noon.com/index.php?refid=".$user->uid;
+
+  $referals = db_fetch_row( "SELECT COUNT(*) cnt FROM users u WHERE u.parent_id = ".$user->uid );
+
+  $out .= "&refcnt=".$referals['cnt'];
+
+  printOut( $out );

@@ -1,0 +1,10 @@
+/* 
+    Input sizes for Safari/Mac and Opera
+
+    Note: file is being included before other css
+*/
+
+div input.button1, div input.button2 {
+    padding: 2px 6px;
+}
+div select { padding: 0; height: 19px; }

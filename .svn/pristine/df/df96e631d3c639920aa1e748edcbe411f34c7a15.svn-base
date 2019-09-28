@@ -1,0 +1,218 @@
+<?php
+
+  if( isset( $_GET['shid'] ) && isset( $_GET['x'] ) && isset( $_GET['y'] ) && is_numeric( substr( $_GET['shid'], 1 ) ) ) {
+    $type = substr( $_GET['shid'], 0, 1 );
+    $shid = substr( $_GET['shid'], 1 );
+    $x = $_GET['x'];
+    $y = $_GET['y'];
+
+    levelUp( 25, $user->uid );
+
+    if( $type == 'S' ) {
+      $place = db_fetch_row( "SELECT st.hyper, st.hyper_cnt, s.place_id, s.place_type, s.arg1, s.arg2, s.name, s.upgrade_type, s.upgrade_level
+                                FROM ships s, ship_types st
+                               WHERE st.object_id = s.object_id AND s.id = $shid" );
+
+      $fuel = db_fetch_row( "SELECT object_cnt cnt FROM warehouse WHERE object_id = 1044 AND place_type = 2 AND place_id = $shid" );
+      $add = 0;
+    } else {
+      $place = db_fetch_row( "SELECT hyper, hyper_cnt, place_id, place_type, arg1, arg2, name, 0 upgrade_type, 0 upgrade_level
+                                FROM fleets WHERE id = $shid" );
+
+      $fuel = db_fetch_row( "SELECT SUM(w.object_cnt) cnt FROM warehouse w, ships s WHERE w.object_id = 1044 AND s.fleet_id = $shid AND w.place_type = 2 AND w.place_id = s.id" );
+      $add = 100;
+    }
+    $star = db_fetch_row( "SELECT id, name, x, y FROM stars WHERE x BETWEEN ".($x-3)." AND ".($x+3)." AND y BETWEEN ".($y-3)." AND ".($y+3) );
+
+    $sx = 0;
+    $sy = 0;
+    switch( $place['place_type'] ) {
+      case 0:
+        $planet = get_place_info( $place['place_id'], $place['place_type'] );
+        $start = db_fetch_row( "SELECT id, x, y FROM stars WHERE id = ".$planet->place_id );
+        $from_arg1 = 0;
+        $from_arg2 = $planet->place_id;
+        $from_type = $add+4;
+        if( isset( $start['id'] ) ) {
+          $sx = $start['x'];
+          $sy = $start['y'];
+        }
+        break;
+      case 7:
+        $start = db_fetch_row( "SELECT id, x, y FROM stars WHERE id = ".$place['place_id'] );
+        $from_arg1 = 0;
+        $from_arg2 = $place['place_id'];
+        $from_type = $add+4;
+        if( isset( $start['id'] ) ) {
+          $sx = $start['x'];
+          $sy = $start['y'];
+        }
+        break;
+      case 8:
+        $from_arg1 = $place['arg1'];
+        $from_arg2 = $place['arg2'];
+        $from_type = $add+5;
+        $sx = $place['arg1'];
+        $sy = $place['arg2'];
+        break;
+      default:
+        printOut( "err=4" );
+        return;
+        break;
+    }
+
+    if( isset( $star['id'] ) && $star['id'] > 0 ) {
+      $lx = $star['x'] - $sx;
+      $ly = $star['y'] - $sy;
+      $len = round( sqrt( $lx * $lx + $ly * $ly ) );
+
+      if( $place['upgrade_type'] == 1 ) {
+        $time = get_smove_time( $len * 20, $place['hyper'] - $place['hyper'] / 50 * $place['upgrade_level'] );
+      } else {
+        $time = get_smove_time( $len * 20, $place['hyper'] );
+      }
+
+      $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
+      $fuel_need = $fuel_need - round( ( $fuel_need / 100 ) * get_book_level( 38, $user->uid ) );
+
+      if( $fuel_need > $fuel['cnt'] ) {
+        $out = "err=3";
+      } else {
+        $out = "err=0";
+
+        $from_arg1 = $from_arg1?$from_arg1:0;
+        $from_arg2 = $from_arg2?$from_arg2:0;
+        $from_type = $from_type?$from_type:0;
+        $sql = "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1, arg2, from_arg1, from_arg2, from_type )
+                                  VALUES ( $add+4, $shid, DATE_ADD( NOW(), INTERVAL $time SECOND ), $time, ".$user->uid.", 0, {$star['id']}, $from_arg1, $from_arg2, $from_type )";
+
+        if( $from_arg1 == 0 ) {
+          db_query( "INSERT INTO hot_way (    id_from,  from_arg1,  from_arg2,         id_to, to_arg1, to_arg2, event_time,  len,      user_id )
+                                  VALUES ( $from_arg2,          0,          0, {$star['id']},       0,       0,      NOW(), $len, {$user->uid} )" );
+        } else {
+          db_query( "INSERT INTO hot_way ( id_from,  from_arg1,  from_arg2,         id_to, to_arg1, to_arg2, event_time,  len,      user_id )
+                                  VALUES (       8, $from_arg1, $from_arg2, {$star['id']},       0,       0,      NOW(), $len, {$user->uid} )" );
+        }
+
+        $inter = db_fetch_array( "SELECT f.user_id, f.interupt, f.name, s.name sname, im.message
+                                    FROM fleets f
+                               LEFT JOIN interupt_msg im ON im.type = 1 AND im.ship_id = f.id
+                              INNER JOIN stars s ON s.id = f.place_id
+                                   WHERE f.interupt > 0 AND f.place_type = 7 AND f.place_id = {$star['id']}
+                                  union
+                                  SELECT s.user_id, s.interupt, s.name, st.name sname, im.message
+                                    FROM ships s
+                               LEFT JOIN interupt_msg im ON im.type = 0 AND im.ship_id = s.id
+                              INNER JOIN stars st ON st.id = s.place_id
+                                   WHERE s.fleet_id IS NULL AND s.interupt > 0 AND s.place_type = 7 AND s.place_id = {$star['id']}" );
+
+        if( count( $inter ) ) {
+          if( $type == 'S' ) {
+            $corsar = db_fetch_val( "SELECT st.corsar
+                                       FROM ships s
+                                 INNER JOIN ship_types st ON st.object_id = s.object_id
+                                      WHERE s.id = ".$shid, 'corsar' );
+          } else {
+            $corsar = db_fetch_val( "SELECT MIN( st.corsar ) corsar
+                                       FROM ships s
+                                 INNER JOIN ship_types st ON st.object_id = s.object_id
+                                      WHERE s.fleet_id = ".$shid, 'corsar' );
+          }
+
+          if( $corsar == 1 ) {
+            $user_name = 'corsar';
+          } else {
+            $user_name = $user->login;
+          }
+
+          $intcnt = 0;
+          foreach( $inter as $mess ) {
+            if( $mess['message'] ) {
+              send_msg( 1, $user->uid, "<font color=\"#FFFF00\">Сообщение гиперперехватчика - \"{$mess['message']}\"</font>", 6 );
+            }
+
+            if( $mess['interupt'] == 1 ) {
+              send_msg( 1, $mess['user_id'], "Обнаружено искажение пространства в системе {$mess['sname']} перехватчиком {$mess['name']}. Приближается {$place['name']} ($user_name). Ожидается прибытие через ".time_to_str( $time ), 6 );
+            } else {
+              send_msg( 1, $mess['user_id'], "Обнаружено искажение пространства в системе {$mess['sname']} перехватчиком {$mess['name']}, возможен гиперперехват. Приближается {$place['name']} ($user_name). Ожидается прибытие через ".time_to_str( $time ), 6 );
+              $intcnt++;
+            }
+          }
+
+          if( $intcnt > 0 ) {
+            send_msg( 1, $user->uid, "Обнаружено искажение пространства, возможен гиперперехват корабля. Найденых точек перехвата: $intcnt", 6 );
+          }
+        }
+      }
+    } else {
+      $lx = $x - $sx;
+      $ly = $y - $sy;
+      $len = round( sqrt( $lx * $lx + $ly * $ly ) );
+
+      if( $place['upgrade_type'] == 1 ) {
+        $time = get_smove_time( $len * 20, $place['hyper'] - $place['hyper'] / 50 * $place['upgrade_level'] );
+      } else {
+        $time = get_smove_time( $len * 20, $place['hyper'] );
+      }
+
+      $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
+      $fuel_need = $fuel_need - round( ( $fuel_need / 100 ) * get_book_level( 38, $user->uid ) );
+
+      if( $fuel_need > $fuel['cnt'] ) {
+        $out = "err=2";
+      } else {
+        $out = "err=0";
+
+        $from_arg1 = $from_arg1?$from_arg1:0;
+        $from_arg2 = $from_arg2?$from_arg2:0;
+        $from_type = $from_type?$from_type:0;
+        $sql = "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1, arg2, from_arg1, from_arg2, from_type )
+                                  VALUES ( $add+5, $shid, DATE_ADD( NOW(), INTERVAL $time SECOND ), $time, ".$user->uid.", $x, $y, $from_arg1, $from_arg2, $from_type )";
+
+        if( $from_arg1 == 0 ) {
+          db_query( "INSERT INTO hot_way (       id_from,  from_arg1,  from_arg2, id_to, to_arg1, to_arg2, event_time,  len,      user_id )
+                                  VALUES (    $from_arg2,          0,          0,     8,      $x,      $y,      NOW(), $len, {$user->uid} )" );
+        } else {
+          db_query( "INSERT INTO hot_way ( id_from,  from_arg1,  from_arg2, id_to, to_arg1, to_arg2, event_time,  len,      user_id )
+                                  VALUES (       8, $from_arg1, $from_arg2,     8,      $x,      $y,      NOW(), $len, {$user->uid} )" );
+        }
+      }
+    }
+
+    if( $out == "err=0" ) {
+      if( $type == 'S' ) {
+        db_query( "UPDATE ships SET guard = 0, arg1 = null, arg2 = null, place_type = 5, place_id = 0 WHERE id = $shid" );
+
+        if( $fuel_need > 0 ) {
+          sub_warehouse_item( 2, $shid, 1044, $fuel_need );
+        }
+      } else {
+        db_query( "UPDATE fleets SET guard = 0, arg1 = null, arg2 = null, place_type = 5, place_id = 0 WHERE id = $shid" );
+        db_query( "UPDATE ships SET guard = 0, arg1 = null, arg2 = null, place_type = 5, place_id = 0 WHERE fleet_id = $shid" );
+
+        $ships = db_fetch_array( "SELECT s.id, w.object_cnt
+                                    FROM ships s
+                               LEFT JOIN warehouse w ON w.place_id = s.id AND w.place_type = 2 AND w.object_id = 1044
+                                   WHERE s.fleet_id = $shid ORDER BY w.object_cnt DESC" );
+
+        $total = $fuel_need;
+
+        if( $fuel_need > 0 ) {
+          foreach( $ships as $item ) {
+            if( $total < $item['object_cnt'] ) {
+              sub_warehouse_item( 2, $item['id'], 1044, $total );
+              break;
+            } else {
+              sub_warehouse_item( 2, $item['id'], 1044, $item['object_cnt'] );
+              $total -= $item['object_cnt'];
+            }
+          }
+        }
+      }
+      db_query( $sql );
+    }
+  } else {
+    $out = "err=1";
+  }
+
+  printOut( $out );

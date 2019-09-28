@@ -1,0 +1,557 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function rotator_permission() {
+  return array(
+
+    'rotator user' => array(
+      'title' => t('User of rotator system'),
+    ),
+
+    'rotator moderator' => array(
+      'title' => t('Moderator of rotator system'),
+    ),
+
+    'rotator admin' => array(
+      'title' => t('Administrator of rotator system'),
+    ),
+
+    'rotator finance' => array(
+      'title' => t('Finance moderator of rotator system'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function rotator_menu() {
+
+// Banner managers menu
+
+  $items['banner'] = array(
+    'title' => 'Banners',
+    'description' => 'Manage of your banners.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_manager' ),
+    'access arguments' => array('rotator user'),
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/list'] = array(
+    'title' => 'Banners list',
+    'description' => 'Manage of your banners.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_manager' ),
+    'access arguments' => array('rotator user'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/add'] = array(
+    'title' => 'Add banner',
+    'description' => 'Add new banner.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_manager_edit' ),
+    'access arguments' => array('rotator user'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/%/edit'] = array(
+    'title' => 'Edit banner',
+    'description' => 'Edit selected banner.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_manager_edit', 1 ),
+    'access arguments' => array('rotator user'),
+    'weight' => 20,
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/%/add_count'] = array(
+    'title' => 'Add click count',
+    'description' => 'Add click count by using company click counter.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_manager_counter', 1 ),
+    'access arguments' => array('rotator user'),
+    'weight' => 30,
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/scenaries'] = array(
+    'title' => 'Scenaries list',
+    'description' => 'Manage of your scenaries.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_scenaries' ),
+    'access arguments' => array('rotator user'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 0,
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/scenario_add'] = array(
+    'title' => 'Add scenario',
+    'description' => 'Add new scenario.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_scenario_edit' ),
+    'access arguments' => array('rotator user'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 40,
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/%/scenario_edit'] = array(
+    'title' => 'Edit scenario',
+    'description' => 'Edit selected scenario.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_scenario_edit', 1 ),
+    'access arguments' => array('rotator user'),
+    'weight' => 50,
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/%/view_log'] = array(
+    'title' => 'Log of views',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_log', "1", 1 ),
+    'access arguments' => array('rotator user'),
+    'weight' => 60,
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/%/click_log'] = array(
+    'title' => 'Log of clicks',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_log', "2", 1 ),
+    'access arguments' => array('rotator user'),
+    'weight' => 60,
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/%/pause'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_pause', 1 ),
+    'access arguments' => array('rotator user'),
+    'file' => 'banner.inc',
+  );
+
+  $items['banner/%/resume'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_resume', 1 ),
+    'access arguments' => array('rotator user'),
+    'file' => 'banner.inc',
+  );
+
+// Compaign manager
+
+  $items['company'] = array(
+    'title' => 'Compaign',
+    'description' => 'Manage of your banners.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_compaign' ),
+    'access arguments' => array('rotator user'),
+    'file' => 'compaign.inc',
+  );
+
+  $items['company/list'] = array(
+    'title' => 'Compaign list',
+    'description' => 'Manage of your compaign.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_compaign' ),
+    'access arguments' => array('rotator user'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+    'file' => 'compaign.inc',
+  );
+
+  $items['company/add'] = array(
+    'title' => 'Add compaign',
+    'description' => 'Add new compaign.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_compaign_edit' ),
+    'access arguments' => array('rotator user'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+    'file' => 'compaign.inc',
+  );
+
+  $items['company/%/edit'] = array(
+    'title' => 'Edit compaign',
+    'description' => 'Edit selected compaign.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_compaign_edit', 1 ),
+    'access arguments' => array('rotator user'),
+    'weight' => 20,
+    'file' => 'compaign.inc',
+  );
+
+  $items['company/%/code'] = array(
+    'title' => 'Get site code',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_compaign_code', 1 ),
+    'access arguments' => array('rotator user'),
+    'weight' => 30,
+    'file' => 'compaign.inc',
+  );
+
+  $items['company/%/view_log'] = array(
+    'title' => 'Log of views',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_compaign_log', "1", 1 ),
+    'access arguments' => array('rotator user'),
+    'weight' => 60,
+    'file' => 'compaign.inc',
+  );
+
+  $items['company/%/click_log'] = array(
+    'title' => 'Log of clicks',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_compaign_log', "2", 1 ),
+    'access arguments' => array('rotator user'),
+    'weight' => 60,
+    'file' => 'compaign.inc',
+  );
+
+// Moderator items
+
+  $items['banner_moderate'] = array(
+    'title' => 'Moderate',
+    'description' => 'Manage of your banners.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_banner_list' ),
+    'access arguments' => array('rotator moderator'),
+    'file' => 'moderate.inc',
+  );
+
+  $items['banner_moderate/banners'] = array(
+    'title' => 'Banners approving',
+    'description' => 'Approve or decline banners.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_banner_list' ),
+    'access arguments' => array('rotator moderator'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+    'file' => 'moderate.inc',
+  );
+
+  $items['banner_moderate/companies'] = array(
+    'title' => 'Company approving',
+    'description' => 'Approve or decline companys.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_company_list' ),
+    'access arguments' => array('rotator moderator'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+    'file' => 'moderate.inc',
+  );
+
+  $items['banner_moderate/banners/%/approve'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_approve_banner', 2 ),
+    'access arguments' => array('rotator moderator'),
+    'file' => 'moderate.inc',
+  );
+
+  $items['banner_moderate/banners/%/decline'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_decline_banner', 2 ),
+    'access arguments' => array('rotator moderator'),
+    'file' => 'moderate.inc',
+  );
+
+  $items['banner_moderate/companies/%/approve'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_approve_compaign', 2 ),
+    'access arguments' => array('rotator moderator'),
+    'file' => 'moderate.inc',
+  );
+
+  $items['banner_moderate/companies/%/decline'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_decline_compaign', 2 ),
+    'access arguments' => array('rotator moderator'),
+    'file' => 'moderate.inc',
+  );
+
+// Admin items
+
+  $items['banner_admin'] = array(
+    'title' => 'Admin',
+    'description' => 'Manage of all banners.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_admin_banner_list' ),
+    'access arguments' => array('rotator admin'),
+    'file' => 'admin.inc',
+  );
+
+  $items['banner_admin/banners'] = array(
+    'title' => 'Banners admin',
+    'description' => 'Manage of all banners.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_admin_banner_list' ),
+    'access arguments' => array('rotator admin'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+    'file' => 'admin.inc',
+  );
+
+  $items['banner_admin/companies'] = array(
+    'title' => 'Company admin',
+    'description' => 'Manage of all companys.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_admin_company_list' ),
+    'access arguments' => array('rotator admin'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+    'file' => 'admin.inc',
+  );
+
+  $items['banner_admin/%/commission'] = array(
+    'title' => 'Edit commission',
+    'description' => 'Edit selected compaign commission.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_admin_company_commission', 1 ),
+    'access arguments' => array('rotator admin'),
+    'weight' => 15,
+    'file' => 'admin.inc',
+  );
+
+  $items['banner_admin/stat'] = array(
+    'title' => 'Click statistics',
+    'description' => 'Statistics of all clicks.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_admin_click_stat' ),
+    'access arguments' => array('rotator admin'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
+    'file' => 'admin.inc',
+  );
+
+  $items['banner_admin/promo'] = array(
+    'title' => 'Promo codes',
+    'description' => 'Manage of promotional codes.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'rotator_admin_promo' ),
+    'access arguments' => array('rotator admin'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+    'file' => 'admin.inc',
+  );
+
+// Webmoney transfer
+
+  $items['webmoney'] = array(
+    'title' => 'Money',
+    'description' => 'Manage of your money balance.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'webmoney_in' ),
+    'access arguments' => array('rotator user'),
+    'file' => 'webmoney.inc',
+  );
+
+  $items['webmoney/in'] = array(
+    'title' => 'Charge',
+    'description' => 'Charge money to account.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'webmoney_in' ),
+    'access arguments' => array('rotator user'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 10,
+    'file' => 'webmoney.inc',
+  );
+
+  $items['webmoney/result'] = array(
+    'page callback' => 'webmoney_result',
+    'access callback' => true,
+    'file' => 'webmoney.inc',
+  );
+
+  $items['webmoney/success'] = array(
+    'title' => 'Success transfer',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'webmoney_success' ),
+    'access arguments' => array('rotator user'),
+    'weight' => 40,
+    'file' => 'webmoney.inc',
+  );
+
+  $items['webmoney/fail'] = array(
+    'title' => 'Failed transfer',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'webmoney_fail' ),
+    'access arguments' => array('rotator user'),
+    'weight' => 40,
+    'file' => 'webmoney.inc',
+  );
+
+  $items['webmoney/out'] = array(
+    'title' => 'Withdraw',
+    'description' => 'Withdraw money from account.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'webmoney_out' ),
+    'access arguments' => array('rotator user'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
+    'file' => 'webmoney.inc',
+  );
+
+  $items['webmoney/log'] = array(
+    'title' => 'View log',
+    'description' => 'View log of all money operations.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'webmoney_log' ),
+    'access arguments' => array('rotator user'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 30,
+    'file' => 'webmoney.inc',
+  );
+
+  $items['webmoney/moderate'] = array(
+    'title' => 'Withdraw moderate',
+    'description' => 'Withdraw money from account.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'webmoney_moderate' ),
+    'access arguments' => array('rotator finance'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 50,
+    'file' => 'webmoney.inc',
+  );
+
+  $items['webmoney/%/edit'] = array(
+    'title' => 'Edit withdraw',
+    'description' => 'Edit selected withdraw.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array( 'webmoney_edit', 1 ),
+    'access arguments' => array('rotator finance'),
+    'weight' => 60,
+    'file' => 'webmoney.inc',
+  );
+
+  return $items;
+}
+
+function rotator_render_banner( $sizeformat, $url, $color, $filename, $title, $text, $vurl ) {
+
+  $url = htmlspecialchars( $url );
+  $title = htmlspecialchars( $title );
+  $text = htmlspecialchars( $text );
+
+  $colors = array(
+    0 => '<style>.bcolor { background:#FFF;border:1px solid #CCC;color:#000; } .bcolor a {text-decoration:none;color:#00F;} a.clxbttl {text-decoration:none;color:#E50;} a:hover {text-decoration:underline;} a:active {text-decoration:underline;}</style>',
+    1 => '<style>.bcolor { background:#000;border:1px solid #222;color:#FFF; } .bcolor a {text-decoration:none;color:#09F;} a.clxbttl {text-decoration:none;color:#E50;} a:hover {text-decoration:underline;} a:active {text-decoration:underline;}</style>',
+  );
+
+  $color = $colors[$color];
+
+  switch( $sizeformat ) {
+    case '468x60':
+      $data = '<a href="#" target="_blank"><img width=468 height=60 src="http://clixer.ru/banners/'.$filename.'.dat" border=0></a>';
+      break;
+
+    case '100x100':
+      $data = '<a href="#" target="_blank"><img width=100 height=100 src="http://clixer.ru/banners/'.$filename.'.dat" border=0></a>';
+      break;
+
+    case '200x76':
+      $data = '<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1251" /></head>'.$color;
+      $data .= '<div class="bcolor" style="padding:0px 0px 6px 2px;width:194px;height:70px;font-size:12px;"><a class="clxbttl" href="#" target="_blank">'.$title.'</a><br>'.$text.'<br><a href="#" target="_blank">'.$vurl.'</a></div>';
+      break;
+
+    case '224x104':
+      $data = '<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1251" /></head>'.$color;
+      $data .= '<div class="bcolor" style="padding:1px;width:220px;height:100px;font-size:12px;"><a class="clxbttl" href="#" target="_blank"><img width=100 height=100 style="float:left;margin-right:2px;" src="http://clixer.ru/banners/'.$filename.'.dat" border=0></a><a href="#" target="_blank">'.$title.'</a><br>'.$text.'<br><a href="#" target="_blank">'.$vurl.'</a></div>';
+      break;
+
+    case 'top line':
+      $data = '<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1251" /></head>'.$color;
+      $data .= '<div class="bcolor" style="text-align:center;height: 30px;margin: 0px;padding-top: 5px;width: 100%;font-size:14px;font-weight: bold;"><a class="clxbttl" href="#" target="_blank">'.$title.'</a><a href="#" target="_blank"> - '.$text.'</a><div style="float:right;"><a href=# onclick="JavaScript:this.parentNode.parentNode.style.display=\'none\';"><img src="http://clixer.ru/c.png"></a></div></div>';
+      break;
+
+    default:
+      $data = '&nbsp;';
+      break;
+  }
+
+  return $data;
+}
+
+function rotator_mail( $key, &$message, $params ) {
+  switch( $params['type'] ) {
+    case 'ban_mod_ok' :
+      $subj = t( 'Your banner @name moderated and APPROVED', array( '@name' => $params['name'] ) );
+      $body = t( "Hello, congratulation!\n\nYour banner @name follow throw moderate and add to rotation.\n\nAdministration", array( '@name' => $params['name'] ) );
+      break;
+
+    case 'ban_mod_err' :
+      $subj = t( 'Your banner @name moderated and FAILED', array( '@name' => $params['name'] ) );
+      $body = t( "Hello.\n\nYour banner @name follow throw moderate and failed. Read our rules carefully and change banner correction.\n\nAdministration", array( '@name' => $params['name'] ) );
+      break;
+
+    case 'ban_close' :
+      $subj = t( 'Your banner @name remoderated and CLOSED', array( '@name' => $params['name'] ) );
+      $body = t( "Hello.\n\nYour banner @name follow throw remoderate and failed. Read our rules carefully and change banner correction.\n\nAdministration", array( '@name' => $params['name'] ) );
+      break;
+
+    case 'com_mod_ok' :
+      $subj = t( 'Your company @name moderated and APPROVED', array( '@name' => $params['name'] ) );
+      $body = t( "Hello, congratulation!\n\nYour company @name follow throw moderate and approved now you can insert code to your site.\n\n@code\n\nAdministration", array( '@name' => $params['name'], '@code' => $params['code'] ) );
+      break;
+
+    case 'com_mod_err' :
+      $subj = t( 'Your company @name moderated and FAILED', array( '@name' => $params['name'] ) );
+      $body = t( "Hello.\n\nYour company @name follow throw moderate and failed. Read our rules carefully and make correction.\n\nAdministration", array( '@name' => $params['name'] ) );
+      break;
+
+    case 'com_change' :
+      $subj = t( 'Your company @name change commission', array( '@name' => $params['name'] ) );
+      $body = t( "Hello, congratulation!\n\nYour company @name change commision and now it's only @comm.\n\nAdministration", array( '@name' => $params['name'], '@comm' => $params['comm'] ) );
+      break;
+
+    case 'com_close' :
+      $subj = t( 'Your company @name remoderated and FAILED', array( '@name' => $params['name'] ) );
+      $body = t( "Hello.\n\nYour company @name follow throw remoderate and failed. Read our rules carefully and make correction.\n\nAdministration", array( '@name' => $params['name'] ) );
+      break;
+
+    case 'ban_end' :
+      $subj = t( 'Your banner @name ending', array( '@name' => $params['name'] ) );
+      $body = t( "Hello.\n\nYour banner @name is not shown any more, you need to add clicks to continue.\n\nAdministration", array( '@name' => $params['name'] ) );
+      break;
+
+    case 'money_ok' :
+      $subj = t( 'Withdraw from clixer at @date successfuly', array( '@date' => $params['date'] ) );
+      $body = t( "Hello.\n\nWithdraw of @summ WMR is successfuly.\n\nAdministration", array( '@summ' => $params['summ'] ) );
+      break;
+
+    case 'money_err' :
+      $subj = t( 'Withdraw from clixer at @date FAILED', array( '@date' => $params['date'] ) );
+      $body = t( "Hello.\n\nWithdraw of @summ WMR is FAILED.\n@reason\n\nAdministration", array( '@summ' => $params['summ'], '@reason' => $params['reason'] ) );
+      break;
+
+    case 'new_banner' :
+      $subj = t( 'New banner added from user @name', array( '@name' => $params['name'] ) );
+      $body = t( "Hello Moderator.\n\nNew banner added to system, need to review.\n@title\n@url\n\nhttp://clixer.ru/banner_moderate", array( '@title' => $params['title'], '@url' => $params['url'] ) );
+      break;
+
+    case 'new_site' :
+      $subj = t( 'New site added from user @name', array( '@name' => $params['name'] ) );
+      $body = t( "Hello Moderator.\n\nNew site added to system, need to review.\n@title\n@url\n\nhttp://clixer.ru/banner_moderate/companies", array( '@title' => $params['title'], '@url' => $params['url'] ) );
+      break;
+
+    case 'money_out' :
+      $subj = t( 'Withdraw from user @name', array( '@name' => $params['name'] ) );
+      $body = t( "Hello.\n\nWithdraw of @summ clicks.\n\nhttp://clixer.ru/webmoney/moderate", array( '@summ' => $params['summ'] ) );
+      break;
+  }
+
+  $message['subject'] = $subj;
+  $message['body'][] = $body;
+}
+
+function db_safe( &$var ) {
+  $var = mysql_escape_string( $var );
+  return $var;
+}

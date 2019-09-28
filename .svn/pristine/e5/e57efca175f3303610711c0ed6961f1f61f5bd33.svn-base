@@ -1,0 +1,284 @@
+<?php
+
+  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset='><TITLE>admin objects</TITLE></HEAD>
+<BODY bgcolor=#000000 text=#00FF00 leftmargin=0 topmargin=0>
+<a href='/page.php?id=990'>Return back</a>
+<form action='/page.php?id=980' method=post>";
+
+  if( isset( $_POST['login'] ) && $_POST['login'] != '' ) {
+    $login = $_POST['login'];
+  }
+
+  if( isset( $_GET['login'] ) && $_GET['login'] != '' ) {
+    $login = $_GET['login'];
+  }
+
+  if( isset( $login ) ) {
+    echo "Login:<input type=text value='$login' name='login'></form>";
+
+    echo "<h1>User data</h1>";
+
+    $data = db_fetch_row( "SELECT u.id, u.login, up.login parent, (SELECT group_concat( login ) FROM users WHERE parent_id = u.id) child,
+                                  a.name aliance, a.level aliance_level, t.name titul, u.last_ip, u.register_date, u.tutorial_time, ua.lastlogin,
+                                  u.err_login, u.email, u.ssid, u.status, u.level, u.lastlevel,
+                                  u.money, u.credits, u.ref_link, u.place_id, 
+                                  CASE u.place_type
+                                    WHEN 0 THEN concat( 'Planet ', p.name )
+                                    WHEN 1 THEN concat( 'Planet ', p.name )
+                                    WHEN 2 THEN concat( 'Ship ', s.name )
+                                    WHEN 3 THEN concat( o.name, ' ', op.name )
+                                    WHEN 6 THEN concat( 'Fleet ', f.name )
+                                    ELSE concat( u.place_type, ':', u.place_id )
+                                  END place
+                             FROM users u
+                       INNER JOIN users_active ua ON ua.id = u.id
+                        LEFT JOIN users up ON up.id = u.parent_id
+                        LEFT JOIN aliance a ON a.id = u.aliance
+                       INNER JOIN tituls t ON t.id = u.titul
+                        LEFT JOIN planets p ON p.id = u.place_id
+                        LEFT JOIN ships s ON s.id = u.place_id
+                        LEFT JOIN fleets f ON f.id = u.place_id
+                        LEFT JOIN orbits_buildings ob ON ob.id = u.place_id
+                        LEFT JOIN objects o ON o.id = ob.object_id
+                        LEFT JOIN planets op ON op.id = ob.planet_id
+                            WHERE u.login = '$login'" );
+    $uid = $data['id'];
+
+    echo "<form action='/page.php?id=980' method=post>";
+    echo "<input type=hidden value='$login' name='login'>";
+    echo "<input type=hidden value=kill name=act><input type=submit value='Kill him!'></form>";
+
+    if( isset( $_POST['act'] ) && $_POST['act'] == 'kill' ) {
+      db_query( "UPDATE users SET status = 0, ssid = 1 WHERE id = $uid" );
+      db_query( "DELETE FROM chat WHERE user_id = $uid OR to_user = $uid" );
+    }
+
+    echo "<br><form action='/page.php?id=980' method=post>";
+    echo "<input type=hidden value='$login' name='login'>";
+    echo "<input type=hidden value=go_home name=act><input type=submit value='Go home'></form>";
+
+    if( isset( $_POST['act'] ) && $_POST['act'] == 'go_home' ) {
+      db_query( "UPDATE users SET place_type = 1, place_id = (SELECT id FROM planets WHERE user_id = $uid) WHERE id = $uid" );
+    }
+
+    echo "<br><form action='/page.php?id=980' method=post>";
+    echo "<input type=hidden value='$login' name='login'>";
+    echo "<input type=hidden value=mute_w name=act><input type=submit value='Mute on week'></form>";
+
+    if( isset( $_POST['act'] ) && $_POST['act'] == 'mute_w' ) {
+      db_query( "UPDATE users SET mute = DATE_ADD( NOW(), INTERVAL 7 DAY ) WHERE id = $uid" );
+      db_query( "DELETE FROM chat WHERE user_id = $uid" );
+    }
+
+    echo "<form action='/page.php?id=980' method=post>";
+    echo "<input type=hidden value='$login' name='login'>";
+    echo "<input type=hidden value=mute_m name=act><input type=submit value='Mute on month'></form>";
+
+    if( isset( $_POST['act'] ) && $_POST['act'] == 'mute_m' ) {
+      db_query( "UPDATE users SET mute = DATE_ADD( NOW(), INTERVAL 1 MONTH ) WHERE id = $uid" );
+      db_query( "DELETE FROM chat WHERE user_id = $uid" );
+    }
+
+    echo "<table>";
+    foreach( $data as $name => $row ) {
+      switch( $name ) {
+        case 'parent' :
+          echo '<tr><td>'.$name.'</td><td><a href=http://21noon.com/page.php?id=980&login='.$row.'>'.substr( $row, 0, 40 ).'</a></td></tr>';
+          break;
+
+        case 'child' :
+          echo "<tr><td>$name:</td><td>";
+          $ch = explode( ',', $row );
+          if( is_array( $ch ) ) {
+            foreach( $ch as $it ) {
+              echo '<a href=http://21noon.com/page.php?id=980&login='.$it.'>'.substr( $it, 0, 40 ).'</a>, ';
+            }
+          }
+          echo "</td></tr>";
+
+          break;
+
+        case 'ref_link' :
+          echo '<tr><td>'.$name.'</td><td><a href="'.$row.'">'.substr( $row, 0, 40 ).'</a></td></tr>';
+          break;
+
+        default:
+          echo "<tr><td>$name:</td><td>$row</td></tr>";
+          break;
+      }
+
+      if( $name == 'ssid' ) {
+        $sid = $row;
+      }
+    }
+    echo "</table>";
+
+    echo "<form action='/page.php?id=980' method=post>";
+    echo "<input type=hidden value='$login' name='login'>";
+    echo "<input type=hidden value=enter name=act><input type=submit value='Enter from him'></form>";
+
+    if( isset( $_POST['act'] ) && $_POST['act'] == 'enter' ) {
+      setcookie( 'chat_sid', $sid );
+      setcookie( 'chat_uid', $uid );
+    }
+
+    if( isset( $_POST['act'] ) && $_POST['act'] == 'add' ) {
+      $planet = db_fetch_val( "SELECT id FROM planets WHERE user_id = $uid", 'id' );
+      add_warehouse_item( 0, $planet, $_POST['object'], $_POST['cnt'] );
+    }
+
+    $obj = db_fetch_array( "SELECT o.class, o.name, o.id FROM objects o ORDER BY o.class, o.name" );
+    echo "<form action='/page.php?id=980' method=post>";
+    echo "<input type=hidden value='$login' name='login'>";
+    echo "<select size=20 name='object'>";
+    foreach( $obj as $item ) {
+      echo "<option value='{$item['id']}'>{$item['class']}\t{$item['name']}</option>\n";
+    }
+    echo "</select><input type=text value='1' name='cnt'><input type=hidden value=add name=act><input type=submit value='Add object'></form>";
+
+    echo "<h1>Pay data</h1>";
+/*
+    $data = db_fetch_array( "SELECT pl.pay_date, pl.command, pl.2pay_id, pl.full_output
+                               FROM 2pay_log pl
+                              WHERE pl.user_id = $uid
+                           ORDER BY pl.pay_date DESC LIMIT 0,30" );
+*/
+    $data = db_fetch_array( "SELECT pl.log_time, pl.mess
+                               FROM pay_log pl
+                              WHERE pl.user_id = $uid AND pl.type = 1
+                           ORDER BY pl.log_time DESC LIMIT 0,30" );
+
+    echo "<table>";
+    foreach( $data as $row ) {
+      echo "<tr>";
+      foreach( $row as $cell ) {
+        echo "<td>$cell</td>";
+      }
+      echo "</tr>";
+    }
+    echo "</table>";
+
+    echo "<h1>Bay data</h1>";
+    $data = db_fetch_array( "SELECT bl.log_time, bl.log_text
+                               FROM bay_log bl
+                              WHERE bl.user_id = $uid
+                           ORDER BY bl.log_time DESC LIMIT 0,30" );
+    echo "<table>";
+    foreach( $data as $row ) {
+      echo "<tr>";
+      foreach( $row as $cell ) {
+        echo "<td>$cell</td>";
+      }
+      echo "</tr>";
+    }
+    echo "</table>";
+
+    echo "<h1>Trade data</h1>";
+    $data = db_fetch_array( "SELECT tl.trade_time, ub.login bay_login, us.login sell_login, o.name oname, tl.object_cnt, tl.log_sum
+                               FROM trade_log tl
+                          LEFT JOIN users ub ON ub.id = tl.bayer_id
+                          LEFT JOIN users us ON us.id = tl.seller_id
+                         INNER JOIN objects o ON o.id = tl.object_id
+                              WHERE  tl.bayer_id = $uid OR tl.seller_id = $uid
+                           ORDER BY tl.trade_time DESC LIMIT 0,50" );
+    echo "<table>";
+    echo "<tr><th>Time</th><th>Bay</th><th>Sell</th><th>Object</th><th>Count</th><th>Summ</th></tr>";
+    foreach( $data as $row ) {
+      echo "<tr>";
+      foreach( $row as $cell ) {
+        echo "<td>$cell</td>";
+      }
+      echo "</tr>";
+    }
+    echo "</table>";
+
+    echo "<h1>Planets data</h1>";
+    $data = db_fetch_array( "SELECT p.name,
+                                    CASE d.place_type
+                                      WHEN 0 THEN 'Orbit'
+                                      WHEN 1 THEN 'Planet'
+                                      WHEN 3 THEN 'Confederate'
+                                    END type,
+                                    CASE d.status
+                                      WHEN 0 THEN 'Можно всем'
+                                      WHEN 1 THEN 'Атаковать всех'
+                                      WHEN 2 THEN 'Атаковать врагов'
+                                      WHEN 3 THEN 'Атаковать не друзей'
+                                    END level
+                               FROM defence d
+                         INNER JOIN planets p ON p.id = d.place_id
+                              WHERE d.user_id = $uid" );
+    echo "<table>";
+    foreach( $data as $row ) {
+      echo "<tr>";
+      foreach( $row as $cell ) {
+        echo "<td>$cell</td>";
+      }
+      echo "</tr>";
+    }
+    echo "</table>";
+
+    echo "<h1>Ships data</h1>";
+    $data = db_fetch_array( "SELECT s.id, s.name, s.inwar, tp.name oname,
+                                    CASE s.place_type
+                                      WHEN 0 THEN concat( 'Orbit ', p.name )
+                                      WHEN 1 THEN concat( 'Planet ', p.name )
+                                      WHEN 2 THEN concat( 'Ship ', ss.name )
+                                      WHEN 3 THEN concat( o.name, ' ', op.name )
+                                      WHEN 7 THEN concat( 'Star ', st.name )
+                                      WHEN 8 THEN concat( 'Hyper ', s.arg1, ':', s.arg2 )
+                                      ELSE concat( s.place_type, ':', s.place_id )
+                                    END place
+                               FROM ships s
+                         INNER JOIN objects tp ON tp.id = s.object_id
+                          LEFT JOIN planets p ON p.id = s.place_id
+                          LEFT JOIN ships ss ON ss.id = s.place_id
+                          LEFT JOIN orbits_buildings ob ON ob.id = s.place_id
+                          LEFT JOIN objects o ON o.id = ob.object_id
+                          LEFT JOIN planets op ON op.id = ob.planet_id
+                          LEFT JOIN stars st ON st.id = s.place_id
+                              WHERE s.fleet_id is null AND s.user_id = $uid" );
+    echo "<table>";
+    foreach( $data as $row ) {
+      echo "<tr>";
+      foreach( $row as $cell ) {
+        echo "<td>$cell</td>";
+      }
+      echo "</tr>";
+    }
+    echo "</table>";
+
+    echo "<h1>Fleets data</h1>";
+    $data = db_fetch_array( "SELECT f.id, f.name, f.inwar, f.w_count, f.w_power,
+                                    CASE f.place_type
+                                      WHEN 0 THEN concat( 'Orbit ', p.name )
+                                      WHEN 1 THEN concat( 'Planet ', p.name )
+                                      WHEN 2 THEN concat( 'Ship ', ss.name )
+                                      WHEN 3 THEN concat( o.name, ' ', op.name )
+                                      WHEN 7 THEN concat( 'Star ', st.name, ' ', f.arg1, ':', f.arg2 )
+                                      WHEN 8 THEN concat( 'Hyper ', f.arg1, ':', f.arg2 )
+                                      ELSE concat( f.place_type, ':', f.place_id )
+                                    END place
+                               FROM fleets f
+                          LEFT JOIN planets p ON p.id = f.place_id
+                          LEFT JOIN ships ss ON ss.id = f.place_id
+                          LEFT JOIN orbits_buildings ob ON ob.id = f.place_id
+                          LEFT JOIN objects o ON o.id = ob.object_id
+                          LEFT JOIN planets op ON op.id = ob.planet_id
+                          LEFT JOIN stars st ON st.id = f.place_id
+                              WHERE f.user_id = $uid" );
+    echo "<table>";
+    foreach( $data as $row ) {
+      echo "<tr>";
+      foreach( $row as $cell ) {
+        echo "<td>$cell</td>";
+      }
+      echo "</tr>";
+    }
+    echo "</table>";
+
+  } else {
+    echo "Login:<input type=text name='login'></form>";
+  }
+
+  echo "</body></html>";

@@ -1,0 +1,28 @@
+<?php
+
+function message_init() {
+  global $messages;
+  global $locale;
+
+  $locale = 'ru';
+
+  $messages = db_fetch_array( "SELECT hash, $locale FROM messages", true, 'hash' );
+}
+
+function t( $line, $args = array() ) {
+  global $messages;
+  global $locale;
+
+  if( isset( $messages[md5($line)][$locale] ) ) {
+    return vsprintf( $messages[md5($line)][$locale], $args );
+  } else {
+    if( $locale == 'ru' ) {
+      $line = str_replace( '\'', '"', $line );
+
+      db_query( "INSERT IGNORE INTO messages ( hash, $locale ) VALUES ( '".md5($line)."', '$line' )" );
+      $messages[md5($line)] = array( md5($line), $line );
+    }
+
+    return vsprintf( $line, $args );
+  }
+}

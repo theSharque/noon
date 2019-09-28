@@ -1,0 +1,27 @@
+<?php
+
+  $vars = "mv=".$user->music."&sv=".$user->sound;
+
+  print <<<EOL
+<HTML>
+<HEAD>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<TITLE>topmenu</TITLE>
+</HEAD>
+<BODY bgcolor=#000000 TOPMARGIN=0 LEFTMARGIN=0 MARGINHEIGHT=0 MARGINWIDTH=0>
+<center>
+<OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"
+ WIDTH="100%" HEIGHT="22" id="topmenu" ALIGN="">
+ <PARAM NAME=movie VALUE="swf/topmenu.jpg?ver=9">
+ <PARAM NAME=quality VALUE=high>
+ <PARAM NAME=bgcolor VALUE=#000000>
+ <PARAM NAME=flashvars VALUE="$vars">
+ <PARAM NAME=wmode VALUE=window>
+ <EMBED src="swf/topmenu.jpg?ver=9" quality=high bgcolor=#000000 WIDTH="100%" HEIGHT="22" NAME="topmenu" ALIGN="" wmode="window"
+ TYPE="application/x-shockwave-flash" PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer" flashvars="$vars"></EMBED>
+</OBJECT>
+</center>
+</BODY>
+</HTML>
+EOL;
+

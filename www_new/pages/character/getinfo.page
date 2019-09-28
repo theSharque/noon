@@ -1,0 +1,140 @@
+<?php
+
+  include( './pages/character/char.dic' );
+
+  global $user;
+
+  $login = isset( $_GET['login'] ) ? $_GET['login'] : '';
+  db_safe( $login );
+
+  $login = decode_in( $login );
+
+  $result = db_fetch_row( "SELECT u.id, u.password, a.name aname, t.name tname, ua.char_status, ua.char_war, ua.char_level, p.name pname, s.name sname,
+                                  count( sh.id ) sh_cnt, SUM( st.w_sum ) power,
+                                  fe.user_id foe, fr.user_id friend, ua.lastlogin, ci.ignore_user, u.register_date
+                             FROM users u
+                       INNER JOIN users_active ua ON ua.id = u.id
+                       INNER JOIN planets p ON u.id = p.user_id
+                       INNER JOIN stars s ON p.star_id = s.id
+                       INNER JOIN tituls t ON t.id = u.titul
+                        LEFT JOIN aliance a ON a.id = u.aliance
+                        LEFT JOIN ships sh ON sh.user_id = u.id
+                        LEFT JOIN ship_types st ON st.object_id = sh.object_id
+                        LEFT JOIN foe fe ON fe.user_id = {$user->uid} AND fe.foe_id = u.id
+                        LEFT JOIN friend fr ON fr.user_id = {$user->uid} AND fr.friend_id = u.id
+                        LEFT JOIN chat_ignore ci ON ci.user_id = {$user->uid} AND ci.ignore_user = u.id
+                            WHERE u.login = '$login'
+                         GROUP BY u.id" );
+
+  if( $result['id'] ) {
+    $limit = get_ship_limit( $result['id'] );
+
+    $out = "err=0&star=".$result['sname'].' - '.$result['pname'];
+    $out .= "&aliance=".( $result['aname'] ? $result['aname'] : 'нет' );
+    $out .= "&titul=".( $result['tname'] ? $result['tname'] : 'нет' );
+
+    if( $limit < 0 ) {
+      $out .= "&ships=".t( '%d лимит <font color="#FF0000">%d</font>', array( $result['sh_cnt'], $limit + $result['sh_cnt'] ) );
+    } else {
+      $out .= "&ships=".t( '%d лимит %d', array( $result['sh_cnt'], $limit + $result['sh_cnt'] ) );
+    }
+
+    $out .= "&power=".$result['power'];
+    $out .= "&online=".$result['lastlogin'];
+    $out .= "&reg=".$result['register_date'];
+  
+    if( $result['char_status'] < 0 ) {
+      $correct = -1;
+    } elseif( $result['char_status'] > 0 ) {
+      $correct = 1;
+    } else {
+      $correct = 0;
+    }
+    
+    $out .= "&status=".$stat_dic[ strlen( abs( $result['char_status'] ) ) * $correct ].'('.$result['char_status'].') ';
+  
+    if( $result['char_war'] < 0 ) {
+      $correct = -1;
+    } elseif( $result['char_war'] > 0 ) {
+      $correct = 1;
+    } else {
+      $correct = 0;
+    }
+    $out .= "&war=".$war_dic[ strlen( abs( $result['char_war'] ) ) * $correct ].'('.$result['char_war'].') ';
+  
+    if( $result['char_level'] < 0 ) {
+      $correct = -1;
+    } elseif( $result['char_level'] > 0 ) {
+      $correct = 1;
+    } else {
+      $correct = 0;
+    }
+    $out .= "&level=".$lev_dic[ strlen( abs( $result['char_level'] ) ) * $correct ].'('.$result['char_level'].') ';
+
+    if( $result['foe'] ) {
+      $out .= "&relation=".t( 'Враг' );
+    } elseif ( $result['friend'] ) {
+      $out .= "&relation=".t( 'Друг' );
+    } else {
+      $out .= "&relation=".t( 'Нейтрален' );
+    }
+
+    if( $result['ignore_user'] ) {
+      $out .= t( " <font color=\"#FF0000\">в игноре</font>" );
+      $out .= "&ignore=1";
+    } else {
+      $out .= "&ignore=0";
+    }
+
+    $clons = get_clons( $result['id'] );
+
+    if( $clons ) {
+      $out .= "&clons=".t( "Есть подозрение, что %s на самом деле еще и %s.", array( $login, $clons ) );
+    } else {
+      $out .= "&clons=";
+    }
+
+    $medals = db_fetch_array( "SELECT um.id, o.name, mt.status
+                                 FROM users u
+                           INNER JOIN users_medal um ON um.user_id = u.id
+                           INNER JOIN medals_type mt ON mt.object_id = um.object_id
+                           INNER JOIN objects o ON o.id = um.object_id
+                                WHERE u.login = '$login'
+                             ORDER BY mt.status, o.name" );
+    if( count( $medals ) ) {
+      $out .= '&mcnt='.count( $medals );
+      $i=0;
+      foreach( $medals as $item ) {
+        $out .= "&mid$i=".$item['id'];
+        $out .= "&mn$i=".$item['name'];
+
+        if( $item['status'] == 0 ) {
+          $out .= "&mc$i=0x000000";
+        } else {
+          $out .= "&mc$i=0x808080";
+        }
+        $i++;
+      }
+    }
+
+    $medals = db_fetch_array( "SELECT o.id, o.name, w.object_cnt
+                                 FROM planets p
+                           INNER JOIN warehouse w ON w.place_type = 0 AND w.place_id = p.id
+                           INNER JOIN objects o ON o.id = w.object_id
+                           INNER JOIN medals_type mt ON mt.object_id = o.id
+                                WHERE p.user_id = {$user->uid}
+                             ORDER BY o.name" );
+    if( count( $medals ) ) {
+      $out .= '&acnt='.count( $medals );
+      $i=0;
+      foreach( $medals as $item ) {
+        $out .= "&aid$i=".$item['id'];
+        $out .= "&an$i=".$item['name']." ({$item['object_cnt']})";
+        $i++;
+      }
+    }
+  } else {
+    $out = 'err=1';
+  }
+
+  printOut( $out );

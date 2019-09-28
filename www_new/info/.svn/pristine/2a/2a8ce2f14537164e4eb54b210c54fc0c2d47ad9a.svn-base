@@ -1,0 +1,179 @@
+/* 
+    CSS tweaks for all IE browsers
+
+    Note: file is being included after other css
+*/
+
+
+* html table, * html select, * html input { font-size: 100%; }
+* html hr { margin: 0; }
+
+* html ul.topiclist li { position: relative; }
+* html .postbody h3 img { vertical-align: middle; }
+
+
+* html .buttons div {
+    font-size: 10px;
+}
+
+/* input buttons height */
+* html input.button1, * html input.button2 { /* ie6 */
+	padding-bottom: 0;
+	margin-bottom: 0;
+}
+html>body input.button1, html>body input.button2 { /* ie8 */
+    padding-bottom: 2px;
+    padding-top: 2px;
+}
+body.ca-ie7 input.button1, body.ca-ie7 input.button2 { /* ie7 */
+    padding-bottom: 1px;
+    padding-top: 0;
+}
+
+/* profile buttons fix */
+ul.profile-icons, ul.searchresults {
+	width: 99%;
+	float: right;
+}
+* html ul.profile-icons, * html ul.searchresults {
+    float: none;
+    width: auto;
+}
+.profile-fix {
+    border-width: 0;
+    background-color: transparent;
+    font-size: 1em;
+    margin: 0;
+    padding: 0;
+}
+
+* html .post-maximize, * html .post-minimize { display: none; }
+
+/* IE 7 clearing div fix */
+.ca-ie7 .clear:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+* html .clear { height:1px; }
+
+/* BBCode fix for IE7 */
+.code-links, #ignore#ie8 {
+    width: 100px;
+}
+
+/* Profile view, FAQ */
+* html .post-profile, * html .post-content, * html .column1 { position: relative; }
+
+/* Header/footer fixes */
+* html #search-box input#keywords { width: 100px; border-color: #020d1b; }
+* html #search-box { width: 130px; }
+* html #topnav { float: left; position: relative; }
+* html #logo { 
+    height: 20px;
+}
+* html #header { border-top: solid 1px #010204; }
+* html #search-box { margin-right: 5px; }
+* html #topnav { margin-left: 5px; }
+
+* html .ie-hidden {
+    color: #010204;
+    font-size: 1px;
+    line-height: 1px;
+    overflow: hidden;
+}
+
+/* Blocks */
+body.ca-ie7 .block-caption-content {
+    min-width: auto;
+}
+.block-content, .block-inner {
+    zoom: 1;
+}
+
+/* Forums list: links */
+* html li.row dl.icon dt
+{
+    height: 35px;
+    overflow: visible;
+}
+
+/* Tables */
+* html .forumbg table.table1, * html #ucp-main table.table1 { margin: 0; padding: 0; }
+
+/* MCP */
+* html ul.topiclist { position: relative; }
+#topicreview { position: relative; }
+
+/* IE6-7 transparent backgrounds */
+body.ca-ie .navbar-top-fixed { 
+    background-image: none;
+    background-color: #0c1b2f;
+}
+body.ca-ie .navbar-top-fixed .block-inner {
+    padding-bottom: 0;
+}
+
+body.ca-ie6 #topnav, body.ca-ie6 #search-box {
+	background-image: url("images/topnav_bg.gif");
+}
+body.ca-ie6 #topnav div, body.ca-ie6 #search-box div {
+	background-image: url("images/topnav.gif");
+}
+
+body.ca-ie6 #topnav:hover, body.ca-ie6 #search-box:hover {
+	background-image: url("images/topnav_bg.gif");
+}
+body.ca-ie6 #topnav:hover div, body.ca-ie6 #search-box:hover div {
+	background-image: url("images/topnav.gif");
+}
+
+body.ca-ie .block-header {
+    background-image: url("images/block_top.gif");
+}
+body.ca-ie .block-header span, body.ca-ie .block-header div, body.ca-ie .block-footer span, body.ca-ie .block-footer div {
+    background-image: url("images/block_corners.gif");
+}
+
+body.ca-ie .block-footer {
+    background-image: url("images/block_bottom.gif");
+}
+
+body.ca-ie .block-content {
+    background-image: url("images/block_left.gif");
+}
+body.ca-ie .block-inner {
+    background-image: url("images/block_right.gif");
+}
+body.ca-ie .block-inner2 {
+    background-color: #020a15;
+    background-image: url("images/block_bg.gif");
+}
+
+body.ca-ie .block-caption {
+    background-image: url("images/block2_top_left.gif");
+}
+body.ca-ie .block-caption-header { 
+    background-image: url("images/block_bg.gif");
+    border-color: #253140;
+}
+
+body.ca-ie div.block-caption-right {
+    background-image: url("images/block2_top_right.gif");
+}
+body.ca-ie .block-caption-table td {
+    background-image: url("images/block2_top.gif");
+}
+body.ca-ie .block-caption-table td.block-caption-mid {
+    background-image: url("images/block2_cap_left.gif");
+}
+body.ca-ie .block-caption-table div.block-caption-mid {
+    background-image: url("images/block2_cap_right.gif");
+}
+body.ca-ie .block-caption-table div.block-caption-content {
+    background-image: url("images/block2_cap_bg.gif");
+}
+
+

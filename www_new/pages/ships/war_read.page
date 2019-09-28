@@ -1,0 +1,79 @@
+<?php
+
+  global $user;
+
+  $move = $_GET['lm'];
+  $sd = $_GET['sd'];
+
+  db_safe( $move );
+  db_safe( $sd );
+
+  if( is_numeric( $move ) && $move >= 0 && isset( $_GET['wi'] ) && $_GET['wi'] != null ) {
+    $res = explode( ',', $_GET['wi'] );
+    $place_hash = $res[0];
+    $war_hash = $res[1];
+
+    $moves = db_fetch_array( "SELECT side, move_id, a_object_id, a_type, d_object_id, d_type, w_type, power, defeat
+                                FROM war_online WHERE place_hash = '$place_hash' AND move_id > $move ORDER BY move_id" );
+
+    $war_current = db_fetch_row( "SELECT count(*) cnt, sum(id) id FROM war_events WHERE place_hash = '$place_hash' ORDER BY id" );
+    if( md5( $war_current['id'].':'.$war_current['cnt'] ) != $war_hash ) {
+      $out = 'err=2&cnt=0&reload=true';
+    } else {
+      if( count( $moves ) ) {
+        $out = 'err=0&cnt='.count( $moves );
+        $l=0;
+        foreach( $moves as $item ) {
+          if( $move < $item['move_id'] ) {
+            $move = $item['move_id'];
+          }
+
+          switch( $item['a_type'] ) {
+            case 0:
+              $aid = 's'.$item['a_object_id'];
+              break;
+
+            case 1:
+              $aid = 'p'.$item['a_object_id'];
+              break;
+
+            case 2:
+              $aid = 'o'.$item['a_object_id'];
+              break;
+          }
+
+          switch( $item['d_type'] ) {
+            case 0:
+              $did = 's'.$item['d_object_id'];
+              break;
+
+            case 1:
+              $did = 'p'.$item['d_object_id'];
+              break;
+
+            case 2:
+              $did = 'o'.$item['d_object_id'];
+              break;
+          }
+
+          if( ( $item['side'] == 1 && $sd == 1 ) || ( $item['side'] == 0 && $sd == 0 ) ) {
+            $out .= "&l$l=a$aid:0:d$did:0:{$item['w_type']}:{$item['defeat']}:{$item['power']}";
+          } else {
+            $out .= "&l$l=d$aid:0:a$did:0:{$item['w_type']}:{$item['defeat']}:{$item['power']}";
+          }
+
+          $l++;
+        }
+        $out .= "&lm=$move";
+      } else {
+        $out = "err=0&cnt=0&lm=$move";
+      }
+    }
+
+//debug_it( $out );
+
+  } else {
+    $out = 'err=1';
+  }
+
+  printOut( $out );

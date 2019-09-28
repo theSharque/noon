@@ -1,0 +1,245 @@
+<?php
+
+  global $user;
+  
+  levelUp( 3, $user->uid );
+
+  $test = 0;
+  switch( $user->level ) {
+    case 4:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN planets_buildings pb ON pb.planet_id = p.id
+                              WHERE pb.object_id = 34 AND p.user_id = ".$user->uid, 'cnt' );  
+      break;
+
+    case 5:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN planets_buildings pb ON pb.planet_id = p.id
+                              WHERE pb.object_id = 24 AND p.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN warehouse w ON w.place_id = p.id
+                              WHERE w.object_id = 5015 AND w.object_cnt >= 100 AND w.place_type = 1 AND p.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN warehouse w ON w.place_id = p.id
+                              WHERE w.object_id = 5032 AND w.place_type = 1 AND p.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 16:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN warehouse w ON w.place_id = p.id
+                              WHERE w.object_id = 1043 AND w.place_type = 1 AND p.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 17:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN planets_buildings pb ON pb.planet_id = p.id
+                              WHERE pb.object_id = 33 AND p.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 18:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN warehouse w ON w.place_id = p.id
+                              WHERE w.object_id = 2000 AND w.place_type = 1 AND p.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 19:
+      $planet_id = db_fetch_val( "SELECT p.id pid FROM planets p WHERE p.user_id = ".$user->uid, 'pid' );
+      $found = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT fnd FROM planets_maps WHERE id = $planet_id", 'fnd' ) ) ) );
+//      $found = array_map( 'trim', file( "./pages/environment/planets/$planet_id.fnd" ) );
+      $test = 0;
+      foreach( $found as $line ) {
+        $test += substr_count( $line, '1' );
+        $test += substr_count( $line, '2' );
+      }
+      break;
+
+    case 20:
+    case 21:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN planets_buildings pb ON pb.planet_id = p.id
+                              WHERE pb.object_id = 39 AND p.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 22:
+      $planet_id = db_fetch_val( "SELECT p.id pid FROM planets p WHERE p.user_id = ".$user->uid, 'pid' );
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM ships s
+                              WHERE s.place_type = 1 AND s.place_id = $planet_id AND s.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 23:
+      $planet_id = db_fetch_val( "SELECT p.id pid FROM planets p WHERE p.user_id = ".$user->uid, 'pid' );
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM fleets f
+                              WHERE f.place_type = 1 AND f.place_id = $planet_id AND f.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 24:
+      $planet_id = db_fetch_val( "SELECT p.id pid FROM planets p WHERE p.user_id = ".$user->uid, 'pid' );
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM fleets f
+                              WHERE f.place_type = 0 AND f.place_id = $planet_id AND f.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 25:
+    case 26:
+      $test = db_fetch_val( "SELECT count(f.id) cnt FROM fleets f
+                              WHERE f.place_type = 7 AND f.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 27:
+    case 28:
+    case 29:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN warehouse w ON w.place_id = p.id
+                              WHERE w.object_id = 9001 AND w.place_type = 1 AND p.user_id = ".$user->uid, 'cnt' );
+      $test += db_fetch_val( "SELECT count(*) cnt FROM ships s WHERE s.object_id = 4001 AND s.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 30:
+      if( $user->place_type == 0 ) {
+        $test = 1;
+      }
+
+    case 31:
+      if( $user->place_type == 3 ) {
+        $test = 1;
+      }
+      break;
+
+    case 33:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN warehouse w ON w.place_id = p.id
+                              WHERE w.object_id = 7001 AND w.place_type = 1 AND p.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 34:
+      if( $user->place_type == 1 ) {
+        $test = 1;
+      }
+      break;
+
+    case 35:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN warehouse w ON w.place_id = p.id
+                              WHERE w.object_id = 7007 AND w.place_type = 1 AND p.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 36:
+      $test = db_fetch_val( "SELECT count(*) cnt
+                               FROM planets p
+                         INNER JOIN warehouse w ON w.place_id = p.id
+                              WHERE w.object_id = 9007 AND w.place_type = 1 AND p.user_id = ".$user->uid, 'cnt' );
+
+      $test += db_fetch_val( "SELECT count(*) cnt FROM ships s WHERE s.place_type = 1 AND s.object_id = 4007 AND s.user_id = ".$user->uid, 'cnt' );
+      break;
+
+    case 37:
+      if( $user->real_type == 2 ) {
+        $test = db_fetch_val( "SELECT count(*) cnt
+                                 FROM warehouse w
+                                WHERE w.object_id IN ( 1013, 1016, 1019, 1037 ) AND w.object_cnt >= 1000 AND w.place_id = {$user->real_id} AND w.place_type = 2", 'cnt' ) - 3;
+      }
+      if( $user->real_type == 6 ) {
+        $test = db_fetch_val( "SELECT count(*) cnt
+                                 FROM warehouse w
+                           INNER JOIN ships s ON s.id = w.place_id
+                                WHERE w.object_id IN ( 1013, 1016, 1019, 1037 ) AND w.object_cnt >= 1000 AND s.fleet_id = {$user->real_id} AND w.place_type = 2", 'cnt' ) - 3;
+      }
+      break;
+
+    case 38:
+      if( $user->place_type == 1 && $user->place_id != $user->planet_id ) {
+        $test = 1;
+      }
+      break;
+
+    case 39:
+      if( $user->place_type == 1 && $user->place_id != $user->planet_id ) {
+        $test = db_fetch_val( "SELECT count( DISTINCT object_id ) cnt
+                                 FROM planets_buildings pb
+                                WHERE pb.object_id IN ( 34, 24 ) AND pb.planet_id = {$user->place_id}", 'cnt' ) - 1;
+
+        if( $test > 0 ) {
+          $test = db_fetch_val( "SELECT count(*) cnt
+                                   FROM planets_buildings pb
+                                  WHERE pb.object_id = 23 AND pb.planet_id = {$user->place_id}", 'cnt' ) - 5;
+        }
+      }
+      break;
+
+    case 40:
+      if( $user->place_type == 1 && $user->place_id != $user->planet_id ) {
+        $test = db_fetch_val( "SELECT count(*) cnt
+                                 FROM ships s
+                                WHERE s.object_id = 9123 AND s.place_type = 1 AND s.place_id = {$user->place_id}", 'cnt' );
+      }
+      break;
+
+    case 41:
+      if( $user->place_type == 1 && $user->place_id != $user->planet_id ) {
+        $test = db_fetch_val( "SELECT count(*) cnt
+                                 FROM planet_events pe
+                                WHERE pe.event_type = 2 AND pe.planet_id = {$user->place_id}", 'cnt' ) - 5;
+      }
+      break;
+
+    case 42:
+      $test = 1;
+      break;
+  }
+
+  if( $test > 0 ) {
+    levelUp( $user->level, $user->uid );
+  }
+
+  if( $user->level > $user->lastlevel || $user->leveltime > 1800 ) {
+    $pg = $_GET['pg'];
+    db_safe( $pg );
+
+    if( $user->level > $user->lastlevel ) {
+      $tutor = db_fetch_row( "SELECT tutorial FROM tutorials WHERE ( page_id = 0 OR page_id = $pg ) AND level = ".( $user->lastlevel + 1 ) );
+    } else {
+      $tutor = db_fetch_row( "SELECT tutorial FROM tutorials WHERE ( page_id = 0 OR page_id = $pg ) AND level = ".$user->level );
+    }
+
+    if( is_array( $tutor ) && count( $tutor ) ) {
+      $out = "err=0&tx=".$tutor['tutorial'];
+      if( $user->level > $user->lastlevel ) {
+        db_query( "UPDATE users u SET u.lastlevel = u.lastlevel + 1, tutorial_time = NOW() WHERE u.id = ".$user->uid );
+      } else {
+        db_query( "UPDATE users u SET tutorial_time = NOW() WHERE u.id = ".$user->uid );
+      }
+      send_msg( 1, $user->uid, $tutor['tutorial'], 20 );
+    } else {
+      $out = "err=2";
+    }
+  } else {
+    $out = "err=1";
+  }
+
+  printOut( $out );

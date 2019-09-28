@@ -1,0 +1,90 @@
+<?php
+
+  if( isset( $_GET['fid'] ) && isset( $_GET['cnt'] ) && is_numeric( $_GET['cnt'] ) && $_GET['cnt'] > 0 ) {
+
+    $fid = substr( $_GET['fid'], 1 );
+    $cnt = $_GET['cnt'];
+    $nfid = null;
+
+    db_safe( $fid );
+    db_safe( $cnt );
+
+    $test = db_fetch_row( "SELECT id FROM fleets WHERE inwar = 0 AND id = $fid AND user_id = ".$user->uid );
+    if( isset( $test['id'] ) && is_numeric( $test['id'] ) ) {
+
+      $message = db_fetch_val( "SELECT message FROM interupt_msg WHERE type = 1 AND ship_id = $fid", 'message' );
+      
+      for( $i=0; $i < $cnt; $i++ ) {
+        $shid = isset( $_GET["sh$i"] ) ? $_GET["sh$i"] : 0;
+        db_safe( $shid );
+
+        $test = db_fetch_row( "SELECT s.id, s.name, s.group, s.place_id, s.place_type, s.arg1, s.arg2, st.interupt
+                                 FROM ships s
+                           INNER JOIN ship_types st ON st.object_id = s.object_id
+                                WHERE s.id = $shid AND s.fleet_id = $fid AND s.user_id = ".$user->uid );
+
+        if( isset( $test['id'] ) && is_numeric( $test['id'] ) && $cnt > 1 && $nfid == null ) {
+          if( $test['place_type'] == 7 || $test['place_type'] == 8 ) {
+            db_query( "INSERT INTO fleets ( name,                   `group`,            user_id,      place_type,             place_id,           arg1,          arg2 ) 
+                                   VALUES ( 'Флот {$test['name']}', '{$test['group']}', {$user->uid}, {$test['place_type']}, {$test['place_id']}, {$test['arg1']}, {$test['arg2']} )" );
+          } else {
+            db_query( "INSERT INTO fleets ( name,                   `group`,            user_id,      place_type,             place_id ) 
+                                   VALUES ( 'Флот {$test['name']}', '{$test['group']}', {$user->uid}, {$test['place_type']}, {$test['place_id']} )" );
+          }
+
+          $nfid = mysql_insert_id();
+          update_fleet( $fid );
+
+          if( strlen( trim( $message ) ) && $test['interupt'] > 0 ) {
+            db_query( "INSERT IGNORE INTO interupt_msg ( type, ship_id, message ) VALUES ( 1, $nfid, '$message' )" );
+          }
+        }
+
+        if( isset( $test['id'] ) && is_numeric( $test['id'] ) ) {
+          if( $nfid ) {
+            db_query( "UPDATE ships SET guard = 0, fleet_id = $nfid WHERE id = $shid" );
+            if( $user->real_id == $fid && $user->real_type == 6 ) {
+              db_query( "UPDATE users SET place_type = 6, place_id = $nfid WHERE id = ".$user->uid );
+            }
+          } else {
+            db_query( "UPDATE ships SET guard = 0, fleet_id = null WHERE id = $shid" );
+
+            if( strlen( trim( $message ) ) && $test['interupt'] > 0 && $nfid ) {
+              db_query( "INSERT IGNORE INTO interupt_msg ( type, ship_id, message ) VALUES ( 0, $nfid, '$message' )" );
+            }
+
+            if( $user->real_id == $fid && $user->real_type == 6 ) {
+              db_query( "UPDATE users SET place_type = 2, place_id = $shid WHERE id = ".$user->uid );
+            }
+          }
+          db_query( "UPDATE ships s, ship_types st SET s.interupt = st.interupt
+                      WHERE st.object_id = s.object_id AND id = $shid" );
+        }
+      }
+
+      if( $nfid ) {
+        update_fleet( $nfid );
+
+        $def = 'F'.$nfid;
+      } else {
+        $def = 'S'.$test['id'];
+      }
+
+      $fcnt = update_fleet( $fid );
+
+      if( $fcnt <= 1 ) {
+        db_query( "UPDATE ships SET guard = 0, fleet_id = null WHERE fleet_id = $fid" );
+        db_query( "UPDATE ships s, ship_types st SET s.interupt = st.interupt
+                    WHERE st.object_id = s.object_id AND fleet_id = $fid" );
+        db_query( "DELETE FROM fleets WHERE id = $fid AND user_id = ".$user->uid );
+      }
+
+      $out = 'err=0&fid='.$def;
+    } else {
+      $out = 'err=2';
+    }
+  } else {
+    $out = 'err=1';
+  }
+
+  printOut( $out );

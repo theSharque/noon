@@ -1,0 +1,15 @@
+<?php
+
+  $amount = intval( $_POST['ik_x_sum'] );
+
+  db_query( "INSERT INTO pay_log ( user_id, mess ) VALUES ( {$user->uid}, 'Start pay of $amount' )" );
+  $log_id = mysql_insert_id();
+
+  $vars = 'ik_co_id=5294ed71bf4efc6549330c4d';
+  $vars .= '&ik_pm_no='.$log_id;
+  $vars .= '&ik_am='.$_POST['ik_am'];
+  $vars .= '&ik_desc='.$_POST['ik_desc'];
+  $vars .= '&ik_x_uid='.$_POST['ik_x_uid'];
+  $vars .= '&ik_x_sum='.$_POST['ik_x_sum'];
+
+  header( "Location: https://sci.interkassa.com/?".$vars );

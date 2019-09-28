@@ -1,0 +1,286 @@
+<?php
+
+  global $user;
+
+  $out = 'err=1';
+  if( isset( $_GET['cnt'] ) && is_numeric( $_GET['cnt'] ) ) {
+    $cnt = $_GET['cnt'];
+
+    $fleet = true;
+    $ships = array();
+    $types = array();
+
+    for( $i=0; $i < $cnt; $i++ ) {
+      $ship = isset( $_GET["sh$i"] ) ? $_GET["sh$i"] : 0;
+      db_safe( $ship );
+
+      if( $ship{ 0 } == 'Z' ) {
+        $fleet = false;
+      }
+
+
+      if( $ship{ 0 } == 'S' || $ship{ 0 } == 'F' ) {
+        $types[] = substr( $ship, 0, 1 );
+        $ships[] = substr( $ship, 1 );
+      }
+    }
+
+    if( $types[ 0 ] == 'S' ) {
+      $base = db_fetch_row( "SELECT s.name, s.group, s.place_id, s.place_type, s.arg1, s.arg2, st.agrav, st.planet, st.hyper, st.planet_cnt, st.hyper_cnt,
+                                    s.guard, st.radar, st.remote, s.interupt, st.cloak, st.titul, st.harvest, st.hot, im.message
+                               FROM ships s
+                         INNER JOIN ship_types st ON s.object_id = st.object_id
+                          LEFT JOIN interupt_msg im ON im.ship_id = s.id AND im.type = 0
+                              WHERE s.inwar = 0 AND s.fleet_id IS NULL AND s.user_id = {$user->uid} AND s.id = ".$ships[ 0 ] );
+
+      $pre_fleet_name = 'Флот '.$base['name'];
+      $fleet_name = null;
+    } else {
+      $base = db_fetch_row( "SELECT f.name, f.group, f.place_id, f.place_type, f.arg1, f.arg2, f.agrav, f.planet, f.hyper, f.planet_cnt, f.hyper_cnt,
+                                    f.guard, f.radar, f.remote, f.interupt, f.cloak, f.titul, f.harvest, f.hot, im.message
+                               FROM fleets f
+                          LEFT JOIN interupt_msg im ON im.ship_id = f.id AND im.type = 1
+                              WHERE f.inwar = 0 AND f.user_id = {$user->uid} AND f.id = ".$ships[ 0 ] );
+
+      $fleet_name = $base['name'];
+    }
+
+    $cargo = 0;
+    $w_power = 0;
+    $w_count = 0;
+    $planet_cnt = 0;
+    $hyper_cnt = 0;
+    $agrav = $base['agrav'];
+    $planet = $base['planet'];
+    $hyper = $base['hyper'];
+    $group = $base['group'];
+    $mass = 0;
+    $shield = 0;
+    $radar = 0;
+    $guard = $base['guard'];
+    $remote = $base['remote'];
+    $interupt = $base['interupt'];
+    $titul = $base['titul'];
+    $harvest = $base['harvest'];
+    $hot = $base['hot'];
+    $cloak = 0;
+    $message = $base['message'];
+  
+    foreach( $ships as $i => $ship ) {
+      if( $types[ $i ] == 'S' ) {
+        $test = db_fetch_row( "SELECT s.place_id, s.place_type, s.object_id, s.arg1, s.arg2, s.group, im.message
+                                 FROM ships s
+                            LEFT JOIN interupt_msg im ON im.ship_id = s.id AND im.type = 0
+                                WHERE s.inwar = 0 AND s.place_type IN(0,1,2,3,7,8) AND s.fleet_id IS NULL AND s.user_id = {$user->uid} AND s.id = ".$ships[ $i ] );
+
+        db_query( "DELETE FROM interupt_msg WHERE ship_id = {$ships[ $i ]} AND type = 0" );
+
+        if( isset( $test[ 'object_id' ] ) && is_numeric( $test[ 'object_id' ] ) ) {
+          $data = db_fetch_row( "SELECT st.agrav, st.planet, st.hyper, st.planet_cnt, st.hyper_cnt, st.shield, st.cargo,
+                                        st.w_power, st.w_count, o.mass, st.radar, st.remote, st.interupt, st.cloak, st.titul, st.harvest, st.hot
+                                   FROM ship_types st
+                             INNER JOIN objects o ON o.id = st.object_id
+                                  WHERE st.object_id = ".$test[ 'object_id' ] );
+    
+          $group = ( $group != '' ) ? $group : $test[ 'group' ];
+          $cargo += $data[ 'cargo' ];
+          $w_power += $data[ 'w_power' ];
+          $w_count += $data[ 'w_count' ];
+          $mass += $data[ 'mass' ];
+          $shield += $data[ 'shield' ];
+          $planet_cnt += $data[ 'planet_cnt' ];
+          $hyper_cnt += $data[ 'hyper_cnt' ];
+    
+          if( $data[ 'agrav' ] < $agrav ) {
+            $agrav = $data[ 'agrav' ];
+          }
+    
+          if( $data[ 'planet' ] < $planet ) {
+            $planet = $data[ 'planet' ];
+          }
+    
+          if( $data[ 'hyper' ] < $hyper ) {
+            $hyper = $data[ 'hyper' ];
+          }
+    
+          if( $data[ 'radar' ] ) {
+            $radar += $data[ 'radar' ];
+          }
+    
+          if( $data[ 'remote' ] ) {
+            $remote = $data[ 'remote' ];
+          }
+    
+          if( $data[ 'interupt' ] > $interupt ) {
+            $interupt = $data[ 'interupt' ];
+          }
+    
+          if( $data[ 'cloak' ] ) {
+            $cloak += $data[ 'cloak' ];
+          }
+
+          if( $data[ 'titul' ] > $titul ) {
+            $titul = $data[ 'titul' ];
+          }
+
+          if( $data[ 'harvest' ] > $harvest ) {
+            $harvest = $data[ 'harvest' ];
+          }
+
+          if( $data[ 'hot' ] > $hot ) {
+            $hot = $data[ 'hot' ];
+          }
+
+          if( strlen( $test[ 'message' ] ) > $message ) {
+            $message = $test[ 'message' ];
+          }
+
+          if( $test[ 'place_id' ] != $base[ 'place_id' ] || $base[ 'place_id' ] == null || $base[ 'place_type' ] == null ||
+              $test[ 'arg1' ] != $base[ 'arg1' ] ||
+              $test[ 'arg2' ] != $base[ 'arg2' ] ||
+              $test[ 'place_type' ] != $base[ 'place_type' ] ) {
+
+            $fleet = false;
+            break;
+          }
+        } else {
+          $fleet = false;
+          break;
+        }
+      } else {
+        $test = db_fetch_row( "SELECT f.id, f.place_id, f.place_type, f.arg1, f.arg2, f.group, im.message, f.name
+                                 FROM fleets f
+                            LEFT JOIN interupt_msg im ON im.ship_id = f.id AND im.type = 1
+                                WHERE f.user_id = {$user->uid} AND f.id = ".$ships[ $i ] );
+
+        db_query( "DELETE FROM interupt_msg WHERE ship_id = {$ships[ $i ]} AND type = 1" );
+
+        if( isset( $test[ 'id' ] ) && is_numeric( $test[ 'id' ] ) ) {
+          if( $fleet_name == null ) {
+            $fleet_name = $test[ 'name' ];
+          }
+
+          $items = db_fetch_array( "SELECT st.agrav, st.planet, st.hyper, st.planet_cnt, st.hyper_cnt, st.shield, st.cargo,
+                                           st.w_power, st.w_count, o.mass, st.radar, st.remote, st.interupt, st.cloak, st.titul, st.harvest, st.hot
+                                      FROM ships s
+                                INNER JOIN objects o ON o.id = s.object_id
+                                INNER JOIN ship_types st ON st.object_id = s.object_id
+                                     WHERE s.inwar = 0 AND s.place_type IN(0,1,2,3,7,8) AND s.fleet_id = ".$ships[ $i ] );
+
+          foreach( $items as $data ) {
+            $group = ( $group != '' ) ? $group : $test[ 'group' ];
+            $cargo += $data[ 'cargo' ];
+            $w_power += $data[ 'w_power' ];
+            $w_count += $data[ 'w_count' ];
+            $mass += $data[ 'mass' ];
+            $shield += $data[ 'shield' ];
+            $planet_cnt += $data[ 'planet_cnt' ];
+            $hyper_cnt += $data[ 'hyper_cnt' ];
+
+            if( $data[ 'agrav' ] < $agrav ) {
+              $agrav = $data[ 'agrav' ];
+            }
+          
+            if( $data[ 'planet' ] < $planet ) {
+              $planet = $data[ 'planet' ];
+            }
+          
+            if( $data[ 'hyper' ] < $hyper ) {
+              $hyper = $data[ 'hyper' ];
+            }
+          
+            if( $data[ 'radar' ] ) {
+              $radar += $data[ 'radar' ];
+            }
+          
+            if( $data[ 'remote' ] ) {
+              $remote = $data[ 'remote' ];
+            }
+          
+            if( $data[ 'interupt' ] > $interupt ) {
+              $interupt = $data[ 'interupt' ];
+            }
+
+            if( $data[ 'cloak' ] ) {
+              $cloak += $data[ 'cloak' ];
+            }
+          
+            if( $data[ 'titul' ] > $titul ) {
+              $titul = $data[ 'titul' ];
+            }
+
+            if( $data[ 'harvest' ] > $harvest ) {
+              $harvest = $data[ 'harvest' ];
+            }
+
+            if( $data[ 'hot' ] > $hot ) {
+              $hot = $data[ 'hot' ];
+            }
+
+            if( strlen( $test[ 'message' ] ) > $message ) {
+              $message = $test[ 'message' ];
+            }
+
+            if( $test[ 'place_id' ] != $base[ 'place_id' ] || $base[ 'place_id' ] == null || $base[ 'place_type' ] == null ||
+                $test[ 'arg1' ] != $base[ 'arg1' ] ||
+                $test[ 'arg2' ] != $base[ 'arg2' ] ||
+                $test[ 'place_type' ] != $base[ 'place_type' ] ) {
+
+              $fleet = false;
+              break;
+            }
+          }
+        } else {
+          $fleet = false;
+          break;
+        }
+      }
+
+    }
+  
+    if( $fleet ) {
+      if( $fleet_name == null ) {
+        $fleet_name = $pre_fleet_name;
+      }
+
+      levelUp( 23, $user->uid );
+
+      $user_id = $user->uid;
+      $arg1 = ($base['arg1'] == '')?'null':$base['arg1'];
+      $arg2 = ($base['arg2'] == '')?'null':$base['arg2'];
+  
+      if( $types[ 0 ] == 'S' ) {
+        db_query( "INSERT INTO fleets (  cargo,  `group`,  w_power,  w_count,  agrav,  planet,  hyper,  planet_cnt,  hyper_cnt,  mass,  shield, user_id, arg1, arg2, place_id, place_type, name, guard, radar, remote, interupt, cloak, titul, harvest, hot )
+                               VALUES ( $cargo, '$group', $w_power, $w_count, $agrav, $planet, $hyper, $planet_cnt, $hyper_cnt, $mass, $shield, {$user->uid}, $arg1, $arg2, {$base['place_id']}, {$base['place_type']}, '$fleet_name', $guard, $radar, $remote, $interupt, $cloak, $titul, $harvest, $hot )" );
+      } else {
+        db_query( "INSERT INTO fleets (  cargo,  `group`,  w_power,  w_count,  agrav,  planet,  hyper,  planet_cnt,  hyper_cnt,  mass,  shield, user_id, arg1, arg2, place_id, place_type, name, guard, radar, remote, interupt, cloak, titul, harvest, hot )
+                               VALUES ( $cargo, '$group', $w_power, $w_count, $agrav, $planet, $hyper, $planet_cnt, $hyper_cnt, $mass, $shield, {$user->uid}, $arg1, $arg2, {$base['place_id']}, {$base['place_type']}, '$fleet_name', $guard, $radar, $remote, $interupt, $cloak, $titul, $harvest, $hot )" );
+      }
+      $fleet_id = mysql_insert_id();
+
+      if( strlen( trim( $message ) ) && $interupt > 0 ) {
+        db_query( "INSERT IGNORE INTO interupt_msg ( type, ship_id, message ) VALUES ( 1, $fleet_id, '$message' )" );
+      }
+
+      foreach( $ships as $i => $ship ) {
+        if( $types[ $i ] == 'S' ) {
+          db_query( "UPDATE ships SET `group` = '$group', guard = $guard, fleet_id = $fleet_id WHERE id=".$ships[ $i ] );
+          if( $user->real_id == $ships[ $i ] && $user->real_type == 2 ) {
+            db_query( "UPDATE users SET place_type = 6, place_id = $fleet_id WHERE id = ".$user->uid );
+          }
+        } else {
+          db_query( "UPDATE ships SET `group` = '$group', guard = $guard, fleet_id = $fleet_id WHERE fleet_id=".$ships[ $i ] );
+          db_query( "DELETE FROM fleets WHERE id=".$ships[ $i ] );
+          if( $user->real_id == $ships[ $i ] && $user->real_type == 6 ) {
+            db_query( "UPDATE users SET place_id = $fleet_id WHERE id = ".$user->uid );
+          }
+        }
+      }
+
+      $out = "err=0&fid=F$fleet_id";
+    }
+
+    printOut( $out );
+  } else {
+    printOut( "err=1" );
+  }

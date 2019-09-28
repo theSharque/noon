@@ -1,0 +1,9 @@
+/* 
+    CSS tweaks for Mac browsers
+
+    Note: file is being included before other css
+*/
+
+div.block-caption div.block-caption-left span, div.block-caption div.block-caption-left td, div.block-caption div.block-caption-left h1, div.block-caption div.block-caption-left h2, div.block-caption div.block-caption-left h3, div.block-caption div.block-caption-left h4, div.block-caption div.block-caption-left h5, div.block-caption div.block-caption-left h6 {
+    font-weight: normal;
+}

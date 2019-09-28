@@ -1,0 +1,247 @@
+<?php
+
+  global $user;
+
+  if( isset( $_GET['ships'] ) &&
+      isset( $_GET['plid'] ) &&
+      isset( $_GET['tid'] ) &&
+      isset( $_GET['objects'] ) &&
+      isset( $_GET['move'] ) &&
+      isset( $_GET['ocnt'] ) ) {
+
+    if( is_numeric( $_GET['plid'] ) &&
+        is_numeric( $_GET['tid'] )  &&
+        is_numeric( $_GET['move'] ) &&
+        is_numeric( $_GET['ocnt'] ) ) {
+
+      $objects = explode( ',', $_GET['objects'] );
+      $ships = explode( ',', $_GET['ships'] );
+
+      $uid = $user->uid;
+
+      $plid = $_GET['plid'];
+      db_safe( $plid );
+
+      $tid  = $_GET['tid'];
+      db_safe( $tid );
+
+      $move = intval( $_GET['move'] );
+      db_safe( $move );
+
+      foreach( $objects as $oid ) {
+        foreach( $ships as $shid ) {
+
+          $mass = db_fetch_row( "SELECT mass FROM objects WHERE id = $oid" );
+          $max = 0;
+
+          $cnt  = $_GET['ocnt'];
+
+          db_safe( $cnt );
+          db_safe( $shid );
+          db_safe( $oid );
+
+          switch( $move ) {
+
+            case 0: // from ship
+              $test = db_fetch_row( "SELECT object_cnt FROM warehouse WHERE place_id = $shid AND place_type = 2 AND object_id = $oid" );
+
+              switch( $tid ) {
+                case 1:
+                  $max = get_warehouse( $plid, 1 );
+                  break;
+                case 2:
+                  $max = get_cargo( $plid, 2 );
+                  break;
+                case 3:
+                  $place = get_place_info( $plid, 3 );
+                  $max = get_warehouse( $place->place_id, 0 );
+                  break;
+              }
+              break;
+
+            case 1: // to ship
+              $max = get_cargo( $shid, 2 );
+
+              switch( $tid ) {
+                case 1:
+                case 2:
+                  $test = db_fetch_row( "SELECT object_cnt FROM warehouse WHERE place_id = $plid AND place_type = $tid AND object_id = $oid" );
+                  break;
+                case 3:
+                  $place = get_place_info( $plid, 3 );
+                  $test = db_fetch_row( "SELECT object_cnt FROM warehouse WHERE place_id = ".$place->place_id." AND place_type = 0 AND object_id = $oid" );
+                  break;
+              }
+              break;
+          }
+
+          if( $cnt < 0 || $test['object_cnt'] < $cnt ) {
+            $cnt = $test['object_cnt'];
+          }
+
+          if( ( $cnt * $mass['mass'] ) > $max && $mass['mass'] > 0 ) {
+            $cnt = intval( $max / $mass['mass'] );
+          }
+
+          $can_move = false;
+
+          if( $cnt <= 0 ) {
+            continue;
+          }
+
+          if( $cnt < 0 || $test['object_cnt'] < $cnt ) {
+            $cnt = $test['object_cnt'];
+          }
+
+          if( ($cnt * $mass['mass']) > $max && $mass['mass'] > 0 ) {
+            $cnt = intval( $max / $mass['mass'] );
+          }
+
+          if( $cnt <= 0 ) {
+            continue;
+          }
+
+          switch( $move ) {
+
+            case 0: // from ship
+              $real_plid = $splid = $plid;
+              $real_tid = $stid = $tid;
+
+              switch( $tid ) {
+
+              case 1:
+                $test = db_fetch_row( "SELECT id FROM ships WHERE id=$shid AND place_id=$plid AND place_type=$tid AND user_id=$uid" );
+                if( isset( $test['id'] ) ) {
+
+                  $can_move = true;
+                } else {
+                  continue;
+                }
+                break;
+
+              case 2:
+                $ship = db_fetch_row( "SELECT place_id, place_type FROM ships WHERE id=$shid AND user_id=$uid" );
+                $test = db_fetch_row( "SELECT place_id, place_type FROM ships WHERE id=$plid AND user_id=$uid" );
+                if( ( $ship['place_id'] == $test['place_id'] && $ship['place_type'] == $test['place_type'] ) ||
+                    ( $test['place_id'] == $shid && $test['place_type'] == 2 ) ||
+                    ( $ship['place_id'] == $plid && $ship['place_type'] == 2 ) ) {
+
+                  $can_move = true;
+                } else {
+                  continue;
+                }
+                break;
+
+              case 3:
+                $test = db_fetch_row( "SELECT id FROM ships WHERE id=$shid AND place_id=$plid AND place_type=$tid AND user_id=$uid" );
+                if( isset( $test['id'] ) ) {
+
+                  $real_tid = 0;
+                  $place = get_place_info( $plid, 3 );
+                  $real_plid = $place->place_id;
+                  $can_move = true;
+                } else {
+                  continue;
+                }
+                break;
+
+              default:
+                continue;
+                break;
+            }
+
+            if( $can_move ) {
+              sub_warehouse_item( 2, $shid, $oid, $cnt );
+              add_warehouse_item( $real_tid, $real_plid, $oid, $cnt );
+
+              levelUp( 34, $user->uid );
+
+              $test = db_fetch_row( "SELECT class FROM objects WHERE id=$oid" );
+              if( $test['class'] == 4 ) {
+                $items = db_fetch_array( "SELECT id FROM ships WHERE object_id=$oid AND place_id=$shid AND place_type=2 AND user_id=$uid" );
+                for( $i=0; $i<$cnt; $i++ ) {
+                  $item = $items[ $i ];
+                  db_query( "UPDATE ships SET place_id=$splid, place_type=$stid WHERE id=".$item['id'] );
+                }
+              }
+            }
+            break;
+
+            case 1: // to ship
+
+              $test = db_fetch_row( "SELECT class FROM objects WHERE id=$oid" );
+              $real_plid = $splid = $plid;
+              $real_tid = $stid = $tid;
+
+              switch( $tid ) {
+
+                case 1:
+                  $test = db_fetch_row( "SELECT id FROM ships WHERE id=$shid AND place_id=$plid AND place_type=$tid AND user_id=$uid" );
+                  if( isset( $test['id'] ) ) {
+
+                    $can_move = true;
+                  } else {
+                    continue;
+                  }
+                  break;
+
+                case 2:
+                  $ship = db_fetch_row( "SELECT place_id, place_type FROM ships WHERE id=$shid AND user_id=$uid" );
+                  $test = db_fetch_row( "SELECT place_id, place_type FROM ships WHERE id=$plid AND user_id=$uid" );
+                  if( ( $ship['place_id'] == $test['place_id'] && $ship['place_type'] == $test['place_type'] ) ||
+                      ( $test['place_id'] == $shid && $test['place_type'] == 2 ) ||
+                      ( $ship['place_id'] == $plid && $ship['place_type'] == 2 ) ) {
+
+                    $can_move = true;
+                  } else {
+                    continue;
+                  }
+                  break;
+
+                case 3:
+                  $test = db_fetch_row( "SELECT id FROM ships WHERE id=$shid AND place_id=$plid AND place_type=$tid AND user_id=$uid" );
+                  if( isset( $test['id'] ) ) {
+
+                    $real_tid = 0;
+                    $place = get_place_info( $plid, 3 );
+                    $real_plid = $place->place_id;
+                    $can_move = true;
+                  } else {
+                    continue;
+                  }
+                  break;
+
+                default:
+                  continue;
+                  break;
+              }
+
+              if( $can_move ) {
+                sub_warehouse_item( $real_tid, $real_plid, $oid, $cnt );
+                add_warehouse_item( 2, $shid, $oid, $cnt );
+
+                levelUp( 33, $user->uid );
+ 
+                $test = db_fetch_row( "SELECT class FROM objects WHERE id=$oid" );
+                if( $test['class'] == 4 ) {
+                  $items = db_fetch_array( "SELECT id FROM ships WHERE object_id=$oid AND place_id=$splid AND place_type=$stid AND user_id=$uid" );
+                  for( $i=0; $i<$cnt; $i++ ) {
+                    $item = $items[ $i ];
+                    db_query( "UPDATE ships SET place_id=$shid, place_type=2 WHERE id=".$item['id'] );
+                  }
+                }
+              }
+              break;
+
+            default:
+              continue;
+              break;
+          }
+        }
+      }
+    }
+
+    printOut( "Err=0" );
+  } else {
+    printOut( "Err=-1" );
+  }

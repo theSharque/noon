@@ -1,0 +1,81 @@
+<?php
+
+  global $user;
+  switch( $user->place_type ) {
+
+    case 0:  // orbit
+      $pid = db_fetch_val( "SELECT type FROM planets WHERE id = ".$user->place_id, 'type' );
+      render_page( 'orbit', "pid=$pid", '100%' );
+      break;
+
+    case 1:  // planet
+      $ml = isset( $_GET['ml'] ) ? $_GET['ml'] : 0;
+      levelUp( 2, $user->uid );
+      levelUp( 8, $user->uid );
+      render_page( 'planet', "ml=$ml", '100%' );
+      break;
+
+    case 3:  // station
+      render_page( 'station', '', '100%' );
+      break;
+
+    case 5:  // in fly
+
+      $ship_id = $user->real_id;
+
+      if( $user->real_type == 2 ) {
+        $parent = db_fetch_row( "SELECT place_id, place_type FROM ships WHERE id=".$ship_id );
+      } else {
+        $parent = db_fetch_row( "SELECT place_id, place_type FROM fleets WHERE id=".$ship_id );
+      }
+
+      while( $parent['place_type'] == 2 ) {
+        $parent = db_fetch_row( "SELECT id, fleet_id, place_id, place_type FROM ships WHERE id=".$parent['place_id'] );
+
+        $ship_id = $parent['fleet_id'] ? $parent['fleet_id'] : $parent['id'];
+      }
+
+      $event = db_fetch_row( "SELECT event_type FROM space_events WHERE ship_id = ".$ship_id );
+
+      switch( $event['event_type'] ) {
+        case 0:
+        case 100:
+          render_page( 'land', '', '100%' );
+          break;
+
+        case 1:
+        case 101:
+          render_page( 'flyout', '', '100%' );
+          break;
+
+        case 2:
+        case 102:
+        case 3:
+        case 103:
+          render_page( 'infly', '', '100%' );
+          break;
+
+        case 4:
+        case 104:
+        case 5:
+        case 105:
+          render_page( 'inhyper', '', '100%' );
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    case 7:  // in space
+      $stype = db_fetch_val( "SELECT type FROM stars WHERE id = ".$user->place_id, 'type' );
+      render_page( 'inspace', "st=$stype", '100%' );
+      break;
+
+    case 8:  // in deep space
+      render_page( 'indeep', '', '100%' );
+      break;
+
+    default:
+      break;
+  }

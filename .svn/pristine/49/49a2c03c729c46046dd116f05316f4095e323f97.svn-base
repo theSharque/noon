@@ -1,0 +1,112 @@
+@charset "utf-8";
+/* CSS Document */
+html, body {
+	height: 100%;
+	margin:0;
+	padding:0;
+}
+
+#main-content {
+	z-index: 1;
+	top: 0px;
+	position: relative;
+	width: 1000px;
+	vertical-align: top;
+}
+
+#star {
+	position:absolute;
+	z-index: 0;
+	top: 0px;
+	left: 0px;
+}
+
+#planet {
+	position:absolute;
+	z-index: 0;
+	top: 0px;
+	right: 0px;
+}
+
+#bottom {
+	position:absolute;
+	z-index: 0;
+	left: 0px;
+	bottom: 0px;
+}
+
+#top-content {
+	color:#FFFFFF;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:12px;
+	height:200;
+	min-height: 200px;
+}
+
+#menu-content {
+	color:#FFFFFF;
+}
+
+#menu-link {
+	height: 24px;
+	width: 120px;
+	text-align: center;
+}
+
+#menu-bg {
+	height: 24px;
+	text-align: center;
+	width: 260px;
+}
+
+#main-body {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	height: 100%;
+	text-align: left;
+}
+
+#main-footer {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	height: 14px;
+	text-align: center;
+	color: #999999;
+	font-size: 10px;
+}
+
+#statistics {
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	color:#FFFFFF;
+	font-size:12px;
+}
+
+#bgh {
+	background:url(images/tdbg.png);
+	text-align: left;
+	padding: 3px;
+}
+
+#restore {
+	background:url(images/tdbg.png);
+	text-align: left;
+}
+
+#restore a {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #CCCCCC;
+	font-size: 10px;
+	padding: 1px;
+	text-decoration: none;
+}
+
+#restore b {
+	color: #FF0000;
+}
+
+#main-footer a {
+	color: #CCCCCC;
+	text-decoration: none;
+}
+
+img {
+	border:none;
+}

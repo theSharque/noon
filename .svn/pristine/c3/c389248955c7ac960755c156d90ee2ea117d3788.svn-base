@@ -1,0 +1,225 @@
+<?php
+
+  include( './pages/environment/planets.dic' );
+
+  global $user;
+  $last = mt_rand( 100000, 999999 );
+  $out = '';
+
+  if( isset( $_GET['x'] ) && $user->place_type == 0 && isset( $_GET['cl'] ) && $user->owner ) {
+    $x = $_GET['x'];
+    $y = 0;
+    $cycle = $_GET['cl'];
+    db_safe( $x );
+    db_safe( $cycle );
+    $planet_id = $user->place_id;
+
+    $line = db_fetch_val( "SELECT lin FROM orbits_map WHERE id = $planet_id", 'lin' );
+//    $line = file_get_contents( "./pages/environment/orbit/$planet_id.lin" );
+
+    $energy_av = get_energy();
+    $warehouse = get_warehouse();
+    
+    switch( $line{ $x } ) {
+      case 'W':
+        if( $energy_av >= 0 && $warehouse >= 0 ) {
+          $out = "dg_h=Длительность цикла ".time_to_str( get_mine_time( 3006 ) );
+          $out .= "&cols=2&rows=$cycle";
+          $out .= "&col0=Ресурс";
+          $out .= "&col1=Добыча";
+
+          $planet_type = db_fetch_val( "SELECT type FROM planets WHERE id = $planet_id", 'type' );
+          switch( $planet_type ) {
+            case 1:
+              for( $i = 0; $i < $cycle; $i++ ) {
+                $out .= '&l'.$i.'c0=Кислород';
+                $out .= '&l'.$i.'c1='.get_mine_count( 3006, $planet_type );
+              }
+              break;
+            case 2:
+              for( $i = 0; $i < $cycle; $i++ ) {
+                $out .= '&l'.$i.'c0=Водород';
+                $out .= '&l'.$i.'c1='.get_mine_count( 3006, $planet_type );
+              }
+              break;
+            case 3:
+              for( $i = 0; $i < $cycle; $i++ ) {
+                $out .= '&l'.$i.'c0=Хлор';
+                $out .= '&l'.$i.'c1='.get_mine_count( 3006, $planet_type );
+              }
+              break;
+            case 4:
+              for( $i = 0; $i < $cycle; $i++ ) {
+                $out .= '&l'.$i.'c0=Азот';
+                $out .= '&l'.$i.'c1='.get_mine_count( 3006, $planet_type );
+              }                        
+              break;
+          }
+/*
+          db_query( "INSERT INTO antibot ( user_id, coord, last )
+                          VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+         ON DUPLICATE KEY UPDATE last = $last" );
+*/
+          $out .= "&btLabel=Запустить добычу&btOnClick=page.php?id=211%26cl=$cycle%26x=$x%26l=$last";
+
+          $result = db_fetch_row( "SELECT count(*) cnt FROM robots WHERE user_id = {$user->uid} AND status = 0" );
+          if( $result['cnt'] > 0 ) {
+            $out .= "&btRobot=".$result['cnt'];
+          }
+        } else {
+          if( $energy_av < 0 ) {
+            $out = "dg_h=<b><font color=\"#FF0000\">Недостаточно энергии</font>";
+            $out .= "&cols=2&rows=1";
+            $out .= "&col0=Требуется";
+            $out .= "&col1=Доступно";
+            $out .= "&l0с0=0&l0c1=".$energy_av;
+          } else {
+            $out = "dg_h=<b><font color=\"#FF0000\">Недостаточно места</font>";
+            $out .= "&cols=2&rows=1";
+            $out .= "&col0=Требуется";
+            $out .= "&col1=Доступно";
+            $out .= "&l0с0=0&l0c1=".$warehouse;
+          }
+        }
+      break;
+    }
+  }
+
+  if( isset( $_GET['x'] ) && isset( $_GET['y'] ) && $user->place_type == 1 && isset( $_GET['cl'] ) && $user->owner ) {
+    $x = $_GET['x'];
+    $y = $_GET['y'];
+    $cycle = $_GET['cl'];
+    db_safe( $x );
+    db_safe( $y );
+    db_safe( $cycle );
+    $planet_id = $user->place_id;
+
+    $buildings = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT bld FROM planets_maps WHERE id = $planet_id", 'bld' ) ) ) );
+//    $buildings = array_map( 'trim', file( "./pages/environment/planets/$planet_id.bld" ) );
+
+    $energy_av = get_energy();
+    $warehouse = get_warehouse();
+    $planet_type = db_fetch_val( "SELECT type FROM planets WHERE id = $planet_id", 'type' );
+
+    switch( $buildings[ $y ]{ $x } ) {
+      case 'K':
+        $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT top FROM planets_maps WHERE id = $planet_id", 'top' ) ) ) );
+//        $content = array_map( 'trim', file( "./pages/environment/planets/$planet_id.top" ) );
+        if( $energy_av >= 0 && $warehouse >= 0 ) {
+          $out = "dg_h=Длительность цикла ".time_to_str( get_mine_time( 23 ) );
+          $out .= "&cols=2&rows=$cycle";
+          $out .= "&col0=Ресурс";
+          $out .= "&col1=Добыча";
+          for( $i = 0; $i < $cycle; $i++ ) {
+            $out .= '&l'.$i.'c0='.$top_data[ $content[ $y ]{ $x } ][ 0 ];
+            $out .= '&l'.$i.'c1='.get_mine_count( 23, $planet_type );
+          }
+/*
+          db_query( "INSERT INTO antibot ( user_id, coord, last )
+                          VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+         ON DUPLICATE KEY UPDATE last = $last" );
+*/
+          $out .= "&btLabel=Запустить добычу&btOnClick=page.php?id=211%26cl=$cycle%26x=$x%26y=$y%26l=$last";
+
+          $result = db_fetch_row( "SELECT count(*) cnt FROM robots WHERE user_id = {$user->uid} AND status = 0" );
+          if( $result['cnt'] > 0 ) {
+            $out .= "&btRobot=".$result['cnt'];
+          }
+        } else {
+          if( $energy_av < 0 ) {
+            $out = "dg_h=<b><font color=\"#FF0000\">Недостаточно энергии</font>";
+            $out .= "&cols=2&rows=1";
+            $out .= "&col0=Требуется";
+            $out .= "&col1=Доступно";
+            $out .= "&l0с0=0&l0c1=".$energy_av;
+          } else {
+            $out = "dg_h=<b><font color=\"#FF0000\">Недостаточно места</font>";
+            $out .= "&cols=2&rows=1";
+            $out .= "&col0=Требуется";
+            $out .= "&col1=Доступно";
+            $out .= "&l0с0=0&l0c1=".$warehouse;
+          }
+        }
+      break;
+      case 'M':
+        $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT mdl FROM planets_maps WHERE id = $planet_id", 'mdl' ) ) ) );
+//        $content = array_map( 'trim', file( "./pages/environment/planets/$planet_id.mdl" ) );
+        if( $energy_av >= 0 && $warehouse >= 0 ) {
+          $out = "dg_h=Длительность цикла ".time_to_str( get_mine_time( 36 ) );
+          $out .= "&cols=2&rows=$cycle";
+          $out .= "&col0=Ресурс";
+          $out .= "&col1=Добыча";
+          for( $i = 0; $i < $cycle; $i++ ) {
+            $out .= '&l'.$i.'c0='.$mdl_data[ $content[ $y ]{ $x } ][ 0 ];
+            $out .= '&l'.$i.'c1='.get_mine_count( 36, $planet_type );
+          }
+/*
+          db_query( "INSERT INTO antibot ( user_id, coord, last )
+                          VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+         ON DUPLICATE KEY UPDATE last = $last" );
+*/
+          $out .= "&btLabel=Запустить добычу&btOnClick=page.php?id=211%26cl=$cycle%26x=$x%26y=$y%26l=$last";
+
+          $result = db_fetch_row( "SELECT count(*) cnt FROM robots WHERE user_id = {$user->uid} AND status = 0" );
+          if( $result['cnt'] > 0 ) {
+            $out .= "&btRobot=".$result['cnt'];
+          }
+        } else {
+          if( $energy_av < 0 ) {
+            $out = "dg_h=<b><font color=\"#FF0000\">Недостаточно энергии</font>";
+            $out .= "&cols=2&rows=1";
+            $out .= "&col0=Требуется";
+            $out .= "&col1=Доступно";
+            $out .= "&l0с0=0&l0c1=".$energy_av;
+          } else {
+            $out = "dg_h=<b><font color=\"#FF0000\">Недостаточно места</font>";
+            $out .= "&cols=2&rows=1";
+            $out .= "&col0=Требуется";
+            $out .= "&col1=Доступно";
+            $out .= "&l0с0=0&l0c1=".$warehouse;
+          }
+        }
+      break;
+      case 'O':
+        $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT btm FROM planets_maps WHERE id = $planet_id", 'btm' ) ) ) );
+//        $content = array_map( 'trim', file( "./pages/environment/planets/$planet_id.btm" ) );
+        if( $energy_av >= 0 && $warehouse >= 0 ) {
+          $out = "dg_h=Длительность цикла ".time_to_str( get_mine_time( 37 ) );
+          $out .= "&cols=2&rows=$cycle";
+          $out .= "&col0=Ресурс";
+          $out .= "&col1=Добыча";
+          for( $i = 0; $i < $cycle; $i++ ) {
+            $out .= '&l'.$i.'c0='.$btm_data[ $content[ $y ]{ $x } ][ 0 ];
+            $out .= '&l'.$i.'c1='.get_mine_count( 37, $planet_type );
+          }
+/*
+          db_query( "INSERT INTO antibot ( user_id, coord, last )
+                          VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+         ON DUPLICATE KEY UPDATE last = $last" );
+*/
+          $out .= "&btLabel=Запустить добычу&btOnClick=page.php?id=211%26cl=$cycle%26x=$x%26y=$y%26l=$last";
+
+          $result = db_fetch_row( "SELECT count(*) cnt FROM robots WHERE user_id = {$user->uid} AND status = 0" );
+          if( $result['cnt'] > 0 ) {
+            $out .= "&btRobot=".$result['cnt'];
+          }
+        } else {
+          if( $energy_av < 0 ) {
+            $out = "dg_h=<b><font color=\"#FF0000\">Недостаточно энергии</font>";
+            $out .= "&cols=2&rows=1";
+            $out .= "&col0=Требуется";
+            $out .= "&col1=Доступно";
+            $out .= "&l0с0=0&l0c1=".$energy_av;
+          } else {
+            $out = "dg_h=<b><font color=\"#FF0000\">Недостаточно места</font>";
+            $out .= "&cols=2&rows=1";
+            $out .= "&col0=Требуется";
+            $out .= "&col1=Доступно";
+            $out .= "&l0с0=0&l0c1=".$warehouse;
+          }
+        }
+      break;
+    }
+  }
+
+  printOut( $out );

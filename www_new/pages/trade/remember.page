@@ -1,0 +1,8 @@
+<?php
+
+  global $user;
+
+  $txt = $_GET['txt'];
+  db_safe( $txt );
+
+  db_query( "INSERT INTO chat ( user_id, to_user, msgtime, text ) VALUES ( 1, {$user->uid}, NOW(), '$txt' )" );

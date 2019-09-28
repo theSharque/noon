@@ -1,0 +1,45 @@
+<?php
+
+  global $user;
+
+  if( $user->place_type == 3 ) {
+
+    $out = "err=0";
+    if( isset( $_GET['rf'] ) && is_numeric( $_GET['rf'] ) && $_GET['rf'] > 0 ) {
+      $rf = 'o.class = '.$_GET['rf'];
+    } else {
+      $rf = 'o.class IN ( 1, 2, 5, 6, 7, 9 )';
+    }
+
+    $arr1 = db_fetch_array( "SELECT DISTINCT o.id id, o.name name
+                               FROM warehouse w
+                         INNER JOIN objects o ON o.id = w.object_id
+                              WHERE w.place_type IN ( 0, 1, 2 ) AND $rf
+                           ORDER BY o.class, o.name" );
+    $arr2 = db_fetch_array( "SELECT DISTINCT ti.object_id id, o.name name FROM trade_in ti, objects o WHERE $rf AND o.id = ti.object_id" );
+    $arr3 = db_fetch_array( "SELECT DISTINCT tu.object_id id, o.name name FROM trade_out tu, objects o WHERE $rf AND o.id = tu.object_id" );
+
+    $goods = array();
+    foreach( $arr1 as $item ) {
+      $goods['i'.$item['id']] = $item['name'];
+    }
+    foreach( $arr2 as $item ) {
+      $goods['i'.$item['id']] = $item['name'];
+    }
+    foreach( $arr3 as $item ) {
+      $goods['i'.$item['id']] = $item['name'];
+    }
+
+    $l=0;
+    $out .= "&cnt=".count( $goods );
+    foreach( $goods as $id => $value ) {
+      $id = substr( $id, 1 );
+      $out .= "&id$l=$id&name$l=$value";
+      $l++;
+    }
+
+  } else {
+    $out = "err=1";
+  }
+
+  printOut( $out );

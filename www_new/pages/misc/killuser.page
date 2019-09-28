@@ -1,0 +1,36 @@
+<?php
+
+  global $user;
+
+  $dat = db_fetch_row( "SELECT id, password, login, email FROM users WHERE status = 1 AND id = ".$user->uid );
+
+  if( $dat['id'] == $user->uid ) {
+    $code = md5( $dat['password'].$dat['id'] );
+
+    db_query( "UPDATE users SET ssid = '1' WHERE id = ".$user->uid );
+
+    $message = "Здравствуйте {$dat['login']}.
+
+Вы подали заявку на удаление аккаунта {$dat['login']} в игре \"Полдень 21 века\" на сервере 21noon.com.
+Если это сделали вы, то для удаления вам необходимо перейти по ссылке:
+
+  http://21noon.com/killme.php?act=$code
+
+Если письмо попало к вам случайно, то мы приносим свои извинения за действия не добропорядочных пользователей и
+просим просто удалить письмо не обращая на него внимания.
+
+С уважением Администрация сайта.";
+
+    $headers = "From: 21noon <support@21noon.com>\r\n".
+               "Content-Transfer-Encoding: 8bit\r\n".
+               "Content-type: text/plain; charset=\"windows-1251\"".
+               "Reply-To: support@21noon.com\r\n".
+               'X-Mailer: PHP/' . phpversion();
+  
+    $subject = "=?windows-1251?b?" . base64_encode("Удаление акаунта {$dat['login']} в игре Полдень 21 века") . "?=";
+
+    mail( $dat['email'], $subject, $message, $headers );
+    header("Location: index.php");
+
+    exit();
+  }

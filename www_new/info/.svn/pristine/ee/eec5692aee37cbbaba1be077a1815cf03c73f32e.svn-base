@@ -1,0 +1,5 @@
+body {font-size: 11px;}
+#search-box {margin-top: 5px;}
+.buttons div a {padding-top: 2px;}
+#cp-main  .panel .newpm-icon a, #cp-main  .panel .pmreply-icon a, #cp-main  .panel .forwardpm-icon a {padding-top: 3px;}
+.edit-icon a span, .quote-icon a span {padding-top: 2px;}

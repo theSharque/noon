@@ -1,0 +1,29 @@
+<?php
+
+  global $user;
+
+  if( $user->place_type == 5 ) {
+
+    $ship_id = $user->real_id;
+
+    if( $user->real_type == 2 ) {
+      $parent = db_fetch_row( "SELECT place_id, place_type FROM ships WHERE id=".$ship_id );
+    } else {
+      $parent = db_fetch_row( "SELECT place_id, place_type FROM fleets WHERE id=".$ship_id );
+    }
+
+    while( $parent['place_type'] == 2 ) {
+      $parent = db_fetch_row( "SELECT id, fleet_id, place_id, place_type FROM ships WHERE id=".$parent['place_id'] );
+
+      $ship_id = $parent['fleet_id'] ? $parent['fleet_id'] : $parent['id'];
+    }
+
+    $timer = db_fetch_row( "SELECT UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain, timer FROM space_events WHERE ship_id = ".$ship_id );
+
+    $out = "err=0&total=".$timer['timer']."&remain=".($timer['remain']);
+  } else {
+    $out = "err=1";
+  }
+
+  printOut( $out );
+  

@@ -1,0 +1,21 @@
+<?php
+
+  global $user;
+
+  $qid = $_GET['qid'];
+  db_safe( $qid );
+  if( is_numeric( $qid ) ) {
+
+    $decline = db_fetch_val( "SELECT UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(decline_time) decline FROM users WHERE id = ".$user->uid, 'decline' );
+    $test = db_fetch_val( "SELECT user_id FROM users_quests WHERE id = $qid", 'user_id' );
+
+    if( $test || $decline < 5 * 60 ) {
+      $out = 'err=1';
+    } else {
+      db_query( "UPDATE users_quests SET user_id = {$user->uid} WHERE id = $qid" );
+      db_query( "UPDATE u2u_quests SET date_start = NOW() WHERE event_id = $qid" );
+      $out = 'err=0';
+    }
+  }
+
+  printOut( $out );

@@ -1,0 +1,48 @@
+<?php
+
+  global $user;
+
+  $cnt = isset( $_GET['cnt'] ) ? $_GET['cnt'] : null;
+  $mv = isset( $_GET['mv'] ) ? $_GET['mv'] : null;
+  $sv = isset( $_GET['sv'] ) ? $_GET['sv'] : null;
+  $sp = isset( $_GET['sp'] ) ? $_GET['sp'] : null;
+
+  db_safe( $cnt );
+  db_safe( $mv );
+  db_safe( $sv );
+  db_safe( $sp );
+
+  if( is_numeric( $sv ) && $sv > 0 ) {
+    db_query( "UPDATE users SET volume_sound = $sv WHERE id = ".$user->uid );
+  }
+
+  if( is_numeric( $mv ) && $mv > 0 ) {
+    db_query( "UPDATE users SET volume_music = $mv WHERE id = ".$user->uid );
+  }
+
+  if( is_numeric( $sp ) && $sp !== null ) {
+    db_query( "UPDATE users SET show_planet = $sp WHERE id = ".$user->uid );
+  }
+
+  if( is_numeric( $cnt ) && $cnt > 0 ) {
+    for( $i = 0; $i < $cnt; $i++ ) {
+      $chat = $_GET["c$i"];
+      if( $chat == 1 || $chat == 'true' ) {
+        $chat = 1;
+      } else {
+        $chat = 0;
+      }
+
+      $mail = $_GET["m$i"];
+      if( $mail == 1 || $mail == 'true' ) {
+        $mail = 1;
+      } else {
+        $mail = 0;
+      }
+
+      $type = $_GET["t$i"];
+      db_safe( $type );
+
+      db_query( "UPDATE users_msg_settings SET chat = $chat, mail = $mail WHERE type = $type AND user_id = ".$user->uid );
+    }
+  }

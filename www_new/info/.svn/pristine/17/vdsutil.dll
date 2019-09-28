@@ -1,0 +1,3438 @@
+15483</help_id>
+           <select_option>PLAIN</select_option>
+
+           <DocOption>
+             <name>PLAIN</name>
+             <bitmap_id>299</bitmap_id>
+           </DocOption>
+           <DocOption>
+             <name>HP_BRIGHT_WHITE_INKJET_PAPER</name>
+             <bitmap_id>301</bitmap_id>
+           </DocOption>
+           <DocOption>
+             <name>HP_PREM_INKJET_PAPER</name>
+             <bitmap_id>301</bitmap_id>
+           </DocOption>
+           <DocOption>
+             <name>HP_PREM_INKJET_PRESENTATION_PAPER</name>
+             <bitmap_id>301</bitmap_id>
+           </DocOption>
+           <DocOption>
+             <name>OTHER_INKJET_PAPERS</name>
+             <bitmap_id>301</bitmap_id>
+           </DocOption>
+         </DocFeature>
+         
+         <DocFeature>
+           <name>PrintQuality</name>
+           <resource_id>6195</resource_id>
+           <help_id>15694</help_id>
+           <select_option>Normal</select_option>
+
+           <DocOption>
+             <name>FastDraft</name>
+             <bitmap_id>295</bitmap_id>
+           </DocOption>
+           <DocOption>
+             <name>Normal</name>
+             <bitmap_id>292</bitmap_id>
+           </DocOption>
+
+
+           <DocOption>
+             <name>Best</name>
+             <bitmap_id>295</bitmap_id>
+           </DocOption>
+         </DocFeature>
+
+
+         <DocFeature>
+           <name>Duplex</name>
+           <resource_id>6193</resource_id>
+           <help_id>15487</help_id>
+           <select_option>Manually</select_option>
+
+           <DocOption>
+             <name>Off</name>
+             <resource_id>1117</resource_id>
+             <bitmap_id>349</bitmap_id>
+           </DocOption>
+
+           <DocOption>
+             <name>Manually</name>
+             <resource_id>4267</resource_id>
+             <bitmap_id>353</bitmap_id>
+           </DocOption>
+           <DocOption>
+             <name>LeftEdgeBinding</name>
+             <resource_id>4268</resource_id>
+             <bitmap_id>355</bitmap_id>
+           </DocOption>
+
+           <DocOption>
+             <name>RightEdgeBinding</name>
+             <resource_id>4269</resource_id>
+             <bitmap_id>357</bitmap_id>
+           </DocOption>
+
+         </DocFeature>
+         
+         <DocFeature>
+          <name>Orientation</name>
+          <resource_id>6244</resource_id>
+          <help_id>15479</help_id>
+          <select_option>PORTRAIT</select_option>
+
+          <DocOption>
+             <name>PORTRAIT</name>
+             <bitmap_id>310</bitmap_id>
+          </DocOption>
+          <DocOption>
+             <name>LANDSCAPE_CC270</name>
+             <bitmap_id>312</bitmap_id>
+          </DocOption>
+      </DocFeature>  
+</DocSetting>
+
+    <DocSetting>
+      <name>Postcard Printing</name>
+      <resource_id>4280</resource_id>            
+       <bitmap_id>293</bitmap_id>
+      <custbitmap_id>309</custbitmap_id> 
+      <switch>
+            <name>LocaleID</name>
+            <case>
+              <name>81</name>
+              <disable>LocaleSupported</disable>
+            </case>
+            <case_default>
+                  <enable>LocaleSupported</enable>
+            </case_default>
+              </switch>
+
+
+      <DocFeature>
+        <name>PaperSize</name>
+        <resource_id>6190</resource_id>
+        <help_id>15481</help_id>
+        <select_option>INDEX_CARD_4X6</select_option>
+
+        <DocOption>
+          <name>HP_BORDERLESS_10_X_15_CM</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+
+        
+        <DocOption>
+          <name>HP_BORDERLESS_4_X_6_IN</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+
+        <DocOption>
+          <name>HP_BORDERLESS_10_X_15_CM_WT</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>HP_BORDERLESS_4_X_6_IN_WT</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+        
+       
+        <DocOption>
+          <name>10_X_15</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+
+        <DocOption>
+          <name>4_X_6_IN</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>10_X_15_CM_WT</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+
+
+
+        <DocOption>
+          <name>4_X_6_IN_WT</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>INDEX_CARD_4X6</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+ </DocFeature>
+
+
+      <DocFeature>
+        <name>MediaType</name>
+        <resource_id>6191</resource_id>
+        <help_id>15483</help_id>
+        <select_option>PLAIN</select_option>
+
+        <DocOption>
+          <name>PLAIN</name>
+          <bitmap_id>299</bitmap_id>
+        </DocOption>
+
+        <DocOption>
+          <name>OTHER_INKJET_PAPERS</name>
+          <bitmap_id>301</bitmap_id>
+        </DocOption>
+
+        <DocOption>
+          <name>HP_PREMIUM_PLUS_PHOTO_PAPER</name>
+          <bitmap_id>301</bitmap_id>
+        </DocOption>
+
+        <DocOption>
+          <name>HP_PREMIUM_PHOTO_PAPER</name>
+          <bitmap_id>301</bitmap_id>
+        </DocOption>
+
+
+        <DocOption>
+          <name>HP_EVERYDAY_PHOTO_PAPER_SEMI_GLOSS</name>
+          <bitmap_id>301</bitmap_id>
+        </DocOption>
+
+        <DocOption>
+          <name>OTHER_PHOTO_PAPER</name>
+          <bitmap_id>301</bitmap_id>
+        </DocOption>
+
+      </DocFeature>
+      <DocFeature>
+        <name>PrintQuality</name>
+        <resource_id>6195</resource_id>
+        <help_id>15489</help_id>
+        <select_option>Normal</select_option>
+
+
+
+
+        <DocOption>
+          <name>Normal</name>
+          <bitmap_id>292</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>Best</name>
+          <bitmap_id>290</bitmap_id>
+        </DocOption>
+</DocFeature>
+      <DocFeature>
+        <name>Duplex</name>
+        <resource_id>6193</resource_id>
+        <help_id>15487</help_id>
+        <select_option>Manually</select_option>
+
+        <DocOption>
+          <name>Off</name>
+          <resource_id>1117</resource_id>
+          <bitmap_id>349</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>Manually</name>
+          <resource_id>4267</resource_id>
+          <bitmap_id>353</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>LeftEdgeBinding</name>
+          <resource_id>4268</resource_id>
+          <bitmap_id>355</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>RightEdgeBinding</name>
+          <resource_id>4269</resource_id>
+          <bitmap_id>357</bitmap_id>
+        </DocOption>
+      </DocFeature>
+
+
+
+
+
+      <DocFeature>
+          <name>Orientation</name>
+          <resource_id>6244</resource_id>
+          <help_id>15479</help_id>
+          <select_option>LANDSCAPE_CC270</select_option>
+        <DocOption>
+          <name>PORTRAIT</name>
+          <bitmap_id>310</bitmap_id>
+        </DocOption>
+          <DocOption>
+             <name>LANDSCAPE_CC270</name>
+             <bitmap_id>312</bitmap_id>
+          </DocOption>
+          
+      </DocFeature>      
+
+ 
+    </DocSetting>
+
+   
+    
+    <DocSetting>
+      
+      <name>Hagaki Printing</name>
+      <resource_id>4279</resource_id>
+      <bitmap_id>290</bitmap_id>
+      <custbitmap_id>306</custbitmap_id> 
+       <switch>
+
+      <name>LocaleID</name>
+
+            <case>
+
+            <name>81</name>
+
+            <enable>LocaleSupported</enable>
+
+            </case>
+
+            <case_default>
+
+            <disable>LocaleSupported</disable>
+
+            </case_default>
+
+      </switch>
+
+
+
+
+      <DocFeature>
+        <name>PaperSize</name>
+        <resource_id>6190</resource_id>
+        <help_id>15691</help_id>
+        <select_option>HAGAKI_CARD</select_option>
+
+        <DocOption>
+          <name>HP_BORDERLESS_HAGAKI_CARD_100x148</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>HAGAKI_CARD</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>OFUKUHAGAKI</name>
+          <bitmap_id>306</bitmap_id>
+        </DocOption>
+
+      </DocFeature>
+
+
+      <DocFeature>
+        <name>MediaType</name>
+        <resource_id>6191</resource_id>
+        <help_id>15483</help_id>
+        <select_option>INKJET_HAGAKI</select_option>
+
+        <DocOption>
+          <name>HP_PLAIN_HAGAKI</name>
+          <bitmap_id>299</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>INKJET_HAGAKI</name>
+          <bitmap_id>299</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>HP_PHOTO_HAGAKI</name>
+          <bitmap_id>299</bitmap_id>
+        </DocOption>
+      </DocFeature>
+      <DocFeature>
+        <name>PrintQuality</name>
+        <resource_id>6195</resource_id>
+        <help_id>15694</help_id>
+        <select_option>Normal</select_option>
+        <DocOption>
+          <name>Normal</name>
+          <bitmap_id>292</bitmap_id>
+        </DocOption>
+
+
+        <DocOption>
+          <name>Best</name>
+          <bitmap_id>295</bitmap_id>
+        </DocOption>
+      </DocFeature>
+      <DocFeature>
+        <name>Duplex</name>
+        <resource_id>6193</resource_id>
+        <help_id>15487</help_id>
+        <select_option>Manually</select_option>
+
+
+        <DocOption>
+          <name>Off</name>
+          <resource_id>1117</resource_id>
+          <bitmap_id>349</bitmap_id>
+        </DocOption>
+
+        <DocOption>
+          <name>Manually</name>
+          <resource_id>4267</resource_id>
+          <bitmap_id>353</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>LeftEdgeBinding</name>
+          <resource_id>4268</resource_id>
+          <bitmap_id>355</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>RightEdgeBinding</name>
+          <resource_id>4269</resource_id>
+          <bitmap_id>357</bitmap_id>
+        </DocOption>
+      </DocFeature>
+
+      <DocFeature>
+        <name>Orientation</name>
+        <resource_id>6244</resource_id>
+        <help_id>15479</help_id>
+        <select_option>PORTRAIT</select_option>
+
+        <DocOption>
+          <name>PORTRAIT</name>
+          <bitmap_id>310</bitmap_id>
+        </DocOption>
+        <DocOption>
+          <name>LANDSCAPE_CC270</name>
+          <bitmap_id>312</bitmap_id>
+        </DocOption>
+      </DocFeature>
+</DocSetting>
+
+
+ <DocSetting>
+      <name>Factory Defaults</name>
+      <resource_id>5997</resource_id>
+      <bitmap_id>325</bitmap_id>
+      <custbitmap_id>326</custbitmap_id>     
+    <DocFeature>
+          <name>PaperSize</name>
+          <resource_id>6190</resource_id>
+          <help_id>15481</help_id>
+
+          <!-- Locale Specific paper size defaults =============== -->
+
+          <!-- US - 1, Portugal - 351, Japan - 81  -->          
+
+          <switch>
+              <name>LocaleID</name>
+              <case>
+                  <name>1</name>
+                  <select_option>LETTER</select_option>
+              </case>
+              <case>
+                  <name>351</name>
+                  <select_option>A4</select_option>
+              </case>
+
+              <case>
+                  <name>81</name>
+                  <select_option>A4</select_option>
+              </case>
+
+              <case_default>
+                  <select_option>A4</select_option>
+              </case_default>
+          </switch>
+           <hidden>False</hidden> 
+          <Disabled>True</Disabled> 
+
+          <DocOption>
+            <name>A4</name>
+            <bitmap_id>306</bitmap_id>
+          </DocOption>
+
+          <DocOption>
+            <name>LETTER</name>
+            <bitmap_id>306</bitmap_id>
+          </DocOption>
+      </DocFeature>
+
+      <DocFeature>
+          <name>MediaType</name>
+          <resource_id>6191</resource_id>
+          <help_id>15483</help_id>
+          <select_option>PLAIN</select_option>
+           <hidden>False</hidden>  
+          <Disabled>True</Disabled>        
+
+           <DocOption>
+             <name>PLAIN</name>
+             <bitmap_id>299</bitmap_id>
+          </DocOption>
+      </DocFeature>
+      <DocFeature>
+          <name>PrintQuality</name>
+          <resource_id>6195</resource_id>
+          <help_id>15731</help_id>
+          <select_option>Normal</select_option>
+           <hidden>False</hidden>  
+          <Disabled>True</Disabled>  
+        <DocOption>
+            <name>Normal</name>
+            <bitmap_id>292</bitmap_id>
+         </DocOption> 
+      </DocFeature>
+
+      <DocFeature>
+          <name>Duplex</name>
+          <resource_id>6193</resource_id>
+          <help_id>15701</help_id>
+          <select_option>Off</select_option>
+           <hidden>False</hidden>  
+          <Disabled>True</Disabled>        
+
+          <DocOption>
+             <name>Off</name>
+             <resource_id>1117</resource_id>
+             <bitmap_id>349</bitmap_id>
+          </DocOption>
+
+      </DocFeature>
+
+      <DocFeature>
+          <name>Orientation</name>
+          <resource_id>6244</resource_id>
+          <help_id>15479</help_id>
+          <select_option>PORTRAIT</select_option>
+           <hidden>False</hidden>  
+          <Disabled>True</Disabled>        
+
+          <DocOption>
+             <name>PORTRAIT</name>
+             <bitmap_id>310</bitmap_id>
+          </DocOption>
+          <DocOption>
+            <name>LANDSCAPE_CC270</name>
+            <bitmap_id>312</bitmap_id>
+          </DocOption>
+      </DocFeature>
+
+   </DocSetting>
+
+
+</DocUISettings>
+      
+      <BorderlessSettings>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_4_X_6_IN</Borderless_Paper>
+               <Paper>4_X_6_IN</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_4_X_6_IN_WT</Borderless_Paper>
+               <Paper>4_X_6_IN_WT</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.137</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_8_5_X_11_IN</Borderless_Paper>
+               <Paper>LETTER</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_10_X_15_CM</Borderless_Paper>
+               <Paper>10_X_15</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_10_X_15_CM_WT</Borderless_Paper>
+               <Paper>10_X_15_CM_WT</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.137</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_13_X_18_CM</Borderless_Paper>
+               <Paper>13_X_18_IN</Paper>
+               <Overspray_Left>0.089</Overspray_Left>
+               <Overspray_Right>0.089</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_5_X_7_IN</Borderless_Paper>
+               <Paper>5_X_7_IN</Paper>
+               <Overspray_Left>0.089</Overspray_Left>
+               <Overspray_Right>0.089</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_8_X_10_IN</Borderless_Paper>
+               <Paper>8_X_10_IN</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.089</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_A4</Borderless_Paper>
+               <Paper>A4</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_A5</Borderless_Paper>
+               <Paper>A5</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_A6</Borderless_Paper>
+               <Paper>A6</Paper>
+               <Overspray_Left>0.079</Overspray_Left>
+               <Overspray_Right>0.098</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+     
+      
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_PHOTO_PANORAMA_10X30</Borderless_Paper>
+               <Paper>HP_PANORAMA_10_X_30</Paper>
+               <Overspray_Left>0.118</Overspray_Left>
+               <Overspray_Right>0.157</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+          
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_PHOTO_PANORAMA_4_X_12_IN</Borderless_Paper>
+               <Paper>HP_PANORAMA_4_X_12</Paper>
+               <Overspray_Left>0.118</Overspray_Left>
+               <Overspray_Right>0.157</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>            
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_HAGAKI_CARD_100x148</Borderless_Paper>
+               <Paper>HAGAKI_CARD</Paper>
+               <Overspray_Left>0.079</Overspray_Left>
+               <Overspray_Right>0.098</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_L</Borderless_Paper>
+               <Paper>L</Paper>
+               <Overspray_Left>0.079</Overspray_Left>
+               <Overspray_Right>0.098</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+       <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_PHOTO_MUTSUGIRI</Borderless_Paper>
+               <Paper>MUTSUGIRI</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.089</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_2L</Borderless_Paper>
+               <Paper>2L</Paper>
+               <Overspray_Left>0.089</Overspray_Left>
+               <Overspray_Right>0.089</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_CABINET</Borderless_Paper>
+               <Paper>CABINET</Paper>
+               <Overspray_Left>0.079</Overspray_Left>
+               <Overspray_Right>0.098</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>    
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_B5</Borderless_Paper>
+               <Paper>B5</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+      </Borderless>    
+      
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_CARD_10_x_20_WT</Borderless_Paper>
+               <Paper>PHOTO_CARD_10_X_20_WT</Paper>
+              <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.137</Overspray_Bottom>
+      </Borderless>
+      <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_4_x_8_IN_WT</Borderless_Paper>
+               <Paper>PHOTO_CARD_4_X_8_WT</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.137</Overspray_Bottom>
+      </Borderless>  
+      </BorderlessSettings>
+          <JobUIEventInfo>
+            
+            <JobUIEvent>
+              <Name>JOBID_ BORDERLESS_BLACKCARTRIDGE</Name>
+              <EntryPoint>E_STARTDOC</EntryPoint>
+              <FunctionPtr>pfnCheckBorderlessWithOnlyBlackCartridge</FunctionPtr>
+            </JobUIEvent>
+            <JobUIEvent>
+                    <Name>DUPLEXER_MISSING_EVENT</Name>
+                    <EntryPoint>E_STARTDOC</EntryPoint>
+                    <FunctionPtr>pfnCheckPhotoTrayEngageWithDriverSourceSelection</FunctionPtr>
+            </JobUIEvent>
+            
+        </JobUIEventInfo>
+   </helper>
+  </component>
+  </software>
+</device>
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             <?xml version="1.0"?>
+<!--
+This file contains information related to printer capabilities and features.  It is recommended
+that this file NOT be edited directly, but used in conjunction with HP's Web JetAdmin printer
+installation utility or with the HP Printing System Customization Utility contained on the
+CDROM that shipped with this product.
+
+Editing this file by hand may result in unexpected feature settings in the printer driver UI.
+-->
+<device>
+  <software>
+    <component>
+      dmc_driver
+      <component_header>
+        <config_file>hpd5060t.exp</config_file>
+        <config_file_version>1.0.0.12</config_file_version>
+        <!-- September 12, 2007 -->
+        <config_timestamp/>
+        <config_version>1.0</config_version>
+        <!-- Resource DLL Identifier-->
+        <component_resource>hpbcfgre.dll</component_resource>
+      </component_header>
+      <!-- Pre-Configuration Settings Stored in <Current> Element -->
+      <current>
+        <physical/>
+        <printing/>
+        <custom/>
+      </current>
+      <factory>
+        <!-- !!!!!!!!!!!!!!!!!!!!!!!! PHYSICAL FEATURES !!!!!!!!!!!!!!!!!!!!!!! -->
+        <physical resource_id="18">
+        </physical>
+        <!-- !!!!!!!!!!!!!!!!!!!!!!!! PRINTING FEATURES !!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+        <printing resource_id="17">
+          <!-- TYPICAL FEATURES - (reverse order from display) -->
+
+          <feature caption_id="10017" typical="TRUE" lock="FALSE">
+            HPInputColorSpace
+            <current_option>COLORSMART</current_option>
+            <option resource_id="20848">
+              COLORSMART
+            </option>
+            <option resource_id="20849">
+              ADOBERGB
+            </option>
+          </feature>
+
+          <!-- Default Paper Source Selection -->
+          <feature resource_id="400" caption_id="10018" typical="TRUE" lock="FALSE">
+            InputBin
+            <current_option>Tray1</current_option>
+            <option resource_id="408">
+              Tray1
+            </option>
+          </feature>
+
+          <!-- Default MediaType Selection -->
+          <feature resource_id="550" caption_id="10017" typical="TRUE" lock="FALSE">
+            MediaType
+            <current_option>PLAIN</current_option>
+            <option resource_id="20651" dmmedia_id="1">
+              PLAIN
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="595">
+              HP_BRIGHT_WHITE_INKJET_PAPER
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="610">
+              HP_PREM_INKJET_PAPER
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20654">
+              OTHER_INKJET_PAPERS
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20655" PHOTO_MEDIATYPE="TRUE" >
+              HP_PREMIUM_PLUS_PHOTO_PAPER
+              <constraint>SnapTo_PrintQuality_Best</constraint>
+            </option>
+            <option resource_id="20656" PHOTO_MEDIATYPE="TRUE">
+              HP_PREMIUM_PHOTO_PAPER
+              <constraint>SnapTo_PrintQuality_Best</constraint>
+            </option>
+            <option resource_id="20598" PHOTO_MEDIATYPE="TRUE" PHOTO_MEDIATYPE_DEFAULT="TRUE">
+              HP_ADVANCED_PHOTO_PAPER
+              <constraint>SnapTo_PrintQuality_Best</constraint>
+            </option>
+            <option resource_id="645" PHOTO_MEDIATYPE="TRUE">
+              HP_EVERYDAY_PHOTO_PAPER_SEMI_GLOSS
+              <constraint>SnapTo_PrintQuality_Best</constraint>
+            </option>
+            <option resource_id="646" PHOTO_MEDIATYPE="TRUE">
+              HP_EVERYDAY_PHOTO_PAPER_MATTE
+              <constraint>SnapTo_PrintQuality_Best</constraint>
+            </option>
+            <option resource_id="20650" PHOTO_MEDIATYPE="TRUE">
+              OTHER_PHOTO_PAPER
+              <constraint>SnapTo_PrintQuality_Best</constraint>
+            </option>
+            <option resource_id="611" >
+              HP_PREMIUM_INKJET_TRANSPARENCY
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20658">
+              OTHER_TRANSPARENCY_FILMS
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="614">
+              HP_IRON_ON_TRANSFER
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20659">
+              HP_PHOTO_CARD
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20660">
+              OTHER_SPECIALTY_PAPERS
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20652">
+              HP_PROFESSIONAL_BROCHURE_PAPER_GLOSSY
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20653">
+              HP_PROFESSIONAL_BROCHURE_PAPER_MATTE
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20596">
+              HP_PLAIN_HAGAKI
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20662">
+              INKJET_HAGAKI
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+            <option resource_id="20597">
+              HP_PHOTO_HAGAKI
+              <constraint>SnapTo_PrintQuality_Normal</constraint>
+            </option>
+	    <option resource_id="20606">
+	      HP_MATTE_POSTCARDS
+	    </option>
+            <option resource_id="616">
+              HP_PHOTO_GREETING_CARDS  
+            </option>
+          </feature>
+
+          <!-- Default Paper Size Selection -->
+          <feature resource_id="200" caption_id="10012" typical="TRUE">
+            PaperSize
+            <current_option>LETTER</current_option>
+            <option resource_id="219" PAPERSIZE_PHYSICAL_WIDTH="1480" PAPERSIZE_PHYSICAL_HEIGHT="2100" PAPERSIZE_LEFT_MARGIN="32" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="32" PAPERSIZE_BOTTOM_MARGIN="30">
+              A5
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="221" PAPERSIZE_PHYSICAL_WIDTH="1820" PAPERSIZE_PHYSICAL_HEIGHT="2570" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              B5
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="215" PAPERSIZE_PHYSICAL_WIDTH="1841" PAPERSIZE_PHYSICAL_HEIGHT="2667" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              EXECUTIVE
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="217" PAPERSIZE_PHYSICAL_WIDTH="2100" PAPERSIZE_PHYSICAL_HEIGHT="2970" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              A4
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="209" PAPERSIZE_PHYSICAL_WIDTH="2159" PAPERSIZE_PHYSICAL_HEIGHT="2794" PAPERSIZE_LEFT_MARGIN="33" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="33" PAPERSIZE_BOTTOM_MARGIN="30">
+              LETTER
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="213" PAPERSIZE_PHYSICAL_WIDTH="2159" PAPERSIZE_PHYSICAL_HEIGHT="3556" PAPERSIZE_LEFT_MARGIN="33" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="33" PAPERSIZE_BOTTOM_MARGIN="30">
+              LEGAL
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="20314" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="889" PAPERSIZE_PHYSICAL_HEIGHT="1270" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_L
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="30272" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="878" PAPERSIZE_PHYSICAL_HEIGHT="1249" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_B7
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20271" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1000" PAPERSIZE_PHYSICAL_HEIGHT="1480" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_HAGAKI_CARD
+              <constraint>SnapTo_MediaType_PhotoHagaki</constraint>
+            </option>
+            <option resource_id="20279" BORDERLESS="TRUE" PHOTO_PAPERSIZE_NONUS_DEFAULT="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="1524" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_10_X_15_CM
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20234" BORDERLESS="TRUE" PHOTO_PAPERSIZE_US_DEFAULT="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="1524" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_4_X_6_IN
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20280" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="1524" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_10_X_15_CM_WT
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20235" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="1524" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_4_X_6_IN_WT
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20254" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="2032" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_10_x_20_CM_WT
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20253" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="2032" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_4_x_8_IN_WT
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20341" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1010" PAPERSIZE_PHYSICAL_HEIGHT="1800" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_HV_SIZE
+              <constraint>PaperSize_PremiumPlusPhoto_Snap</constraint>
+            </option>
+            <option resource_id="20232" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1198" PAPERSIZE_PHYSICAL_HEIGHT="1651" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_CABINET
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20315"  BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1270" PAPERSIZE_PHYSICAL_HEIGHT="1780" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_2L
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20281" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1270" PAPERSIZE_PHYSICAL_HEIGHT="1778" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_13_X_18
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20335" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1270" PAPERSIZE_PHYSICAL_HEIGHT="1778" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_5_X_7_IN
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20276" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1480" PAPERSIZE_PHYSICAL_HEIGHT="2100" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_A5
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20316" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1821" PAPERSIZE_PHYSICAL_HEIGHT="2570" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_B5
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+              <constraint>SnapTo_Orietation_Portrait</constraint>
+            </option>
+            <option resource_id="20282" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="2032" PAPERSIZE_PHYSICAL_HEIGHT="2540" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_8_X_10_IN
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20275" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="2100" PAPERSIZE_PHYSICAL_HEIGHT="2969" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_A4
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20270" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="2159" PAPERSIZE_PHYSICAL_HEIGHT="2794" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_8_5_X_11_IN
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="30289" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="2794" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PANORAMA_10x28
+              <constraint>PaperSize_PremiumPlusPhoto_Snap</constraint>
+            </option>
+            <option resource_id="30293" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="2794" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PANORAMA_4x11
+              <constraint>PaperSize_PremiumPlusPhoto_Snap</constraint>
+            </option>
+            <option resource_id="30269" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="3048" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_PANORAMA_10X30
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="30270" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="3048" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_PHOTO_PANORAMA_4x12
+              <constraint>PaperSize_PremiumPlusPhoto_Snap</constraint>
+            </option>
+            <option resource_id="20278" BORDERLESS="TRUE" PAPERSIZE_PHYSICAL_WIDTH="2100" PAPERSIZE_PHYSICAL_HEIGHT="5941" PAPERSIZE_LEFT_MARGIN="0" PAPERSIZE_TOP_MARGIN="0" PAPERSIZE_RIGHT_MARGIN="0" PAPERSIZE_BOTTOM_MARGIN="0">
+              HP_BORDERLESS_DOUBLE_A4
+              <constraint>PaperSize_PremiumPlusPhoto_Snap</constraint>
+            </option>
+	    <option resource_id="20304">
+	     HP_BORDERLESS_3_5_X_5_IN
+	    </option>
+            <option resource_id="20236" PAPERSIZE_PHYSICAL_WIDTH="889" PAPERSIZE_PHYSICAL_HEIGHT="1270" PAPERSIZE_LEFT_MARGIN="31" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="31" PAPERSIZE_BOTTOM_MARGIN="30">
+              L
+              <constraint>SnapTo_MediaType_AdvancePhoto</constraint>
+            </option>
+            <option resource_id="30271" PAPERSIZE_PHYSICAL_WIDTH="878" PAPERSIZE_PHYSICAL_HEIGHT="1249" PAPERSIZE_LEFT_MARGIN="33" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="33" PAPERSIZE_BOTTOM_MARGIN="30">
+              B7
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="20321" PAPERSIZE_PHYSICAL_WIDTH="1000" PAPERSIZE_PHYSICAL_HEIGHT="1480" PAPERSIZE_LEFT_MARGIN="33" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="33" PAPERSIZE_BOTTOM_MARGIN="30">
+              HAGAKI_CARD
+              <constraint>SnapTo_MediaType_InkjetHagaki</constraint>
+            </option>
+            <option resource_id="20226" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="1524" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              10_X_15
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20229" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="1524" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              4_X_6_IN
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20227" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="1524" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              10_X_15_CM_WT
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20257" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="1524" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              4_X_6_IN_WT
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20251" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="2032" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              10_X_20_TAB
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20252" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="2032" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              4_X_8_IN_WT
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20338" PAPERSIZE_PHYSICAL_WIDTH="1010" PAPERSIZE_PHYSICAL_HEIGHT="1800" PAPERSIZE_LEFT_MARGIN="34" PAPERSIZE_TOP_MARGIN="31" PAPERSIZE_RIGHT_MARGIN="34" PAPERSIZE_BOTTOM_MARGIN="31">
+              HP_HV_SIZE
+              <constraint>PaperSize_PremiumPlusPhoto_Snap</constraint>
+            </option>
+            <option resource_id="20239" PAPERSIZE_PHYSICAL_WIDTH="1198" PAPERSIZE_PHYSICAL_HEIGHT="1651" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              CABINET
+              <constraint>SnapTo_MediaType_OtherPhotoPaper</constraint>
+            </option>
+            <option resource_id="20255" PAPERSIZE_PHYSICAL_WIDTH="1270" PAPERSIZE_PHYSICAL_HEIGHT="1780" PAPERSIZE_LEFT_MARGIN="32" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="32" PAPERSIZE_BOTTOM_MARGIN="30">
+              2L
+              <constraint>SnapTo_MediaType_AdvancePhoto</constraint>
+            </option>
+            <option resource_id="20228" PAPERSIZE_PHYSICAL_WIDTH="1270" PAPERSIZE_PHYSICAL_HEIGHT="1778" PAPERSIZE_LEFT_MARGIN="32" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="32" PAPERSIZE_BOTTOM_MARGIN="30">
+              13_X_18_CM
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="20230" PAPERSIZE_PHYSICAL_WIDTH="1270" PAPERSIZE_PHYSICAL_HEIGHT="1778" PAPERSIZE_LEFT_MARGIN="32" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="32" PAPERSIZE_BOTTOM_MARGIN="30">
+              5_X_7_IN
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="359" PAPERSIZE_PHYSICAL_WIDTH="1998" PAPERSIZE_PHYSICAL_HEIGHT="1480" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              OFUKUHAGAKI
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="20231" PAPERSIZE_PHYSICAL_WIDTH="2032" PAPERSIZE_PHYSICAL_HEIGHT="2540" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              8_X_10_IN
+              <constraint>SnapTo_MediaType_OtherPhotoPaper</constraint>
+            </option>
+            <option resource_id="30288">
+              HP_PANORAMA_10x28_CM
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="30292">
+              HP_PANORAMA_4_x_11
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="30268" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="3048" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              HP_PANORAMA_10x30_CM
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="30267" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="3048" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              HP_PANORAMA_4_x_12
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+            </option>
+            <option resource_id="30290" PAPERSIZE_PHYSICAL_WIDTH="2100" PAPERSIZE_PHYSICAL_HEIGHT="5941" PAPERSIZE_LEFT_MARGIN="34" PAPERSIZE_TOP_MARGIN="31" PAPERSIZE_RIGHT_MARGIN="34" PAPERSIZE_BOTTOM_MARGIN="31">
+              HP_PANORAMA_DOUBLE_A4
+              <constraint>PaperSize_PremiumPlusPhoto_Snap</constraint>
+            </option>
+            <option resource_id="228" PAPERSIZE_PHYSICAL_WIDTH="1047" PAPERSIZE_PHYSICAL_HEIGHT="2413" PAPERSIZE_LEFT_MARGIN="32" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="32" PAPERSIZE_BOTTOM_MARGIN="30">
+              ENV_10
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="235" PAPERSIZE_PHYSICAL_WIDTH="1100" PAPERSIZE_PHYSICAL_HEIGHT="2200" PAPERSIZE_LEFT_MARGIN="31" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="31" PAPERSIZE_BOTTOM_MARGIN="30">
+              ENV_DL
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="325" PAPERSIZE_PHYSICAL_WIDTH="1109" PAPERSIZE_PHYSICAL_HEIGHT="1460" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              ENV_A2
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="30273">
+              JENV_CHOU2
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="30291">
+              CARD_ENVELOPE
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="239" PAPERSIZE_PHYSICAL_WIDTH="1140" PAPERSIZE_PHYSICAL_HEIGHT="1620" PAPERSIZE_LEFT_MARGIN="31" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="31" PAPERSIZE_BOTTOM_MARGIN="30">
+              ENV_C6
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="30274" PAPERSIZE_PHYSICAL_WIDTH="1199" PAPERSIZE_PHYSICAL_HEIGHT="2349" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              JENV_CHOU3
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="30275" PAPERSIZE_PHYSICAL_WIDTH="899" PAPERSIZE_PHYSICAL_HEIGHT="2049" PAPERSIZE_LEFT_MARGIN="33" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="33" PAPERSIZE_BOTTOM_MARGIN="30">
+              JENV_CHOU4
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="20284" PAPERSIZE_PHYSICAL_WIDTH="762" PAPERSIZE_PHYSICAL_HEIGHT="1270" PAPERSIZE_LEFT_MARGIN="32" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="32" PAPERSIZE_BOTTOM_MARGIN="30">
+              INDEX_CARD_3X5
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="20285" PAPERSIZE_PHYSICAL_WIDTH="1016" PAPERSIZE_PHYSICAL_HEIGHT="1524" PAPERSIZE_LEFT_MARGIN="30" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="30" PAPERSIZE_BOTTOM_MARGIN="30">
+              INDEX_CARD_4X6
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option>
+            <option resource_id="20286" PAPERSIZE_PHYSICAL_WIDTH="1270" PAPERSIZE_PHYSICAL_HEIGHT="2032" PAPERSIZE_LEFT_MARGIN="32" PAPERSIZE_TOP_MARGIN="30" PAPERSIZE_RIGHT_MARGIN="32" PAPERSIZE_BOTTOM_MARGIN="30">
+              INDEX_CARD_5X8
+              <constraint>SnapTo_MediaType_Plain</constraint>
+            </option> 
+	    <option resource_id="201">
+              A6
+            </option>
+	    <option resource_id="398">
+              HP_BORDERLESS_PHOTO_A6
+            </option>
+	     <option resource_id="20220">
+                HP_BORDERLESS_PANORAMA_4x10
+                <constraint>PaperSize_PremiumPlusPhoto_Snap</constraint>
+             </option>
+	     <option resource_id="384">
+               HP_PANORAMA_4_x_10
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+             </option>
+
+	     <option resource_id="20220">
+                HP_BORDERLESS_PANORAMA_10x25
+                <constraint>PaperSize_PremiumPlusPhoto_Snap</constraint>
+             </option>
+	     <option resource_id="384">
+               HP_PANORAMA_10x25_CM
+              <constraint>SnapTo_MediaType_PremiumPlusPhoto</constraint>
+             </option>
+
+	     <option resource_id="270">
+		 B5_ISO                            
+	     </option>
+             <option resource_id="20298">
+		3_5_X_5
+	     </option>
+          </feature>
+
+          <!-- Print Quality-->
+          <feature editable="FALSE" typical="TRUE">
+            PrintQuality_Dummy
+            <current_option>Normal</current_option>
+            <option>
+              FastDraft
+            </option>
+            <option>
+              FastNormal
+            </option>
+            <option>
+              Normal
+            </option>
+            <option>
+              Best
+            </option>
+            <option>
+              4800x1200
+            </option>
+          </feature>
+
+          <!-- Print Quality-->
+          <feature resource_id="760" typical="true" caption_id="10019">
+            PrintQuality
+            <current_option>Normal</current_option>
+            <option resource_id="794" PHOTO_PRINTQUALITY="TRUE">
+              FastDraft
+              <constraint>SnapTo_PrintQualityDummy_FastDraft</constraint>
+              <constraint>SnapTo_HPPhotoFix_Off</constraint>
+            </option>
+            <option resource_id="790" PHOTO_PRINTQUALITY="TRUE">
+              FastNormal
+              <constraint>SnapTo_PrintQualityDummy_FastNormal</constraint>
+              <constraint>SnapTo_HPPhotoFix_Off</constraint>
+            </option>
+            <option resource_id="769" PHOTO_PRINTQUALITY="TRUE">
+              Normal
+              <constraint>SnapTo_PrintQualityDummy_Normal</constraint>
+              <constraint>SnapTo_HPPhotoFix_Basic</constraint>
+            </option>
+            <option resource_id="768" PHOTO_PRINTQUALITY="TRUE" PHOTO_PRINTQUALITY_DEFAULT="TRUE">
+              Best
+              <constraint>SnapTo_PrintQualityDummy_Best</constraint>
+              <constraint>SnapTo_HPPhotoFix_Basic</constraint>
+            </option>
+            <option resource_id="798" PHOTO_PRINTQUALITY="TRUE">
+              4800x1200
+              <constraint>SnapTo_PrintQualityDummy_4800x1200</constraint>
+              <constraint>SnapTo_HPPhotoFix_Basic</constraint>
+            </option>
+          </feature>
+
+          <!-- Real Life Technologies: PhotoFix -->
+          <feature resource_id="30821" typical="TRUE" lock="FALSE">
+            HPPhotoFix
+            <current_option>BASIC</current_option>
+
+            <option resource_id="30822">
+              OFF
+            </option>
+            <option resource_id="30823">
+              BASIC
+              <constraint>Lockout_PrintQuality_FastNormal</constraint>
+            </option>
+            <option resource_id="30824">
+              Full
+              <constraint>Lockout_PrintQuality_FastNormal</constraint>
+            </option>
+          </feature>
+
+          <!-- Print in Grayscale -->
+          <feature resource_id="836" typical="true" caption_id="10056" lock="FALSE">
+            PrintColorAsGray
+            <current_option>FALSE</current_option>
+            <option resource_id="5">
+              FALSE
+            </option>
+            <option resource_id="4">
+              TRUE
+              <feature resource_id="20829" caption_id="10091">
+                PrintColorAsGrayOptions
+                <current_option>HighQuality</current_option>
+                <option resource_id="20830">
+                  HighQuality
+                </option>
+                <option resource_id="20843">
+                  BlackOnly
+                </option>
+              </feature>
+            </option>
+          </feature>
+
+          <!-- Default Orientation Setting -->
+          <feature resource_id="850" caption_id="10013" typical="TRUE">
+            Orientation
+            <current_option>Portrait</current_option>
+            <option resource_id="851">
+              Portrait
+            </option>
+            <option resource_id="852">
+              Landscape
+            </option>
+          </feature>
+
+        </printing>
+        <!--             CONSTRAINTS SECTION "Physical" features            -->
+        <constraints>
+
+          <!-- Paper Type automation -->
+          <constraint>
+            SnapTo_MediaType_Plain
+            <requires>
+              <item force="TRUE">printing/Mediatype == PLAIN</item>
+            </requires>
+          </constraint>
+
+          <constraint onexportonly="TRUE">
+            SnapTo_MediaType_AdvancePhoto
+            <requires>
+              <item force="TRUE">printing/Mediatype == HP_ADVANCED_PHOTO_PAPER </item>
+            </requires>
+          </constraint>
+
+          <constraint onexportonly="TRUE">
+            SnapTo_MediaType_PremiumPlusPhoto
+            <requires>
+              <item force="TRUE">printing/Mediatype == HP_PREMIUM_PLUS_PHOTO_PAPER </item>
+            </requires>
+          </constraint>
+
+          <constraint onexportonly="TRUE">
+            SnapTo_MediaType_OtherPhotoPaper
+            <requires>
+              <item force="TRUE">printing/Mediatype == OTHER_PHOTO_PAPER </item>
+            </requires>
+          </constraint>
+
+          <constraint>
+            SnapTo_MediaType_PhotoHagaki
+            <requires>
+              <item force="TRUE">printing/Mediatype == HP_PHOTO_HAGAKI</item>
+            </requires>
+          </constraint>
+
+          <constraint>
+            SnapTo_MediaType_InkjetHagaki
+            <requires>
+              <item force="TRUE">printing/Mediatype == INKJET_HAGAKI</item>
+            </requires>
+          </constraint>
+
+          <constraint>
+            SnapTo_MediaType_PhotoCards
+            <requires>
+              <item force="TRUE">printing/Mediatype == HP_PHOTO_CARD</item>
+            </requires>
+          </constraint>
+
+          <!-- Print Quality automation -->
+
+          <constraint onexportonly="TRUE">
+            SnapTo_PrintQuality_Normal
+            <requires>
+              <item>printing/PrintQuality == Normal</item>
+            </requires>
+            <requires>
+              <item force="TRUE">printing/PrintQuality == Normal</item>
+            </requires>
+          </constraint>
+
+          <constraint onexportonly="TRUE">
+            SnapTo_PrintQuality_Best
+            <requires>
+              <item>printing/PrintQuality == Best</item>
+            </requires>
+            <requires>
+              <item force="TRUE">printing/PrintQuality == Best</item>
+            </requires>
+          </constraint>
+
+          <!-- Print Quality dummy automation -->
+
+          <constraint onexportonly="TRUE">
+            SnapTo_PrintQualityDummy_FastDraft
+            <requires>
+              <item>printing/PrintQuality_Dummy == FastDraft</item>
+            </requires>
+            <requires>
+              <item force="TRUE">printing/PrintQuality_Dummy == FastDraft</item>
+            </requires>
+          </constraint>
+
+          <constraint onexportonly="TRUE">
+            SnapTo_PrintQualityDummy_FastNormal
+            <requires>
+              <item>printing/PrintQuality_Dummy == FastNormal</item>
+            </requires>
+            <requires>
+              <item force="TRUE">printing/PrintQuality_Dummy == FastNormal</item>
+            </requires>
+          </constraint>
+
+          <constraint onexportonly="TRUE">
+            SnapTo_PrintQualityDummy_Normal
+            <requires>
+              <item>printing/PrintQuality_Dummy == Normal</item>
+            </requires>
+            <requires>
+              <item force="TRUE">printing/PrintQuality_Dummy == Normal</item>
+            </requires>
+          </constraint>
+
+          <constraint onexportonly="TRUE">
+            SnapTo_PrintQualityDummy_Best
+            <requires>
+              <item>printing/PrintQuality_Dummy == Best</item>
+            </requires>
+            <requires>
+              <item force="TRUE">printing/PrintQuality_Dummy == Best</item>
+            </requires>
+          </constraint>
+
+          <constraint onexportonly="TRUE">
+            SnapTo_PrintQualityDummy_4800x1200
+            <requires>
+              <item>printing/PrintQuality_Dummy == 4800x1200</item>
+            </requires>
+            <requires>
+              <item force="TRUE">printing/PrintQuality_Dummy == 4800x1200</item>
+            </requires>
+          </constraint>
+
+          <constraint>
+            Lockout_PrintQuality_FastNormal
+            <forbids>
+              <item>printing/PrintQuality_Dummy== FastNormal</item>
+            </forbids>
+          </constraint>
+
+          <!-- Photo Fix automation -->
+
+          <constraint onexportonly="TRUE">
+            SnapTo_HPPhotoFix_Off
+            <requires>
+              <item force="TRUE">printing/HPPhotoFix == OFF</item>
+            </requires>
+          </constraint>
+
+          <constraint onexportonly="TRUE">
+            SnapTo_HPPhotoFix_Basic
+            <requires>
+              <item force="TRUE">printing/HPPhotoFix == BASIC</item>
+            </requires>
+          </constraint>
+
+        </constraints>
+      </factory>
+    </component>
+  </software>
+</device>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+*%-------------------------------------------------------------------------
+*% VersionSection
+*%-------------------------------------------------------------------------
+*%-------------------------------------------------------------------------
+*GPDFileName: "hpd5060t.gpd"
+*GPDSpecVersion: "1.0"
+*GPDFileVersion: "073.24600"
+*%-------------------------------------------------------------------------
+*% IncludeSection
+*%-------------------------------------------------------------------------
+*%-------------------------------------------------------------------------
+*Include: "stdnames.gpd"
+*Include: "hpz3mw71.gpd"
+*Include: "hpzsmw71.gpd"
+*Include: "hpbserho.gpd"
+
+*%-------------------------------------------------------------------------
+*% ModelNameSection
+*%-------------------------------------------------------------------------
+*%-------------------------------------------------------------------------
+*%% Global Entries from Anima
+*%-------------------------------------------------------------------------
+*%-------------------------------------------------------------------------
+*ModelName: "HP Photosmart C4400 series"
+*MasterUnits: PAIR(1200, 1200)
+*PrinterType: SERIAL
+*PrintRateUnit: PPM
+*HelpFile: "hpzenw71.chm"
+
+*Feature: HPXMLFileUsed
+{
+    *Name: "HPXMLFileUsed"
+    *FeatureType: DOC_PROPERTY
+    *DefaultOption: hpd5060t.xml
+    *Option: hpd5060t.xml
+    {
+        *Name: "hpd5060t.xml"
+    }
+}
+*Feature: PaperSize
+{
+    *Option: 3_5_X_5
+    {
+        *rcNameID: =IDS_MSIZE_3_5X5_IN
+        *PageDimensions: PAIR(4200,6000)
+        *Constraints: HPPrintOnBothSidesManually.True
+        *Command: CmdSelect
+        {
+            *Order: PAGE_SETUP.20
+            *Cmd: =PCL_PHOTO_L
+        }
+        *switch: HPMinimizeMargins
+        {
+            *case: True
+            {
+                *switch: Orientation
+                {
+                    *case: PORTRAIT
+                    {
+                        *PrintableArea: PAIR(3872,5700)
+                        *PrintableOrigin: PAIR(164,150)
+                        *CursorOrigin: PAIR(164,150)
+                    }
+                    *case: LANDSCAPE_CC270
+                    {
+                        *PrintableArea: PAIR(3872,5700)
+                        *PrintableOrigin: PAIR(164,150)
+                        *CursorOrigin: PAIR(4036,150)
+                    }
+                }
+            }
+            *case: False
+            {
+                *switch: HPReportSymmetricMargins
+                {
+                    *case: False
+                    {
+                        *switch: Orientation
+                        {
+                            *case: PORTRAIT
+                            {
+                                *PrintableArea: PAIR(3872,5696)
+                                *PrintableOrigin: PAIR(164,150)
+                                *CursorOrigin: PAIR(164,150)
+                            }
+                            *case: LANDSCAPE_CC270
+                            {
+                                *PrintableArea: PAIR(3872,5696)
+                                *PrintableOrigin: PAIR(164,150)
+                                *CursorOrigin: PAIR(4036,150)
+                            }
+                        }
+                    }
+                    *case: True
+                    {
+                        *switch: Orientation
+                        {
+                            *case: PORTRAIT
+                            {
+                                *PrintableArea: PAIR(3872,5692)
+                                *PrintableOrigin: PAIR(164,154)
+                                *CursorOrigin: PAIR(164,150)
+                            }
+                            *case: LANDSCAPE_CC270
+                            {
+                                *PrintableArea: PAIR(3872,5692)
+                                *PrintableOrigin: PAIR(164,154)
+                                *CursorOrigin: PAIR(4036,150)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    *Option: HP_BORDERLESS_3_5_X_5
+    {
+        *rcNameID: =IDS_MSIZE_BORDERLESS_3_5_5
+        *Constraints: HPPrintOnBothSidesManually.True
+        *PageDimensions: PAIR(4200,6000)
+        *Command: CmdSelect
+        {
+            *Order: PAGE_SETUP.20
+            *Cmd: =PCL_PHOTO_L
+        }
+        *switch: Orientation
+        {
+            *case: PORTRAIT
+            {
+                *PrintableArea: PAIR(4200,6000)
+                *PrintableOrigin: PAIR(0,0)
+                *CursorOrigin: PAIR(0,0)
+            }
+            *case: LANDSCAPE_CC270
+            {
+                *PrintableArea: PAIR(4200,6000)
+                *PrintableOrigin: PAIR(0,0)
+                *CursorOrigin: PAIR(4200,0)
+            }
+        }
+    }
+}
+*%-------------------------------------------------------------------------
+*%% MacrosSection Starts
+*%-------------------------------------------------------------------------
+*%% CommandBlockMacroSection Starts
+*%-------------------------------------------------------------------------
+*BlockMacro: CMD_MediaType_HPMattePostcards_PrintQuality_FastDraft
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_300LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_PHOTO_AND_PROJECT
+    }
+}
+*BlockMacro: CMD_MediaType_HPMattePostcards_PrintQuality_Normal
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_600LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_PHOTO_AND_PROJECT
+    }
+}
+*BlockMacro: CMD_MediaType_HPMattePostcards_PrintQuality_Best
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_600LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_PHOTO_AND_PROJECT
+    }
+}
+*BlockMacro: CMD_MediaType_HPMattePostcards_PrintQuality_4800x1200
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_1200LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_PHOTO_AND_PROJECT
+    }
+}
+*BlockMacro: CMD_MediaType_HPNoteCards_PrintQuality_FastDraft
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_300LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_GREETING_CARD
+    }
+}
+*BlockMacro: CMD_MediaType_HPNoteCards_PrintQuality_Normal
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_600LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_GREETING_CARD
+    }
+}
+*BlockMacro: CMD_MediaType_HPNoteCards_PrintQuality_Best
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_600LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_GREETING_CARD
+    }
+}
+*BlockMacro: CMD_MediaType_HPNoteCards_PrintQuality_HighResMode
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_1200LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_GREETING_CARD
+    }
+}
+*BlockMacro: CMD_MediaType_HPPhotoGreetingCards_PrintQuality_FastDraft
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_300LETTER
++       =PCL_MEDIA_FAST_GLOSSY =PCL_IDX_HP_GLOSSY_GREETING_CARD
+    }
+}
+*BlockMacro: CMD_MediaType_HPPhotoGreetingCards_PrintQuality_Normal
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_600LETTER
++       =PCL_MEDIA_FAST_GLOSSY =PCL_IDX_HP_GLOSSY_GREETING_CARD
+    }
+}
+*BlockMacro: CMD_MediaType_HPPhotoGreetingCards_PrintQuality_Best
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_600LETTER
++       =PCL_MEDIA_FAST_GLOSSY =PCL_IDX_HP_GLOSSY_GREETING_CARD
+    }
+}
+*BlockMacro: CMD_MediaType_HPPhotoGreetingCards_PrintQuality_4800x1200
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_1200LETTER
++       =PCL_MEDIA_FAST_GLOSSY =PCL_IDX_HP_GLOSSY_GREETING_CARD
+    }
+}
+*BlockMacro: CMD_MediaType_HPBrochurePaperMatte_PrintQuality_FastDraft
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_300LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_BROCHURE_MATTE
+    }
+}
+*BlockMacro: CMD_MediaType_HPBrochurePaperMatte_PrintQuality_Normal
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_600LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_BROCHURE_MATTE
+    }
+}
+*BlockMacro: CMD_MediaType_HPBrochurePaperMatte_PrintQuality_Best
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_600LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_BROCHURE_MATTE
+    }
+}
+*BlockMacro: CMD_MediaType_HPBrochurePaperMatte_PrintQuality_HighResMode
+{
+    *Command: CmdSelect
+    {
+        *Order: PAGE_SETUP.5
+        *Cmd: =PCL_RASWIDTH_1200LETTER
++       =PCL_MEDIA_SPECIAL =PCL_IDX_HP_BROCHURE_MATTE
+    }
+}
+*%-------------------------------------------------------------------------
+*%% OEMBlockMacroSection starts
+*%-------------------------------------------------------------------------
+*BlockMacro: OCD_MediaType_HPMattePostcards_PrintQuality_FastDraft
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC332 =OEM_PQ_ECONO =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_NAUTILUS
++   =OEM_BFP_HALFTONE_BLACKHORZRES_300 =OEM_BFP_HALFTONE_BLACKVERTRES_300
++   =OEM_BFP_HALFTONE_COLORHORZRES_300 =OEM_BFP_HALFTONE_COLORVERTRES_300
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_42670 =OEM_HPAFLT_COMPRESSION_INTERCEPT_0
++   =OEM_IE_FLAGS_0
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPMattePostcards_PrintQuality_Normal
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC662 =OEM_PQ_NORMAL =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_NAUTILUS
++   =OEM_BFP_HALFTONE_BLACKHORZRES_600 =OEM_BFP_HALFTONE_BLACKVERTRES_600
++   =OEM_BFP_HALFTONE_COLORHORZRES_600 =OEM_BFP_HALFTONE_COLORVERTRES_600
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_10670 =OEM_HPAFLT_COMPRESSION_INTERCEPT_0
++   =OEM_IE_FLAGS_64
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPMattePostcards_PrintQuality_Best
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC662 =OEM_PQ_BEST =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_NAUTILUS
++   =OEM_BFP_HALFTONE_BLACKHORZRES_600 =OEM_BFP_HALFTONE_BLACKVERTRES_600
++   =OEM_BFP_HALFTONE_COLORHORZRES_600 =OEM_BFP_HALFTONE_COLORVERTRES_600
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_3430 =OEM_HPAFLT_COMPRESSION_INTERCEPT_200000
++   =OEM_IE_FLAGS_128
++   "GDIA<00000004><01000000>"
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPMattePostcards_PrintQuality_4800x1200
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC12122 =OEM_PQ_HIGH_RES =OEM_CD_HT_MEDIA_HP_COSMO =OEM_HPA_RM_MEDIA_HP_NAUTILUS
++   =OEM_BFP_HALFTONE_BLACKHORZRES_1200 =OEM_BFP_HALFTONE_BLACKVERTRES_1200
++   =OEM_BFP_HALFTONE_COLORHORZRES_1200 =OEM_BFP_HALFTONE_COLORVERTRES_1200
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_3430 =OEM_HPAFLT_COMPRESSION_INTERCEPT_200000
++   =OEM_IE_FLAGS_128
++   "GDIA<00000004><01000000>"
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPNoteCards_PrintQuality_FastDraft
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC332 =OEM_PQ_ECONO =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_VAIL
++   =OEM_BFP_HALFTONE_BLACKHORZRES_300 =OEM_BFP_HALFTONE_BLACKVERTRES_300
++   =OEM_BFP_HALFTONE_COLORHORZRES_300 =OEM_BFP_HALFTONE_COLORVERTRES_300
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_42670 =OEM_HPAFLT_COMPRESSION_INTERCEPT_0
++   =OEM_IE_FLAGS_64
+}
+*BlockMacro: OCD_MediaType_HPNoteCards_PrintQuality_Normal
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC662 =OEM_PQ_NORMAL =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_VAIL
++   =OEM_BFP_HALFTONE_BLACKHORZRES_600 =OEM_BFP_HALFTONE_BLACKVERTRES_600
++   =OEM_BFP_HALFTONE_COLORHORZRES_600 =OEM_BFP_HALFTONE_COLORVERTRES_600
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_10670 =OEM_HPAFLT_COMPRESSION_INTERCEPT_0
++   =OEM_IE_FLAGS_64
+}
+*BlockMacro: OCD_MediaType_HPNoteCards_PrintQuality_Best
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC662 =OEM_PQ_BEST =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_VAIL
++   =OEM_BFP_HALFTONE_BLACKHORZRES_600 =OEM_BFP_HALFTONE_BLACKVERTRES_600
++   =OEM_BFP_HALFTONE_COLORHORZRES_600 =OEM_BFP_HALFTONE_COLORVERTRES_600
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_3430 =OEM_HPAFLT_COMPRESSION_INTERCEPT_200000
++   =OEM_IE_FLAGS_128
++   "GDIA<00000004><01000000>"
+}
+*BlockMacro: OCD_MediaType_HPNoteCards_PrintQuality_HighResMode
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC12122 =OEM_PQ_HIGH_RES =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_VAIL
++   =OEM_BFP_HALFTONE_BLACKHORZRES_1200 =OEM_BFP_HALFTONE_BLACKVERTRES_1200
++   =OEM_BFP_HALFTONE_COLORHORZRES_1200 =OEM_BFP_HALFTONE_COLORVERTRES_1200
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_3430 =OEM_HPAFLT_COMPRESSION_INTERCEPT_200000
++   =OEM_IE_FLAGS_128
++   "GDIA<00000004><01000000>"
+}
+*BlockMacro: OCD_MediaType_HPPhotoGreetingCards_PrintQuality_FastDraft
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC332 =OEM_PQ_ECONO =OEM_PCL_MEDIA_FAST_GLOSSY =OEM_HPA_RM_MEDIA_HP_CABO
++   =OEM_BFP_HALFTONE_BLACKHORZRES_300 =OEM_BFP_HALFTONE_BLACKVERTRES_300
++   =OEM_BFP_HALFTONE_COLORHORZRES_300 =OEM_BFP_HALFTONE_COLORVERTRES_300
++   =OEM_BFP_BLACKEXTRACT_DISABLE =OEM_BFP_SEPARATEBLACK_DISABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_42670 =OEM_HPAFLT_COMPRESSION_INTERCEPT_0
++   =OEM_IE_FLAGS_0
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPPhotoGreetingCards_PrintQuality_Normal
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC662 =OEM_PQ_NORMAL =OEM_PCL_MEDIA_FAST_GLOSSY =OEM_HPA_RM_MEDIA_HP_CABO
++   =OEM_BFP_HALFTONE_BLACKHORZRES_600 =OEM_BFP_HALFTONE_BLACKVERTRES_600
++   =OEM_BFP_HALFTONE_COLORHORZRES_600 =OEM_BFP_HALFTONE_COLORVERTRES_600
++   =OEM_BFP_BLACKEXTRACT_DISABLE =OEM_BFP_SEPARATEBLACK_DISABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_10670 =OEM_HPAFLT_COMPRESSION_INTERCEPT_0
++   =OEM_IE_FLAGS_64
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPPhotoGreetingCards_PrintQuality_Best
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC662 =OEM_PQ_BEST =OEM_PCL_MEDIA_FAST_GLOSSY =OEM_HPA_RM_MEDIA_HP_CABO
++   =OEM_BFP_HALFTONE_BLACKHORZRES_600 =OEM_BFP_HALFTONE_BLACKVERTRES_600
++   =OEM_BFP_HALFTONE_COLORHORZRES_600 =OEM_BFP_HALFTONE_COLORVERTRES_600
++   =OEM_BFP_BLACKEXTRACT_DISABLE =OEM_BFP_SEPARATEBLACK_DISABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_3430 =OEM_HPAFLT_COMPRESSION_INTERCEPT_200000
++   =OEM_IE_FLAGS_128
++   "GDIA<00000004><01000000>"
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPPhotoGreetingCards_PrintQuality_4800x1200
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC12122 =OEM_PQ_HIGH_RES =OEM_PCL_MEDIA_FAST_GLOSSY =OEM_HPA_RM_MEDIA_HP_CABO
++   =OEM_BFP_HALFTONE_BLACKHORZRES_1200 =OEM_BFP_HALFTONE_BLACKVERTRES_1200
++   =OEM_BFP_HALFTONE_COLORHORZRES_1200 =OEM_BFP_HALFTONE_COLORVERTRES_1200
++   =OEM_BFP_BLACKEXTRACT_DISABLE =OEM_BFP_SEPARATEBLACK_DISABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_3430 =OEM_HPAFLT_COMPRESSION_INTERCEPT_200000
++   =OEM_IE_FLAGS_128
++   "GDIA<00000004><01000000>"
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPBrochurePaperMatte_PrintQuality_FastDraft
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC332 =OEM_PQ_ECONO =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_VAIL
++   =OEM_BFP_HALFTONE_BLACKHORZRES_300 =OEM_BFP_HALFTONE_BLACKVERTRES_300
++   =OEM_BFP_HALFTONE_COLORHORZRES_300 =OEM_BFP_HALFTONE_COLORVERTRES_300
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_42670 =OEM_HPAFLT_COMPRESSION_INTERCEPT_0
++   =OEM_IE_FLAGS_0
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPBrochurePaperMatte_PrintQuality_Normal
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC662 =OEM_PQ_NORMAL =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_VAIL
++   =OEM_BFP_HALFTONE_BLACKHORZRES_600 =OEM_BFP_HALFTONE_BLACKVERTRES_600
++   =OEM_BFP_HALFTONE_COLORHORZRES_600 =OEM_BFP_HALFTONE_COLORVERTRES_600
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_10670 =OEM_HPAFLT_COMPRESSION_INTERCEPT_0
++   =OEM_IE_FLAGS_64
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPBrochurePaperMatte_PrintQuality_Best
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC662 =OEM_PQ_BEST =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_VAIL
++   =OEM_BFP_HALFTONE_BLACKHORZRES_600 =OEM_BFP_HALFTONE_BLACKVERTRES_600
++   =OEM_BFP_HALFTONE_COLORHORZRES_600 =OEM_BFP_HALFTONE_COLORVERTRES_600
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_3430 =OEM_HPAFLT_COMPRESSION_INTERCEPT_200000
++   =OEM_IE_FLAGS_128
++   =OEM_SPEEDMECH_ENABLE
+}
+*BlockMacro: OCD_MediaType_HPBrochurePaperMatte_PrintQuality_HighResMode
+{
+        EXTERN_GLOBAL: *OEMCustomData:
++   =OEM_COMMON_INFO =OEM_DF_HPA_SEQC12122 =OEM_PQ_HIGH_RES =OEM_PCL_MEDIA_SPECIAL =OEM_HPA_RM_MEDIA_HP_VAIL
++   =OEM_BFP_HALFTONE_BLACKHORZRES_1200 =OEM_BFP_HALFTONE_BLACKVERTRES_1200
++   =OEM_BFP_HALFTONE_COLORHORZRES_1200 =OEM_BFP_HALFTONE_COLORVERTRES_1200
++   =OEM_BFP_BLACKEXTRACT_ENABLE =OEM_BFP_SEPARATEBLACK_ENABLE
++   =OEM_CS_REDUCED_K_CHANNEL_DISABLE
++   =OEM_HPAFLT_COMPRESSION_SLOPE_3430 =OEM_HPAFLT_COMPRESSION_INTERCEPT_200000
++   =OEM_IE_FLAGS_128
++   =OEM_SPEEDMECH_ENABLE
+}
+*%-------------------------------------------------------------------------
+*%% OtherBlockMacroSection starts
+*%-------------------------------------------------------------------------
+*BlockMacro: MediaType_HPMattePostcards
+{
+    *switch: PrintQuality
+    {
+        *case: FastDraft
+        {
+            *InsertBlock: =CMD_MediaType_HPMattePostcards_PrintQuality_FastDraft
+            *InsertBlock: =OCD_MediaType_HPMattePostcards_PrintQuality_FastDraft
+        }
+        *default: 
+        {
+            *InsertBlock: =CMD_MediaType_HPMattePostcards_PrintQuality_Normal
+            *InsertBlock: =OCD_MediaType_HPMattePostcards_PrintQuality_Normal
+        }
+        *case: Best
+        {
+            *InsertBlock: =CMD_MediaType_HPMattePostcards_PrintQuality_Best
+            *InsertBlock: =OCD_MediaType_HPMattePostcards_PrintQuality_Best
+        }
+        *case: 4800x1200
+        {
+            *InsertBlock: =CMD_MediaType_HPMattePostcards_PrintQuality_4800x1200
+            *InsertBlock: =OCD_MediaType_HPMattePostcards_PrintQuality_4800x1200
+        }
+    }
+}
+*BlockMacro: MediaType_HPNoteCards
+{
+    *switch: PrintQuality
+    {
+        *case: FastDraft
+        {
+            *InsertBlock: =CMD_MediaType_HPNoteCards_PrintQuality_FastDraft
+            *InsertBlock: =OCD_MediaType_HPNoteCards_PrintQuality_FastDraft
+        }
+        *default: 
+        {
+            *InsertBlock: =CMD_MediaType_HPNoteCards_PrintQuality_Normal
+            *InsertBlock: =OCD_MediaType_HPNoteCards_PrintQuality_Normal
+        }
+        *case: Best
+        {
+            *InsertBlock: =CMD_MediaType_HPNoteCards_PrintQuality_Best
+            *InsertBlock: =OCD_MediaType_HPNoteCards_PrintQuality_Best
+        }
+        *case: 4800x1200
+        {
+            *InsertBlock: =CMD_MediaType_HPNoteCards_PrintQuality_HighResMode
+            *InsertBlock: =OCD_MediaType_HPNoteCards_PrintQuality_HighResMode
+        }
+    }
+}
+*BlockMacro: MediaType_HPPhotoGreetingCards
+{
+    *switch: PrintQuality
+    {
+        *case: FastDraft
+        {
+            *InsertBlock: =CMD_MediaType_HPPhotoGreetingCards_PrintQuality_FastDraft
+            *InsertBlock: =OCD_MediaType_HPPhotoGreetingCards_PrintQuality_FastDraft
+        }
+        *case: Normal
+        {
+            *InsertBlock: =CMD_MediaType_HPPhotoGreetingCards_PrintQuality_Normal
+            *InsertBlock: =OCD_MediaType_HPPhotoGreetingCards_PrintQuality_Normal
+        }
+        *default: 
+        {
+            *InsertBlock: =CMD_MediaType_HPPhotoGreetingCards_PrintQuality_Best
+            *InsertBlock: =OCD_MediaType_HPPhotoGreetingCards_PrintQuality_Best
+        }
+        *case: 4800x1200
+        {
+            *InsertBlock: =CMD_MediaType_HPPhotoGreetingCards_PrintQuality_4800x1200
+            *InsertBlock: =OCD_MediaType_HPPhotoGreetingCards_PrintQuality_4800x1200
+        }
+    }
+}
+*BlockMacro: MediaType_HPBrochurePaperMatte
+{
+    *switch: PrintQuality
+    {
+        *case: FastDraft
+        {
+            *InsertBlock: =CMD_MediaType_HPBrochurePaperMatte_PrintQuality_FastDraft
+            *InsertBlock: =OCD_MediaType_HPBrochurePaperMatte_PrintQuality_FastDraft
+        }
+        *case: Normal
+        {
+            *InsertBlock: =CMD_MediaType_HPBrochurePaperMatte_PrintQuality_Normal
+            *InsertBlock: =OCD_MediaType_HPBrochurePaperMatte_PrintQuality_Normal
+        }
+        *default: 
+        {
+            *InsertBlock: =CMD_MediaType_HPBrochurePaperMatte_PrintQuality_Best
+            *InsertBlock: =OCD_MediaType_HPBrochurePaperMatte_PrintQuality_Best
+        }
+        *case: 4800x1200
+        {
+            *InsertBlock: =CMD_MediaType_HPBrochurePaperMatte_PrintQuality_HighResMode
+            *InsertBlock: =OCD_MediaType_HPBrochurePaperMatte_PrintQuality_HighResMode
+        }
+    }
+}
+*Feature: MediaType
+{
+    *Option: HP_PLAIN_HAGAKI
+    {
+        *Constraints: PaperSize.3_5_X_5
+        *Constraints: PaperSize.HP_BORDERLESS_3_5_X_5
+    }
+    *Option: INKJET_HAGAKI
+    {
+        *Constraints: PaperSize.3_5_X_5
+        *Constraints: PaperSize.HP_BORDERLESS_3_5_X_5
+    }
+    *Option: HP_PHOTO_HAGAKI
+    {
+        *Constraints: PaperSize.3_5_X_5
+        *Constraints: PaperSize.HP_BORDERLESS_3_5_X_5
+    }
+    *Option: HP_MATTE_POSTCARDS
+    {
+        *rcNameID: =IDS_MTYPE_IJ_HP_MATTE_POSTCARDS
+        *InsertBlock: =MediaType_HPMattePostcards
+        EXTERN_GLOBAL: *ChangeColorModeOnDoc?: FALSE
+        *Constraints: HPBorderLessPhoto.True
+    }
+    *Option: HP_NOTE_CARDS
+    {
+        *rcNameID: =IDS_MTYPE_HP_NOTE_CARDS
+        *OptionID: =HP_DMMEDIA_HP_NOTE_CARDS
+        *InsertBlock: =MediaType_HPNoteCards
+        EXTERN_GLOBAL: *ChangeColorModeOnDoc?: FALSE
+        *Constraints: HPBorderLessPhoto.True
+    }
+    *Option: HP_PHOTO_GREETING_CARDS
+    {
+        *rcNameID: =IDS_HP_PHOTO_GREETING_CARD_PAPER
+        *OptionID: =HP_DMMEDIA_HP_PHOTO_GREETING_CARDS
+        *InsertBlock: =MediaType_HPPhotoGreetingCards
+        EXTERN_GLOBAL: *ChangeColorModeOnDoc?: FALSE
+    }
+    *Option: HP_PROFESSIONAL_BROCHURE_PAPER_MATTE
+    {
+        *rcNameID: =IDS_MTYPE_IJ_HP_BRO_FLY_MAT
+        *OptionID: =HP_DMMEDIA_HP_PROFESSIONAL_BROCHURE_PAPER_MATTE
+        *InsertBlock: =MediaType_HPBrochurePaperMatte
+        EXTERN_GLOBAL: *ChangeColorModeOnDoc?: FALSE
+    }
+}
+
+
+*Feature: HPCollieBeagleBasset
+{
+	 *Name: "HPCollieBeagleBasset"
+	 *FeatureType: DOC_PROPERTY
+	 *DefaultOption: True
+	*Option: True
+	{	
+		*Name: "True"
+	}
+}
+
+
+*Feature: PSAlignmentFile
+{
+    *Name: "PSAlignmentFile"
+    *FeatureType: DOC_PROPERTY
+    *Option: HPZlAw71
+    {
+        *Name: "HPZlAw71"
+    }
+}
+*Feature: PSServicesOption
+{
+    *Name: "PSServicesOption"
+    *FeatureType: DOC_PROPERTY
+    *DefaultOption: Clean
+    *Option: Align
+    {
+        *Name: ""
+    }
+    *Option: Clean
+    {
+        *Name: ""
+    }
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE device SYSTEM "hpzscw71.dtd">
+<device>
+   <software>
+      <file_header>
+         <file_name>hpd5060t.xml</file_name>
+         <file_version>073.24600</file_version>
+         <file_timestamp>02/12/2008</file_timestamp>
+      </file_header>
+      <component>
+         <name>Mombi</name>
+         <helper>
+            <name/>
+
+            <events>
+                <!--    =========================================    -->
+                <!--                DMCInstallTime                   -->
+                <!--     called during DMC Install Time (Import)     -->
+                <!--    =========================================    -->
+
+                <event>
+                    <name>DMCInstallTime</name>
+                    <macro_name>macro_PrintQualityImport</macro_name>
+                </event>
+
+                <!--    =========================================    -->
+                <!--                DMCUpgradeTime                   -->
+                <!--     called during DMC Upgrade Time (Export)     -->
+                <!--    =========================================    -->
+
+                <event>
+                    <name>DMCUpgradeTime</name>
+                    <macro_name>macro_PrintQualityExport</macro_name>
+                </event>
+
+            </events>
+        
+            <!-- put a name if we have multiple helpers-->
+            <features>
+            <!-- ========================================= -->
+            <!--     Emulate LaserJet Margins              -->
+            <!-- ========================================= -->
+                <feature>
+                <name>HP_Emulate_Margins</name>
+                <switch>
+                <name>Paper_Dimensions</name>
+               <case_default>
+                      <data>200_200_200_200</data>
+               </case_default>
+               </switch>
+               </feature>
+
+
+            <!--  Features are Paper size, Media Type and Print Quality -->
+             <!-- =========================================== -->
+             <!--                  Paper Size                 -->
+             <!-- =========================================== -->
+             <feature>
+                 <name>PaperSize</name>
+                 <macro_name>macro_PaperSize</macro_name>
+             </feature>
+               <!-- ========================================= -->
+               <!--                 MediaType                 -->
+               <!-- ========================================= -->
+               <feature>
+                  <name>MediaType</name>
+                  <macro_name>macro_MediaType</macro_name>
+               </feature>
+
+              <feature>
+                  <name>HPPhotoFix</name>
+                  <macro_name>macro_HPPhotoFix</macro_name>
+               </feature>
+
+            <feature>
+
+                  <name>Resolution</name>
+
+                  <macro_name>macro_resolution</macro_name>
+
+            </feature>
+
+ 
+               <!-- ========================================= -->
+               <!--           Print Quality Group             -->
+               <!--   Options are as follows                  -->
+               <!--   (a) PQGroup_1 - Best                    -->
+               <!--   (b) PQGroup_2 - Normal                  -->
+               <!--   (c) PQGroup_3 - FastDraft                    -->
+               <!--   (d) PQGroup_4 - Fast Normal             -->
+               <!--   (e) PQGroup_5 - 4800x1200             -->
+               <!-- ========================================= -->
+               <feature>
+                  <name>PrintQualityGroup</name>
+                  <macro_name>macro_PrintQualityGroup</macro_name>
+               </feature>
+               <feature>
+                  <name>HPInputColorSpace</name>
+                  <macro_name>macro_HPInputColorSpace</macro_name>
+               </feature>
+              <feature>
+                <name>CustomSize</name>
+                <macro_name>macro_custom_size</macro_name>            
+              </feature>
+              <!--                                             -->
+               <!--            ICM Profile FileName macro       -->
+               <!-- ========================================= -->
+              <feature>
+                 <name>ICCProfileFileName</name>
+                 <macro_name>macro_ICCProfileFileName</macro_name>
+             </feature>
+             <feature>
+                 <name>InstalledPenSet_Premium</name>
+                 <macro_name>macro_InstalledPenSet_Premium</macro_name>
+             </feature>
+            
+             <feature>
+                 <name>InstalledPenSet_PremiumPlusPhoto</name>
+                 <macro_name>macro_InstalledPenSet_PremiumPlusPhoto</macro_name>
+             </feature>        
+            </features>
+            <macros>
+               
+               <!-- ========================================= -->
+               <!--                HPInput ColorSpace         -->
+               <!--                                           -->
+               <!-- ========================================= -->
+               
+           
+           <macro>
+
+                  <name>macro_Resolution</name>
+
+                  <switch>
+
+                     <name>Resolution</name>
+                     <case>
+                        <name>300dpi</name>                     
+                          <select_option>PrintQualityGroup.PQGroup_3</select_option>  
+                         <select_option>PrintQuality.FastDraft</select_option>                        
+                    </case>
+                    <case>
+                        <name>600dpi</name>                     
+                          <select_option>PrintQualityGroup.PQGroup_1</select_option> 
+                          <select_option>PrintQuality.Best</select_option>                         
+                    </case>
+                    <case>
+                        <name>1200dpi</name>                     
+                          <select_option>PrintQualityGroup.PQGroup_5</select_option>  
+                          <select_option>PrintQuality.4800x1200</select_option>                       
+                    </case>
+                    </switch>
+                     <call>macro_PQ_PhotoFix</call>
+                </macro>
+
+           
+           <macro>
+              <name>macro_HPInputColorSpace</name>
+              <switch>
+                 <name>HPInputColorSpace</name>
+                 <case>
+                    <name>ADOBERGB</name>
+                                        
+                    <switch>
+                        <name>MediaType</name>
+                            <case>
+                                <name>HP_CD_TATTOO_PAPER</name>
+                                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                                <switch>
+                                    <name>HPMaxDpi</name>
+                                    <case>
+                                        <name>False</name>
+                                        <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                                    </case>
+                                    <case>
+                                        <name>True</name>
+                                        <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                                    </case>
+                                </switch>
+                                <hide_option>PrintQualityGroup.PQGroup_3</hide_option>
+                            </case>                
+                    </switch>
+                   <switch>
+                     <name>PaperSize</name>
+                     <case>
+                       <name>13_X_18_CM</name>
+                       <select_option>PaperSize.13_X_18_CM</select_option>
+                     </case>
+                     <case_default>
+                       <select_option>PaperSize.5_X_7_IN</select_option>
+                     </case_default>
+                   </switch>
+                    <resource_id>3996</resource_id>
+                    <resource_id>3996</resource_id>
+                    <resource_id>968</resource_id>
+                 </case>
+                 <case>
+                    <name>MANAGEDBYAPPLN</name>
+                    <select_option>PrintQualityGroup.PQGroup_1</select_option>
+                    <resource_id>3996</resource_id>
+                    <resource_id>3996</resource_id>
+                    <resource_id>968</resource_id>
+                 </case>
+                
+                 <case_default>
+                     
+                     <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                     <switch>
+                         <name>HPMaxDpi</name>
+                         <case>
+                             <name>False</name>
+                             <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                         </case>
+                         <case>
+                             <name>True</name>
+                             <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                         </case>
+                     </switch>
+                                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                     <resource_id>3996</resource_id>
+                     <resource_id>3996</resource_id>
+                     <resource_id>968</resource_id>
+                 </case_default>
+              </switch>
+           </macro>
+
+            <macro>
+                  <name>macro_HPPhotoFix</name>
+                         <switch>
+                            <name>HPPhotoFix</name>
+                                <case>
+                                    <name>OFF</name>
+                                    <select_option>HPSmartFocus.Off</select_option>
+                                    <select_option>HPContrast.On</select_option>
+                                    <select_option>HPDigitalFlash.On</select_option>
+                                    <select_option>HPSharpness.On</select_option>
+                                    <select_option>HPSmoothing.On</select_option>
+                                </case>
+                                <case>
+                                    <name>BASIC</name>
+                                    <select_option>HPSmartFocus.On</select_option>
+                                    <select_option>HPContrast.On</select_option>
+                                    <select_option>HPDigitalFlash.On</select_option>
+                                    <select_option>HPSharpness.Low</select_option>
+                                    <select_option>HPSmoothing.On</select_option>
+                                </case>
+                                <case>
+                                    <name>FULL</name>
+                                    <select_option>HPSmartFocus.On</select_option>
+                                    <select_option>HPContrast.Off</select_option>
+                                    <select_option>HPDigitalFlash.Off</select_option>
+                                    <select_option>HPSharpness.Off</select_option>
+                                    <select_option>HPSmoothing.On</select_option>
+                                </case>
+                    </switch>
+         </macro>
+
+
+            <macro>
+            <name>macro_pop_up_Missing_Duplexer</name>
+              <title>4319</title>                   
+              <string_id>4320</string_id>    
+              <butt1>4330</butt1>
+              <butt2>4342</butt2>                                                  
+              <showpopup>MODAL_DLG</showpopup>                     
+            </macro>
+                <macro>
+                    <name>macro_pop_up_HPMaxDpi</name>
+                    <title>6664</title>
+                    <string_id>6665</string_id>
+                    <checkbox_present>TRUE</checkbox_present>
+                    <butt1>6420</butt1>
+                    <showpopup>MODAL_DLG</showpopup>
+                </macro>    
+            <macro>
+
+                <name>macro_pop_up_4800_1200_warning</name>
+                <title>3434</title>
+                <string_id>5328</string_id>
+                <checkbox_present>TRUE</checkbox_present>
+                <butt1>6420</butt1>
+                <showpopup>MODAL_DLG</showpopup>
+
+              </macro>
+
+           
+            
+            
+
+
+
+            <macro>
+            <name>macro_pop_up_LargeMedia_PhotoTray</name>
+              <title>4321</title>                   
+              <string_id>4323</string_id>    
+              <butt1>4330</butt1>
+              <butt2>4342</butt2>                                                  
+              <showpopup>MODAL_DLG</showpopup>                     
+            </macro>
+            <macro>
+            <name>macro_pop_up_Duplex_PhotoTray</name>
+              <title>4321</title>                   
+              <string_id>4322</string_id>    
+              <butt1>4330</butt1>                                                             
+              <showpopup>MODAL_DLG</showpopup>                     
+            </macro>
+            
+            <macro>
+            <name>macro_pop_up_Borderless_BlkCartridge</name>
+              <title>4328</title>                   
+              <string_id>4329</string_id>    
+              <butt1>849</butt1>                                                                
+              <showpopup>MODAL_DLG</showpopup>                     
+            </macro>
+
+            <macro>
+            <name>macro_pop_up_DriverSelMismatch_PhotoTray</name>
+              <title>5786</title>                   
+              <string_id>5787</string_id>
+              <string_id>5788</string_id>    
+              <butt1>3142</butt1>                                                                
+              <showpopup>MODAL_DLG</showpopup>                     
+            </macro>
+
+            <macro>
+            <name>macro_PaperSize</name>
+            
+            <switch>
+              <name>PaperSize</name> 
+              <case>
+                <name>HP_BORDERLESS_PHOTO_L</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               
+
+                <case>
+               <name>HP_BORDERLESS_PHOTO_HAGAKI_CARD</name>
+                  <select_option>MediaType.HP_PHOTO_HAGAKI</select_option>
+               </case>
+
+               <case>
+               <name>HP_BORDERLESS_PHOTO_10_X_15_CM</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+                <case>
+               <name>HP_BORDERLESS_4_X_6_IN</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               <case>
+               <name>HP_BORDERLESS_PHOTO_10_X_15_CM_WT</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+                <case>
+               <name>HP_BORDERLESS_4_X_6_IN_WT</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               <case>
+               <name>HP_BORDERLESS_PHOTO_4_x_8_IN_WT</name>
+                  <select_option>MediaType.HP_PHOTO_CARD</select_option>
+               </case>
+                
+                <case>
+               <name>HP_BORDERLESS_PHOTO_10_x_20_CM_WT</name>
+                  <select_option>MediaType.HP_PHOTO_CARD</select_option>
+               </case>
+               
+
+               <case>
+               <name>HP_BORDERLESS_CABINET</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+                 <case>
+                <name>HP_BORDERLESS_PHOTO_2L</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+                <case>
+                <name>HP_BORDERLESS_PHOTO_13_X_18</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               <case>
+                <name>HP_BORDERLESS_PHOTO_5_X_7_IN</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+                
+
+               <case>
+                <name>HP_BORDERLESS_3_5_X_5</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+
+                <case>
+                <name>HP_HV_SIZE</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+                
+                
+                <case>
+                <name>CABINET</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+                
+                
+               <case>
+                <name>HP_BORDERLESS_B7</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+                <case>
+                <name>HP_BORDERLESS_HV_SIZE</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+                
+                
+                <case>
+                <name>HP_BORDERLESS_A5</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               <case>
+               <name>HP_BORDERLESS_A6</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+                <case>
+                <name>HP_BORDERLESS_PHOTO_B5</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+                <case>
+                <name>HP_BORDERLESS_PHOTO_8_X_10_IN</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+                 <case>
+                <name>HP_BORDERLESS_A4</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>            
+
+               <case>
+                <name>HP_BORDERLESS_PHOTO_8_5_X_11_IN</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+
+               <case>
+               <name>HP_BORDERLESS_PANORAMA_10x25</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>  
+               
+               <case>
+                <name>HP_BORDERLESS_PANORAMA_10x28</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               
+               <case>
+                <name>HP_BORDERLESS_PHOTO_PANORAMA_10x30</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>                   
+               </case>
+
+               <case>
+               <name>HP_BORDERLESS_PANORAMA_4x10</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               <case>
+                <name>HP_BORDERLESS_PANORAMA_4x11</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               <case>
+                <name>HP_BORDERLESS_PHOTO_PANORAMA_4x12</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               
+                <case>
+               <name>L</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+               
+               <case>
+               <name>HAGAKI_CARD</name>
+                  <select_option>MediaType.INKJET_HAGAKI</select_option>
+               </case>
+
+                <case>
+               <name>10_X_15_CM_WT</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+                
+                 <case>
+               <name>4_X_6_IN</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+              
+                 <case>
+                <name>4_X_6_IN_WT</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+                
+                 <case>
+               <name>10_X_15</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+                
+                <case>
+               <name>10_X_20_TAB</name>
+                  <select_option>MediaType.HP_PHOTO_CARD</select_option>
+               </case>
+
+               <case>
+               <name>4_X_8_IN_WT</name>
+                  <select_option>MediaType.HP_PHOTO_CARD</select_option>
+               </case>
+
+               <case>
+               <name>2L</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+              <case>
+               <name>13_X_18_CM</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+                <case>
+               <name>5_X_7_IN</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+
+                <case>
+               <name>8_X_10_IN</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>   
+              
+               
+                <case>
+               <name>HP_PANORAMA_DOUBLE_A4</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+               
+               
+               <case>
+               <name>HP_PANORAMA_4_x_12</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case> 
+              
+              
+              
+              
+
+               <case>
+               <name>HP_PANORAMA_10x30_CM</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case> 
+
+
+               
+
+
+               <case>
+               <name>HP_PANORAMA_10x28_CM</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case> 
+
+
+               <case>
+               <name>HP_PANORAMA_4_x_11</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case> 
+              
+              
+               <case>
+               <name>HP_PANORAMA_10x25_CM</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case> 
+
+
+               <case>
+               <name>HP_PANORAMA_4_x_10</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case> 
+                <case>
+                <name>3_5_X_5</name>
+                  <select_option>MediaType.HP_PREMIUM_PLUS_PHOTO_PAPER</select_option>
+               </case>
+              
+              
+              <case>
+               <name>A5</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case> 
+               
+               <case>
+               <name>B5</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case> 
+               
+                <case>
+               <name>EXECUTIVE</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case> 
+               
+               <case>
+               <name>A4</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case> 
+              
+              <case>
+               <name>LETTER</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case> 
+               
+               <case>
+               <name>LEGAL</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case> 
+              
+              
+                           
+              
+              <case>
+                <name>B7</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+               <case>
+                <name>OFUKUHAGAKI</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+                                           
+               
+                <case>
+               <name>JENV_CHOU4</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+               <case>
+               <name>ENV_10</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+               <case>
+               <name>ENV_DL</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+               <case>
+               <name>ENV_A2</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+               <case>
+               <name>JENV_CHOU2</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+               <case>
+               <name>CARD_ENVELOPE</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+                <case>
+               <name>ENV_C6</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+                             
+                              
+              <case>
+               <name>JENV_CHOU3</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+               
+               
+               
+               <case>
+               <name>INDEX_CARD_3X5</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+                 <case>
+               <name>INDEX_CARD_4X6</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+                <case>
+               <name>INDEX_CARD_5X8</name>
+                  <select_option>MediaType.PLAIN</select_option>
+               </case>
+               
+              <case_default>
+                <select_option>MediaType.PLAIN</select_option>
+
+              </case_default>
+            </switch>
+              <call>macro_MediaType</call>
+          </macro>
+          <macro>
+            <name>macro_Mediatype_to_PaperSize</name>
+                 <select_option>PaperSize.LETTER</select_option>
+          </macro>
+
+          <macro>
+            <name>macro_custom_paper_size</name>
+            <select_option>MediaType.PLAIN</select_option>
+          </macro>
+               <!-- ========================================= -->
+               <!--                 MediaType                 -->
+               <!-- ========================================= -->
+           <macro>
+              <name>macro_MediaType</name>
+              <!-- ========================================= -->
+              <!-- First macro statement                     -->
+              <!-- determines which PQ options are           -->
+              <!-- displayed for each media type, and        -->
+              <!-- select a default PQ option                -->
+              <!-- ========================================= -->
+          <switch>
+            <name>MediaType</name>
+           
+
+              <case>
+                <name>PLAIN</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+              
+              <case>
+                <name>HP_BRIGHT_WHITE_INKJET_PAPER</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+
+              <case>
+                <name>HP_PREM_INKJET_PAPER</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>        
+              </case>
+               
+              <case>
+                <name>OTHER_INKJET_PAPERS</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+
+             <case>
+                <name>HP_PREMIUM_PLUS_PHOTO_PAPER</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                 <switch>
+                     <name>HPMaxDpi</name>
+                     <case>
+                         <name>False</name>
+                         <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                     </case>
+                     <case>
+                         <name>True</name>
+                         <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                     </case>
+                 </switch>
+                <select_option>PrintQualityGroup.PQGroup_1</select_option>
+             </case>
+             
+             <case>
+                <name>HP_PREMIUM_PHOTO_PAPER</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                 <switch>
+                     <name>HPMaxDpi</name>
+                     <case>
+                         <name>False</name>
+                         <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                     </case>
+                     <case>
+                         <name>True</name>
+                         <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                     </case>
+                 </switch>
+                <select_option>PrintQualityGroup.PQGroup_1</select_option>
+             </case>
+
+             <case>
+                <name>HP_ADVANCED_PHOTO_PAPER</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                 <switch>
+                     <name>HPMaxDpi</name>
+                     <case>
+                         <name>False</name>
+                         <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                     </case>
+                     <case>
+                         <name>True</name>
+                         <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                     </case>
+                 </switch>
+                <select_option>PrintQualityGroup.PQGroup_1</select_option>
+             </case>
+
+             <case>
+                <name>HP_EVERYDAY_PHOTO_PAPER_SEMI_GLOSS</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                 <switch>
+                     <name>HPMaxDpi</name>
+                     <case>
+                         <name>False</name>
+                         <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                     </case>
+                     <case>
+                         <name>True</name>
+                         <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                     </case>
+                 </switch>
+                <select_option>PrintQualityGroup.PQGroup_1</select_option>
+                
+             </case>    
+              
+            
+            
+            
+              <case>
+                <name>HP_EVERYDAY_PHOTO_PAPER_MATTE</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_1</select_option>
+                
+             </case>    
+              
+            
+             <case>
+                <name>OTHER_PHOTO_PAPER</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                 <switch>
+                     <name>HPMaxDpi</name>
+                     <case>
+                         <name>False</name>
+                         <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                     </case>
+                     <case>
+                         <name>True</name>
+                         <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                     </case>
+                 </switch>
+                <select_option>PrintQualityGroup.PQGroup_1</select_option>
+             </case>
+             
+             <case>
+                <name>HP_PREMIUM_INKJET_TRANSPARENCY</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                 <switch>
+                     <name>HPMaxDpi</name>
+                     <case>
+                         <name>False</name>
+                         <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                     </case>
+                     <case>
+                         <name>True</name>
+                         <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                     </case>
+                 </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+             </case>
+             
+             <case>
+                <name>OTHER_TRANSPARENCY_FILMS</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                 <switch>
+                     <name>HPMaxDpi</name>
+                     <case>
+                         <name>False</name>
+                         <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                     </case>
+                     <case>
+                         <name>True</name>
+                         <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                     </case>
+                 </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+             </case>
+             
+             <case>
+                <name>HP_IRON_ON_TRANSFER</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                 <switch>
+                     <name>HPMaxDpi</name>
+                     <case>
+                         <name>False</name>
+                         <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                     </case>
+                     <case>
+                         <name>True</name>
+                         <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                     </case>
+                 </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+           
+              <case>
+                <name>HP_LABELS_GLOSSY</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case> 
+
+              
+                          
+            <case>
+                <name>HP_PHOTO_CARD</name> 
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                <switch>
+                    <name>HPMaxDpi</name>
+                    <case>
+                        <name>False</name>
+                        <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                    </case>
+                    <case>
+                        <name>True</name>
+                        <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                    </case>
+                </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case> 
+            
+       
+             <case>
+                <name>HP_CD_TATTOO_PAPER</name>
+               <switch>
+                <name>HPInputColorSpace</name>
+                <case>
+                <name>ADOBERGB</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                    <switch>
+                        <name>HPMaxDpi</name>
+                        <case>
+                            <name>False</name>
+                            <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                        </case>
+                        <case>
+                            <name>True</name>
+                            <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                        </case>
+                    </switch>
+                <hide_option>PrintQualityGroup.PQGroup_3</hide_option>
+                <select_option>PrintQualityGroup.PQGroup_1</select_option>
+                </case>
+                <case_default>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                    <switch>
+                        <name>HPMaxDpi</name>
+                        <case>
+                            <name>False</name>
+                            <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                        </case>
+                        <case>
+                            <name>True</name>
+                            <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                        </case>
+                    </switch>
+                <select_option>PrintQualityGroup.PQGroup_1</select_option>
+                </case_default>
+             </switch>
+               <switch>
+                 <name>PaperSize</name>
+               <case>
+                 <name>13_X_18_CM</name>
+                 <select_option>PaperSize.13_X_18_CM</select_option>
+               </case>
+               <case_default>
+                 <select_option>PaperSize.5_X_7_IN</select_option>
+               </case_default>
+             </switch>
+              </case>
+
+              <case>
+                <name>OTHER_SPECIALTY_PAPERS</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+
+             
+
+              <case>
+                <name>HP_PROFESSIONAL_BROCHURE_PAPER_GLOSSY</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>                
+              </case>
+
+              <case>
+                <name>HP_PROFESSIONAL_BROCHURE_PAPER_MATTE</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+
+            
+              <case>
+                <name>HP_PLAIN_HAGAKI</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+
+              <case>
+                <name>INKJET_HAGAKI</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+              
+              <case>
+                <name>HP_PHOTO_HAGAKI</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+
+              <case>
+                <name>HP_MATTE_POSTCARDS</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+
+              <case>
+                <name>HP_NOTE_CARDS</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+		  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_2</select_option>
+              </case>
+
+                <case>
+                <name>HP_PHOTO_GREETING_CARDS</name>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+		  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                <select_option>PrintQualityGroup.PQGroup_1</select_option>
+              </case> 
+
+             
+              <case_default>
+                <enable_option>PrintQualityGroup.PQGroup_1</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_2</enable_option>
+                <enable_option>PrintQualityGroup.PQGroup_3</enable_option>
+                  <switch>
+                      <name>HPMaxDpi</name>
+                      <case>
+                          <name>False</name>
+                          <hide_option>PrintQualityGroup.PQGroup_5</hide_option>
+                      </case>
+                      <case>
+                          <name>True</name>
+                          <enable_option>PrintQualityGroup.PQGroup_5</enable_option>
+                      </case>
+                  </switch>
+                   <Overspray_Bottom>0.093</Overspray_Bottom>
+         </Borderless>
+               
+         
+        <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_4_X_6_IN</Borderless_Paper>
+               <Paper>4_X_6_IN</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+         </Borderless>
+
+         <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_4_X_6_IN_WT</Borderless_Paper>
+               <Paper>4_X_6_IN_WT</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+              <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.137</Overspray_Bottom>
+         </Borderless>
+
+         <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_PHOTO_10_X_15_CM</Borderless_Paper>
+               <Paper>10_X_15</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+             <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+         </Borderless>
+
+         <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_PHOTO_10_X_15_CM_WT</Borderless_Paper>
+               <Paper>10_X_15_CM_WT</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+               <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.137</Overspray_Bottom>
+         </Borderless>
+         
+         <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_PHOTO_4_x_8_IN_WT</Borderless_Paper>
+               <Paper>4_X_8_IN_WT</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+              <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.137</Overspray_Bottom>
+         </Borderless>
+         
+         <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_PHOTO_10_x_20_CM_WT</Borderless_Paper>
+               <Paper>10_X_20_TAB</Paper>
+               <Overspray_Left>0.098</Overspray_Left>
+               <Overspray_Right>0.118</Overspray_Right>
+              <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.137</Overspray_Bottom>
+         </Borderless>
+
+
+
+          
+
+          <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_PHOTO_PANORAMA_4x12</Borderless_Paper>
+               <Paper>HP_PANORAMA_4_x_12</Paper>
+               <Overspray_Left>0.118</Overspray_Left>
+               <Overspray_Right>0.157</Overspray_Right>
+             <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+         </Borderless>
+
+        <Borderless>
+            <Borderless_Paper>HP_BORDERLESS_PHOTO_PANORAMA_10x30</Borderless_Paper>
+            <Paper>HP_PANORAMA_10x30_CM</Paper>
+            <Overspray_Left>0.118</Overspray_Left>
+            <Overspray_Right>0.157</Overspray_Right>
+           <Overspray_Top>0.051</Overspray_Top>
+               <Overspray_Bottom>0.093</Overspray_Bottom>
+         </Borderless>
+
+         
+
+        <Borderless>
+               <Borderless_Paper>HP_BORDERLESS_CABINET</Borderless_Paper>
+               <Paper>CABINET</Paper>
+               <Overspray_Left>0.079</Overspray_Left>
+               <Overspray_Right>0.098</Overspray

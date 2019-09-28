@@ -1,0 +1,226 @@
+<?php
+
+  if( isset( $_GET['shid'] ) && isset( $_GET['mx'] ) && isset( $_GET['my'] ) ) {
+    $type = substr( $_GET['shid'], 0, 1 );
+    $shid = substr( $_GET['shid'], 1 );
+    $x = intval( $_GET['mx'] );
+    $y = intval( $_GET['my'] );
+  } else {
+    $x = intval( $_GET['mx'] );
+    $y = intval( $_GET['my'] );
+
+    $star = db_fetch_row( "SELECT s.id, s.name, s.x, s.y, u.login
+                             FROM stars s
+                        LEFT JOIN planets p ON p.star_id = s.id AND user_id IS NOT NULL
+                        LEFT JOIN users u ON u.id = p.user_id
+                            WHERE s.x BETWEEN ".($x-3)." AND ".($x+3)." AND s.y BETWEEN ".($y-3)." AND ".($y+3) );
+
+    $ships = db_fetch_row( "SELECT GROUP_CONCAT( DISTINCT name ORDER BY name DESC SEPARATOR ',' ) name, MAX( arg1 ) x, MAX( arg2 ) y
+                              FROM ships
+                             WHERE arg1 BETWEEN ".($x-3)." AND ".($x+3)." AND
+                                   arg2 BETWEEN ".($y-3)." AND ".($y+3)." AND
+                                   fleet_id IS NULL AND place_type = 8 AND user_id = ".$user->uid );
+
+    $fleets = db_fetch_row( "SELECT GROUP_CONCAT( DISTINCT name ORDER BY name DESC SEPARATOR ',' ) name, MAX( arg1 ) x, MAX( arg2 ) y
+                               FROM fleets
+                              WHERE arg1 BETWEEN ".($x-3)." AND ".($x+3)." AND
+                                    arg2 BETWEEN ".($y-3)." AND ".($y+3)." AND
+                                    place_type = 8 AND user_id = ".$user->uid );
+
+    if( $user->aliance > 0 ) {
+      $hints = db_fetch_row( "SELECT text name, x, y
+                                FROM hyper_hint
+                               WHERE x BETWEEN ".($x-3)." AND ".($x+3)." AND
+                                     y BETWEEN ".($y-3)." AND ".($y+3)." AND
+                                     ( user_id = {$user->uid} OR aliance = {$user->aliance})" );
+    } else {
+      $hints = db_fetch_row( "SELECT text name, x, y
+                                FROM hyper_hint
+                               WHERE x BETWEEN ".($x-3)." AND ".($x+3)." AND
+                                     y BETWEEN ".($y-3)." AND ".($y+3)." AND
+                                     user_id = ".$user->uid );
+    }
+
+    if( isset( $star['id'] ) && $star['id'] > 0 ) {
+      $out = "err=0&rx=".$star['x']."&ry=".$star['y']."&t=3&desc=Звезда ".$star['name'].' - '.$star['login'].' '.$hints['name']."&hint=".$hints['name'];
+    } else {
+      $hint = '';
+
+      if( is_numeric( $ships['x'] ) ) {
+        $x = $ships['x'];
+        $y = $ships['y'];
+
+        $hint .= $ships['name'];
+      }
+
+      if( is_numeric( $hints['x'] ) ) {
+        $x = $hints['x'];
+        $y = $hints['y'];
+
+        $hint .= $hints['name'];
+        $htext = $hints['name'];
+      } else {
+        $htext = '';
+      }
+
+      if( is_numeric( $fleets['x'] ) ) {
+        $x = $fleets['x'];
+        $y = $fleets['y'];
+        if( $hint != '' ) {
+          $hint .= ',';
+        }
+
+        $hint .= $fleets['name'];
+      }
+
+      $out = "err=0&rx=$x&ry=$y&t=3&desc=Точка $x:$y $hint&hint=$htext";
+    }
+  }
+
+  if( isset( $shid ) && is_numeric( $shid ) ) {
+    if( $type == 'S' ) {
+      $place = db_fetch_row( "SELECT st.hyper, st.hyper_cnt, s.place_id, s.place_type, s.arg1, s.arg2 FROM ships s,ship_types st  WHERE st.object_id = s.object_id AND id = $shid" );
+      $fuel = db_fetch_row( "SELECT IFNULL( SUM(object_cnt), 0 ) cnt FROM warehouse WHERE object_id = 1044 AND place_type = 2 AND place_id = $shid" );
+    } else {
+      $place = db_fetch_row( "SELECT hyper, hyper_cnt, place_id, place_type, arg1, arg2 FROM fleets WHERE id = $shid" );
+      $fuel = db_fetch_row( "SELECT IFNULL( SUM(w.object_cnt), 0 ) cnt FROM warehouse w, ships s WHERE w.object_id = 1044 AND s.fleet_id = $shid AND w.place_type = 2 AND w.place_id = s.id" );
+    }
+
+    $star = db_fetch_row( "SELECT s.id, s.name, s.x, s.y, u.login
+                             FROM stars s
+                        LEFT JOIN planets p ON p.star_id = s.id AND user_id IS NOT NULL
+                        LEFT JOIN users u ON u.id = p.user_id
+                            WHERE s.x BETWEEN ".($x-3)." AND ".($x+3)." AND s.y BETWEEN ".($y-3)." AND ".($y+3) );
+
+    $ships = db_fetch_row( "SELECT GROUP_CONCAT( DISTINCT name ORDER BY name DESC SEPARATOR ',' ) name, MAX( arg1 ) x, MAX( arg2 ) y
+                              FROM ships
+                             WHERE arg1 BETWEEN ".($x-3)." AND ".($x+3)." AND
+                                   arg2 BETWEEN ".($y-3)." AND ".($y+3)." AND
+                                   fleet_id IS NULL AND place_type = 8 AND user_id = ".$user->uid );
+
+    $fleets = db_fetch_row( "SELECT GROUP_CONCAT( DISTINCT name ORDER BY name DESC SEPARATOR ',' ) name, MAX( arg1 ) x, MAX( arg2 ) y
+                               FROM fleets
+                              WHERE arg1 BETWEEN ".($x-3)." AND ".($x+3)." AND
+                                    arg2 BETWEEN ".($y-3)." AND ".($y+3)." AND
+                                    place_type = 8 AND user_id = ".$user->uid );
+
+    $hints = db_fetch_row( "SELECT text name, x, y
+                              FROM hyper_hint
+                             WHERE x BETWEEN ".($x-3)." AND ".($x+3)." AND
+                                   y BETWEEN ".($y-3)." AND ".($y+3)." AND
+                                   user_id = ".$user->uid );
+    $sx = 0;
+    $sy = 0;
+    switch( $place['place_type'] ) {
+      case 0:
+        $planet = get_place_info( $place['place_id'], $place['place_type'] );
+        $start = db_fetch_row( "SELECT s.id, s.x, s.y, u.login
+                                  FROM stars s
+                             LEFT JOIN planets p ON p.star_id = s.id
+                             LEFT JOIN users u ON u.id = p.user_id
+                                 WHERE s.id = ".$planet->place_id );
+        if( isset( $start['id'] ) ) {
+          $sx = $start['x'];
+          $sy = $start['y'];
+        }
+        break;
+      case 7:
+        $start = db_fetch_row( "SELECT s.id, s.x, s.y, u.login
+                                  FROM stars s
+                             LEFT JOIN planets p ON p.star_id = s.id
+                             LEFT JOIN users u ON u.id = p.user_id
+                                 WHERE s.id = ".$place['place_id'] );
+        if( isset( $start['id'] ) ) {
+          $sx = $start['x'];
+          $sy = $start['y'];
+        }
+        break;
+      case 8:
+        $sx = $place['arg1'];
+        $sy = $place['arg2'];
+        break;
+      default:
+        break;
+    }
+
+    $hint = '';
+
+    if( isset( $star['id'] ) && $star['id'] > 0 ) {
+      $lx = $star['x'] - $sx;
+      $ly = $star['y'] - $sy;
+      $slogin = $star['login'];
+      $len = round( sqrt( $lx * $lx + $ly * $ly ) );
+      $time = get_smove_time( $len * 20, $place['hyper'] );
+
+      $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
+      $fuel_need = $fuel_need - round( ( $fuel_need / 100 ) * get_book_level( 38, $user->uid ) );
+
+      $out = "err=0&rx=".$star['x']."&ry=".$star['y'];
+
+      if( is_numeric( $hints['x'] ) ) {
+        $hint .= $hints['name'];
+        $htext = $hints['name'];
+      } else {
+        $htext = '';
+      }
+
+      if( $fuel_need > $fuel['cnt'] ) {
+        $out .= "&t=3&desc=Место назначения: звезда ".$star['name']." - $slogin $hint<br>Время в пути: ".time_to_str( $time )."<br><font color=\"#FF0000\">Необходимо урана: ".$fuel_need." (".$fuel['cnt'].")&hint=$htext";
+      } else {
+        if( $fuel_need * 2 > $fuel['cnt'] ) {
+          $out .= "&t=2&desc=Место назначения: звезда ".$star['name']." - $slogin $hint<br>Время в пути: ".time_to_str( $time )."<br><font color=\"#FFFF00\">Необходимо урана: ".$fuel_need." (".$fuel['cnt'].")&hint=$htext";
+        } else {
+          $out .= "&t=2&desc=Место назначения: звезда ".$star['name']." - $slogin $hint<br>Время в пути: ".time_to_str( $time )."<br><font color=\"#00FF00\">Необходимо урана: ".$fuel_need." (".$fuel['cnt'].")&hint=$htext";
+        }
+      }
+    } else {
+      if( is_numeric( $ships['x'] ) ) {
+        $x = $ships['x'];
+        $y = $ships['y'];
+
+        $hint .= $ships['name'];
+      }
+
+      if( is_numeric( $fleets['x'] ) ) {
+        $x = $fleets['x'];
+        $y = $fleets['y'];
+        if( $hint != '' ) {
+          $hint .= ',';
+        }
+
+        $hint .= $fleets['name'];
+      }
+
+      if( is_numeric( $hints['x'] ) ) {
+        $x = $hints['x'];
+        $y = $hints['y'];
+
+        $hint .= $hints['name'];
+        $htext = $hints['name'];
+      } else {
+        $htext = '';
+      }
+
+      $lx = $x - $sx;
+      $ly = $y - $sy;
+      $len = round( sqrt( $lx * $lx + $ly * $ly ) );
+      $time = get_smove_time( $len * 20, $place['hyper'] );
+
+      $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
+      $fuel_need = $fuel_need - round( ( $fuel_need / 100 ) * get_book_level( 38, $user->uid ) );
+
+      $out = "err=0&rx=$x&ry=$y";
+
+      if( $fuel_need > $fuel['cnt'] ) {
+        $out .= "&t=3&desc=Место назначения: точка $x:$y $hint<br>Время в пути: ".time_to_str( $time )."<br><font color=\"#FF0000\">Необходимо урана: ".$fuel_need." (".$fuel['cnt'].")&hint=$htext";
+      } else {
+        if( $fuel_need * 2 > $fuel['cnt'] ) {
+          $out .= "&t=1&desc=Место назначения: точка $x:$y $hint<br>Время в пути: ".time_to_str( $time )."<br><font color=\"#FFFF00\">Необходимо урана: ".$fuel_need." (".$fuel['cnt'].")&hint=$htext";
+        } else {
+          $out .= "&t=1&desc=Место назначения: точка $x:$y $hint<br>Время в пути: ".time_to_str( $time )."<br><font color=\"#00FF00\">Необходимо урана: ".$fuel_need." (".$fuel['cnt'].")&hint=$htext";
+        }
+      }
+    }
+  }
+
+  printOut( $out );

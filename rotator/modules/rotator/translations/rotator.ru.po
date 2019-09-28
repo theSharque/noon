@@ -1,0 +1,1138 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  admin.inc: n/a
+#  moderate.inc: n/a
+#  banner.inc: n/a
+#  compaign.inc: n/a
+#  webmoney.inc: n/a
+#  rotator.module: n/a
+#  rotator.info: n/a
+#  rotator.inc: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2013-03-26 11:47+0400\n"
+"PO-Revision-Date: 2013-03-26 11:47+0400\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+
+#: admin.inc:9;114 moderate.inc:13
+msgid "User"
+msgstr "Пользователь"
+
+#: admin.inc:10;115;297 banner.inc:9;564 compaign.inc:11 moderate.inc:8;112
+msgid "Title"
+msgstr "Заголовок"
+
+#: admin.inc:11;120 banner.inc:10;570 compaign.inc:16 moderate.inc:113
+msgid "URL"
+msgstr "URL"
+
+#: admin.inc:12;121 banner.inc:11 compaign.inc:17 moderate.inc:114
+msgid "Banner size"
+msgstr "Размер баннера"
+
+#: admin.inc:13
+msgid "File"
+msgstr "Файл"
+
+#: admin.inc:14 banner.inc:13;840 compaign.inc:345
+msgid "Count"
+msgstr "Счетчик"
+
+#: admin.inc:15;116 banner.inc:14 compaign.inc:12
+msgid "Shown"
+msgstr "Показов"
+
+#: admin.inc:16;117 banner.inc:15 compaign.inc:13
+msgid "Clicked"
+msgstr "Кликов"
+
+#: admin.inc:17;118 banner.inc:16 compaign.inc:14
+msgid "CTR"
+msgstr "CTR"
+
+#: admin.inc:18;50;153 banner.inc:17;47;53 compaign.inc:50
+msgid "Approved"
+msgstr "Подтвержден"
+
+#: admin.inc:53;156 banner.inc:50 compaign.inc:53
+msgid "Declined"
+msgstr "Отклонен"
+
+#: admin.inc:57;160 banner.inc:57 compaign.inc:47
+msgid "Waiting"
+msgstr "Ожидает"
+
+#: admin.inc:67;170 banner.inc:79;670 compaign.inc:63 moderate.inc:65;146 webmoney.inc:336;397;460
+msgid "No content available."
+msgstr "Записей нет."
+
+#: admin.inc:72;175 moderate.inc:15;56;117;137
+msgid "Decline"
+msgstr "Отказать"
+
+#: admin.inc:119 compaign.inc:15
+msgid "Commission"
+msgstr "Комиссия"
+
+#: admin.inc:122;348 compaign.inc:18 moderate.inc:115
+msgid "Code"
+msgstr "Код"
+
+#: admin.inc:123 compaign.inc:19 webmoney.inc:290;348;415
+msgid "Status"
+msgstr "Статус"
+
+#: admin.inc:239
+msgid "In system"
+msgstr "На системном счете"
+
+#: admin.inc:245
+msgid "In system banner"
+msgstr "В системных баннерах"
+
+#: admin.inc:251
+msgid "In user accounts"
+msgstr "На счетах пользователей"
+
+#: admin.inc:257
+msgid "In users banner"
+msgstr "В пользовательских баннерах"
+
+#: admin.inc:263
+msgid "Total in system"
+msgstr "Всего в системе"
+
+#: admin.inc:303;404
+msgid "New commission in percent"
+msgstr "Новый процент комиссии"
+
+#: admin.inc:310 banner.inc:397;753 compaign.inc:188 webmoney.inc:521
+msgid "Save"
+msgstr "Сохранить"
+
+#: admin.inc:319;426
+msgid "Commission must be more than 0%"
+msgstr "Комиссия должна быть больше 0%"
+
+#: admin.inc:323;430
+msgid "Commission must be less than 40%"
+msgstr "Комиссия должна быть меньше 40%"
+
+#: admin.inc:349
+msgid "Percent"
+msgstr "Процент"
+
+#: admin.inc:350
+msgid "Comment"
+msgstr "Комментарий"
+
+#: admin.inc:390 banner.inc:1017 compaign.inc:520
+msgid "Table has no row!"
+msgstr "Нет значений"
+
+#: admin.inc:397
+msgid "New promo code"
+msgstr "Новый промо код"
+
+#: admin.inc:411
+msgid "Enter any comment for this promo code"
+msgstr "Введите коментарий к этому промо коду"
+
+#: admin.inc:417
+msgid "Generate"
+msgstr "Генерировать"
+
+#: banner.inc:12
+msgid "Scenario"
+msgstr "компания"
+
+#: banner.inc:70;592 webmoney.inc:207
+msgid "Available clicks count"
+msgstr "Доступное количество кликов"
+
+#: banner.inc:84;675 compaign.inc:68
+msgid "Delete"
+msgstr "Удалить"
+
+#: banner.inc:141 compaign.inc:103
+msgid "Text 200x76"
+msgstr "Текст 200х76"
+
+#: banner.inc:142 compaign.inc:107
+msgid "Tiaser 224x104"
+msgstr "Тизер 224х104"
+
+#: banner.inc:143 compaign.inc:108
+msgid "top line"
+msgstr "Рекламная строка"
+
+#: banner.inc:155
+msgid "Everywhere"
+msgstr "Везде"
+
+#: banner.inc:198;734 compaign.inc:119
+msgid "Read instruction"
+msgstr "Открыть инструкцию"
+
+#: banner.inc:205;316;576 compaign.inc:172
+msgid "Size of banner"
+msgstr "Размер баннера"
+
+#: banner.inc:212;327
+msgid "Scenario of banner"
+msgstr "компания баннера"
+
+#: banner.inc:219;335
+msgid "Banner title"
+msgstr "Заголовок баннера"
+
+#: banner.inc:225;342 compaign.inc:158
+msgid "Site URL"
+msgstr "УРЛ сайта"
+
+#: banner.inc:231;349 moderate.inc:11
+msgid "Visible URL"
+msgstr "Отображаемый URL"
+
+#: banner.inc:239;358
+msgid "Banner text"
+msgstr "Текст баннера"
+
+#: banner.inc:244
+msgid "Image"
+msgstr "Изображение"
+
+#: banner.inc:246
+msgid "The uploaded image will be displayed on this page using the image style choosen below. Maximum size of file is 262144 bytes."
+msgstr ""
+"Загруженное изображение будет "
+"отображаться на этой странице. "
+"Максимальный размер 262144 байт."
+
+#: banner.inc:274;291;365
+msgid "Update preview"
+msgstr "Обновить предпросмотр"
+
+#: banner.inc:283;300;374
+msgid "preview"
+msgstr "Предпросмотр"
+
+#: banner.inc:302
+msgid "Select size of banner"
+msgstr "Выбирете размер баннера"
+
+#: banner.inc:309;389
+msgid "Maximum click per 24h"
+msgstr ""
+"Максимальное количество кликов в "
+"сутки"
+
+#: banner.inc:310;390
+msgid "Enter 0 for unlimited"
+msgstr "Введите 0 если ограничение не нужно"
+
+#: banner.inc:417;448
+msgid "Image size must be exact 100x100."
+msgstr "Изображение должно быть размером 100х100"
+
+#: banner.inc:420;432;451
+msgid "Upload image."
+msgstr "Загрузите изображение"
+
+#: banner.inc:429
+msgid "Image size must be exact 468x60."
+msgstr "Изображение должно быть размером 468х60"
+
+#: banner.inc:439;455
+msgid "Enter text for banner."
+msgstr "Введите текст для баннера"
+
+#: banner.inc:603
+msgid "Count of clicks to transfer"
+msgstr "Количество кликов для перевода"
+
+#: banner.inc:609
+msgid "Add"
+msgstr "Добавить"
+
+#: banner.inc:618
+msgid "Count must be more 0."
+msgstr "Количество должно быть больше 0"
+
+#: banner.inc:622 webmoney.inc:239
+msgid "Count must be less or equal %max."
+msgstr ""
+"Количество должно быть меньше или "
+"равно %max."
+
+#: banner.inc:641
+msgid "Name"
+msgstr "Имя"
+
+#: banner.inc:642 rotator.module:35 rotator.info:0
+msgid "Banners"
+msgstr "Баннеры"
+
+#: banner.inc:739
+msgid "Scenario name"
+msgstr "Имя компании"
+
+#: banner.inc:746
+msgid "Site theme"
+msgstr "Тема сайта"
+
+#: banner.inc:825 compaign.inc:330
+msgid "Date"
+msgstr "Дата"
+
+#: banner.inc:829
+msgid "Company"
+msgstr "Площадка"
+
+#: banner.inc:833 compaign.inc:338
+msgid "Country"
+msgstr "Страна"
+
+#: banner.inc:837 compaign.inc:342 webmoney.inc:287;345;412
+msgid "IP"
+msgstr "IP"
+
+#: banner.inc:947 compaign.inc:452
+msgid "Date from"
+msgstr "С даты"
+
+#: banner.inc:955 compaign.inc:460
+msgid "Date to"
+msgstr "По дату"
+
+#: banner.inc:963 compaign.inc:468
+msgid "Precission"
+msgstr "Точность"
+
+#: banner.inc:964 compaign.inc:469
+msgid "All"
+msgstr "Все"
+
+#: banner.inc:964 compaign.inc:469
+msgid "Day"
+msgstr "День"
+
+#: banner.inc:964 compaign.inc:469
+msgid "Month"
+msgstr "Месяц"
+
+#: banner.inc:964 compaign.inc:469
+msgid "Year"
+msgstr "Год"
+
+#: banner.inc:970 compaign.inc:475
+msgid "Show date"
+msgstr "Показать даты"
+
+#: banner.inc:978
+msgid "Show company"
+msgstr "Показать компанию"
+
+#: banner.inc:986 compaign.inc:491
+msgid "Show country"
+msgstr "Показать страну"
+
+#: banner.inc:994 compaign.inc:499
+msgid "Show IP"
+msgstr "Показать IP"
+
+#: banner.inc:1002 compaign.inc:507
+msgid "Update"
+msgstr "Обновить"
+
+#: compaign.inc:104
+msgid "Text long block 200x76x3"
+msgstr "Горизонтальный текстовый блок 200x76x3"
+
+#: compaign.inc:105
+msgid "Text high block 200x76x3"
+msgstr "Вертикальный текстовый блок 200x76x3"
+
+#: compaign.inc:106
+msgid "Text highest block 200x76x5"
+msgstr "Вертикальный текстовый блок 200x76x5"
+
+#: compaign.inc:112
+msgid "White"
+msgstr "Белый"
+
+#: compaign.inc:113
+msgid "Black"
+msgstr "Черный"
+
+#: compaign.inc:151
+msgid "Compaign title"
+msgstr "Название площадки"
+
+#: compaign.inc:165
+msgid "Company theme"
+msgstr "Тема площадки"
+
+#: compaign.inc:180
+msgid "Color of text banner"
+msgstr "Фон текстовых баннеров"
+
+#: compaign.inc:291
+msgid "Code for site"
+msgstr "Код для сайта"
+
+#: compaign.inc:334 moderate.inc:12
+msgid "Banner"
+msgstr "Баннер"
+
+#: compaign.inc:483
+msgid "Show banner"
+msgstr "Показать баннер"
+
+#: moderate.inc:9
+msgid "Banner format"
+msgstr "Формат баннера"
+
+#: moderate.inc:10
+msgid "Url"
+msgstr "УРЛ"
+
+#: moderate.inc:14;55;116;136
+msgid "Approve"
+msgstr "Утвердить"
+
+#: rotator.inc:19
+msgid "IT and Automation"
+msgstr "IT и автоматизация"
+
+#: rotator.inc:20
+msgid "Auto / Moto"
+msgstr "Авто / Мото"
+
+#: rotator.inc:21
+msgid "Business and Finance"
+msgstr "Бизнес и Финансы"
+
+#: rotator.inc:22
+msgid "Household appliances"
+msgstr "Бытовая техника"
+
+#: rotator.inc:23
+msgid "Newspapers, media portals"
+msgstr "Газеты, СМИ, порталы"
+
+#: rotator.inc:24
+msgid "Children's issues"
+msgstr "Детская тематика"
+
+#: rotator.inc:25
+msgid "Women's issues"
+msgstr "Женская тематика"
+
+#: rotator.inc:26
+msgid "Health and Medicine"
+msgstr "Здоровье и медицина"
+
+#: rotator.inc:27
+msgid "Game"
+msgstr "Игры"
+
+#: rotator.inc:28
+msgid "Foreign language"
+msgstr "Иноязычные"
+
+#: rotator.inc:29
+msgid "Internet marketing and SEO"
+msgstr "Интернет, маркетинг и SEO"
+
+#: rotator.inc:30
+msgid "Catalogs"
+msgstr "Каталоги"
+
+#: rotator.inc:31
+msgid "Movies / Videos"
+msgstr "Кино / фильмы"
+
+#: rotator.inc:32
+msgid "Computers and computer games"
+msgstr "Компьютеры и компьютерные игры"
+
+#: rotator.inc:33
+msgid "Consulting"
+msgstr "Консалтинг"
+
+#: rotator.inc:34
+msgid "Art and Culture"
+msgstr "Культура и искусство"
+
+#: rotator.inc:35
+msgid "Furniture and household"
+msgstr "Мебель и быт"
+
+#: rotator.inc:36
+msgid "Mobile Technology"
+msgstr "Мобильные технологии"
+
+#: rotator.inc:37
+msgid "Music"
+msgstr "Музыка"
+
+#: rotator.inc:38
+msgid "Real estate"
+msgstr "Недвижимость"
+
+#: rotator.inc:39
+msgid "Mystery"
+msgstr "Непознанное"
+
+#: rotator.inc:40
+msgid "News"
+msgstr "Новости"
+
+#: rotator.inc:41
+msgid "Education and Science"
+msgstr "Образование и наука"
+
+#: rotator.inc:42
+msgid "Society"
+msgstr "Общество"
+
+#: rotator.inc:43
+msgid "Rest"
+msgstr "Отдых"
+
+#: rotator.inc:44
+msgid "Office"
+msgstr "Офис"
+
+#: rotator.inc:45
+msgid "Policy"
+msgstr "Политика"
+
+#: rotator.inc:46
+msgid "Production"
+msgstr "Производство"
+
+#: rotator.inc:47
+msgid "Work"
+msgstr "Работа"
+
+#: rotator.inc:48
+msgid "Entertainment"
+msgstr "Развлечения"
+
+#: rotator.inc:49
+msgid "Sport"
+msgstr "Спорт"
+
+#: rotator.inc:50
+msgid "Construction and repair"
+msgstr "Строительство и ремонт"
+
+#: rotator.inc:51
+msgid "Products and Services"
+msgstr "Товары и Услуги"
+
+#: rotator.inc:52
+msgid "Tourism and Travel"
+msgstr "Туризм и путешествия"
+
+#: rotator.inc:53
+msgid "Photo / Video"
+msgstr "Фото / Видео"
+
+#: rotator.inc:54
+msgid "Other"
+msgstr "Другое"
+
+#: webmoney.inc:28;227
+msgid "Transfer"
+msgstr "Перевести"
+
+#: webmoney.inc:161
+msgid "You successfuly transfer !summ WMR to your account. Now you have additional !click clicks"
+msgstr ""
+"Вы удачно внесли !summ WMR на ваш аккаунт. "
+"Зачисленно !click кликов"
+
+#: webmoney.inc:169
+msgid "During transfer error occured. Please try again later."
+msgstr ""
+"Во время перевода произошла ошибка. "
+"Пожалуйста попробуйте еще раз."
+
+#: webmoney.inc:180
+msgid "We make transfer only after moderation."
+msgstr ""
+"Перевод будет осуществлен только "
+"после проверки модератором."
+
+#: webmoney.inc:187
+msgid "Enter your wmid"
+msgstr "Введите ваш WMID"
+
+#: webmoney.inc:195
+msgid "Enter your webmoney wallet"
+msgstr "Введите ваш кошелек WMR"
+
+#: webmoney.inc:220
+msgid "Enter count of clicks you wish to transfer into money"
+msgstr ""
+"Количество кликов, которое вы хотите "
+"конвертировать в деньги"
+
+#: webmoney.inc:221
+msgid "Minimum transfer clicks 50"
+msgstr "Минимум 50 кликов для перевода"
+
+#: webmoney.inc:235
+msgid "Count must be more 50."
+msgstr ""
+"Значение должно быть больше или равно "
+"50"
+
+#: webmoney.inc:283;341;408
+msgid "Transaction number"
+msgstr "Номер транзакции"
+
+#: webmoney.inc:284;342;409
+msgid "WMID"
+msgstr "WMID"
+
+#: webmoney.inc:285;343;410
+msgid "Wallet"
+msgstr "Кошелек"
+
+#: webmoney.inc:286;344;411
+msgid "Summ"
+msgstr "Сумма"
+
+#: webmoney.inc:288;346;413
+msgid "User date"
+msgstr "Дата запроса"
+
+#: webmoney.inc:289;347;414
+msgid "Moderate date"
+msgstr "Дата модерации"
+
+#: webmoney.inc:315;378;442
+msgid "Ok"
+msgstr "ОК"
+
+#: webmoney.inc:318
+msgid "Error 1"
+msgstr "Ошибка 1"
+
+#: webmoney.inc:321
+msgid "Error 2"
+msgstr "Ошибка 2"
+
+#: webmoney.inc:328
+msgid "Charge transaction log"
+msgstr "Лог ввода средств"
+
+#: webmoney.inc:374;439
+msgid "Premoderate"
+msgstr "Премодерация"
+
+#: webmoney.inc:382;445
+msgid "Error"
+msgstr "Ошибка"
+
+#: webmoney.inc:389;452
+msgid "Withdraw transaction log"
+msgstr "Лог вывода средств"
+
+#: webmoney.inc:503
+msgid "User %name with e-mail %email"
+msgstr ""
+"Пользователь %name, электронная почта "
+"%email"
+
+#: webmoney.inc:504
+msgid "WMID: !wmid<br>WALLET: !zid<br><br>Transfer WMR: !clicks<br>Current user balance: !balance"
+msgstr ""
+"WMID: !wmid<br>Кошелек: !zid<br><br>Перевод WMR: "
+"!clicks<br>Остаточный баланс пользователя "
+"в системе: !balance"
+
+#: webmoney.inc:509
+msgid "Transfer approved"
+msgstr "Перевод подтвержден"
+
+#: webmoney.inc:510
+msgid "Set this flag only AFTER complette fund transfer."
+msgstr ""
+"Установите этот флаг только ПОСЛЕ "
+"удачного перевода."
+
+#: webmoney.inc:515
+msgid "Enter description of approve or decline."
+msgstr ""
+"Введите описание перевода (номер "
+"транзакции) или отказа (причина "
+"отказа)"
+
+#: webmoney.inc:78;138
+msgid "webmoney"
+msgstr "Ввод - вывод"
+
+#: webmoney.inc:78
+msgid "Wrong predata"
+msgstr ""
+"Неверный предварительный запрос, "
+"возможно попытка взлома!"
+
+#: webmoney.inc:138
+msgid "Hash wrong"
+msgstr ""
+"Неверный ХЭШ, возможно попытка взлома "
+"или неправильные настройки кошелька."
+
+#: rotator.module:10
+msgid "User of rotator system"
+msgstr "Пользователь системы ротатор"
+
+#: rotator.module:14
+msgid "Moderator of rotator system"
+msgstr "Модератор системы ротатор"
+
+#: rotator.module:18
+msgid "Administrator of rotator system"
+msgstr "Администратор системы ротатор"
+
+#: rotator.module:22
+msgid "Finance moderator of rotator system"
+msgstr "Финансовый модератор системы rotator"
+
+#: rotator.module:485
+msgid "Your banner @name moderated and APPROVED"
+msgstr ""
+"Ваш баннер @name промодерирован и "
+"ПОДТВЕРЖДЕН"
+
+#: rotator.module:486
+msgid "Hello, congratulation!\n\nYour banner @name follow throw moderate and add to rotation.\n\nAdministration"
+msgstr ""
+"Зравствуйте.\r\n"
+"Поздравляем!\r\n"
+"\r\n"
+"Ваш баннер @name прошел модерацию и "
+"допущен к ротации в системе.\r\n"
+"\r\n"
+"Администрация."
+
+#: rotator.module:490
+msgid "Your banner @name moderated and FAILED"
+msgstr "Ваш баннер @name НЕ ПРОШЕЛ модерацию"
+
+#: rotator.module:491
+msgid "Hello.\n\nYour banner @name follow throw moderate and failed. Read our rules carefully and change banner correction.\n\nAdministration"
+msgstr ""
+"Зравствуйте.\r\n"
+"Ваш баннер @name не прошел модерацию, "
+"пожалуйста ознакомьтесь с правилами "
+"для баннеров и исправьте ошибки.\r\n"
+"\r\n"
+"Администрация"
+
+#: rotator.module:495
+msgid "Your banner @name remoderated and CLOSED"
+msgstr ""
+"Ваш баннер @name ремодерирован и УДАЛЕН "
+"из системы"
+
+#: rotator.module:496
+msgid "Hello.\n\nYour banner @name follow throw remoderate and failed. Read our rules carefully and change banner correction.\n\nAdministration"
+msgstr ""
+"Зравствуйте.\r\n"
+"Ваш баннер @name не прошел ремодерацию и "
+"удален из системы. Ознакомьтесь с "
+"правилами для баннеров и внесите "
+"необходимые изменения.\r\n"
+"\r\n"
+"Администрация"
+
+#: rotator.module:500
+msgid "Your company @name moderated and APPROVED"
+msgstr ""
+"Ваша площадка @name промодерированна и "
+"ОДОБРЕНА"
+
+#: rotator.module:501
+msgid "Hello, congratulation!\n\nYour company @name follow throw moderate and approved now you can insert code to your site.\n\n@code\n\nAdministration"
+msgstr ""
+"Зравствуйте.\r\n"
+"Поздравляем!\r\n"
+"\r\n"
+"Ваша площадка @name прошла модерацию и "
+"была одобрена. Теперь вам необходимо "
+"разместить код на вашем сайте.\r\n"
+"\r\n"
+"@code\r\n"
+"\r\n"
+"Администрация"
+
+#: rotator.module:505
+msgid "Your company @name moderated and FAILED"
+msgstr "Ваша площадка @name НЕ ПРОШЛА модерацию"
+
+#: rotator.module:506
+msgid "Hello.\n\nYour company @name follow throw moderate and failed. Read our rules carefully and make correction.\n\nAdministration"
+msgstr ""
+"Зравствуйте.\r\n"
+"Ваша компания @name не прошла модерацию, "
+"пожалуйста ознакомьтесь с правилами "
+"для площадок и внесите необходимые "
+"изменения.\r\n"
+"\r\n"
+"Администрация"
+
+#: rotator.module:510
+msgid "Your company @name change commission"
+msgstr ""
+"У вашей площадки \"@name\" изменена "
+"комиссия."
+
+#: rotator.module:511
+msgid "Hello, congratulation!\n\nYour company @name change commision and now it's only @comm.\n\nAdministration"
+msgstr ""
+"Поздравляем!\r\n"
+"\r\n"
+"У вашей площадки \"@name\" изменена "
+"комиссия и составляет теперь @comm.\r\n"
+"\r\n"
+"С уважением, Администрация."
+
+#: rotator.module:515
+msgid "Your company @name remoderated and FAILED"
+msgstr ""
+"Ваша площадка @name была "
+"ремодерированна и УДАЛЕНА из системы"
+
+#: rotator.module:516
+msgid "Hello.\n\nYour company @name follow throw remoderate and failed. Read our rules carefully and make correction.\n\nAdministration"
+msgstr ""
+"Зравствуйте.\r\n"
+"Ваша площадка @name была "
+"ремодерированна и удалена из системы. "
+"Пожалуйста, ознакомьтесь с правилами "
+"для площадок и внесите необходимые "
+"изменения\r\n"
+"\r\n"
+"Администрация"
+
+#: rotator.module:520
+msgid "Your banner @name ending"
+msgstr "У вашего баннера @name закончились клики"
+
+#: rotator.module:521
+msgid "Hello.\n\nYour banner @name is not shown any more, you need to add clicks to continue.\n\nAdministration"
+msgstr ""
+"Зравствуйте.\r\n"
+"У вашего баннера @name закончились клики "
+"и он больше не показывается в системе. "
+"Пожалуйста войдите на сайт и "
+"переведите на него клики, что бы "
+"продолжить рекламу.\r\n"
+"\r\n"
+"Администрация"
+
+#: rotator.module:525
+msgid "Withdraw from clixer at @date successfuly"
+msgstr ""
+"УСПЕШНЫЙ вывод средств с сайта clixer по "
+"запросу от @date"
+
+#: rotator.module:526
+msgid "Hello.\n\nWithdraw of @summ WMR is successfuly.\n\nAdministration"
+msgstr ""
+"Зравствуйте.\r\n"
+"Вывод @summ WMR произведен успешно.\r\n"
+"\r\n"
+"Администрация"
+
+#: rotator.module:530
+msgid "Withdraw from clixer at @date FAILED"
+msgstr ""
+"Вывод средств по запросу от @date НЕ "
+"УДАЛСЯ"
+
+#: rotator.module:531
+msgid "Hello.\n\nWithdraw of @summ WMR is FAILED.\n@reason\n\nAdministration"
+msgstr ""
+"Зравствуйте.\r\n"
+"Вывод средств на сумму @summ WMR не удался. "
+"Причина: @reason.\r\n"
+"\r\n"
+"Администрация"
+
+#: rotator.module:535
+msgid "New banner added from user @name"
+msgstr "Новый баннер добавлен пользователем @name"
+
+#: rotator.module:536
+msgid "Hello Moderator.\n\nNew banner added to system, need to review.\n@title\n@url\n\nhttp://clixer.ru/banner_moderate"
+msgstr "Здравствуйте Модератор\n\nДобавлен новый баннер, требуется модерация.\n\nЗаголовок @title\nСайт @url\n\nhttp://clixer.ru/banner_moderate"
+
+#: rotator.module:540
+msgid "New site added from user @name"
+msgstr "Новая площадка добавлена пользователем @name"
+
+#: rotator.module:541
+msgid "Hello Moderator.\n\nNew site added to system, need to review.\n@title\n@url\n\nhttp://clixer.ru/banner_moderate/companies"
+msgstr "Здравствуйте Модератор\n\nДобавлена новая площадка, требуется модерация.\nЗаголовок @title\nСайт @url\n\nhttp://clixer.ru/banner_moderate/companies"
+
+#: rotator.module:545
+msgid "Withdraw from user @name"
+msgstr "Вывод средств пользователь @name"
+
+#: rotator.module:546
+msgid "Hello.\n\nWithdraw of @summ clicks.\n\nhttp://clixer.ru/webmoney/moderate"
+msgstr "Здравствуйте.\n\nЗаказан вывод средств в количестве @summ кликов.\n\nhttp://clixer.ru/webmoney/moderate"
+
+#: rotator.module:36;45;153;223
+msgid "Manage of your banners."
+msgstr "Управление вашими баннерами"
+
+#: rotator.module:44
+msgid "Banners list"
+msgstr "Список баннеров"
+
+#: rotator.module:55
+msgid "Add banner"
+msgstr "Добавить баннер"
+
+#: rotator.module:56
+msgid "Add new banner."
+msgstr "Добавить новый баннер."
+
+#: rotator.module:66
+msgid "Edit banner"
+msgstr "Изменить баннер"
+
+#: rotator.module:67
+msgid "Edit selected banner."
+msgstr "Изменить выбранный баннер."
+
+#: rotator.module:76
+msgid "Add click count"
+msgstr "Добавить количество кликов"
+
+#: rotator.module:77
+msgid "Add click count by using company click counter."
+msgstr ""
+"Добавить количество кликов переведя "
+"их с счетчика площадок."
+
+#: rotator.module:86
+msgid "Scenaries list"
+msgstr "Список компаний"
+
+#: rotator.module:87
+msgid "Manage of your scenaries."
+msgstr "Управление вашими компаниями."
+
+#: rotator.module:97
+msgid "Add scenario"
+msgstr "Добавить компанию"
+
+#: rotator.module:98
+msgid "Add new scenario."
+msgstr "Добавить новую компанию"
+
+#: rotator.module:108
+msgid "Edit scenario"
+msgstr "Изменить компанию"
+
+#: rotator.module:109
+msgid "Edit selected scenario."
+msgstr "Изменить выбранную компанию."
+
+#: rotator.module:118;202
+msgid "Log of views"
+msgstr "Лог показов"
+
+#: rotator.module:127;211
+msgid "Log of clicks"
+msgstr "Лог кликов"
+
+#: rotator.module:152
+msgid "Compaign"
+msgstr "Площадки"
+
+#: rotator.module:161
+msgid "Compaign list"
+msgstr "Список площадок"
+
+#: rotator.module:162
+msgid "Manage of your compaign."
+msgstr "Управление вашими площадками."
+
+#: rotator.module:172
+msgid "Add compaign"
+msgstr "Добавить площадку"
+
+#: rotator.module:173
+msgid "Add new compaign."
+msgstr "Добавить новую площадку."
+
+#: rotator.module:183
+msgid "Edit compaign"
+msgstr "Изменить площадку"
+
+#: rotator.module:184
+msgid "Edit selected compaign."
+msgstr "Изменить выбранную площадку."
+
+#: rotator.module:193
+msgid "Get site code"
+msgstr "Код для сайта"
+
+#: rotator.module:222
+msgid "Moderate"
+msgstr "Модерирование"
+
+#: rotator.module:231
+msgid "Banners approving"
+msgstr "Подтверждение баннеров"
+
+#: rotator.module:232
+msgid "Approve or decline banners."
+msgstr ""
+"Подтверждение или отклонение "
+"баннеров."
+
+#: rotator.module:242
+msgid "Company approving"
+msgstr "Подтверждение площадок"
+
+#: rotator.module:243
+msgid "Approve or decline companys."
+msgstr ""
+"Подтверждение или отклонение "
+"площадок."
+
+#: rotator.module:283
+msgid "Admin"
+msgstr "Администратор"
+
+#: rotator.module:284;293
+msgid "Manage of all banners."
+msgstr "Управление всеми баннерами."
+
+#: rotator.module:292
+msgid "Banners admin"
+msgstr "Администратор баннеров"
+
+#: rotator.module:303
+msgid "Company admin"
+msgstr "Администратор площадок"
+
+#: rotator.module:304
+msgid "Manage of all companys."
+msgstr "Управление всеми площадками."
+
+#: rotator.module:314
+msgid "Edit commission"
+msgstr "Изменение комиссии"
+
+#: rotator.module:315
+msgid "Edit selected compaign commission."
+msgstr ""
+"Изменение комиссии выбранной "
+"площадки"
+
+#: rotator.module:324
+msgid "Click statistics"
+msgstr "Статистика кликов"
+
+#: rotator.module:325
+msgid "Statistics of all clicks."
+msgstr "Статистика всех кликов."
+
+#: rotator.module:335
+msgid "Promo codes"
+msgstr "Промо коды"
+
+#: rotator.module:336
+msgid "Manage of promotional codes."
+msgstr "Управление промо кодами"
+
+#: rotator.module:348
+msgid "Money"
+msgstr "Деньги"
+
+#: rotator.module:349
+msgid "Manage of your money balance."
+msgstr "Изменение вашего баланса"
+
+#: rotator.module:357
+msgid "Charge"
+msgstr "Ввод"
+
+#: rotator.module:358
+msgid "Charge money to account."
+msgstr "Ввод средств на счет"
+
+#: rotator.module:374
+msgid "Success transfer"
+msgstr "Успешный ввод средств"
+
+#: rotator.module:383
+msgid "Failed transfer"
+msgstr "Ввод средств не удался"
+
+#: rotator.module:392
+msgid "Withdraw"
+msgstr "Вывод"
+
+#: rotator.module:393;415
+msgid "Withdraw money from account."
+msgstr "Вывод средств со счета"
+
+#: rotator.module:403
+msgid "View log"
+msgstr "Посмотреть лог"
+
+#: rotator.module:404
+msgid "View log of all money operations."
+msgstr ""
+"Посмотреть лог всех операций ввода - "
+"вывода"
+
+#: rotator.module:414
+msgid "Withdraw moderate"
+msgstr "Модерирование вывода средств"
+
+#: rotator.module:425
+msgid "Edit withdraw"
+msgstr "Редактор вывода средств"
+
+#: rotator.module:426
+msgid "Edit selected withdraw."
+msgstr ""
+"Редактирование выбранного запроса на "
+"вывод средств"
+
+#: rotator.info:0
+msgid "Rotator"
+msgstr "Ротатор"
+
+#: rotator.info:0
+msgid "Rotate and manage all banners."
+msgstr ""
+"Модуль для управления баннерной "
+"системой."
+

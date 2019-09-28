@@ -1,0 +1,139 @@
+<?php
+
+  global $user;
+
+  if( isset( $_GET['shid'] ) &&
+      isset( $_GET['oid'] )  &&
+      isset( $_GET['ocnt'] ) ) {
+    if( is_numeric( $_GET['shid'] ) && $_GET['shid'] > 0 &&
+        is_numeric( $_GET['oid'] )  && $_GET['oid'] > 0 &&
+        is_numeric( $_GET['ocnt'] ) && $_GET['ocnt'] > 0 ) {
+
+      $shid = $_GET['shid'];
+      db_safe( $shid );
+      $test = db_fetch_row( "SELECT id, place_id FROM ships WHERE place_type = 3 AND id = $shid AND user_id = ".$user->uid );
+
+      if( isset( $test['id'] ) ) {
+        $shid = $test['id'];
+
+        $place = $test['place_id'];
+
+        $oid = $_GET['oid'];
+        db_safe( $oid );
+
+        $ocnt = $_GET['ocnt'];
+        db_safe( $ocnt );
+
+        $test = db_fetch_row( "SELECT ti.object_cnt, ROUND( ti.price, 2 ) price, o.name, o.class
+                                 FROM trade_in ti
+                           INNER JOIN objects o ON o.id = ti.object_id
+                                WHERE ti.object_id = $oid AND ti.ob_id = ".$place );
+
+        $bayer = db_fetch_row( "SELECT p.user_id FROM orbits_buildings ob, planets p where ob.id = $place AND ob.planet_id = p.id" );
+
+        $selcnt = db_fetch_val( "SELECT w.object_cnt FROM warehouse w WHERE w.place_id = $shid AND w.place_type = 2 AND w.object_id = $oid", 'object_cnt' );
+
+        $ships = db_fetch_array( "SELECT s.id, s.fleet_id
+                                      FROM ships s
+                                INNER JOIN ship_types st ON s.object_id = st.object_id
+                                 LEFT JOIN warehouse w ON w.place_type = 2 AND w.place_id = s.id
+                                     WHERE st.conserv_id = $oid AND s.user_id={$user->uid} AND s.place_type = 3 AND s.place_id = $place AND w.object_id IS NULL
+                                  ORDER BY s.fleet_id, s.id" );
+
+        if( $ocnt > ( $selcnt + count( $ships ) ) ) {
+          $ocnt = $selcnt;
+        }
+
+        if( $test['price'] > 0 ) {
+          if( $test['object_cnt'] < $ocnt ) {
+            $ocnt = $test['object_cnt'];
+          }
+
+          $station = get_place_info( $place, 3 );
+/*
+          $warehouse = get_warehouse( $station->place_id, $station->place_type );
+          if( $ocnt > $warehouse ) {
+            $ocnt = $warehouse;
+          }
+*/
+          if( $ocnt > 0 ) {
+            db_query( "UPDATE trade_in SET object_cnt = object_cnt - $ocnt WHERE object_id = $oid AND ob_id = ".$place );
+
+            if( $selcnt >= $ocnt ) {
+              sub_warehouse_item( 2, $shid, $oid, $ocnt );
+              $summ = number_format( $ocnt * $test['price'], 2, '.', '' );
+            } else {
+              if( $selcnt > 0 ) {
+                sub_warehouse_item( 2, $shid, $oid, $selcnt );
+//                $summ = number_format( $selcnt * $test['price'], 2, '.', '' );
+              }
+
+              $ssell = 0;
+              foreach( $ships as $item ) {
+                $id_temp[] = $item['id'];
+                $fleets[$item['fleet_id']] = true;
+                $ssell++;
+
+                if( $ocnt == $selcnt + $ssell ) {
+                  break;
+                }
+              }
+
+              $ids = implode( ',', $id_temp );
+              db_query( "DELETE FROM ships WHERE id IN( $ids )" );
+
+              unset( $fleets[null] );
+
+              foreach( $fleets as $fleet_id => $trash ) {
+                if( update_fleet( $fleet_id ) <= 1 ) {
+                  db_query( "DELETE FROM fleets WHERE id = $fleet_id" );
+                  db_query( "UPDATE ships SET fleet_id = null WHERE fleet_id = $fleet_id" );
+                }
+              }
+
+              $summ = number_format( ( $selcnt + $ssell ) * $test['price'], 2, '.', '' );
+            }
+
+
+            if( $station->place_type == 0 && $station->place_id == 21222 ) {
+              disasseble( false, $oid, $test['class'], $ocnt, $place );
+              db_query( "INSERT INTO market_events ( user_id, summ ) VALUES ( {$user->uid}, $summ )" );
+
+              correct_price();
+              $back = round( ( $summ / 200 ) * get_book_level( 29, $user->uid ), 2 );
+            } else {
+              $back = 0;
+              add_warehouse_item( $station->place_type, $station->place_id, $oid, $ocnt );
+            }
+
+            db_query( "UPDATE users_active SET trade = trade + '$summ' WHERE id = ".$user->uid );
+            db_query( "UPDATE users SET money = money + '$summ' WHERE id = ".$user->uid );
+            db_query( "INSERT INTO trade_log ( bayer_id, seller_id, object_id, object_cnt, log_sum ) VALUES ( {$bayer['user_id']}, {$user->uid}, $oid, $ocnt, '$summ' )" );
+
+            send_msg( $user->uid, $bayer['user_id'], "Вам продали {$test['name']} в количестве $ocnt на общую сумму $summ.", 16 );
+
+            if( $back > 0 ) {
+              send_msg( 1, $user->uid, "Вы продали {$test['name']} в количестве $ocnt на общую сумму $summ. Через 12 суток вам вернут $back", 16 );
+            } else {
+              send_msg( 1, $user->uid, "Вы продали {$test['name']} в количестве $ocnt на общую сумму $summ.", 16 );
+            }
+
+            $out = "err=0";
+          } else {
+            send_msg( 1, $user->uid, "Не удается продать {$test['name']} нет места на складе", 16 );
+            $out = "err=5";
+          }
+        } else {
+          $out = "err=4";
+        }
+      } else {
+        $out = "err=3";
+      }
+    } else {
+      $out = "err=2";
+    }
+  } else {
+    $out = "err=1";
+  }
+
+  printOut( $out );

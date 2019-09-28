@@ -1,0 +1,170 @@
+#
+# The MySQL database server configuration file.
+#
+# You can copy this to one of:
+# - "/etc/mysql/my.cnf" to set global options,
+# - "~/.my.cnf" to set user-specific options.
+# 
+# One can use all long options that the program supports.
+# Run program with --help to get a list of available options and with
+# --print-defaults to see which it would actually understand and use.
+#
+# For explanations see
+# http://dev.mysql.com/doc/mysql/en/server-system-variables.html
+
+# This will be passed to all mysql clients
+# It has been reported that passwords should be enclosed with ticks/quotes
+# escpecially if they contain "#" chars...
+# Remember to edit /etc/mysql/debian.cnf when changing the socket location.
+[client]
+port		= 3307
+socket		= /var/run/mysqld/mysqld_slave.sock
+
+# Here is entries for some specific programs
+# The following values assume you have at least 32M ram
+
+# This was formally known as [safe_mysqld]. Both versions are currently parsed.
+[mysqld_safe]
+socket		= /var/run/mysqld/mysqld_slave.sock
+nice		= 0
+
+[mysqld]
+#
+# * Basic Settings
+#
+user		= mysql
+pid-file	= /var/run/mysqld/mysqld_slave.pid
+socket		= /var/run/mysqld/mysqld_slave.sock
+port		= 3306
+basedir		= /usr
+#datadir		= /var/lib/mysql
+datadir		= /backup/slave
+tmpdir		= /tmp/mysqltmp
+lc-messages-dir	= /usr/share/mysql
+default-storage-engine=MYISAM
+default_storage_engine=MyISAM
+symbolic-links=0
+
+ignore_builtin_innodb
+skip-external-locking
+skip-networking
+
+
+#
+# Instead of skip-networking the default is now to listen only on
+# localhost which is more compatible and is not less secure.
+# bind-address		= 127.0.0.1
+
+
+
+#
+# * Fine Tuning
+#
+key_buffer		= 2048M
+table_cache		= 32K
+max_sort_length		= 64
+max_heap_table_size	= 2048M
+tmp_table_size		= 2048M
+
+#
+# * Query Cache Configuration
+#
+query_cache_size	= 2048M
+query_cache_limit	= 128M
+query_cache_min_res_unit= 1
+query_cache_type	= 1
+
+#
+# * Thread tuning
+#
+thread_cache_size	= 512
+thread_concurrency	= 24
+thread_stack		= 128K
+
+#
+# * Network, disk
+#
+max_connections		= 500
+max_allowed_packet	= 512M
+read_rnd_buffer_size	= 256M
+
+#
+# Per thread
+#
+read_buffer_size	= 128M
+sort_buffer_size	= 256K
+join_buffer_size	= 512K
+
+#
+# * Logging and Replication
+#
+# Both location gets rotated by the cronjob.
+# Be aware that this log type is a performance killer.
+# As of 5.1 you can enable the log at runtime!
+#general_log_file        = /var/log/mysql/mysql.log
+#general_log             = 1
+#
+# Error log - should be very few entries.
+#
+log_error = /var/log/mysql/error_slave.log
+
+#
+# Here you can see queries with especially long duration
+#
+# log_slow_queries	= /var/log/mysql/mysql-slow.log
+# long_query_time = 1
+# log-queries-not-using-indexes
+
+#
+# The following can be used as easy to replay backup logs or for replication.
+# note: if you are setting up a replication slave, see README.Debian about
+#       other settings you may need to change.
+#server-id		= 1
+#log_bin			= /backup/binlog/mysql-bin.log
+#expire_logs_days	= 1
+#binlog_do_db		= include_database_name
+#binlog_ignore_db	= include_database_name
+
+#log_bin			= /var/log/mysql/mysql-bin.log
+#server-id		= 5360949
+#expire_logs_days	= 1
+#max_binlog_size         = 100M
+#log-bin			= /backup/binlog/mysql-bin
+#binlog_format 		= MIXED
+
+#
+# * InnoDB
+#
+# InnoDB is enabled by default with a 10MB datafile in /var/lib/mysql/.
+# Read the manual for more InnoDB related options. There are many!
+
+#
+# * Security Features
+#
+# Read the manual, too, if you want chroot!
+# chroot = /var/lib/mysql/
+#
+# For generating SSL certificates I recommend the OpenSSL GUI "tinyca".
+#
+# ssl-ca=/etc/mysql/cacert.pem
+# ssl-cert=/etc/mysql/server-cert.pem
+# ssl-key=/etc/mysql/server-key.pem
+
+
+
+[mysqldump]
+quick
+quote-names
+max_allowed_packet	= 16M
+
+[mysql]
+#no-auto-rehash	# faster start of mysql but no tab completition
+
+[isamchk]
+# key_buffer		= 16M
+
+#
+# * IMPORTANT: Additional settings that can override those from this file!
+#   The files must end with '.cnf', otherwise they'll be ignored.
+#
+!includedir /etc/mysql/conf.d/

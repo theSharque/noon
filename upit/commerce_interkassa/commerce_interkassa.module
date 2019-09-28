@@ -1,0 +1,257 @@
+<?php
+/**
+ * @file
+ * Added intercassa payment method.
+ */
+
+define('COMMERCE_INTERKASSA_IK_FORM_HANDLER', 'http://www.interkassa.com/lib/payment.php');
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_interkassa_menu() {
+  $items['checkout/%commerce_order/payment/status'] = array(
+    'title'           => 'Payment status',
+    'page callback'   => 'commerce_interkassa_payment_status',
+    'page arguments'  => array(1),
+    'access callback' => 'commerce_interkassa_payment_check_data',
+    'file'            => 'commerce_interkassa.pages.inc',
+  );
+  return $items;
+}
+
+/**
+ * Check request data.
+ *
+ * @return bool
+ *   The accuracy of the data.
+ */
+function commerce_interkassa_payment_check_data() {
+  $request_data = $_POST;
+  commerce_interkassa_add_log('Request data: @request_data', array('@request_data' => print_r($request_data, 1)));
+  $request_data_keys = array(
+    'ik_payment_id',
+    'ik_paysystem_alias',
+    'ik_baggage_fields',
+    'ik_payment_state',
+    'ik_trans_id',
+    'ik_currency_exch',
+    'ik_fees_payer',
+    'ik_sign_hash',
+  );
+  foreach ($request_data_keys as $request_data_key) {
+    if (!isset($request_data[$request_data_key])) {
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+/**
+ * Returns the default settings for the interkassa payment method.
+ *
+ * @return array
+ *   The default settings for payment method.
+ */
+function commerce_interkassa_default_settings() {
+  return array(
+    'shop_id'      => '',
+    'secret_key'   => '',
+    'form_handler' => COMMERCE_INTERKASSA_IK_FORM_HANDLER,
+    'log_enable'   => 1,
+  );
+}
+
+/**
+ * Payment method callback: payment settings page.
+ *
+ * @param array $settings
+ *   Payment method settings.
+ *
+ * @return array
+ *   Settings form.
+ */
+function commerce_interkassa_settings_form($settings = NULL) {
+  $settings = (array) $settings + commerce_interkassa_default_settings();
+
+  $form = array();
+  $form['shop_id'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Shop ID'),
+    '#description'   => t('Shop id from Interkassa account'),
+    '#default_value' => $settings['shop_id'],
+    '#required'      => TRUE,
+  );
+
+  $form['secret_key'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Secret key'),
+    '#description'   => t('Secret key from shop'),
+    '#default_value' => $settings['secret_key'],
+    '#required'      => TRUE,
+  );
+
+  $form['form_handler'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Form handler'),
+    '#description'   => t('Script processing forms of payment'),
+    '#default_value' => $settings['form_handler'],
+    '#required'      => TRUE,
+  );
+
+  $form['log_enable'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Enable log'),
+    '#default_value' => $settings['log_enable'],
+  );
+  return $form;
+}
+
+/**
+ * Implements hook_commerce_payment_method_info().
+ */
+function commerce_interkassa_commerce_payment_method_info() {
+  return array(
+    'commerce_interkassa' => array(
+      'title'                => t('Interkassa payment'),
+      'display_title'        => t('Interkassa payment'),
+      'active'               => TRUE,
+      'terminal'             => TRUE,
+      'offsite'              => TRUE,
+      'offsite_autoredirect' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Payment method callback: submit form.
+ */
+function commerce_interkassa_submit_form($payment_method, $pane_values, $checkout_pane, $order) {
+  $build = array();
+  $info = theme('image', array(
+    'path'       => drupal_get_path('module', 'commerce_interkassa') . '/images/logo.gif',
+    'alt'        => t('Interkassa'),
+    'title'      => t('Interkassa'),
+    'attributes' => array('class' => 'logo-interkassa'),
+  ));
+  $build['print_receipt'] = array('#markup' => $info);
+  return $build;
+}
+
+/**
+ * Payment method callback: payment redirect form.
+ */
+function commerce_interkassa_redirect_form($form, &$form_state, $order, $payment_method) {
+  global $user, $base_url;
+  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+  $amount        = $order_wrapper->commerce_order_total->amount->value();
+  $currency_code = $order_wrapper->commerce_order_total->currency_code->value();
+  $url           = url('checkout/' . $order->order_id . '/payment/return/' . $order->data['payment_redirect_key'], array('absolute' => TRUE));
+  $status_url    = url('checkout/' . $order->order_id . '/payment/status', array('absolute' => TRUE));
+
+  $form['#name']   = 'payment';
+  $form['#action'] = $payment_method['settings']['form_handler'];
+
+  $form['ik_shop_id'] = array(
+    '#type'  => 'hidden',
+    '#value' => $payment_method['settings']['shop_id'],
+  );
+  $form['ik_payment_amount'] = array(
+    '#type'  => 'hidden',
+    '#value' => commerce_currency_amount_to_decimal($amount, $currency_code),
+  );
+  $form['ik_payment_id'] = array(
+    '#type'  => 'hidden',
+    '#value' => $order->order_id,
+  );
+  $form['ik_payment_desc'] = array(
+    '#type'  => 'hidden',
+    '#value' => t('Buying on the site @sname', array('@sname' => $base_url)),
+  );
+  $form['ik_paysystem_alias'] = array(
+    '#type'  => 'hidden',
+    '#value' => '',
+  );
+  $form['ik_baggage_fields'] = array(
+    '#type'  => 'hidden',
+    '#value' => $user->mail,
+  );
+  $form['ik_success_url'] = array(
+    '#type'  => 'hidden',
+    '#value' => $url,
+  );
+  $form['ik_fail_url'] = array(
+    '#type'  => 'hidden',
+    '#value' => $url,
+  );
+  $form['ik_status_url'] = array(
+    '#type'  => 'hidden',
+    '#value' => $status_url,
+  );
+  $elements = array(
+    'ik_fail_method',
+    'ik_success_method',
+    'ik_status_method',
+  );
+
+  foreach ($elements as $element) {
+    $form[$element] = array(
+      '#type'  => 'hidden',
+      '#value' => 'POST',
+    );
+  }
+
+  $form['submit'] = array(
+    '#type'  => 'submit',
+    '#value' => t('Pay'),
+  );
+  return $form;
+}
+
+/**
+ * Payment method callback: redirect form return validation.
+ */
+function commerce_interkassa_redirect_form_validate($order, $payment_method) {
+  if ($_POST['ik_payment_state'] == 'success') {
+    commerce_interkassa_add_log('Order number @order_number payment success.', array('@order_number' => $order->order_id));
+    return TRUE;
+  }
+  commerce_interkassa_add_log('Order number @order_number payment fail.', array('@order_number' => $order->order_id));
+  return FALSE;
+}
+
+/**
+ * Creates transaction.
+ *
+ * @param object $order
+ *   Commerce order.
+ */
+function commerce_interkassa_create_transaction($order) {
+  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+
+  $transaction                = commerce_payment_transaction_new('commerce_interkassa', $order->order_id);
+  $transaction->instance_id   = $order->data['payment_method'];
+  $transaction->amount        = $order_wrapper->commerce_order_total->amount->value();
+  $transaction->currency_code = $order_wrapper->commerce_order_total->currency_code->value();
+  $transaction->status        = COMMERCE_PAYMENT_STATUS_SUCCESS;
+  $transaction->message       = t('The payment has completed.');
+
+  commerce_payment_transaction_save($transaction);
+  commerce_interkassa_add_log('Order number @order_number transaction created.', array('@order_number' => $order->order_id));
+}
+
+/**
+ * Write messages to the system log.
+ *
+ * @param string $message
+ *   Message text.
+ * @param array $variables
+ *   Variables to replace placeholders.
+ */
+function commerce_interkassa_add_log($message, $variables = array()) {
+  $payment_method = commerce_payment_method_instance_load('commerce_interkassa|commerce_payment_commerce_interkassa');
+  $payment_method['settings'] = (array) $payment_method['settings'] + commerce_interkassa_default_settings();
+  if ($payment_method['settings']['log_enable']) {
+    watchdog('commerce_interkassa', $message, $variables);
+  }
+}

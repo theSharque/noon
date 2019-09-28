@@ -1,0 +1,86 @@
+<?php
+
+  global $user;
+
+  if( isset( $_GET['rf'] ) && is_numeric( $_GET['rf'] ) && isset( $user->owner ) && $user->owner ) {
+    $rf = $_GET['rf'];
+    db_safe( $rf );
+
+    switch( $user->place_type ) {
+      case 0:
+        $silo = db_fetch_row("SELECT SUM( b.warehouse + IF( b.id = 3004, p.level * 100000, 0 ) ) silo
+                                FROM orbits_buildings p
+                          INNER JOIN buildings b ON b.id = p.object_id
+                               WHERE p.planet_id = {$user->place_id}");
+        break;
+
+      case 1:
+        $silo = db_fetch_row("SELECT SUM( b.warehouse + IF( b.id = 38, p.level * 50000, 0 ) ) silo
+                                FROM planets_buildings p
+                          INNER JOIN buildings b ON b.id = p.object_id
+                               WHERE p.planet_id = {$user->place_id}");
+        break;
+    }
+    $free_silo = get_warehouse();
+    $out = "dg_h=".t( 'Склад %d, свободно %d', array( $silo['silo'], $free_silo ) );
+    $out .= "&col0=".t( 'Ресурс' );
+    $out .= "&col1=".t( 'Доступно' );
+
+    if( $rf == 0 ) {
+      $items = db_fetch_array( "SELECT o.id, o.name, w.object_cnt, o.class
+                                  FROM warehouse w
+                            INNER JOIN objects o ON o.id = w.object_id
+                                 WHERE o.class IN( 1, 2, 5, 6, 7, 9 ) AND
+                                       w.object_cnt > 0 AND
+                                       w.place_id = {$user->place_id} AND
+                                       w.place_type = {$user->place_type}
+                              ORDER BY o.class, o.name" );
+
+      $energy_av = get_energy();
+    
+      $i=1;
+      $out .= "&cols=2&rows=".(count( $items ) + 1);
+      $out .= "&l0color=0x606060&l0c0=".t('Энергия')."&l0c1=".$energy_av;
+      foreach( $items as $item ) {
+        switch( $item['class'] ) {
+          case 1:
+            $out .= "&l".$i."color=0x003000";
+            break;
+          case 2:
+            $out .= "&l".$i."color=0x303000";
+            break;
+          case 5:
+            if( ( $item['id'] == 5015 || $item['id'] == 5032 ) && $item['object_cnt'] >= 100 ) {
+              levelUp( 14, $user->uid );
+            }
+            $out .= "&l".$i."color=0x000030";
+            break;
+          case 6:
+          case 7:
+            $out .= "&l".$i."color=0x300030";
+            break;
+          case 9:
+            $out .= "&l".$i."color=0x003030";
+            break;
+          default:
+            $out .= "&l".$i."color=0xFF0000";
+            break;
+        }
+        $out .= '&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['object_cnt'];
+        $i++;
+      }
+    } else {
+      $items = db_fetch_array( "SELECT o.name, w.object_cnt, o.class
+                                  FROM warehouse w, objects o
+                                 WHERE o.id = w.object_id AND w.place_id = {$user->place_id} AND w.place_type = {$user->place_type} AND o.class = $rf
+                              ORDER BY o.name, o.id" );
+      $i=0;
+      $out .= "&cols=2&rows=".count( $items );
+      foreach( $items as $item ) {
+        $out .= '&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['object_cnt'];
+        $i++;
+      }
+    }
+
+    printOut( $out );
+  }

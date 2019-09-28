@@ -1,0 +1,188 @@
+<?php
+
+  if( isset( $_GET['shid'] ) && isset( $_GET['x'] ) && isset( $_GET['y'] ) && is_numeric( substr( $_GET['shid'], 1 ) ) ) {
+    $type = substr( $_GET['shid'], 0, 1 );
+    $shid = substr( $_GET['shid'], 1 );
+    $x = $_GET['x'];
+    $y = $_GET['y'];
+
+    if( $type == 'S' ) {
+      $place = db_fetch_row( "SELECT st.planet, st.planet_cnt, s.place_id, s.place_type, s.arg1, s.arg2 FROM ships s,ship_types st  WHERE st.object_id = s.object_id AND id = $shid" );
+      $fuel = db_fetch_row( "SELECT object_cnt cnt FROM warehouse WHERE object_id = 1019 AND place_type = 2 AND place_id = $shid" );
+      $add = 0;
+      $a_type = 0;
+    } else {
+      $place = db_fetch_row( "SELECT planet, planet_cnt, place_id, place_type, arg1, arg2 FROM fleets WHERE id = $shid" );
+      $fuel = db_fetch_row( "SELECT SUM(w.object_cnt) cnt FROM warehouse w, ships s WHERE w.object_id = 1019 AND s.fleet_id = $shid AND w.place_type = 2 AND w.place_id = s.id" );
+      $add = 100;
+      $a_type = 1;
+    }
+
+    $xdiff = 340 - $x;
+    $ydiff = 220 - $y;
+    $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+
+    if( ( $place['place_type'] != 0 && $place['place_type'] != 7 ) || $place['place_type'] === null ) {
+      printOut( "err=4" );
+      return;
+    }
+
+    if( $len < 25 ) {
+      printOut( "err=3" );
+      return;
+    }
+
+    switch( $place['place_type'] ) {
+      case 0:
+        $planet = get_place_info( $place['place_id'], $place['place_type'] );
+        $star_id = $planet->place_id;
+  
+        $start = db_fetch_row( "SELECT orb, rad FROM planets WHERE id = ".$place['place_id'] );
+        $radx = $start['orb'] * 2;
+        $rady = $start['orb'] * 1.5;
+        $start_x = round( 340 + sin( deg2rad( $start['rad'] ) ) * $radx / 2 );
+        $start_y = round( 220 + cos( deg2rad( $start['rad'] ) ) * $rady / 2 );
+  
+        $result = db_fetch_array( "SELECT p.id, p.name, p.orb, p.rad, d.status, d.user_id
+                                     FROM planets p LEFT JOIN defence d ON d.place_id = p.id AND d.place_type = 0
+                                    WHERE p.star_id = ".$planet->place_id." ORDER BY p.planet_pos" );
+  
+        $xdiff = $start_x - $x;
+        $ydiff = $start_y - $y;
+        $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+        $time = get_pmove_time( $len, $place['planet'] );
+        $fuel_need = round( $len/15 ) * $place['planet_cnt'];
+
+        if( $fuel_need > $fuel['cnt'] ) {
+          $out = "err=4";
+        } else {
+          $tlen = $len;
+          $sql = "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1, arg2, from_arg1, from_arg2, from_type )
+                                    VALUES ( $add+2, $shid, DATE_ADD( NOW(), INTERVAL $time SECOND ), $time, ".$user->uid.", $x, $y, 0, {$place['place_id']}, $add+3 )";
+          $out = "err=0";
+        }
+  
+        foreach( $result as $item ) {
+          $radx = $item['orb'] * 2;
+          $rady = $item['orb'] * 1.5;
+    
+          $planet_x = round( 340 + sin( deg2rad( $item['rad'] ) ) * $radx / 2 );
+          $planet_y = round( 220 + cos( deg2rad( $item['rad'] ) ) * $rady / 2 );
+    
+          $xdiff = $planet_x - $x;
+          $ydiff = $planet_y - $y;
+          $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+  
+          if( $len < 15 ) {
+            $xdiff = $start_x - $planet_x;
+            $ydiff = $start_y - $planet_y;
+            $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+            $time = get_pmove_time( $len, $place['planet'] );
+            $fuel_need = round( $len/15 ) * $place['planet_cnt'];
+
+            if( $fuel_need > $fuel['cnt'] ) {
+              $out = "err=5";
+            } else {
+              $tlen = $len;
+              $sql = "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1, arg2, from_arg1, from_arg2, from_type )
+                                        VALUES ( $add+3, $shid, DATE_ADD( NOW(), INTERVAL $time SECOND ), $time, ".$user->uid.", 0, {$item['id']}, 0, {$place['place_id']}, $add+3 )";
+              $out = "err=0";
+            }
+          }
+        }
+        break;
+      case 7:
+        $start_x = $place['arg1'];
+        $start_y = $place['arg2'];
+  
+        $star_id = $place['place_id'];
+
+        $result = db_fetch_array( "SELECT p.id, p.name, p.orb, p.rad, d.status, d.user_id
+                                     FROM planets p LEFT JOIN defence d ON d.place_id = p.id AND d.place_type = 0
+                                    WHERE p.star_id = ".$place['place_id']." ORDER BY p.planet_pos" );
+  
+        $xdiff = $start_x - $x;
+        $ydiff = $start_y - $y;
+        $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+        $time = get_pmove_time( $len, $place['planet'] );
+        $fuel_need = round( $len/15 ) * $place['planet_cnt'];
+
+        if( $fuel_need > $fuel['cnt'] ) {
+          $out = "err=4";
+        } else {
+          $tlen = $len;
+          $sql = "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1, arg2, from_arg1, from_arg2, from_type )
+                                    VALUES ( $add+2, $shid, DATE_ADD( NOW(), INTERVAL $time SECOND ), $time, ".$user->uid.", $x, $y, $start_x, $start_y, $add+2 )";
+          $out = "err=0";
+        }
+  
+        foreach( $result as $item ) {
+          $radx = $item['orb'] * 2;
+          $rady = $item['orb'] * 1.5;
+    
+          $planet_x = round( 340 + sin( deg2rad( $item['rad'] ) ) * $radx / 2 );
+          $planet_y = round( 220 + cos( deg2rad( $item['rad'] ) ) * $rady / 2 );
+    
+          $xdiff = $planet_x - $x;
+          $ydiff = $planet_y - $y;
+          $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+  
+          if( $len < 15 ) {
+            $xdiff = $start_x - $planet_x;
+            $ydiff = $start_y - $planet_y;
+            $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+            $time = get_pmove_time( $len, $place['planet'] );
+            $fuel_need = round( $len/15 ) * $place['planet_cnt'];
+
+            if( $fuel_need > $fuel['cnt'] ) {
+              $out = "err=5";
+            } else {
+              $tlen = $len;
+              $sql = "INSERT INTO space_events ( event_type, ship_id, event_time, timer, user_id, arg1, arg2, from_arg1, from_arg2, from_type )
+                                        VALUES ( $add+3, $shid, DATE_ADD( NOW(), INTERVAL $time SECOND ), $time, ".$user->uid.", 0, {$item['id']}, $start_x, $start_y, $add+2 )";
+              $out = "err=0";
+            }
+          }
+        }
+        break;
+      default:
+        $out = "err=2";
+        break;
+    }
+
+    printOut( $out );
+    if( $out == "err=0" ) {
+
+      if( $type == 'S' ) {
+        db_query( "UPDATE ships SET guard = 0, arg1 = null, arg2 = null, place_type = 5, place_id = ".$star_id." WHERE id = $shid" );
+      } else {
+        db_query( "UPDATE fleets SET guard = 0, arg1 = null, arg2 = null, place_type = 5, place_id = ".$star_id." WHERE id = $shid" );
+        db_query( "UPDATE ships SET guard = 0, arg1 = null, arg2 = null, place_type = 5, place_id = ".$star_id." WHERE fleet_id = $shid" );
+      }
+
+      if( $fuel_need > 0 ) {
+        if( $type == 'S' ) {
+          sub_warehouse_item( 2, $shid, 1019, $fuel_need );
+        } else {
+          $ships = db_fetch_array( "SELECT s.id, w.object_cnt
+                                      FROM ships s
+                                 LEFT JOIN warehouse w ON w.place_id = s.id AND w.place_type = 2 AND w.object_id = 1019
+                                     WHERE s.fleet_id = $shid ORDER BY w.object_cnt DESC" );
+          $total = $fuel_need;
+          foreach( $ships as $item ) {
+            if( $total <= $item['object_cnt'] ) {
+              sub_warehouse_item( 2, $item['id'], 1019, $total );
+              break;
+            } else {
+              sub_warehouse_item( 2, $item['id'], 1019, $item['object_cnt'] );
+              $total -= $item['object_cnt'];
+            }
+          }
+        }
+      }
+
+      db_query( $sql );
+    }
+  } else {
+    printOut( "err=1" );
+  }

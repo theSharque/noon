@@ -1,0 +1,137 @@
+<?php
+
+  global $user;
+
+  $out = "err=2";
+
+  if( isset( $_GET['ord'] ) && is_numeric( $_GET['ord'] ) ) {
+    $ord = $_GET['ord'];
+    db_safe( $ord );
+
+    if( isset( $_GET['aid'] ) && is_numeric( $_GET['aid'] ) ) {
+      $aid = $_GET['aid'];
+      db_safe( $aid );
+
+      $result = db_fetch_row( "SELECT a.id, a.level, a.own, u.id uid, ai.user_id, a.name
+                                 FROM aliance a
+                            LEFT JOIN users u ON u.id = {$user->uid} AND u.aliance = a.id
+                            LEFT JOIN aliance_in ai ON ai.aliance = a.id AND ai.user_id = {$user->uid}
+                                WHERE a.id = $aid" );
+    }
+
+    switch( $ord ) {
+
+      case 1: // Create
+        if( $user->aliance == 0 && isset( $_GET['name'] ) && $user->credits >= 10 ) {
+          $name = $_GET['name'];
+          db_safe( $name );
+
+          $name = decode_in( $name );
+
+          db_query( "INSERT aliance ( name, level, own ) VALUES ( '$name', 0, {$user->uid} )" );
+          $id = mysql_insert_id();
+          db_query( "UPDATE users SET credits = credits - 10, aliance = $id WHERE id = ".$user->uid );
+
+          db_query( "DELETE FROM aliance_in WHERE user_id = ".$user->uid );
+
+          db_query( "INSERT INTO bay_log (user_id, log_text, summ, conf)
+                     VALUES ( {$user->uid}, 'Create aliance $name for 10 money', 10, 1 )" );
+
+          send_msg( 1, $user->uid, "Вы создали альянс $name и назначены его президентом. С вашего счета снято 10 конфедерат.", 20 );
+
+          $out = 'err=0';
+        }
+        break;
+
+      case 2: // Enter
+        if( isset( $result['id'] ) && is_numeric( $result['id'] ) && $user->aliance == 0 && $result['user_id'] != $user->uid ) {
+          db_query( "INSERT aliance_in ( aliance, user_id ) VALUES ( $aid, {$user->uid} )" );
+
+          send_msg( 1, $user->uid, "Вы подали заявку на встепление в альянс {$result['name']}. Когда заявка будет рассмотрена вас оповестят о результате.", 20 );
+          send_msg( $user->uid, $result['own'], "{$user->login} подал заявку на вступление в альянс {$result['name']}.", 20 );
+
+          $out = 'err=0';
+        }
+        break;
+
+      case 3: // Upgrade
+        if( isset( $result['id'] ) && is_numeric( $result['id'] ) && $user->uid == $result['own'] && $result['level'] < 10 && $user->credits >= 5 ) {
+          db_query( "UPDATE aliance SET level = level + 1 WHERE id = $aid" );
+          db_query( "UPDATE users SET credits = credits - 5 WHERE id = ".$user->uid );
+
+          db_query( "INSERT INTO bay_log (user_id, log_text, summ, conf)
+                     VALUES ( {$user->uid}, 'Upgrade aliance {$result['name']} for 5 money', 5, 1 )" );
+
+          send_msg( 1, $user->uid, "Вы улучшили альянс {$result['name']} до уровня ".( $result['level'] + 1 ).". С вашего счета снято 5 конфедерат.", 20 );
+
+          $out = 'err=0';
+        }
+        break;
+
+      case 4: // Mail
+        if( isset( $result['id'] ) && is_numeric( $result['id'] ) && $user->aliance == $result['id'] ) {
+          $out = 'err=0';
+        }
+        break;
+
+      case 5: // Leave
+        if( isset( $result['id'] ) && is_numeric( $result['id'] ) && $user->aliance == $result['id'] && $user->uid != $result['own'] ) {
+          db_query( "UPDATE users SET aliance = 0 WHERE id = ".$user->uid );
+
+          db_query( "UPDATE users SET aliance = 0 WHERE id = ".$user->uid );
+          db_query( "UPDATE defence SET status = 0 WHERE status = 4 AND user_id = ".$user->uid );
+          db_query( "UPDATE ships SET guard = 0 WHERE guard = 4 AND user_id = ".$user->uid );
+          db_query( "UPDATE fleets SET guard = 0 WHERE guard = 4 AND user_id = ".$user->uid );
+          db_query( "UPDATE ships SET interupt = 1 WHERE interupt IN( 7, 8 ) AND user_id = ".$user->uid );
+          db_query( "UPDATE fleets SET interupt = 1 WHERE interupt IN( 7, 8 ) AND user_id = ".$user->uid );
+
+          send_msg( 1, $user->uid, "Вы покинули альянс {$result['name']}.", 20 );
+          send_msg( $user->uid, $result['own'], "{$user->login} покинул альянас {$result['name']}.", 20 );
+
+          $out = 'err=0';
+        }
+        break;
+
+      case 6: // Cancel
+        if( isset( $result['id'] ) && is_numeric( $result['id'] ) && $user->uid == $result['own'] ) {
+
+          send_msg( $user->uid, 8, "Альянс {$result['name']} распущен, вы автоматически покидаете его.", 20 );
+
+          db_query( "DELETE FROM aliance WHERE id = $aid" );
+          db_query( "DELETE FROM aliance_in WHERE aliance = $aid" );
+
+          db_query( "UPDATE defence SET status = 0 WHERE status = 4 AND user_id IN (SELECT id FROM users WHERE aliance = $aid)" );
+          db_query( "UPDATE ships SET guard = 0 WHERE guard = 4 AND user_id IN (SELECT id FROM users WHERE aliance = $aid)" );
+          db_query( "UPDATE fleets SET guard = 0 WHERE guard = 4 AND user_id IN (SELECT id FROM users WHERE aliance = $aid)" );
+          db_query( "UPDATE ships SET interupt = 1 WHERE interupt IN( 7, 8 ) AND user_id IN (SELECT id FROM users WHERE aliance = $aid)" );
+          db_query( "UPDATE fleets SET interupt = 1 WHERE interupt IN( 7, 8 ) AND user_id IN (SELECT id FROM users WHERE aliance = $aid)" );
+
+          db_query( "UPDATE users SET aliance = 0 WHERE aliance = $aid" );
+
+          send_msg( 1, $user->uid, "Вы распустили альянс {$result['name']}", 20 );
+
+          $out = 'err=0';
+        }
+        break;
+
+      case 7: // New description
+        if( isset( $result['id'] ) && is_numeric( $result['id'] ) && $user->uid == $result['own'] ) {
+
+          $text = $_GET['txt'];
+          $text = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode( $text ));
+          $text = html_entity_decode( $text, null, 'UTF-8' );;
+          $text = mb_convert_encoding( $text, "Windows-1251", "UTF-8" );
+          $text = preg_replace( array( '/\'/i', '/</i', '/>/i' ), array( '"', '"', '"' ), $text ); 
+          $text = preg_replace( '/([^a-zA-Z0-9а-яА-ЯёЁ])/e', '"%".str_pad(dechex(ord("$1")),2,"0",STR_PAD_LEFT)', $text ); 
+          $text = preg_replace( '/%5c/i', '', $text ); 
+
+          db_query( "UPDATE aliance SET description = '$text' WHERE id = $aid" );
+        }
+        break;
+    }
+
+  } else {
+    $out = "err=1";
+  }
+
+  printOut( $out );

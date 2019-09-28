@@ -1,0 +1,350 @@
+<?php
+
+  global $user;
+  $last = mt_rand( 100000, 999999 );
+
+  $out = '';
+
+  if( $user->place_type == 0 && isset( $_GET['x'] ) ) {
+    $planet_id = $user->place_id;
+    $x = $_GET['x'];
+    $y = 0;
+    $info = get_orbit_info( $x );
+
+    if( $info->building > 0 ) {
+      if( $info->busy == 0 && $info->level < 10 && $info->level > 0 && $user->owner  && $_GET['x'] >= 0 ) {
+        $result = db_fetch_row( "SELECT o.name, b.desc FROM objects o, buildings b WHERE o.id = b.id AND o.id = ".$info->building );
+  
+        $out  = "title=".$result['name'];
+        $out .= "&level=Уровень ".$info->level;
+
+        switch( $info->building ) {
+          case 3003:
+            $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 1000 + ( $info->level * 250 ) )."</font> %2B 250";
+            break;
+          case 3004:
+            $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 200000 + ( $info->level * 100000 ) )."</font> %2B 100000";
+            break;
+
+          case 3007:
+            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
+              "Количество\t\t\t".($info->level * 10)." %2B 10";
+            break;
+          case 3008:
+            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(50 + 50 * get_book_level( 21 ))."\n".
+              "Количество\t\t\t".($info->level)." %2B 1";
+            break;
+          case 3009:
+            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 24 )))." %2B 1";
+            break;
+
+          default:
+            $out .= '&desc='.$result['desc'];
+            break;
+        }
+  
+        $build_time = time_to_str( round( get_build_time( $info->building ) / 2 ) );
+        $out .= "&header=Длительность $build_time";
+
+        $res = db_fetch_array( "SELECT o.id, o.name, ROUND( os.res_cnt / 4 * ".$info->level." ) res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                  FROM objects_sub os
+                            INNER JOIN objects o ON o.id = os.res_id
+                             LEFT JOIN warehouse w ON w.object_id = os.res_id AND place_id = ".$user->place_id." AND place_type = ".$user->place_type."
+                                 WHERE os.object_id=".$info->building."
+                              ORDER BY o.name" );
+        $items = array();
+        foreach( $res as $item ) {
+          $items[$item['id']] = $item;
+        }
+
+        $res = db_fetch_array( "SELECT w.object_id, SUM( w.object_cnt ) object_cnt
+                                  FROM warehouse w
+                            INNER JOIN ships s ON s.id = w.place_id
+                            INNER JOIN objects_sub os ON w.object_id = os.res_id
+                                 WHERE s.place_id = ".$user->place_id." AND s.place_type = ".$user->place_type." AND s.user_id = ".$user->uid." AND
+                                       w.place_type = 2 AND
+                                       os.object_id = {$info->building}
+                              GROUP BY w.object_id" );
+        foreach( $res as $item ) {
+          if( isset( $items[$item['object_id']] ) ) {
+            $items[$item['object_id']]['object_cnt'] += $item['object_cnt'];
+          }
+        }
+
+        $out .= "&col0=Ресурс";
+        $out .= "&col1=Требуется";
+        $out .= "&col2=Доступно";
+        $out .= "&cols=3&rows=".count( $items );
+  
+        $i=0;
+        $CanBuild = true;
+        foreach( $items as $item ) {
+          if( $item['res_cnt'] <= $item['object_cnt'] ) {
+            $out .= '&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+          } else {
+            $out .= '&l'.$i.'color=0xFF0000&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+            $CanBuild = false;
+          }
+          $i++;
+        }
+        if( $CanBuild ) {
+/*
+          db_query( "INSERT INTO antibot ( user_id, coord, up )
+                          VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+         ON DUPLICATE KEY UPDATE up = $last" );
+*/
+          $out .= "&btLabel=Усовершенствовать до уровня ".($info->level + 1)."&upgOnClick=page.php?id=274%26l=$last%26x=$x";
+        }
+      } else {
+        $result = db_fetch_row( "SELECT o.name, b.desc FROM objects o, buildings b WHERE o.id = b.id AND o.id = ".$info->building );
+  
+        $out  = "title=".$result['name'];
+        $out .= "&level=Уровень ".$info->level;
+
+        switch( $info->building ) {
+          case 3003:
+            $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 1000 + ( $info->level * 250 ) )."</font>";
+            break;
+          case 3004:
+            $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 200000 + ( $info->level * 100000 ) )."</font>";
+            break;
+          case 3007:
+            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
+              "Количество\t\t\t".($info->level * 10)." %2B 10";
+            break;
+          case 3008:
+            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(50 + 50 * get_book_level( 21 ))."\n".
+              "Количество\t\t\t".($info->level)." %2B 1";
+            break;
+          case 3009:
+            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 24 )))." %2B 1";
+            break;
+
+          default:
+            $out .= '&desc='.$result['desc'];
+            break;
+        }
+      }
+    } else {
+      $out  = "title=Открытый космос";
+    }
+    printOut( $out );
+  }
+
+  if( $user->place_type == 1 && isset( $_GET['x'] ) && isset( $_GET['y'] ) && $user->owner && $_GET['x'] >= 0 && $_GET['y'] >= 0 ) {
+    $planet_id = $user->place_id;
+    $x = $_GET['x'];
+    $y = $_GET['y'];
+
+    db_query( "UPDATE LOW_PRIORITY planets_active SET last_pos='$x:$y' WHERE id=$planet_id" );
+
+    $info = get_planet_info( $x, $y );
+
+    $iq = false;
+    if( $user->iq ) {
+      $qid = $user->iq;
+      if( $user->qt >= 19 && $user->qt <= 29 ) {
+        $iq = true;
+        $map = db_fetch_row( "SELECT u2.arg9 FROM u2u_quests u2 WHERE u2.event_id = ".$user->iq );
+        $umap = explode( "\n", $map['arg9'] );
+      }
+    }
+
+    if( !$iq || $user->qt == 29 || ( $user->qt == 28 && ( !isset( $umap[ $y ] ) || $umap[ $y ]{ $x } >= $info->level ) ) ) {
+      if( $info->building > 0 ) {
+        if( $info->busy == 0 && $info->level < 10 && $info->level > 0 ) {
+    
+          $result = db_fetch_row( "SELECT o.name, b.desc FROM objects o, buildings b WHERE o.id = b.id AND o.id = ".$info->building );
+    
+          if( $info->building == 32 ) {
+            $name = db_fetch_val( "SELECT a.sname
+                                     FROM academy a
+                               INNER JOIN academy_build ab ON ab.type = a.id
+                                    WHERE ab.build_id = {$info->bid}", 'sname' );
+
+            $out  = "title=".$result['name'].' '.$name;
+          } else {
+            $out  = "title=".$result['name'];
+          }
+
+          $out .= "&level=Уровень ".$info->level;
+  
+          switch( $info->building ) {
+            case 34:
+              $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 100 + ( $info->level * 25 ) )."</font> %2B 25";
+              break;
+            case 38:
+              $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 250000 + ( $info->level * 50000 ) )."</font> %2B 50000";
+              break;
+            case 31:
+              $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 1000 * $info->level + ( ( 1000 * $info->level ) / 4 * get_book_level( 20 ) ) )."</font> %2B 1000";
+              break;
+            case 27:
+              $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( $info->level )."</font> %2B 1";
+              break;
+            case 28:
+              $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
+                "Количество\t\t\t".($info->level * 10)." %2B 10";
+              break;
+            case 29:
+              $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(75 + 75 * get_book_level( 21 ))."\n".
+                "Количество\t\t\t".($info->level)." %2B 1";
+              break;
+            case 30:
+              $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 23 )))." %2B 1";
+              break;
+  
+            default:
+              $out .= '&desc='.$result['desc'];
+              break;
+          }
+  
+          $build_time = time_to_str( round( get_build_time( $info->building ) / 2 ) );
+          $out .= "&header=Длительность $build_time";
+  
+          if( !$iq ) {
+            $items = db_fetch_array( "SELECT o.id, o.name, ROUND( os.res_cnt / 4 * ".$info->level." ) res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                        FROM objects_sub os
+                                  INNER JOIN objects o ON o.id = os.res_id
+                                   LEFT JOIN warehouse w ON w.object_id = os.res_id AND place_id = ".$user->place_id." AND place_type = ".$user->place_type."
+                                       WHERE os.object_id=".$info->building."
+                                    ORDER BY o.name" );
+          } else {
+            $items = db_fetch_array( "SELECT o.id, o.name, ROUND( os.res_cnt / 4 * ".$info->level." ) res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
+                                        FROM objects_sub os
+                                  INNER JOIN objects o ON o.id = os.res_id
+                                   LEFT JOIN warequest w ON w.quest_id = $qid AND w.object_id = os.res_id AND place_id = ".$user->place_id." AND place_type = ".$user->place_type."
+                                       WHERE os.object_id=".$info->building."
+                                    ORDER BY o.name" );
+          }
+
+          $out .= "&col0=Ресурс";
+          $out .= "&col1=Требуется";
+          $out .= "&col2=Доступно";
+          $out .= "&cols=3&rows=".count( $items );
+    
+          $i=0;
+          $CanBuild = true;
+          foreach( $items as $item ) {
+            if( $item['res_cnt'] <= $item['object_cnt'] ) {
+              $out .= '&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+            } else {
+              $out .= '&l'.$i.'color=0xFF0000&l'.$i.'c0='.$item['name'].'&l'.$i.'c1='.$item['res_cnt'].'&l'.$i.'c2='.$item['object_cnt'];
+              $CanBuild = false;
+            }
+            $i++;
+          }
+          if( $CanBuild ) {
+/*
+            db_query( "INSERT INTO antibot ( user_id, coord, up )
+                            VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+           ON DUPLICATE KEY UPDATE up = $last" );
+*/
+            $out .= "&btLabel=Усовершенствовать до уровня ".($info->level + 1)."&upgOnClick=page.php?id=274%26l=$last%26x=$x%26y=$y";
+          }
+        } else {
+          $result = db_fetch_row( "SELECT o.name, b.desc FROM objects o, buildings b WHERE o.id = b.id AND o.id = ".$info->building );
+    
+          $out  = "title=".$result['name'];
+          $out .= "&level=Уровень ".$info->level;
+          if( $info->level >= 10 ) {
+            $out .= "&desc=Дальнейшее улучшение невозможно.";
+          } elseif( $info->level == 0 ) {
+            $out .= "&desc=Улучшение невозможно.";
+          } else {
+            switch( $info->building ) {
+              case 34:
+                $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 100 + ( $info->level * 25 ) )."</font> %2B 25";
+                break;
+              case 38:
+                $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 250000 + ( $info->level * 50000 ) )."</font> %2B 50000";
+                break;
+              case 31:
+                $lvl = get_book_level( 20 );
+                $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( $info->level * 1000 + $info->level * $lvl * 250)."</font> %2B 1000";
+                break;
+              case 27:
+                $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( $info->level )."</font> %2B 1";
+                break;
+              case 28:
+                $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
+                  "Количество\t\t\t".($info->level * 10)." %2B 10";
+                break;
+              case 29:
+              $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(75 + 75 * get_book_level( 21 ))."\n".
+                "Количество\t\t\t".($info->level)." %2B 1";
+                break;
+              case 30:
+                $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 23 )))." %2B 1";
+                break;
+  
+              default:
+                $out .= '&desc='.$result['desc'];
+                break;
+            }
+          }
+        }
+      } else {
+        $found = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT fnd FROM planets_maps WHERE id = $planet_id", 'fnd' ) ) ) );
+        switch( $info->busy ) {
+          case 0:
+            $result = db_fetch_row( "SELECT object_cnt cnt FROM warehouse WHERE object_id = 2000 AND place_type = 1 AND place_id = ".$user->place_id );
+            if( isset( $found[ $y ] ) && $result['cnt'] > 0 ) {
+    
+              switch( $found[ $y ]{ $x } ) {
+                case '0' :
+                  $out  = 'title=<b><font color="#00FFFF">Исследовать средний слой</font></b>';
+                  $out .= "&level=Исследованна поверхность";
+                  break;
+                case '1' :
+                  $out  = 'title=<b><font color="#00FFFF">Исследовать глубинный слой</font></b>';
+                  $out .= "&level=Исследован средний слой";
+                  break;
+                case '2' :
+                  $out  = 'title=<b><font color="#FFFF00">Все слои исследованны</font></b>';
+                  $out .= "&level=Исследован глубинный слой";
+                  break;
+              }
+    
+              switch( $found[ $y ]{ $x } ) {
+                case '0' :
+                case '1' :
+/*
+                  db_query( "INSERT INTO antibot ( user_id, coord, last )
+                                  VALUES ( {$user->uid}, ".($y*30+$x).", $last )
+                 ON DUPLICATE KEY UPDATE last = $last" );
+*/
+                  $build_time = time_to_str( get_build_time( 2000 ) );
+                  $out .= "&header=Длительность $build_time";
+                  $out .= "&btLabel=Начать исследование&upgOnClick=page.php?id=25%26l=$last%26x=$x%26y=$y%26bid=2000";
+                  $out .= "&col0=Ресурс";
+                  $out .= "&col1=Требуется";
+                  $out .= "&col2=Доступно";
+                  $out .= "&cols=3&rows=1";
+                  $out .= '&l0c0=Геологический зонд&l0c1=1&l0c2='.$result['cnt'];
+                  break;
+              }
+            } else {
+              $out  = "title=Необходим геологический зонд";
+            }
+            $out .= "&desc=\tПоверхность планеты содержит большое количество полезных ископаемых которые можно добывать в карьере, шахте или на буровой вышке. Для доступа в недра планеты необходимо исследовать участок с помощью зонда или геологического спутника.";
+            break;
+          case 1:
+            $obj = db_fetch_row( "SELECT o.id, o.name FROM planet_events pe, objects o WHERE pe.id = {$info->busy_id} AND pe.object_id = o.id" );
+            if( $obj['id'] == 2000 ) {
+              if( $found[ $y ]{$x} == 0 ) {
+                $out = "title=Разрабатывается средний слой";
+              } else {
+                $out = "title=Разрабатывается глубинный слой";
+              }
+            } else {
+              $out = "title=Строится {$obj['name']}";
+            }
+            break;
+        }
+      }
+    } else {
+      $out  = "title=Управление заблокированно";
+    }
+    printOut( $out );
+  }

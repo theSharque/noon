@@ -1,0 +1,3192 @@
+<?php
+
+function war_event_all() {
+
+  $microtime_start = microtime(true);
+
+  do {
+    $repeat = false;
+
+    $reset = db_fetch_array( "SELECT we.place_hash
+                                FROM war_events we
+                            GROUP BY we.place_hash
+                              HAVING MAX( we.a_last_id ) = -1 AND MAX( we.d_last_id ) = -1" );
+
+    foreach( $reset as $item ) {
+      $wars = db_fetch_array( "SELECT we.id, we.a_type, we.a_object_id, we.d_type, we.d_object_id
+                                 FROM war_events we
+                                WHERE we.place_hash = {$item['place_hash']}" );
+
+      $ships = '';
+      $fleets = '';
+      $wids = '';
+
+      foreach( $wars as $go ) {
+        $wids .= ', '.$go['id'];
+
+        switch( $go['a_type'] ) {
+          case 0:
+            $ships .= ', '.$go['a_object_id'];
+            break;
+
+          case 1:
+            $fleets .= ', '.$go['a_object_id'];
+            break;
+        }
+
+        switch( $go['d_type'] ) {
+          case 0:
+            $ships .= ', '.$go['d_object_id'];
+            break;
+
+          case 1:
+            $fleets .= ', '.$go['d_object_id'];
+            break;
+        }
+      }
+
+      $ships = substr( $ships, 2 );
+      $fleets = substr( $fleets, 2 );
+      $wids = substr( $wids, 2 );
+
+      if( $ships ) {
+        db_query( "UPDATE ships_war s SET fire = 0 WHERE s.id IN ( $ships )" );
+      }
+
+      if( $fleets ) {
+        db_query( "UPDATE ships_war s SET fire = 0 WHERE s.fleet_id IN ( $fleets )" );
+      }
+
+      if( $wids ) {
+        db_query( "UPDATE war_events SET move_id = IF( move_id = 1, 0, 1 ), a_last_id = 0, d_last_id = 0 WHERE id IN ( $wids )" );
+      }
+    }
+
+    $events = db_fetch_array( "SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300" );
+
+/*
+    if( count( $events ) ) {
+      xdebug_start_trace('debug/page_'.$_GET['id'].'_'.mt_rand(100000,999999));
+    }
+*/
+    foreach( $events as $item ) {
+      if( microtime(true) - $microtime_start > 10 ) {
+/*
+        $fdebug = xdebug_get_tracefile_name();
+        xdebug_stop_trace();
+*/
+        return;
+      }
+
+      $repeat = true;
+      $log_text = '';
+
+      // count aggressors
+      switch( $item['a_type'] ) {
+        case 0:
+          $acnt = db_fetch_val( "SELECT count(*) cnt FROM ships_war WHERE id = ".$item['a_object_id']." AND user_id = ".$item['a_user_id'], 'cnt' );
+          break;
+        case 1:
+          $acnt = db_fetch_val( "SELECT count(*) cnt FROM ships_war WHERE fleet_id = ".$item['a_object_id']." AND user_id = ".$item['a_user_id'], 'cnt' );
+          break;
+      }
+
+      if( $acnt == 0 ) { // Agressor is dead
+        $d_stat = '';
+        switch( $item['d_type'] ) {
+
+          case 0:
+            $place = db_fetch_row( "SELECT s.place_type, s.place_id, s.arg1, s.arg2 FROM ships_war s WHERE s.id = ".$item['d_object_id'] );
+
+            $d_stat = db_fetch_val( "SELECT o.name
+                                       FROM ships s
+                                 INNER JOIN objects o ON s.object_id = o.id
+                                      WHERE s.id = ".$item['d_object_id'], 'name' )."\n";
+            break;
+
+          case 1:
+            $place = db_fetch_row( "SELECT s.place_type, s.place_id, s.arg1, s.arg2 FROM ships_war s WHERE s.fleet_id = ".$item['d_object_id']." LIMIT 0,1" );
+
+            $res = db_fetch_array( "SELECT o.name, count(*) cnt
+                                      FROM ships_war s
+                                INNER JOIN objects o ON s.object_id = o.id
+                                     WHERE s.fleet_id = ".$item['d_object_id']." GROUP BY s.object_id" );
+            foreach( $res as $r) {
+              $d_stat .= ($d_stat?', ':'').$r['name'].' ('.$r['cnt'].')';
+            }
+            break;
+
+          case 2:
+            $place = array(
+              'place_type' => 1,
+              'place_id' => $item['d_object_id'],
+            );
+
+            $res = db_fetch_array( "SELECT o.name, count(*) cnt
+                                      FROM planets_buildings pb
+                                INNER JOIN objects o ON pb.object_id = o.id
+                                     WHERE pb.object_id IN (27, 28, 29, 30, 31) AND pb.planet_id = ".$item['d_object_id']." GROUP BY pb.object_id" );
+            foreach( $res as $r) {
+              $d_stat .= ($d_stat?', ':'').$r['name'].' ('.$r['cnt'].')';
+            }
+            break;
+
+          case 3:
+            $place = array(
+              'place_type' => 0,
+              'place_id' => $item['d_object_id'],
+            );
+
+            $res = db_fetch_array( "SELECT o.name, count(*) cnt
+                                      FROM orbits_buildings ob
+                                INNER JOIN objects o ON ob.object_id = o.id
+                                     WHERE ob.object_id IN (3007, 3008, 3009) AND ob.planet_id = ".$item['d_object_id']." GROUP BY ob.object_id" );
+            foreach( $res as $r) {
+              $d_stat .= ($d_stat?', ':'').$r['name'].' ('.$r['cnt'].')';
+            }
+            break;
+        }
+
+        $diff = round( getChar( 'war', $item['a_user_id'] ) / 10 );
+        $diff = ($diff > 0)?$diff:0;
+        setChar( 'war', ( -1 * $diff ), $item['a_user_id'] );
+        setChar( 'war', $diff, $item['d_user_id'] );
+
+        $messages = db_fetch_row( "SELECT a_stat, d_stat FROM war_events WHERE id = ".$item['id'] );
+
+        $report = null;
+        if( isset( $place['place_type'] ) && isset( $place['place_id'] ) ) {
+          switch( $place['place_type'] ) {
+            case 0:
+              $names = db_fetch_row( "SELECT p.name pname, s.name sname, s.id sid
+                                        FROM planets p
+                                  INNER JOIN stars s ON s.id = p.star_id
+                                       WHERE p.id = ".$place['place_id'] );
+    
+              $place_name = t( 'Орбита %s - %s', array( $names['pname'], $names['sname'] ) );
+
+              $report = array( 'id' => $names['sid'], 'name' => $names['sname'] );
+              break;
+
+            case 1:
+              $names = db_fetch_row( "SELECT p.name pname, s.name sname, s.id sid
+                                        FROM planets p
+                                  INNER JOIN stars s ON s.id = p.star_id
+                                       WHERE p.id = ".$place['place_id'] );
+    
+              $place_name = t( 'Планета %s - %s', array( $names['pname'], $names['sname'] ) );
+
+              $report = array( 'id' => $names['sid'], 'name' => $names['sname'] );
+              break;
+
+            case 7:
+              $names = db_fetch_row( "SELECT s.name sname, s.id sid
+                                        FROM stars s
+                                       WHERE s.id = ".$place['place_id'] );
+    
+              $place_name = t( 'Система %s координаты %d:%d', array( $names['sname'], $place['arg1'], $place['arg2'] ) );
+
+              $report = array( 'id' => $names['sid'], 'name' => $names['sname'] );
+              break;
+
+            case 8:
+              $place_name = t( 'Гиперпространство координаты %d:%d', array( $place['arg1'], $place['arg2'] ) );
+
+              $report = null;
+              break;
+
+            default:
+              $place_name = t( 'Полное уничтожение, координаты не определены' );
+
+              $report = null;
+              break;
+          }
+        } else {
+          $place_name = t( 'Полное уничтожение, координаты не определены' );
+        }
+
+        if( $item['a_type'] == 1 && $item['d_type'] == 1 && $report ) {
+          user_report( $report['id'], $item['a_user_id'], 50, t( "Из департамента безопасности конфедерации поступило уведомление, <font color=\"#FF0000\">в системе %s идут боевые действия</font>, будьте бдительны.", array( $report['name'] ) ) );
+        }
+
+        $amsg = t( "Вы напали на %s и <font color=\"#FF0000\">проиграли битву</font>.\n", array( $item['dname'] ) );
+        $amsg .= t( "Место столкновения: %s", array( $place_name ) );
+        $amsg .= t( "\nВаши силы в начале боя: %s", array( $messages['a_stat'] ) );
+        $amsg .= t( "\nСилы противника в начале боя: %s", array( $messages['d_stat'] ) );
+        $amsg .= t( "\nСилы противника по окончании боя: %s", array( $d_stat ) );
+
+        $dmsg = t( "На вас напал %s и вы <font color=\"#00FF00\">выиграли битву</font>.\n", array( $item['aname'] ) );
+        $dmsg .= t( "Место столкновения: %s", array( $place_name ) );
+        $dmsg .= t( "\nВаши силы в начале боя: %s", array( $messages['d_stat'] ) );
+        $dmsg .= t( "\nСилы противника в начале боя: %s", array( $messages['a_stat'] ) );
+        $dmsg .= t( "\nВаши силы по окончании боя: %s", array( $d_stat ) );
+
+        $log_text = t( "Бой закончен, победил %s", array( $item['dname'] ) );
+
+        db_query( "DELETE FROM war_events WHERE id = ".$item['id'] );
+
+        $full_log = db_fetch_array( "SELECT msg_time, text FROM war_log WHERE war_id = {$item['id']} ORDER BY msg_time ASC" );
+        $log_text = '';
+        foreach( $full_log as $line ) {
+          $log_text .= $line['msg_time'].' - '.$line['text']."\n";
+        }
+
+        $a_log = db_fetch_val( "SELECT mail FROM users_msg_settings WHERE user_id = {$item['a_user_id']} AND type = 17", 'mail', true );
+        if( $a_log ) {
+          $amsg .= "\n".$log_text;
+        }
+
+        $d_log = db_fetch_val( "SELECT mail FROM users_msg_settings WHERE user_id = {$item['d_user_id']} AND type = 17", 'mail', true );
+        if( $d_log ) {
+          $dmsg .= "\n".$log_text;
+        }
+
+        send_msg( 1, $item['a_user_id'], $amsg, 18, $item['fire_time'] );
+        send_msg( 1, $item['d_user_id'], $dmsg, 18, $item['fire_time'] );
+
+        $history = $dmsg .= "\n".$log_text;
+
+        db_query( "DELETE FROM war_log WHERE war_id = ".$item['id'] );
+        db_query( "INSERT INTO war_log (war_id, text) VALUES ( {$item['id']}, 'win {$item['dname']} loose {$item['aname']}\n$history' )" );
+
+        $home = db_fetch_row( "SELECT p.id, u.place_id, u.place_type
+                                 FROM users u
+                           INNER JOIN planets p ON p.user_id = u.id
+                                WHERE u.id = ".$item['a_user_id'] );
+        switch( $item['a_type'] ) {
+
+          case 0:
+            if( $home['place_id'] == $item['a_object_id'] && $home['place_type'] == 2 ) {
+              db_query( "UPDATE users SET die_time = NOW(), place_type = 1, place_id = ".$home['id']." WHERE id = ".$item['a_user_id'] );
+
+              $insur = db_fetch_val( "SELECT insur FROM users WHERE id = ".$item['a_user_id'], 'insur' );
+              if( $insur == 0 ) {
+                db_query( "DELETE FROM users_imp WHERE user_id = ".$item['a_user_id'] );
+              } else {
+                db_query( "UPDATE users SET insur = insur - 1 WHERE id = ".$item['a_user_id'] );
+              }
+
+              if( $item['a_status'] < 0 && $item['d_user_id'] > 14 ) {
+                if( $item['a_die_time'] > 86400 ) {
+                  $premium = round( $item['a_status'] ) * -1;
+
+                  send_msg( 1, $item['d_user_id'], t( "Вы уничтожили пирата, конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $item['fire_time'] );
+                  db_query( "UPDATE users SET money = money + $premium WHERE id = ".$item['d_user_id'] );          
+                } else {
+                  send_msg( 1, $item['d_user_id'], t( "Вы уничтожили пирата, однако конфедерация не выплачивает вознаграждение из-за временной амнистии." ), 17, $item['fire_time'] );
+                }
+              }
+            }
+            break;
+
+          case 1:
+            db_query( "DELETE FROM fleets WHERE id = ".$item['a_object_id'] );
+            if( $home['place_id'] == $item['a_object_id'] && $home['place_type'] == 6 ) {
+              db_query( "UPDATE users SET die_time = NOW(), place_type = 1, place_id = ".$home['id']." WHERE id = ".$item['a_user_id'] );
+
+              $insur = db_fetch_val( "SELECT insur FROM users WHERE id = ".$item['a_user_id'], 'insur' );
+              if( $insur == 0 ) {
+                db_query( "DELETE FROM users_imp WHERE user_id = ".$item['a_user_id'] );
+              } else {
+                db_query( "UPDATE users SET insur = insur - 1 WHERE id = ".$item['a_user_id'] );
+              }
+
+              if( $item['a_status'] < 0 && $item['d_user_id'] > 14 ) {
+                if( $item['a_die_time'] > 86400 ) {
+                  $premium = round( $item['a_status'] ) * -1;
+
+                  send_msg( 1, $item['d_user_id'], t( "Вы уничтожили пирата, конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $item['fire_time'] );
+                  db_query( "UPDATE users SET money = money + $premium WHERE id = ".$item['d_user_id'] );          
+                } else {
+                  send_msg( 1, $item['d_user_id'], t( "Вы уничтожили пирата, однако конфедерация не выплачивает вознаграждение из-за временной амнистии." ), 17, $item['fire_time'] );
+                }
+              }
+            }
+            break;
+        }
+
+        $a_other = db_fetch_row( "SELECT COUNT(*) cnt FROM war_events
+                                   WHERE ( a_object_id = ".$item['d_object_id']." AND a_type = ".$item['d_type']." ) OR
+                                         ( d_object_id = ".$item['d_object_id']." AND d_type = ".$item['d_type']." )" );
+
+        if( $a_other['cnt'] == 0 ) {
+
+          switch( $item['d_type'] ) {
+
+            case 0:
+              db_query( "UPDATE ships s
+                            SET s.inwar = 0, s.fire = 0
+                          WHERE s.id = ".$item['d_object_id'] );
+
+              db_query( "DELETE FROM ships_war WHERE id = ".$item['d_object_id'] );
+
+              db_query( "UPDATE ships s
+                            SET s.shield = (SELECT st.shield FROM ship_types st WHERE st.object_id = s.object_id )
+                          WHERE s.shield > 0 AND s.id = ".$item['d_object_id'] );
+              break;
+
+            case 1:
+              $cnt = db_fetch_val( "SELECT COUNT(*) cnt FROM ships_war WHERE fleet_id = ".$item['d_object_id'], 'cnt' );
+              if( $cnt == 1 ) {
+                db_query( "UPDATE users u
+                              SET u.place_type = 2, u.place_id = (SELECT s.id FROM ships_war s WHERE s.fleet_id = {$item['d_object_id']})
+                            WHERE u.place_type = 6 AND u.place_id = {$item['d_object_id']} AND u.id = {$item['d_user_id']}" );
+
+                db_query( "UPDATE ships s SET s.inwar = 0, s.fire = 0, s.fleet_id = null
+                            WHERE s.fleet_id = ".$item['d_object_id'] );
+
+                db_query( "DELETE FROM ships_war WHERE fleet_id = ".$item['d_object_id'] );
+
+                db_query( "UPDATE ships s SET s.shield = (SELECT st.shield FROM ship_types st WHERE st.object_id = s.object_id )
+                            WHERE s.shield > 0 AND s.fleet_id = ".$item['d_object_id'] );
+
+                db_query( "DELETE FROM fleets WHERE id = ".$item['d_object_id'] );
+              } else {
+                db_query( "UPDATE ships s SET s.inwar = 0, s.fire = 0
+                            WHERE fleet_id = ".$item['d_object_id'] );
+
+                db_query( "DELETE FROM ships_war WHERE fleet_id = ".$item['d_object_id'] );
+
+                db_query( "UPDATE ships s SET s.shield = (SELECT st.shield FROM ship_types st WHERE st.object_id = s.object_id )
+                            WHERE s.shield > 0 AND fleet_id = ".$item['d_object_id'] );
+
+                db_query( "UPDATE fleets SET inwar = 0 WHERE id = ".$item['d_object_id'] );
+              }
+              break;
+
+            case 2:
+              $lvl = get_book_level( 20, $item['d_user_id'] );
+              db_query( "UPDATE planets_buildings pb
+                            SET pb.shield = ( (SELECT b.shield FROM buildings b WHERE b.id = 31 ) * pb.level + 
+                                              (SELECT b.shield FROM buildings b WHERE b.id = 31 ) * pb.level / 4 * $lvl )
+                          WHERE pb.object_id = 31 AND pb.planet_id = ".$item['d_object_id'] );
+              break;
+
+            case 3:
+              db_query( "UPDATE orbits_buildings ob SET ob.shield = (SELECT b.shield FROM buildings b WHERE b.id = ob.object_id) * ob.level
+                          WHERE ob.object_id IN (3007, 3008, 3009) AND ob.planet_id = ".$item['d_object_id'] );
+              break;
+          }
+        }
+
+        break;
+      } else {
+        switch( $item['a_type'] ) {
+
+          case 0:
+            db_query( "UPDATE ships SET inwar = {$item['id']} WHERE id = {$item['a_object_id']} AND user_id = ".$item['a_user_id'] );
+            db_query( "INSERT IGNORE INTO ships_war SELECT * FROM ships WHERE id = {$item['a_object_id']} AND user_id = ".$item['a_user_id'] );
+            break;
+
+          case 1:
+            db_query( "UPDATE ships SET inwar = {$item['id']} WHERE fleet_id = {$item['a_object_id']} AND user_id = ".$item['a_user_id'] );
+            db_query( "INSERT IGNORE INTO ships_war SELECT * FROM ships WHERE fleet_id = {$item['a_object_id']} AND user_id = ".$item['a_user_id'] );
+            break;
+        }
+      }
+
+      // count defenders
+      switch( $item['d_type'] ) {
+
+        case 0:
+          $dcnt = db_fetch_val( "SELECT count(*) cnt FROM ships_war WHERE id = ".$item['d_object_id']." AND ( user_id IS NULL OR user_id = {$item['d_user_id']} )", 'cnt' );
+          break;
+
+        case 1:
+          $dcnt = db_fetch_val( "SELECT count(*) cnt FROM ships_war WHERE fleet_id = ".$item['d_object_id']." AND ( user_id IS NULL OR user_id = {$item['d_user_id']} )", 'cnt' );
+          break;
+
+        case 2:
+          $dcnt = db_fetch_val( "SELECT count(*) cnt FROM planets_buildings WHERE object_id IN (27, 28, 29, 30, 31) AND planet_id = ".$item['d_object_id'], 'cnt' );
+          $pirate_timer = db_fetch_val( "SELECT UNIX_TIMESTAMP( NOW() ) - UNIX_TIMESTAMP( planet_time ) timer FROM planets WHERE id = {$item['d_object_id']}", 'timer' );
+          break;
+
+        case 3:
+          $dcnt = db_fetch_val( "SELECT count(*) cnt FROM orbits_buildings WHERE object_id IN (3007, 3008, 3009) AND planet_id = ".$item['d_object_id'], 'cnt' );
+          break;
+      }
+
+      if( $dcnt == 0 ) { // Defender is dead
+        $a_stat = '';
+        switch( $item['a_type'] ) {
+          case 0:
+            $place = db_fetch_row( "SELECT s.place_type, s.place_id, s.arg1, s.arg2 FROM ships_war s WHERE s.id = ".$item['a_object_id'] );
+
+            $a_stat = db_fetch_val( "SELECT o.name
+                                       FROM ships s
+                                 INNER JOIN objects o ON s.object_id = o.id
+                                      WHERE s.id = ".$item['a_object_id'], 'name' )."\n";
+            break;
+          case 1:
+            $place = db_fetch_row( "SELECT s.place_type, s.place_id, s.arg1, s.arg2 FROM ships_war s WHERE s.fleet_id = ".$item['a_object_id']." LIMIT 0,1" );
+
+            $res = db_fetch_array( "SELECT o.name, count(*) cnt
+                                      FROM ships_war s
+                                INNER JOIN objects o ON s.object_id = o.id
+                                     WHERE s.fleet_id = ".$item['a_object_id']." GROUP BY s.object_id" );
+            foreach( $res as $r) {
+              $a_stat .= ($a_stat?', ':'').$r['name'].' ('.$r['cnt'].')';
+            }
+            break;
+        }
+
+        $diff = round( getChar( 'war', $item['d_user_id'] ) / 10 );
+        $diff = ($diff > 0)?$diff:0;
+        setChar( 'war', ( -1 * $diff ), $item['d_user_id'] );
+        setChar( 'war', $diff, $item['a_user_id'] );
+
+        $messages = db_fetch_row( "SELECT a_stat, d_stat FROM war_events WHERE id = ".$item['id'] );
+
+        if( isset( $place['place_type'] ) && isset( $place['place_id'] ) ) {
+          switch( $place['place_type'] ) {
+            case 0:
+              $names = db_fetch_row( "SELECT p.name pname, s.name sname, s.id sid
+                                        FROM planets p
+                                  INNER JOIN stars s ON s.id = p.star_id
+                                       WHERE p.id = ".$place['place_id'] );
+  
+              $place_name = t( 'Орбита %s - %s', array( $names['pname'], $names['sname'] ) );
+
+              $report = array( 'id' => $names['sid'], 'name' => $names['sname'] );
+              break;
+
+            case 1:
+              $names = db_fetch_row( "SELECT p.name pname, s.name sname, s.id sid
+                                        FROM planets p
+                                  INNER JOIN stars s ON s.id = p.star_id
+                                       WHERE p.id = ".$place['place_id'] );
+  
+              $place_name = t( 'Планета %s - %s', array( $names['pname'], $names['sname'] ) );
+
+              $report = array( 'id' => $names['sid'], 'name' => $names['sname'] );
+              break;
+
+            case 7:
+              $names = db_fetch_row( "SELECT s.name sname, s.id sid
+                                        FROM stars s
+                                       WHERE s.id = ".$place['place_id'] );
+  
+              $place_name = t( 'Система %s координаты %d:%d', array( $names['sname'], $place['arg1'], $place['arg2'] ) );
+
+              $report = array( 'id' => $names['sid'], 'name' => $names['sname'] );
+              break;
+
+            case 8:
+              $place_name = t( 'Гиперпространство координаты %d:%d', array( $place['arg1'], $place['arg2'] ) );
+
+              $report = null;
+              break;
+
+            default:
+              $place_name = t( 'Полное уничтожение, координаты не определены' );
+
+              $report = null;
+              break;
+          }
+        } else {
+          $place_name = t( 'Полное уничтожение, координаты не определены' );
+        }
+
+        if( $item['a_type'] == 1 && $item['d_type'] == 1 && $report ) {
+          user_report( $report['id'], $item['a_user_id'], 50, t( "Из департамента безопасности конфедерации поступило уведомление, <font color=\"#FF0000\">в системе %s идут боевые действия</font>, будьте бдительны.", array( $report['name'] ) ) );
+        }
+
+        if( $item['d_type'] == 2 && $pirate_timer > 600 ) {
+          db_query( "UPDATE users_active SET pirate = pirate + 1 WHERE id = ".$item['a_user_id'] );
+        }
+
+        $amsg = t( "Вы напали на %s и <font color=\"#00FF00\">выиграли битву</font>.\n", array( $item['dname'] ) );
+        $amsg .= t( "Место столкновения: %s", array( $place_name ) );
+        $amsg .= t( "\nВаши силы в начале боя: %s", array( $messages['a_stat'] ) );
+        $amsg .= t( "\nСилы противника в начале боя: %s", array( $messages['d_stat'] ) );
+        $amsg .= t( "\nВаши силы по окончании боя: %s", array( $a_stat ) );
+
+        $dmsg = t( "На вас напал %s и вы <font color=\"#FF0000\">проиграли битву</font>.\n", array( $item['aname'] ) );
+        $dmsg .= t( "Место столкновения: %s", array( $place_name ) );
+        $dmsg .= t( "\nВаши силы в начале боя: %s", array( $messages['d_stat'] ) );
+        $dmsg .= t( "\nСилы противника в начале боя: %s", array( $messages['a_stat'] ) );
+        $dmsg .= t( "\nСилы противника по окончании боя: %s", array( $a_stat ) );
+
+        $log_text = t( "Бой закончен, победил %s", array( $item['aname'] ) );
+
+        db_query( "DELETE FROM war_events WHERE id = ".$item['id'] );
+
+        $full_log = db_fetch_array( "SELECT msg_time, text FROM war_log WHERE war_id = {$item['id']} ORDER BY msg_time ASC" );
+        $log_text = '';
+        foreach( $full_log as $line ) {
+          $log_text .= $line['msg_time'].' - '.$line['text']."\n";
+        }
+
+        $a_log = db_fetch_val( "SELECT mail FROM users_msg_settings WHERE user_id = {$item['a_user_id']} AND type = 17", 'mail', true );
+        if( $a_log ) {
+          $amsg .= "\n".$log_text;
+        }
+
+        $d_log = db_fetch_val( "SELECT mail FROM users_msg_settings WHERE user_id = {$item['d_user_id']} AND type = 17", 'mail', true );
+        if( $d_log ) {
+          $dmsg .= "\n".$log_text;
+        }
+
+        send_msg( 1, $item['a_user_id'], $amsg, 18, $item['fire_time'] );
+        send_msg( 1, $item['d_user_id'], $dmsg, 18, $item['fire_time'] );
+
+        $history = $dmsg .= "\n".$log_text;
+
+        db_query( "DELETE FROM war_log WHERE war_id = ".$item['id'] );
+        db_query( "INSERT INTO war_log (war_id, text) VALUES ( {$item['id']}, 'win {$item['aname']} loose {$item['dname']}\n$history' )" );
+
+        $home = db_fetch_row( "SELECT p.id, u.place_id, u.place_type FROM users u, planets p WHERE p.user_id = u.id AND u.id = ".$item['d_user_id'] );
+
+        switch( $item['d_type'] ) {
+          case 0:
+            if( $home['place_id'] == $item['d_object_id'] && $home['place_type'] == 2 ) {
+              db_query( "UPDATE users SET die_time = NOW(), place_type = 1, place_id = ".$home['id']." WHERE id = ".$item['d_user_id'] );
+
+              $insur = db_fetch_val( "SELECT insur FROM users WHERE id = ".$item['d_user_id'], 'insur' );
+              if( $insur == 0 ) {
+                db_query( "DELETE FROM users_imp WHERE user_id = ".$item['d_user_id'] );
+              } else {
+                db_query( "UPDATE users SET insur = insur - 1 WHERE id = ".$item['d_user_id'] );
+              }
+
+              if( $item['d_status'] < 0 && $item['a_user_id'] > 14 ) {
+                if( $item['d_die_time'] > 86400 ) {
+                  $premium = round( $item['d_status'] ) * -1;
+
+                  send_msg( 1, $item['a_user_id'], t( "Вы уничтожили пирата, конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $item['fire_time'] );
+                  db_query( "UPDATE users SET money = money + $premium WHERE id = ".$item['a_user_id'] );
+                } else {
+                  send_msg( 1, $item['a_user_id'], t( "Вы уничтожили пирата, однако конфедерация не выплачивает вознаграждение из-за временной амнистии." ), 17, $item['fire_time'] );
+                }
+              }
+            }
+            break;
+
+          case 1:
+            db_query( "DELETE FROM fleets WHERE id = ".$item['d_object_id'] );
+            if( $home['place_id'] == $item['d_object_id'] && $home['place_type'] == 6 ) {
+              db_query( "UPDATE users SET die_time = NOW(), place_type = 1, place_id = ".$home['id']." WHERE id = ".$item['d_user_id'] );
+
+              $insur = db_fetch_val( "SELECT insur FROM users WHERE id = ".$item['d_user_id'], 'insur' );
+              if( $insur == 0 ) {
+                db_query( "DELETE FROM users_imp WHERE user_id = ".$item['d_user_id'] );
+              } else {
+                db_query( "UPDATE users SET insur = insur - 1 WHERE id = ".$item['d_user_id'] );
+              }
+
+              if( $item['d_status'] < 0 && $item['a_user_id'] > 14 ) {
+                if( $item['d_die_time'] > 86400 ) {
+                  $premium = round( $item['d_status'] ) * -1;
+
+                  send_msg( 1, $item['a_user_id'], t( "Вы уничтожили пирата, конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $item['fire_time'] );
+                  db_query( "UPDATE users SET money = money + $premium WHERE id = ".$item['a_user_id'] );
+                } else {
+                  send_msg( 1, $item['a_user_id'], t( "Вы уничтожили пирата, однако конфедерация не выплачивает вознаграждение из-за временной амнистии." ), 17, $item['fire_time'] );
+                }
+              }
+            }
+            break;
+
+          case 2:
+            db_query( "UPDATE planets SET planet_time = NOW() WHERE id = ".$item['d_object_id'] );
+            db_query( "DELETE FROM defence WHERE place_id = ".$item['d_object_id']." AND place_type = 1" );
+
+            $bcnt = db_fetch_val( "SELECT COUNT(*) cnt FROM planets_buildings pb WHERE pb.planet_id = {$item['d_object_id']}", 'cnt' );
+            if( $bcnt == 0 ) {
+              db_query( "INSERT INTO trash ( place_type, place_id, object_id, object_cnt )
+                         SELECT w.place_type, w.place_id, w.object_id, CEIL( w.object_cnt / 2 )
+                           FROM warehouse w
+                          WHERE w.place_type = 1 AND w.place_id = {$item['d_object_id']}
+                   ON DUPLICATE KEY UPDATE trash.object_cnt = trash.object_cnt + CEIL( w.object_cnt / 2 )" );
+
+              db_query( "DELETE FROM warehouse WHERE place_type = 1 AND place_id = {$item['d_object_id']}" );
+            }
+
+            if( $home['place_id'] == $item['a_object_id'] && $home['place_type'] == 1 ) {
+              db_query( "UPDATE users SET die_time = NOW(), place_type = 1, place_id = ".$home['id']." WHERE id = ".$item['d_user_id'] );
+
+              $insur = db_fetch_val( "SELECT insur FROM users WHERE id = ".$item['d_user_id'], 'insur' );
+              if( $insur == 0 ) {
+                db_query( "DELETE FROM users_imp WHERE user_id = ".$item['d_user_id'] );
+              } else {
+                db_query( "UPDATE users SET insur = insur - 1 WHERE id = ".$item['d_user_id'] );
+              }
+
+              if( $item['d_status'] < 0 && $item['a_user_id'] > 14 ) {
+                if( $item['d_die_time'] > 86400 ) {
+                  $premium = round( $item['d_status'] ) * -1;
+
+                  send_msg( 1, $item['a_user_id'], t( "Вы уничтожили пирата, конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $item['fire_time'] );
+                  db_query( "UPDATE users SET money = money + $premium WHERE id = ".$item['a_user_id'] );
+                } else {
+                  send_msg( 1, $item['a_user_id'], t( "Вы уничтожили пирата, однако конфедерация не выплачивает вознаграждение из-за временной амнистии." ), 17, $item['fire_time'] );
+                }
+              }
+            }
+            break;
+
+          case 3:
+            db_query( "UPDATE planets SET orbit_time = NOW() WHERE id = ".$item['d_object_id'] );
+            db_query( "DELETE FROM defence WHERE place_id = ".$item['d_object_id']." AND place_type = 0" );
+
+            db_query( "INSERT INTO trash ( place_type, place_id, object_id, object_cnt )
+                       SELECT w.place_type, w.place_id, w.object_id, CEIL( w.object_cnt / 2 )
+                         FROM warehouse w
+                        WHERE w.place_type = 0 AND w.place_id = {$item['d_object_id']}
+                 ON DUPLICATE KEY UPDATE trash.object_cnt = trash.object_cnt + CEIL( w.object_cnt / 2 )" );
+
+            db_query( "DELETE FROM warehouse WHERE place_type = 0 AND place_id = {$item['d_object_id']}" );
+
+            if( $home['place_id'] == $item['a_object_id'] && $home['place_type'] == 0 ) {
+              db_query( "UPDATE users SET die_time = NOW(), place_type = 1, place_id = ".$home['id']." WHERE id = ".$item['d_user_id'] );
+
+              $insur = db_fetch_val( "SELECT insur FROM users WHERE id = ".$item['d_user_id'], 'insur' );
+              if( $insur == 0 ) {
+                db_query( "DELETE FROM users_imp WHERE user_id = ".$item['d_user_id'] );
+              } else {
+                db_query( "UPDATE users SET insur = insur - 1 WHERE id = ".$item['d_user_id'] );
+              }
+
+              if( $item['d_status'] < 0 && $item['a_user_id'] > 14 ) {
+                if( $item['d_die_time'] > 86400 ) {
+                  $premium = round( $item['d_status'] ) * -1;
+
+                  send_msg( 1, $item['a_user_id'], t( "Вы уничтожили пирата, конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $item['fire_time'] );
+                  db_query( "UPDATE users SET money = money + $premium WHERE id = ".$item['a_user_id'] );
+                } else {
+                  send_msg( 1, $item['a_user_id'], t( "Вы уничтожили пирата, однако конфедерация не выплачивает вознаграждение из-за временной амнистии." ), 17, $item['fire_time'] );
+                }
+              }
+            }
+            break;
+        }
+
+        $a_other = db_fetch_row( "SELECT COUNT(*) cnt FROM war_events
+                                   WHERE ( a_object_id = ".$item['a_object_id']." AND a_type = ".$item['a_type']." ) OR 
+                                         ( d_object_id = ".$item['a_object_id']." AND d_type = ".$item['a_type']." )" );
+
+        if( $a_other['cnt'] == 0 ) {
+
+          switch( $item['a_type'] ) {
+
+            case 0:
+              db_query( "UPDATE ships s
+                            SET s.inwar = 0, s.fire = 0
+                          WHERE s.id = ".$item['a_object_id'] );
+
+              db_query( "DELETE FROM ships_war WHERE id = ".$item['a_object_id'] );
+
+              db_query( "UPDATE ships s
+                            SET s.shield = (SELECT st.shield FROM ship_types st WHERE st.object_id = s.object_id )
+                          WHERE s.shield > 0 AND s.id = ".$item['a_object_id'] );
+              break;
+
+            case 1:
+              $cnt = db_fetch_val( "SELECT COUNT(*) cnt FROM ships_war WHERE fleet_id = ".$item['a_object_id'], 'cnt' );
+              if( $cnt == 1 ) {
+                db_query( "UPDATE users u
+                              SET u.place_type = 2, u.place_id = (SELECT s.id FROM ships s WHERE s.fleet_id = {$item['a_object_id']})
+                            WHERE u.place_type = 6 AND u.place_id = {$item['a_object_id']} AND u.id = {$item['a_user_id']}" );
+
+                db_query( "UPDATE ships s SET s.fire = 0, s.inwar = 0, s.fleet_id = null
+                            WHERE s.fleet_id = ".$item['a_object_id'] );
+
+                db_query( "DELETE FROM ships_war WHERE fleet_id = ".$item['a_object_id'] );
+
+                db_query( "UPDATE ships s SET s.shield = (SELECT st.shield FROM ship_types st WHERE st.object_id = s.object_id )
+                            WHERE s.shield > 0 AND s.fleet_id = ".$item['a_object_id'] );
+
+                db_query( "DELETE FROM fleets WHERE id = ".$item['a_object_id'] );
+              } else {
+                db_query( "UPDATE ships s SET s.fire = 0, s.inwar = 0
+                            WHERE s.fleet_id = ".$item['a_object_id'] );
+
+                db_query( "DELETE FROM ships_war WHERE fleet_id = ".$item['a_object_id'] );
+
+                db_query( "UPDATE ships s SET s.shield = (SELECT st.shield FROM ship_types st WHERE st.object_id = s.object_id )
+                            WHERE s.shield > 0 AND s.fleet_id = ".$item['a_object_id'] );
+
+                db_query( "UPDATE fleets SET inwar = 0 WHERE id = ".$item['a_object_id'] );
+              }
+              break;
+          }
+        }
+
+        break;
+      } else {
+        switch( $item['d_type'] ) {
+
+          case 0:
+            db_query( "UPDATE ships SET inwar = {$item['id']} WHERE id = {$item['d_object_id']} AND ( user_id IS NULL OR user_id = {$item['d_user_id']} )" );
+            db_query( "INSERT IGNORE INTO ships_war SELECT * FROM ships WHERE id = {$item['d_object_id']} AND ( user_id IS NULL OR user_id = {$item['d_user_id']} )" );
+            break;
+
+          case 1:
+            db_query( "UPDATE ships SET inwar = {$item['id']} WHERE fleet_id = {$item['d_object_id']} AND ( user_id IS NULL OR user_id = {$item['d_user_id']} )" );
+            db_query( "INSERT IGNORE INTO ships_war SELECT * FROM ships WHERE fleet_id = {$item['d_object_id']} AND ( user_id IS NULL OR user_id = {$item['d_user_id']} )" );
+            break;
+        }
+      }
+
+      // take move
+      unset( $fw );
+      $fw = new stdClass();
+
+      // Next wave
+      if( $item['a_last_id'] == -1 && $item['d_last_id'] == -1 ) {
+        $fw->fire = false;
+        break;
+      } else {
+        db_query( "UPDATE war_events SET move_id = IF( {$item['move_id']} = 1, 0, 1 ) WHERE place_hash = {$item['place_hash']}" );
+
+        switch( $item['move_id'] ) { // choose forward
+  
+          case 0: // attack
+            if( $item['a_last_id'] != -1 ) {
+
+              $log_text .= $item['aname'].':';
+              switch( $item['a_type'] ) {
+  
+                case 0: // ship
+                  $fw = forward_ship( $item['a_object_id'], $item['a_last_id'], $item['a_step'], $log_text );
+                  break;
+  
+                case 1: // fleet
+                  $fw = forward_fleet( $item['a_object_id'], $item['a_last_id'], $item['a_step'], $log_text, $item['a_user_id'] );
+                  if( $fw->step > $item['a_step'] ) {
+                    db_query( "UPDATE war_events SET a_step = {$fw->step} WHERE id = {$item['id']}" );
+                  }
+                  break;
+              }
+            } else {
+              $fw->fire=false;
+            }
+            break;
+  
+          case 1: // defend
+            if( $item['d_last_id'] != -1 ) {
+
+              $log_text .= $item['dname'].':';
+              switch( $item['d_type'] ) {
+  
+                case 0: // ship
+                  $fw = forward_ship( $item['d_object_id'], $item['d_last_id'], $item['d_step'], $log_text );
+                  break;
+  
+                case 1: // fleet
+                  $fw = forward_fleet( $item['d_object_id'], $item['d_last_id'], $item['d_step'], $log_text, $item['d_user_id'] );
+                  if( $fw->step > $item['d_step'] ) {
+                    db_query( "UPDATE war_events SET d_step = {$fw->step} WHERE id = {$item['id']}" );
+                  }
+                  break;
+  
+                case 2: // planet
+                  $fw = forward_planet( $item['d_object_id'], $item['d_last_id'], $log_text, $item['d_user_id'] );
+                  break;
+  
+                case 3: // orbit
+                  $fw = forward_orbit( $item['d_object_id'], $item['d_last_id'], $log_text, $item['d_user_id'] );
+                  break;
+              }
+            } else {
+              $fw->fire=false;
+            }
+            break;
+        }
+      }
+
+      if( $fw->fire ) {
+        if( $item['move_id'] == 0 ) {
+          db_query( "UPDATE war_events SET fire_time = DATE_ADD( fire_time, INTERVAL 1 SECOND ) WHERE place_hash = {$item['place_hash']}" );
+        } else {
+          db_query( "UPDATE war_events SET fire_time = DATE_ADD( fire_time, INTERVAL 1 SECOND ), place_step = place_step + 1 WHERE id = ".$item['id'] );
+        }
+
+        $fw->war_id = $item['id'];
+        $fw->fire_time = $item['fire_time'];
+
+        if( $fw->count > 0 || $fw->power == 0 ) { // Exclusive fire
+
+          if( isset( $fw->power ) ) {
+            $fw->fire_power = $fw->power;
+          }
+
+          while( $fw->count > 0 || ( $fw->missile && !$fw->mmulti ) ) {
+            switch( $item['move_id'] ) { // choose victim
+        
+              case 0: // attack
+                switch( $item['d_type'] ) {
+          
+                  case 0: // ship
+                    if( $item['bcnt'] == 1 ) {
+                      victim_ship( $item['d_status'], $item['move_id'], $item['d_object_id'], $item['place_hash'], $fw, $item['a_user_id'], $item['d_user_id'], $log_text );
+                    } else {
+                      victim_place( $item['d_status'], $item['move_id'], $item['place_hash'], $fw, 0, $item['a_user_id'], $item['d_user_id'], $log_text );
+                    }
+                    break;
+        
+                  case 1: // fleet
+                    if( $item['bcnt'] == 1 ) {
+                      victim_fleet( $item['d_status'], $item['move_id'], $item['d_object_id'], $item['place_hash'], $fw, $item['d_step'], $item['a_user_id'], $item['d_user_id'], $log_text );
+                    } else {
+                      victim_place( $item['d_status'], $item['move_id'], $item['place_hash'], $fw, 0, $item['a_user_id'], $item['d_user_id'], $log_text );
+                    }
+                    break;
+        
+                  case 2: // planet
+                    victim_planet( $item['d_status'], $item['move_id'], $item['d_object_id'], $item['place_hash'], $fw, $item['a_user_id'], $item['d_user_id'], $log_text );
+                    break;
+        
+                  case 3: // orbit
+                    victim_orbit( $item['d_status'], $item['move_id'], $item['d_object_id'], $item['place_hash'], $fw, $item['a_user_id'], $item['d_user_id'], $log_text );
+                    break;
+                }
+                break;
+        
+              case 1: // defend
+                switch( $item['a_type'] ) {
+        
+                  case 0: // ship
+                    if( $item['bcnt'] == 1 ) {
+                      victim_ship( $item['a_status'], $item['move_id'], $item['a_object_id'], $item['place_hash'], $fw, $item['d_user_id'], $item['a_user_id'], $log_text );
+                    } else {
+                      victim_place( $item['a_status'], $item['move_id'], $item['place_hash'], $fw, 0, $item['d_user_id'], $item['a_user_id'], $log_text );
+                    }
+                    break;
+        
+                  case 1: // fleet
+                    if( $item['bcnt'] == 1 ) {
+                      victim_fleet( $item['a_status'], $item['move_id'], $item['a_object_id'], $item['place_hash'], $fw, $item['a_step'], $item['d_user_id'], $item['a_user_id'], $log_text );
+                    } else {
+                      victim_place( $item['a_status'], $item['move_id'], $item['place_hash'], $fw, 0, $item['d_user_id'], $item['a_user_id'], $log_text );
+                    }
+                    break;
+                }
+                break;
+            }
+  
+            if( $fw->count > 1 ) {
+              $log_text .= ", ";
+            }
+
+            if( $fw->count > 0 ) {
+              $fw->count--;
+            } elseif( $fw->missile ) {
+              $fw->missile = null;
+            }
+          }
+        } else { // mass fire
+
+          $fw->alevel = 0;
+          switch( $item['move_id'] ) { // choose victim
+      
+            case 0: // defend
+              switch( $item['d_type'] ) {
+        
+                case 0: // ship
+                  if( $item['bcnt'] == 1 ) {
+                    victim_ship( $item['d_status'], $item['move_id'], $item['d_object_id'], $item['place_hash'], $fw, $item['a_user_id'], $item['d_user_id'], $log_text );
+                  } else {
+                    victim_all_place( $item['d_status'], $item['move_id'], $item['place_hash'], $fw, $item['a_user_id'], $item['d_user_id'], $log_text );
+                  }
+                  break;
+      
+                case 1: // fleet
+                  if( $item['bcnt'] == 1 ) {
+                    victim_all_fleet( $item['d_status'], $item['move_id'], $item['d_object_id'], $item['place_hash'], $fw, $item['a_user_id'], $item['d_user_id'], $log_text );
+                  } else {
+                    victim_all_place( $item['d_status'], $item['move_id'], $item['place_hash'], $fw, $item['a_user_id'], $item['d_user_id'], $log_text );
+                  }
+                  break;
+      
+                case 2: // planet
+                  victim_all_planet( $item['d_status'], $item['move_id'], $item['d_object_id'], $item['place_hash'], $fw, $item['a_user_id'], $item['d_user_id'], $log_text );
+                  break;
+      
+                case 3: // orbit
+                  victim_all_orbit( $item['d_status'], $item['move_id'], $item['d_object_id'], $item['place_hash'], $fw, $item['a_user_id'], $item['d_user_id'], $log_text );
+                  break;
+              }
+              break;
+  
+            case 1: // attack
+              switch( $item['a_type'] ) {
+      
+                case 0: // ship
+                  if( $item['bcnt'] == 1 ) {
+                    victim_ship( $item['a_status'], $item['move_id'], $item['a_object_id'], $item['place_hash'], $fw, $item['d_user_id'], $item['a_user_id'], $log_text );
+                  } else {
+                    victim_all_place( $item['a_status'], $item['move_id'], $item['place_hash'], $fw, $item['d_user_id'], $item['a_user_id'], $log_text );
+                  }
+                  break;
+      
+                case 1: // fleet
+                  if( $item['bcnt'] == 1 ) {
+                    victim_all_fleet( $item['a_status'], $item['move_id'], $item['a_object_id'], $item['place_hash'], $fw, $item['d_user_id'], $item['a_user_id'], $log_text );
+                  } else {
+                    victim_all_place( $item['a_status'], $item['move_id'], $item['place_hash'], $fw, $item['d_user_id'], $item['a_user_id'], $log_text );
+                  }
+                  break;
+              }
+              break;
+          }
+        }
+      } else {
+        if( $item['move_id'] == 0 ) {
+          db_query( "UPDATE war_events SET place_step = place_step + 1 WHERE id = ".$item['id'] );
+        } else {
+          db_query( "UPDATE war_events SET place_step = place_step + (RAND()*2) WHERE id = ".$item['id'] );
+        }
+      }
+
+      // correct last_id
+      switch( $item['move_id'] ) { // choose forward
+        case 0:
+          if( $item['a_last_id'] != -1 ) {
+            db_query( "UPDATE war_events SET a_step = a_step + 1, a_last_id = {$fw->correct} WHERE id = ".$item['id'] );
+          }
+          break;
+        case 1:
+          if( $item['d_last_id'] != -1 ) {
+            db_query( "UPDATE war_events SET d_step = d_step + 1, d_last_id = {$fw->correct} WHERE id = ".$item['id'] );
+          }
+          break;
+      }
+
+      if( $fw->fire ) {
+        db_query( "INSERT INTO war_log ( war_id, msg_time, text ) VALUES ( {$item['id']}, '{$item['fire_time']}', '$log_text' )" );
+
+        $members = db_fetch_array( "SELECT DISTINCT a_user_id, d_user_id FROM war_events WHERE place_hash = {$item['place_hash']}" );
+
+        foreach( $members as $member ) {
+          switch( $item['move_id'] ) { // choose forward
+
+            case 0: // Atacker fire
+
+              if( $member['a_user_id'] == $item['a_user_id'] || $member['d_user_id'] == $item['d_user_id'] ) {
+                send_msg( 1, $member['a_user_id'], '<font color="#CCFFCC">'.$log_text.'</font>', 17, $item['fire_time'] );
+                send_msg( 1, $member['d_user_id'], '<font color="#FFCCCC">'.$log_text.'</font>', 17, $item['fire_time'] );
+              }
+
+              if( $member['d_user_id'] == $item['a_user_id'] || $member['a_user_id'] == $item['d_user_id'] ) {
+                send_msg( 1, $member['d_user_id'], '<font color="#CCFFCC">'.$log_text.'</font>', 17, $item['fire_time'] );
+                send_msg( 1, $member['a_user_id'], '<font color="#FFCCCC">'.$log_text.'</font>', 17, $item['fire_time'] );
+              }
+              break;
+
+            case 1: // Defend fire
+              if( $member['d_user_id'] == $item['d_user_id'] || $member['a_user_id'] == $item['a_user_id'] ) {
+                send_msg( 1, $member['d_user_id'], '<font color="#CCFFCC">'.$log_text.'</font>', 17, $item['fire_time'] );
+                send_msg( 1, $member['a_user_id'], '<font color="#FFCCCC">'.$log_text.'</font>', 17, $item['fire_time'] );
+              }
+
+              if( $member['a_user_id'] == $item['d_user_id'] || $member['d_user_id'] == $item['a_user_id'] ) {
+                send_msg( 1, $member['d_user_id'], '<font color="#CCFFCC">'.$log_text.'</font>', 17, $item['fire_time'] );
+                send_msg( 1, $member['d_user_id'], '<font color="#FFCCCC">'.$log_text.'</font>', 17, $item['fire_time'] );
+              }
+              break;
+          }
+        }
+      }
+    }
+  } while( $repeat );
+
+/*
+  $fdebug = xdebug_get_tracefile_name();
+  xdebug_stop_trace();
+
+  unlink( $fdebug );
+*/
+}
+
+function forward_ship( $oid, $last_id, $step, &$log_text ) {
+  $fw = new stdClass();
+
+  $fw->bomber = false;
+
+  if( $last_id == 0 ) {
+    $shid = db_fetch_row( "SELECT s.id, st.agrav, st.missile, st.w_power, st.w_count, s.name, s.shield, st.w_type,
+                                    IFNULL( s.user_id, 10 ) suser, ua.char_status, s.abordage, s.object_id ship_type
+                               FROM ships_war s
+                         INNER JOIN ship_types st ON s.object_id = st.object_id
+                         INNER JOIN users_active ua ON ua.id = IFNULL( s.user_id, 10 )
+                              WHERE s.fire = 0 AND s.id = $oid" );
+
+    if( !isset( $shid['id'] ) ) {
+      $fw->missile = null;
+      $fw->mpower = 0;
+
+      $fw->correct = -1;
+      $fw->fire = false;
+      $fw->alevel = 0;
+      $fw->suser = 0;
+
+      return $fw;
+    }
+
+    $fw->aoid = $shid['ship_type'];
+    $fw->raoid = $oid;
+    $fw->atype = 0;
+    $fw->agrav = $shid['agrav'];
+    $fw->count = $shid['w_count'];
+
+    if( $fw->count == 0 && $shid['w_power'] > 0 && $shid['shield'] >= 0 ) {
+      switch( $step ) {
+        case 0:
+          $fw->power = 0;
+          break;
+        case 1:
+          $fw->power = round( $shid['w_power'] / 5 );
+          break;
+        case 2:
+          $fw->power = round( $shid['w_power'] / 5 ) * 2;
+          break;
+        case 3:
+          $fw->power = round( $shid['w_power'] / 5 ) * 3;
+          break;
+        case 4:
+          $fw->power = round( $shid['w_power'] / 5 ) * 4;
+          break;
+
+        default:
+          $fw->power = $shid['w_power'];
+          break;
+      }
+    } else {
+      $fw->power = $shid['w_power'];
+    }
+
+    $fw->wtype = $shid['w_type'];
+    $fw->mmulti = false;
+
+    if( $shid['missile'] > 0 ) {
+      $missile = db_fetch_row( "SELECT w.object_id, mt.power, mt.name, mt.type, w.object_cnt
+                                  FROM warehouse w
+                            INNER JOIN missile_types mt ON mt.object_id = w.object_id
+                                 WHERE w.place_type = 2 AND w.place_id = $oid AND mt.type <= {$shid['missile']} AND w.object_cnt > 0
+                              ORDER BY w.object_cnt DESC, mt.power
+                                 LIMIT 0, 1" );
+    }
+
+    if( $shid['ship_type'] == 9080 ) {
+      $fw->bomber = true;
+    }
+
+    if( isset( $missile['object_id'] ) && is_numeric( $missile['object_id'] ) ) {
+      $fw->missile = $missile['object_id'];
+      $fw->mpower = $missile['power'];
+
+      switch( $shid['ship_type'] ) {
+        case 9230 : // KR
+          $fw->mmulti = true;
+          $pre_cnt = 4 - ceil( $missile['type'] / 3 );
+          $fw->count = $pre_cnt * $pre_cnt + $pre_cnt;
+          $fw->power = 1;
+          break;
+
+        case 9389 : // ARS
+          $fw->mmulti = true;
+          $fw->count = 10;
+          break;
+
+        case 9099 : // U
+        case 9402 : // US
+          $fw->mmulti = true;
+          $fw->power = round( ( $fw->power * $fw->count ) / 10 );
+          $fw->count = 10;
+          break;
+      }
+
+      $fw->mname = $missile['name'];
+      $fw->retid = null;
+      if( $fw->mmulti ) {
+        if( $fw->count > $missile['object_cnt'] ) {
+          $fw->count = $missile['object_cnt'];
+        }
+        sub_warehouse_item( 2, $oid, $missile['object_id'], $fw->count );
+      } else {
+        sub_warehouse_item( 2, $oid, $missile['object_id'], 1 );
+      }
+    } else {
+      $fw->missile = null;
+      $fw->mpower = 0;
+    }
+
+    $fw->correct = $last_id + 1;
+    $fw->fire = ( $fw->power > 0 ) || ( $fw->mpower > 0 );
+
+    $fw->alevel = get_abordage_level( $shid['suser'] );
+    $fw->alevel *= $shid['abordage'];
+
+    $fw->suser = $shid['suser'];
+
+    if( $shid['shield'] >= 0 ) {
+      $log_text .= t( "Корабль %s(%s) атакует: ", array( $shid['name'], $shid['shield'] ) );
+
+      db_query( "UPDATE ships_war SET fire = 1 WHERE id = $oid" );
+    } else {
+      $log_text .= t( "Мина %s атакует: ", array( $shid['name'] ) );
+      $fw->alevel = 0;
+
+      db_query( "DELETE FROM ships WHERE id = $oid" );
+      db_query( "DELETE FROM ships_war WHERE id = $oid" );
+    }
+
+  } else {
+    $fw->correct = -1;
+    $fw->fire = false;
+    $fw->alevel = 0;
+    $fw->suser = 0;
+  }
+
+  return $fw;
+}
+
+function forward_fleet( $oid, $last_id, $step, &$log_text, $user_id ) {
+  $fw = new stdClass();
+
+  $fw->bomber = false;
+
+  $fw->step = $step;
+
+  $tactic = get_book_level( 12, $user_id );
+  $shid = db_fetch_row( "SELECT s.id, st.agrav, st.missile, st.w_power, st.w_count, s.name, s.shield rshield, st.shield, st.w_type, s.order_id,
+                                IFNULL( s.user_id, 10 ) suser, ua.char_status, s.abordage, s.object_id ship_type
+                           FROM ships_war s
+                     INNER JOIN users_active ua ON ua.id = IFNULL( s.user_id, 10 )
+                     INNER JOIN ship_types st ON st.object_id = s.object_id
+                          WHERE s.fire = 0 AND IFNULL( s.user_id, 10 ) = $user_id AND s.order_id <= $step AND ( st.w_power > 0 OR st.missile > 0 ) AND s.fleet_id = $oid
+                       ORDER BY IF( st.tactik <= $tactic, st.tactik - 10, 10 - st.tactik ) DESC, s.id
+                          LIMIT 0, 1" );
+
+  if( !isset( $shid['id'] ) ) {
+    $step = db_fetch_val( "SELECT MIN( s.order_id ) step
+                             FROM ships_war s
+                       INNER JOIN ship_types st ON st.object_id = s.object_id
+                            WHERE s.fire = 0 AND IFNULL( s.user_id, 10 ) = $user_id AND ( st.w_power > 0 OR st.missile > 0 ) AND s.fleet_id = $oid
+                            LIMIT 0, 1", 'step' );
+    if( $step > 0 ) {
+      return forward_fleet( $oid, $last_id, $step, $log_text, $user_id );
+    }
+  }
+
+  if( isset( $shid['id'] ) ) {
+    $fw->aoid = $shid['ship_type'];
+    $fw->raoid = $shid['id'];
+    $fw->atype = 0;
+    $fw->agrav = $shid['agrav'];
+    $fw->count = $shid['w_count'];
+
+    if( $fw->count == 0 && $shid['w_power'] > 0 && $shid['shield'] >= 0 ) {
+      if( $step - $shid['order_id'] > 0 ) {
+        switch( $step - $shid['order_id'] ) {
+          case 0:
+            $fw->power = 0;
+            break;
+          case 1:
+            $fw->power = round( $shid['w_power'] / 5 );
+            break;
+          case 2:
+            $fw->power = round( $shid['w_power'] / 5 ) * 2;
+            break;
+          case 3:
+            $fw->power = round( $shid['w_power'] / 5 ) * 3;
+            break;
+          case 4:
+            $fw->power = round( $shid['w_power'] / 5 ) * 4;
+            break;
+  
+          default:
+            $fw->power = $shid['w_power'];
+            break;
+        }
+      } else {
+        $fw->power = 0;
+      }
+    } else {
+      $fw->power = $shid['w_power'];
+    }
+
+    $fw->wtype = $shid['w_type'];
+    $fw->mmulti = false;
+
+    if( $shid['missile'] > 0 ) {
+      $missile = db_fetch_row( "SELECT w.object_id, mt.power, mt.name, mt.type, w.object_cnt
+                                  FROM warehouse w
+                            INNER JOIN missile_types mt ON mt.object_id = w.object_id
+                                 WHERE w.place_type = 2 AND w.place_id = {$shid['id']} AND mt.type <= {$shid['missile']} AND w.object_cnt > 0
+                              ORDER BY w.object_cnt DESC, mt.power
+                                 LIMIT 0, 1" );
+    }
+
+    if( $shid['ship_type'] == 9080 ) {
+      $fw->bomber = true;
+    }
+
+    if( isset( $missile['object_id'] ) && is_numeric( $missile['object_id'] ) ) {
+      $fw->missile = $missile['object_id'];
+      $fw->mpower = $missile['power'];
+
+      switch( $shid['ship_type'] ) {
+        case 9230 : // KR
+          $fw->mmulti = true;
+          $pre_cnt = 4 - ceil( $missile['type'] / 3 );
+          $fw->count = $pre_cnt * $pre_cnt + $pre_cnt;
+          $fw->power = 1;
+          break;
+
+        case 9389 : // ARS
+          $fw->mmulti = true;
+          $fw->count = 10;
+          break;
+
+        case 9099 : // U
+        case 9402 : // US
+          $fw->mmulti = true;
+          $fw->power = round( ( $fw->power * $fw->count ) / 10 );
+          $fw->count = 10;
+          break;
+      }
+
+      $fw->mname = $missile['name'];
+      $fw->retid = $shid['id'];
+
+      if( $fw->mmulti ) {
+        if( $fw->count > $missile['object_cnt'] ) {
+          $fw->count = $missile['object_cnt'];
+        }
+        sub_warehouse_item( 2, $shid['id'], $missile['object_id'], $fw->count );
+      } else {
+        sub_warehouse_item( 2, $shid['id'], $missile['object_id'], 1 );
+      }
+    } else {
+      $fw->missile = null;
+      $fw->mpower = 0;
+    }
+
+    $fw->correct = $last_id + 1;
+    $fw->fire = ( $fw->power > 0 ) || ( $fw->mpower > 0 );
+
+    $fw->alevel = get_abordage_level( $shid['suser'] );
+    $fw->alevel *= $shid['abordage'];
+
+    $fw->suser = $shid['suser'];
+
+    if( $shid['shield'] >= 0 ) {
+      $log_text .= t( "Корабль %s(%s) атакует: ", array( $shid['name'], $shid['rshield'] ) );
+
+      db_query( "UPDATE ships_war SET fire = 1 WHERE id = ".$shid['id'] );
+    } else {
+      $log_text .= t( "Мина %s атакует: ", array( $shid['name'] ) );
+      $fw->alevel = 0;
+
+      db_query( "DELETE FROM ships WHERE id = {$shid['id']}" );
+      db_query( "DELETE FROM ships_war WHERE id = {$shid['id']}" );
+
+      if( update_fleet( $oid ) == 0 ) {
+        db_query( "DELETE FROM fleets WHERE id = $oid" );
+      }
+    }
+
+  } else {
+    $fw->correct = -1;
+    $fw->fire = false;
+    $fw->alevel = 0;
+    $fw->suser = 0;
+  }
+
+  return $fw;
+}
+
+function forward_planet( $oid, $last_id, &$log_text, $user_id ) {
+  $fw = new stdClass();
+
+  $fw->bomber = false;
+
+  $wid = db_fetch_row( "SELECT pb.id, pb.object_id, pb.level, pb.shield, b.w_type
+                          FROM planets_buildings pb
+                    INNER JOIN buildings b ON b.id = pb.object_id
+                         WHERE pb.planet_id = $oid AND pb.object_id IN (27, 28, 29, 30)
+                      ORDER BY pb.object_id desc, pb.level desc, pb.id LIMIT $last_id, 1" );
+
+  if( isset( $wid['id'] ) ) {
+
+    $fw->aoid = $wid['object_id'];
+    $fw->atype = 1;
+    $fw->wtype = $wid['w_type'];
+    $fw->mmulti = false;
+
+    switch( $wid['object_id'] ) {
+
+      case 27: // rocket
+        $missile = db_fetch_row( "SELECT w.object_id, mt.power, mt.name
+                                    FROM warehouse w
+                              INNER JOIN missile_types mt ON mt.object_id = w.object_id
+                                   WHERE w.place_type = 1 AND w.place_id = $oid AND 
+                                         mt.type < {$wid['level']} AND w.object_cnt > 0
+                                ORDER BY w.object_cnt DESC, mt.power
+                                   LIMIT 0, 1" );
+
+        if( isset( $missile['object_id'] ) && is_numeric( $missile['object_id'] ) ) {
+          $fw->missile = $missile['object_id'];
+          $fw->mpower = $missile['power'];
+          $fw->mname = $missile['name'];
+          $fw->retid = $oid;
+          sub_warehouse_item( 1, $oid, $missile['object_id'], 1 );
+          $fw->power = 0;
+          $fw->count = $wid['level'];
+        } else {
+          $fw->missile = null;
+          $fw->power = 2;
+          $fw->count = $wid['level'];
+        }
+
+        $log_text .= t( "Ракетная защита (%s) атакует: ", array( $wid['shield'] ) );
+        break;
+      case 28: // laser
+        $fw->missile = null;
+        $fw->power = intval( 5 + 5 * get_book_level( 22, $user_id ) );
+        $fw->count = 10 * $wid['level'];
+
+        $log_text .= t( "Лазерная защита (%s) атакует: ", array( $wid['shield'] ) );
+        break;
+      case 29: // plasma
+        $fw->missile = null;
+        $fw->power = intval( 75 + 75 * get_book_level( 21, $user_id ) );
+        $fw->count = $wid['level'];
+
+        $log_text .= t( "Плазменная защита (%s) атакует: ", array( $wid['shield'] ) );
+        break;
+      case 30: // maser
+        $fw->missile = null;
+        $fw->power = intval( $wid['level'] + ( $wid['level'] / 4 * get_book_level( 23, $user_id ) ) );
+        $fw->count = 0;
+
+        $log_text .= t( "Коротковолновый мазер (%s) атакует: ", array( $wid['shield'] ) );
+        break;
+    }
+  
+    $fw->correct = $last_id + 1;
+    $fw->fire = true;
+    $fw->suser = $user_id;
+  } else {
+    $fw->correct = -1;
+    $fw->fire = false;
+    $fw->suser = 0;
+  }
+
+  $fw->alevel = 0;
+
+  return $fw;
+}
+
+function forward_orbit( $oid, $last_id, &$log_text, $user_id ) {
+  $fw = new stdClass();
+
+  $fw->bomber = false;
+
+  $wid = db_fetch_row( "SELECT ob.id, ob.object_id, ob.level, ob.shield, b.w_type
+                          FROM orbits_buildings ob
+                    INNER JOIN buildings b ON b.id = ob.object_id
+                         WHERE ob.planet_id = $oid AND ob.object_id IN (3007, 3008, 3009)
+                      ORDER BY ob.object_id desc, ob.level desc, ob.id LIMIT $last_id, 1" );
+
+  if( isset( $wid['id'] ) ) {
+
+    $fw->aoid = $wid['object_id'];
+    $fw->atype = 2;
+    $fw->wtype = $wid['w_type'];
+    $fw->mmulti = false;
+
+    switch( $wid['object_id'] ) {
+
+      case 3007:
+        $fw->power = intval( 5 + 5 * get_book_level( 22, $user_id ) );
+        $fw->count = 10 * $wid['level'];
+        $log_text .= t( "Лазерный спутник (%s) атакует: ", array( $wid['shield'] ) );
+        break;
+
+      case 3008:
+        $fw->power = intval( 50 + 50 * get_book_level( 21, $user_id ) );
+        $fw->count = $wid['level'];
+
+        $log_text .= t( "Плазменный спутник (%s) атакует: ", array( $wid['shield'] ) );
+        break;
+
+      case 3009:
+        $fw->power = intval( $wid['level'] + ( $wid['level'] / 4 * get_book_level( 24, $user_id ) ) );
+        $fw->count = 0;
+
+        $log_text .= t( "Квантовый генератор (%s) атакует: ", array( $wid['shield'] ) );
+        break;
+    }
+  
+    $fw->correct = $last_id + 1;
+    $fw->fire = true;
+
+    $fw->suser = $user_id;
+  } else {
+    $fw->correct = -1;
+    $fw->fire = false;
+
+    $fw->suser = 0;
+  }
+
+  $fw->alevel = 0;
+  $fw->missile = null;
+
+  return $fw;
+}
+
+function victim_ship( $ch_status, $move_id, $oid, $place_hash, &$fw, $user_id, $vict_id, &$log_text ) {
+  $dead = false;
+
+  if( $fw->atype != 1 && mt_rand( 1, 100 ) < get_book_level( 34, $vict_id ) * 5 ) {
+    $is_orbit = db_fetch_val( "SELECT count(*) cnt
+                                 FROM ships_war s
+                           INNER JOIN defence d ON d.place_id = s.place_id AND d.place_type = s.place_type
+                           INNER JOIN orbits_buildings ob ON planet_id = d.place_id
+                                WHERE d.status != 0 AND ob.object_id IN ( 3007, 3008, 3009 ) AND s.place_type = 0 AND d.user_id = $vict_id AND s.id = $oid", 'cnt' );
+  } else {
+    $is_orbit = 0;
+  }
+
+  if( $is_orbit > 0 ) {
+    $victim = array();
+    $log_text .= t( "корабль под защитой орбиты. " );
+  } else {
+    $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, st.titul
+                               FROM ships_war s
+                         INNER JOIN objects o ON o.id = s.object_id
+                         INNER JOIN ship_types st ON s.object_id = st.object_id
+                              WHERE s.id = $oid" );
+  }
+
+  if( ( isset( $victim['titul'] ) && $victim['titul'] > 0 ) || $vict_id == 5 || $vict_id == 6 || ( isset( $victim['shield'] ) && $victim['shield'] < 0 ) ) {
+    $abreal = 0;
+  } else {
+    $abreal = $fw->alevel - ( $fw->alevel / 50 * get_book_level( 33, $vict_id ) );
+  }
+
+  if( isset( $victim['id'] ) && is_numeric( $victim['id'] ) ) {
+
+    if( $fw->missile ) {
+      if( $victim['object_id'] == 9230 ) {
+        $log_text .= t( "ракета потеряла цель, " );
+      } else {
+        if( $victim['shield'] >= $fw->mpower ) {
+          db_query( "UPDATE ships_war SET shield = shield - {$fw->mpower} WHERE id = $oid" );
+          $log_text .= t( "ракетой %s корабль %s(%s-%d), ", array( $fw->mname, $victim['name'], $victim['shield'], $fw->mpower ) );
+          $victim['shield'] -= $fw->mpower;
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,         power,        defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0,      3, {$fw->mpower}, {$fw->mpower} )" );
+        } else {
+          $log_text .= t( "ракетой %s корабль %s(<font color=\"#FF0000\">уничтожен</font>), ", array( $fw->mname, $victim['name'] ) );
+          $dead = true;
+          $victim['shield'] = 0;
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,               power, defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0,      3, {$victim['shield']},     -1 )" );
+        }
+
+        if( $fw->mmulti == false ) {
+          $fw->missile = null;
+        }
+      }
+    }
+
+    if( !isset( $fw->fire_power ) ) {
+      $fw->fire_power = $fw->power;
+    }
+
+    switch( $victim['object_id'] ) {
+      case 9326:
+      case 9042:
+        if( $fw->wtype == 1 ) {
+          $fw->fire_power = ceil( $fw->power / 100 );
+        }
+        break;
+
+      case 9067:
+      case 9158:
+      case 9464:
+        if( $fw->wtype == 0 ) {
+          $fw->fire_power = ceil( $fw->power / 100 );
+        }
+        break;
+
+      case 9275:
+      case 9397:
+//        $fw->fire_power = ceil( $fw->fire_power / 3 );
+        $fw->fire_power = ceil( $fw->power / 3 );
+        break;
+
+      case 9053:
+      case 9329:
+      case 9072:
+      case 9077:
+        $fw->fire_power = ceil( $fw->power / 2 );
+        break;
+
+      case 9021:
+      case 9395:
+      case 9127:
+      case 9167:
+      case 9128:
+      case 9421:
+      case 9423:
+      case 9424:
+      case 9425:
+      case 9428:
+      case 9429:
+      case 9426:
+      case 9427:
+      case 9430:
+      case 9431:
+      case 9468:
+        if( $fw->wtype == 2 ) {
+          $fw->fire_power = 0;
+        }
+        break;
+
+      default:
+        $fw->fire_power = $fw->power;
+        break;
+
+    }
+
+    if( $fw->fire_power > 0 ) {
+      $sniper = 60 + ( get_book_level( 14, $fw->suser ) * 2 );
+      if( $fw->count == 0 || mt_rand( 1, 100 ) <= $sniper ) {
+        if( $victim['shield'] >= $fw->fire_power ) {
+          db_query( "UPDATE ships_war SET shield = shield - {$fw->fire_power} WHERE id = $oid" );
+
+          $log_text .= t( "корабль %s(%s-%s)", array( $victim['name'], $victim['shield'], $fw->fire_power ) );
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,             power,            defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype}, {$fw->fire_power}, {$fw->fire_power} )" );
+        } else {
+          if( $abreal > 0 ) {
+            $abordage = mt_rand( 0, 99 );
+            if( $abordage > $abreal ) {
+              db_query( "DELETE FROM ships WHERE id = $oid" );
+              db_query( "DELETE FROM ships_war WHERE id = $oid" );
+
+              $log_text .= t( "корабль %s(<font color=\"#FF0000\">уничтожен</font>)", array( $victim['name'] ) );
+              $dead = true;
+            } else {
+              $dead = false;
+              if( $fw->suser < 15 ) {
+                $guard = 1;
+              } else {
+                $guard = 0;
+              }
+
+              if( $fw->atype == 0 ) {
+                db_query( "UPDATE ships s, ships s2
+                              SET s.shield = 0,
+                                  s.group = s2.group,
+                                  s.inwar = 0,
+                                  s.guard = $guard,
+                                  s.fleet_id = null,
+                                  s.user_id = $user_id,
+                                  s.place_id = s2.place_id,
+                                  s.place_type = s2.place_type,
+                                  s.arg1 = s2.arg1,
+                                  s.arg2 = s2.arg2
+                            WHERE s.id = $oid AND s2.id = ".$fw->raoid );
+
+                db_query( "DELETE FROM ships_war WHERE id = $oid" );
+              } else {
+                db_query( "UPDATE ships s
+                              SET s.shield = 0,
+                                  s.group = s2.group,
+                                  s.inwar = 0,
+                                  s.guard = $guard,
+                                  s.fleet_id = null,
+                                  s.user_id = $user_id
+                            WHERE s.id = $oid" );
+
+                db_query( "DELETE FROM ships_war WHERE id = $oid" );
+              }
+
+              $log_text .= t( "корабль %s(<font color=\"#00FF00\">захвачен</font>)", array( $victim['name'] ) );
+
+              db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,               power, defeat )
+                                                 VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype}, {$victim['shield']},     -2 )" );
+            }
+          } else {
+            $log_text .= t( "корабль %s(<font color=\"#FF0000\">уничтожен</font>)", array( $victim['name'] ) );
+            $dead = true;
+          }
+
+        }
+      } else {
+        $log_text .= t( "промазал" );
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type, power, defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype},     0,      0 )" );
+      }
+    } else {
+      $log_text .= t( "без выстрела" );
+    }
+
+    if( $dead ) {
+      $ships = db_fetch_array( "SELECT s.id FROM ships s WHERE s.fleet_id IS null AND s.place_type = 2 AND s.place_id = $oid" );
+      $fleets = db_fetch_array( "SELECT f.id FROM fleets f WHERE f.place_type = 2 AND f.place_id = $oid" );
+
+      db_query( "UPDATE users_active SET ships = ships + 1 WHERE id = ".$user_id );
+
+      db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,               power, defeat )
+                                         VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype}, {$victim['shield']},     -1 )" );
+
+      if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = $oid" );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = $oid" );
+      } else {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = $oid" );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = $oid" );
+      }
+
+      $trash = db_fetch_array( "SELECT res_id
+                                  FROM ship_types st
+                            INNER JOIN objects_sub os ON os.object_id = st.conserv_id
+                            INNER JOIN objects o ON o.id = os.res_id
+                                 WHERE o.class = 2 AND st.object_id = {$victim['object_id']}
+                                 ORDER BY rand()
+                                 LIMIT 0,2" );
+
+      if( is_array( $trash ) && count( $trash ) ) {
+        if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+          db_query( "INSERT INTO trash (              place_type,              place_id,              arg1,              arg2,   object_id, object_cnt )
+                                VALUES ( {$victim['place_type']}, {$victim['place_id']}, {$victim['arg1']}, {$victim['arg2']}, {$trash[0]['res_id']},          1 ),
+                                       ( {$victim['place_type']}, {$victim['place_id']}, {$victim['arg1']}, {$victim['arg2']}, {$trash[1]['res_id']},          1 )
+               ON DUPLICATE KEY UPDATE object_cnt = object_cnt + 1" );
+        } else {
+          db_query( "INSERT INTO trash (              place_type,              place_id,   object_id, object_cnt )
+                                VALUES ( {$victim['place_type']}, {$victim['place_id']}, {$trash[0]['res_id']},          1 ),
+                                       ( {$victim['place_type']}, {$victim['place_id']}, {$trash[1]['res_id']},          1 )
+               ON DUPLICATE KEY UPDATE object_cnt = object_cnt + 1" );
+        }
+      }
+
+      if( !isset( $victim['titul'] ) || $victim['titul'] == 0 ) {
+        if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+          db_query( "INSERT INTO trash (            place_type,                       place_id,   object_id,               object_cnt,                   arg1,                   arg2 )
+                     SELECT {$victim['place_type']} place_type, {$victim['place_id']} place_id, w.object_id, CEIL( w.object_cnt / 2 ), {$victim['arg1']} arg1, {$victim['arg2']} arg2
+                       FROM warehouse w
+                      WHERE w.place_type = 2 AND w.place_id = $oid
+               ON DUPLICATE KEY UPDATE trash.object_cnt = trash.object_cnt + CEIL( w.object_cnt / 2 )" );
+        } else {
+          db_query( "INSERT INTO trash (            place_type,                       place_id,   object_id,             object_cnt )
+                     SELECT {$victim['place_type']} place_type, {$victim['place_id']} place_id, w.object_id, CEIL( w.object_cnt / 2 )
+                       FROM warehouse w
+                      WHERE w.place_type = 2 AND w.place_id = $oid
+               ON DUPLICATE KEY UPDATE trash.object_cnt = trash.object_cnt + CEIL( w.object_cnt / 2 )" );
+        }
+      }
+
+      db_query( "DELETE FROM warehouse WHERE place_type = 2 AND place_id = $oid" );
+      db_query( "DELETE FROM ships WHERE id = $oid" );
+      db_query( "DELETE FROM ships_war WHERE id = $oid" );
+
+      if( count( $ships ) ) {
+        foreach( $ships as $item ) {
+          enter_place( $item['id'], false );
+        }
+      }
+
+      if( count( $fleets ) ) {
+        foreach( $fleets as $item ) {
+          enter_place( $item['id'], true );
+        }
+      }
+
+      if( $ch_status < 0 && $user_id > 14 ) {
+        $premium = $victim['premium'];
+        send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+      } else {
+        $premium = 0;
+      }
+
+      $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+      if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+        $invest = $premium * 4;
+        db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+        send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение %s кредитов.", array( $invest ) ), 17, $fw->fire_time );
+        $premium += $invest;
+      }
+
+      if( $premium > 0 && $user_id > 14 ) {
+        db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );
+      }
+    }
+  } else {
+    $log_text .= t( "нет цели" );
+  }
+}
+
+function victim_fleet( $ch_status, $move_id, $oid, $place_hash, &$fw, $step, $user_id, $vict_id, &$log_text ) {
+
+  $dead = false;
+  $strateg = get_book_level( 13, $user_id );
+
+  $smart = mt_rand( 0, 10 );
+
+  if( $fw->atype != 1 && mt_rand( 1, 100 ) < get_book_level( 34, $vict_id ) * 5 ) {
+    $is_orbit = db_fetch_val( "SELECT count(*) cnt
+                                 FROM fleets f
+                           INNER JOIN defence d ON d.place_id = f.place_id AND d.place_type = f.place_type
+                           INNER JOIN orbits_buildings ob ON planet_id = d.place_id
+                                WHERE d.status != 0 AND ob.object_id IN ( 3007, 3008, 3009 ) AND f.place_type = 0 AND d.user_id = $vict_id AND f.id = $oid", 'cnt' );
+  } else {
+    $is_orbit = 0;
+  }
+
+  if( $is_orbit > 0 ) {
+    $victim = array();
+    $log_text .= t( "флот под защитой орбиты. " );
+  } else {
+    if( $smart <= $strateg ) {
+      if( $fw->missile ) {
+        $power = $fw->power + $fw->mpower;
+      } else {
+        $power = $fw->power;
+      }
+  
+      $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, st.titul
+                                 FROM ships_war s FORCE INDEX (order_id)
+                           INNER JOIN objects o ON o.id = s.object_id
+                           INNER JOIN ship_types st ON s.object_id = st.object_id
+                                WHERE s.fleet_id = $oid AND IFNULL( s.user_id, 10 ) = $vict_id AND s.order_id <= $step AND st.shield >= $power
+                             ORDER BY s.shield asc, s.id LIMIT 0,1" );
+      if( !$victim['id'] ) {
+        $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, st.titul
+                                   FROM ships_war s FORCE INDEX (order_id)
+                             INNER JOIN objects o ON o.id = s.object_id
+                             INNER JOIN ship_types st ON s.object_id = st.object_id
+                                  WHERE s.fleet_id = $oid AND IFNULL( s.user_id, 10 ) = $vict_id AND s.order_id <= $step AND st.shield <= $power
+                               ORDER BY s.shield desc, s.id LIMIT 0,1" );
+      }
+    } else {
+      $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, st.titul
+                                 FROM ships_war s FORCE INDEX (order_id)
+                           INNER JOIN objects o ON o.id = s.object_id
+                           INNER JOIN ship_types st ON s.object_id = st.object_id
+                                WHERE s.fleet_id = $oid AND IFNULL( s.user_id, 10 ) = $vict_id AND s.order_id <= $step
+                             ORDER BY rand() LIMIT 0,1" );
+    }
+
+    if( !isset( $victim['id'] ) ) {
+      $step = db_fetch_val( "SELECT MIN( s.order_id ) step
+                               FROM ships_war s
+                              WHERE s.fleet_id = $oid AND IFNULL( s.user_id, 10 ) = $vict_id", 'step' );
+      if( $step > 0 ) {
+        return victim_fleet( $ch_status, $move_id, $oid, $place_hash, $fw, $step, $user_id, $vict_id, $log_text );
+      }
+    }
+  }
+
+  if( ( isset( $victim['titul'] ) && $victim['titul'] > 0 ) || $vict_id == 5 || $vict_id == 6 || ( isset( $victim['shield'] ) && $victim['shield'] < 0 ) ) {
+    $abreal = 0;
+  } else {
+    $abreal = $fw->alevel - ( $fw->alevel / 50 * get_book_level( 33, $vict_id ) );
+  }
+
+  if( isset( $victim['id'] ) && is_numeric( $victim['id'] ) ) {
+    if( $fw->missile ) {
+      if( $victim['object_id'] == 9230 ) {
+        $log_text .= t( "ракета потеряла цель, " );
+      } else {
+        if( $victim['shield'] >= $fw->mpower ) {
+          db_query( "UPDATE ships_war SET shield = shield - {$fw->mpower} WHERE id = {$victim['id']}" );
+          $log_text .= t( "ракетой %s корабль %s(%s-%s), ", array( $fw->mname, $victim['name'], $victim['shield'], $fw->mpower ) );
+          $victim['shield'] -= $fw->mpower;
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,         power,        defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0,      3, {$fw->mpower}, {$fw->mpower} )" );
+        } else {
+          $log_text .= t( "ракетой %s корабль %s(<font color=\"#FF0000\">уничтожен</font>), ", array( $fw->mname, $victim['name'] ) );
+          $dead = true;
+
+          $victim['shield'] = 0;
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,               power, defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0,      3, {$victim['shield']},     -1 )" );
+        }
+
+        if( $fw->mmulti == false ) {
+          $fw->missile = null;
+        }
+      }
+    }
+
+    if( !isset( $fw->fire_power ) ) {
+      $fw->fire_power = $fw->power;
+    }
+
+    switch( $victim['object_id'] ) {
+      case 9326:
+      case 9042:
+        if( $fw->wtype == 1 ) {
+          $fw->fire_power = ceil( $fw->power / 100 );
+        }
+        break;
+
+      case 9067:
+      case 9158:
+      case 9464:
+        if( $fw->wtype == 0 ) {
+          $fw->fire_power = ceil( $fw->power / 100 );
+        }
+        break;
+
+      case 9275:
+      case 9397:
+//        $fw->fire_power = ceil( $fw->fire_power / 3 );
+        $fw->fire_power = ceil( $fw->power / 3 );
+        break;
+
+      case 9053:
+      case 9329:
+      case 9072:
+      case 9077:
+        $fw->fire_power = ceil( $fw->power / 2 );
+        break;
+
+      default:
+        $fw->fire_power = $fw->power;
+        break;
+    }
+
+    if( $fw->fire_power > 0 ) {
+      $sniper = 60 + ( get_book_level( 14, $fw->suser ) * 2 );
+      if( mt_rand( 1, 100 ) <= $sniper ) {
+        if( $victim['shield'] >= $fw->fire_power ) {
+          db_query( "UPDATE ships_war SET shield = shield - {$fw->fire_power} WHERE id = ".$victim['id'] );
+  
+          $log_text .= t( "корабль %s(%s-%s)", array( $victim['name'], $victim['shield'], $fw->fire_power ) );
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,             power,            defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype}, {$fw->fire_power}, {$fw->fire_power} )" );
+        } else {
+          if( isset( $victim['id'] ) && $victim['id'] > 0 ) {
+  
+            if( $abreal > 0 ) {
+              $abordage = mt_rand( 0, 99 );
+              if( $abordage > $abreal ) {
+                $log_text .= t( "корабль %s(<font color=\"#FF0000\">уничтожен</font>)", array( $victim['name'] ) );
+                $dead = true;
+              } else {
+                $dead = false;
+                if( $fw->suser < 15 ) {
+                  $guard = 1;
+                } else {
+                  $guard = 0;
+                }
+
+                if( $fw->atype == 0 ) {
+                  db_query( "UPDATE ships s, ships s2
+                                SET s.shield = 0,
+                                    s.group = s2.group,
+                                    s.inwar = 0,
+                                    s.guard = $guard,
+                                    s.fleet_id = null,
+                                    s.user_id = $user_id,
+                                    s.place_id = s2.place_id,
+                                    s.place_type = s2.place_type,
+                                    s.arg1 = s2.arg1,
+                                    s.arg2 = s2.arg2
+                              WHERE s.id = {$victim['id']} AND s2.id = ".$fw->raoid );
+
+                  db_query( "DELETE FROM ships_war WHERE id = ".$victim['id'] );
+                } else {
+                  db_query( "UPDATE ships s
+                                SET s.shield = 0,
+                                    s.group = s2.group,
+                                    s.inwar = 0,
+                                    s.guard = $guard,
+                                    s.fleet_id = null,
+                                    s.user_id = $user_id
+                              WHERE s.id = ".$victim['id'] );
+
+                  db_query( "DELETE FROM ships_war WHERE id = ".$victim['id'] );
+                }
+
+                $log_text .= t( "корабль %s(<font color=\"#00FF00\">захвачен</font>)", array( $victim['name'] ) );
+
+                db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,               power, defeat )
+                                                   VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype}, {$victim['shield']},     -2 )" );
+              }
+            } else {
+              db_query( "DELETE FROM ships WHERE id = {$victim['id']}" );
+              db_query( "DELETE FROM ships_war WHERE id = {$victim['id']}" );
+
+              $log_text .= t( "корабль %s(<font color=\"#FF0000\">уничтожен</font>)", array( $victim['name'] ) );
+              $dead = true;
+            }
+          }
+        }
+      } else {
+        $log_text .= t( "промазал" );
+
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type, power, defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype},     0,      0 )" );
+      }
+    }
+
+    if( update_fleet( $oid ) == 0 ) {
+      db_query( "DELETE FROM fleets WHERE id = $oid" );
+    }
+
+    if( $dead ) {
+      $ships = db_fetch_array( "SELECT s.id FROM ships s WHERE s.fleet_id IS null AND s.place_type = 2 AND s.place_id = {$victim['id']}" );
+      $fleets = db_fetch_array( "SELECT f.id FROM fleets f WHERE f.place_type = 2 AND f.place_id = {$victim['id']}" );
+
+      db_query( "UPDATE users_active SET ships = ships + 1 WHERE id = ".$user_id );
+
+      db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,               power, defeat )
+                                         VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype}, {$victim['shield']},     -1 )" );
+
+      if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = {$victim['id']}" );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = {$victim['id']}" );
+      } else {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = {$victim['id']}" );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = {$victim['id']}" );
+      }
+
+      $trash = db_fetch_array( "SELECT res_id
+                                  FROM ship_types st
+                            INNER JOIN objects_sub os ON os.object_id = st.conserv_id
+                            INNER JOIN objects o ON o.id = os.res_id
+                                 WHERE o.class = 2 AND st.object_id = {$victim['object_id']}
+                                 ORDER BY rand()
+                                 LIMIT 0,2" );
+
+      if( is_array( $trash ) && count( $trash ) ) {
+        if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+          db_query( "INSERT INTO trash (              place_type,              place_id,              arg1,              arg2,   object_id, object_cnt )
+                                VALUES ( {$victim['place_type']}, {$victim['place_id']}, {$victim['arg1']}, {$victim['arg2']}, {$trash[0]['res_id']},          1 ),
+                                       ( {$victim['place_type']}, {$victim['place_id']}, {$victim['arg1']}, {$victim['arg2']}, {$trash[1]['res_id']},          1 )
+               ON DUPLICATE KEY UPDATE object_cnt = object_cnt + 1" );
+        } else {
+          db_query( "INSERT INTO trash (              place_type,              place_id,   object_id, object_cnt )
+                                VALUES ( {$victim['place_type']}, {$victim['place_id']}, {$trash[0]['res_id']},          1 ),
+                                       ( {$victim['place_type']}, {$victim['place_id']}, {$trash[1]['res_id']},          1 )
+               ON DUPLICATE KEY UPDATE object_cnt = object_cnt + 1" );
+        }
+      }
+
+      if( !isset( $victim['titul'] ) || $victim['titul'] == 0 ) {
+        if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+          db_query( "INSERT INTO trash (            place_type,                       place_id,   object_id,               object_cnt,                   arg1,                   arg2 )
+                     SELECT {$victim['place_type']} place_type, {$victim['place_id']} place_id, w.object_id, CEIL( w.object_cnt / 2 ), {$victim['arg1']} arg1, {$victim['arg2']} arg2
+                       FROM warehouse w
+                      WHERE w.place_type = 2 AND w.place_id = {$victim['id']}
+               ON DUPLICATE KEY UPDATE trash.object_cnt = trash.object_cnt + CEIL( w.object_cnt / 2 )" );
+        } else {
+          db_query( "INSERT INTO trash (            place_type,                       place_id,   object_id,             object_cnt )
+                     SELECT {$victim['place_type']} place_type, {$victim['place_id']} place_id, w.object_id, CEIL( w.object_cnt / 2 )
+                       FROM warehouse w
+                      WHERE w.place_type = 2 AND w.place_id = {$victim['id']}
+               ON DUPLICATE KEY UPDATE trash.object_cnt = trash.object_cnt + CEIL( w.object_cnt / 2 )" );
+        }
+      }
+
+      db_query( "DELETE FROM warehouse WHERE place_type = 2 AND place_id = {$victim['id']}" );
+      db_query( "DELETE FROM ships WHERE id = {$victim['id']}" );
+      db_query( "DELETE FROM ships_war WHERE id = {$victim['id']}" );
+
+      if( count( $ships ) ) {
+        foreach( $ships as $item ) {
+          enter_place( $item['id'], false );
+        }
+      }
+
+      if( count( $fleets ) ) {
+        foreach( $fleets as $item ) {
+          enter_place( $item['id'], true );
+        }
+      }
+
+      if( $ch_status < 0 && $user_id > 14 ) {
+        $premium = $victim['premium'];
+        send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+      } else {
+        $premium = 0;
+      }
+
+      $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+      if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+        $invest = $premium * 4;
+        db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+        send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение %s кредитов.", array( $invest ) ), 17, $fw->fire_time );
+        $premium += $invest;
+      }
+
+      if( $premium > 0 && $user_id > 14 ) {
+        db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );          
+      }
+    }
+  } else {
+    $log_text .= t( "нет цели" );
+  }
+}
+
+function victim_place( $ch_status, $move_id, $place_hash, &$fw, $step, $user_id, $vict_id, &$log_text ) {
+
+  if( $user_id == $vict_id ) {
+    $log_text .= t( "корабли отказываются стрелять по своим." );
+    return;
+  }
+
+  if( $move_id == 0 ) {
+    $victim = db_fetch_row( "SELECT we.d_type type, we.d_object_id object
+                               FROM war_events we
+                              WHERE we.d_type IN ( 0, 1 ) AND we.place_hash = $place_hash AND IFNULL( we.d_user_id, 10 ) = $vict_id
+                           ORDER BY rand() LIMIT 0,1" );
+  } else {
+    $victim = db_fetch_row( "SELECT we.a_type type, we.a_object_id object
+                               FROM war_events we
+                              WHERE we.a_type IN ( 0, 1 ) AND we.place_hash = $place_hash AND IFNULL( we.a_user_id, 10 ) = $vict_id
+                           ORDER BY rand() LIMIT 0,1" );
+  }
+
+  switch( $victim['type'] ) {
+    case 0:
+      victim_ship( $ch_status, $move_id, $victim['object'], $place_hash, $fw, $user_id, $vict_id, $log_text );
+      break;
+
+    case 1:
+      victim_fleet( $ch_status, $move_id, $victim['object'], $place_hash, $fw, $step, $user_id, $vict_id, $log_text );
+      break;
+  }
+
+/*
+  $dead = false;
+  $strateg = get_book_level( 13, $user_id );
+
+  $smart = mt_rand( 0, 10 );
+
+  if( $fw->missile ) {
+    $power = $fw->power + $fw->mpower;
+  } else {
+    $power = $fw->power;
+  }
+
+  if( $move_id == 0 ) {
+    if( $smart <= $strateg ) {
+      $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, s.fleet_id, st.titul
+                                 FROM war_events we
+                           INNER JOIN ships_war s FORCE INDEX (order_id) ON ( we.d_type = 0 AND we.d_object_id = s.id ) OR ( we.d_type = 1 AND we.d_object_id = s.fleet_id )
+                           INNER JOIN objects o ON o.id = s.object_id
+                           INNER JOIN ship_types st ON s.object_id = st.object_id
+                                WHERE IFNULL( s.user_id, 10 ) = $vict_id AND s.order_id <= we.d_step + $step AND we.place_hash = $place_hash AND st.shield >= $power
+                             ORDER BY s.shield asc, s.id LIMIT 0,1" );
+      if( !$victim['id'] ) {
+        $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, s.fleet_id, st.titul
+                                   FROM war_events we
+                             INNER JOIN ships_war s FORCE INDEX (order_id) ON ( we.d_type = 0 AND we.d_object_id = s.id ) OR ( we.d_type = 1 AND we.d_object_id = s.fleet_id )
+                             INNER JOIN objects o ON o.id = s.object_id
+                             INNER JOIN ship_types st ON s.object_id = st.object_id
+                                  WHERE IFNULL( s.user_id, 10 ) = $vict_id AND s.order_id <= we.d_step + $step AND we.place_hash = $place_hash AND st.shield <= $power
+                               ORDER BY s.shield desc, s.id LIMIT 0,1" );
+      }
+    } else {
+      $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, s.fleet_id, st.titul
+                                 FROM war_events we
+                           INNER JOIN ships_war s FORCE INDEX (order_id) ON ( we.d_type = 0 AND we.d_object_id = s.id ) OR ( we.d_type = 1 AND we.d_object_id = s.fleet_id )
+                           INNER JOIN objects o ON o.id = s.object_id
+                           INNER JOIN ship_types st ON s.object_id = st.object_id
+                                WHERE we.place_hash = $place_hash AND IFNULL( s.user_id, 10 ) = $vict_id AND s.order_id <= we.d_step + $step
+                             ORDER BY rand() LIMIT 0,1" );
+    }
+  } else {
+    if( $smart <= $strateg ) {
+      $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, s.fleet_id, st.titul
+                                   FROM war_events we
+                             INNER JOIN ships_war s FORCE INDEX (order_id) ON ( we.a_type = 0 AND we.a_object_id = s.id ) OR ( we.a_type = 1 AND we.a_object_id = s.fleet_id )
+                             INNER JOIN objects o ON o.id = s.object_id
+                             INNER JOIN ship_types st ON s.object_id = st.object_id
+                                  WHERE IFNULL( s.user_id, 10 ) = $vict_id AND s.order_id <= we.a_step + $step AND we.place_hash = $place_hash AND st.shield >= $power
+                               ORDER BY s.shield asc, s.id LIMIT 0,1" );
+      if( !$victim['id'] ) {
+        $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, s.fleet_id, st.titul
+                                   FROM war_events we
+                             INNER JOIN ships_war s FORCE INDEX (order_id) ON ( we.a_type = 0 AND we.a_object_id = s.id ) OR ( we.a_type = 1 AND we.a_object_id = s.fleet_id )
+                             INNER JOIN objects o ON o.id = s.object_id
+                             INNER JOIN ship_types st ON s.object_id = st.object_id
+                                  WHERE IFNULL( s.user_id, 10 ) = $vict_id AND s.order_id <= we.a_step + $step AND we.place_hash = $place_hash AND st.shield <= $power
+                               ORDER BY s.shield desc, s.id LIMIT 0,1" );
+      }
+    } else {
+      $victim = db_fetch_row( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, s.fleet_id, st.titul
+                                 FROM war_events we
+                           INNER JOIN ships_war s FORCE INDEX (order_id) ON ( we.a_type = 0 AND we.a_object_id = s.id ) OR ( we.a_type = 1 AND we.a_object_id = s.fleet_id )
+                           INNER JOIN objects o ON o.id = s.object_id
+                           INNER JOIN ship_types st ON s.object_id = st.object_id
+                                WHERE we.place_hash = $place_hash AND IFNULL( s.user_id, 10 ) = $vict_id AND s.order_id <= we.a_step + $step
+                             ORDER BY rand() LIMIT 0,1" );
+    }
+  }
+
+  if( !isset( $victim['id'] ) ) {
+    if( $move_id == 0 ) {
+      $step = db_fetch_val( "SELECT MIN( s.order_id - we.d_step ) step
+                               FROM war_events we
+                         INNER JOIN ships_war s ON ( we.d_type = 0 AND we.d_object_id = s.id ) OR ( we.d_type = 1 AND we.d_object_id = s.fleet_id )
+                              WHERE IFNULL( s.user_id, 10 ) = $vict_id AND we.place_hash = $place_hash", 'step' );
+    } else {
+      $step = db_fetch_val( "SELECT MIN( s.order_id - we.a_step ) step
+                                 FROM war_events we
+                           INNER JOIN ships_war s ON ( we.a_type = 0 AND we.a_object_id = s.id ) OR ( we.a_type = 1 AND we.a_object_id = s.fleet_id )
+                                WHERE IFNULL( s.user_id, 10 ) = $vict_id AND we.place_hash = $place_hash", 'step' );
+    }
+
+    if( $step > 0 ) {
+      return victim_place( $ch_status, $move_id, $place_hash, $fw, $step, $user_id, $vict_id, $log_text );
+    }
+  }
+
+  if( $fw->atype != 1 && isset( $victim['place_id'] ) && $victim['place_type'] == 0 && mt_rand( 1, 100 ) < get_book_level( 34, $vict_id ) * 5 ) {
+    $is_orbit = db_fetch_val( "SELECT count(*) cnt
+                                 FROM defence d
+                           INNER JOIN orbits_buildings ob ON planet_id = d.place_id
+                                WHERE d.status != 0 AND ob.object_id IN ( 3007, 3008, 3009 ) AND d.place_id = {$victim['place_id']} AND d.place_type = {$victim['place_type']} AND d.user_id = $vict_id", 'cnt' );
+  } else {
+    $is_orbit = 0;
+  }
+
+  if( $is_orbit > 0 ) {
+    $victim = array();
+    $log_text .= t( "Корабли под защитой орбиты. " );
+  }
+
+  if( ( isset( $victim['titul'] ) && $victim['titul'] > 0 ) || $vict_id == 5 || $vict_id == 6 || ( isset( $victim['shield'] ) && $victim['shield'] < 0 ) ) {
+    $abreal = 0;
+  } else {
+    $abreal = $fw->alevel - ( $fw->alevel / 50 * get_book_level( 33, $vict_id ) );
+  }
+
+  if( isset( $victim['id'] ) && is_numeric( $victim['id'] ) ) {
+    if( $fw->missile ) {
+      if( $victim['object_id'] == 9230 ) {
+        $log_text .= t( "ракета потеряла цель, " );
+      } else {
+        if( $victim['shield'] >= $fw->mpower ) {
+          db_query( "UPDATE ships_war SET shield = shield - {$fw->mpower} WHERE id = {$victim['id']}" );
+
+          $log_text .= t( "ракетой %s корабль %s(%s-%d), ", array( $fw->mname, $victim['name'], $victim['shield'], $fw->mpower ) );
+          $victim['shield'] -= $fw->mpower;
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,         power,        defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0,      3, {$fw->mpower}, {$fw->mpower} )" );
+        } else {
+          $log_text .= t( "ракетой %s корабль %s(<font color=\"#FF0000\">уничтожен</font>), ", array( $fw->mname, $victim['name'] ) );
+          $dead = true;
+
+          $victim['shield'] = 0;
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,               power, defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0,      3, {$victim['shield']},     -1 )" );
+        }
+
+        if( $fw->mmulti == false ) {
+          $fw->missile = null;
+        }
+      }
+    }
+
+    if( !isset( $fw->fire_power ) ) {
+      $fw->fire_power = $fw->power;
+    }
+
+    switch( $victim['object_id'] ) {
+      case 9326:
+      case 9042:
+        if( $fw->wtype == 1 ) {
+          $fw->fire_power = ceil( $fw->power / 100 );
+        }
+        break;
+
+      case 9067:
+      case 9158:
+      case 9464:
+        if( $fw->wtype == 0 ) {
+          $fw->fire_power = ceil( $fw->power / 100 );
+        }
+        break;
+
+      case 9275:
+      case 9397:
+//        $fw->fire_power = ceil( $fw->fire_power / 3 );
+        $fw->fire_power = ceil( $fw->power / 3 );
+        break;
+
+      case 9053:
+      case 9329:
+      case 9072:
+      case 9077:
+        $fw->fire_power = ceil( $fw->power / 2 );
+        break;
+    }
+
+    if( $fw->fire_power > 0 ) {
+      $sniper = 60 + ( get_book_level( 14, $fw->suser ) * 2 );
+      if( mt_rand( 1, 100 ) <= $sniper ) {
+        if( $victim['shield'] >= $fw->fire_power ) {
+          db_query( "UPDATE ships_war SET shield = shield - {$fw->fire_power} WHERE id = ".$victim['id'] );
+  
+          $log_text .= t( "корабль %s(%s-%d)", array( $victim['name'], $victim['shield'], $fw->fire_power ) );
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,             power,            defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype}, {$fw->fire_power}, {$fw->fire_power} )" );
+        } else {
+          if( isset( $victim['id'] ) && $victim['id'] > 0 ) {
+  
+            if( $abreal > 0 ) {
+              $abordage = mt_rand( 0, 99 );
+
+              if( $abordage > $abreal ) {
+                $log_text .= t( "корабль %s(<font color=\"#FF0000\">уничтожен</font>)", array( $victim['name'] ) );
+                $dead = true;
+              } else {
+                $dead = false;
+                if( $fw->suser < 15 ) {
+                  $guard = 1;
+                } else {
+                  $guard = 0;
+                }
+
+                if( $fw->atype == 0 ) {
+                  db_query( "UPDATE ships s, ships s2
+                                SET s.shield = 0,
+                                    s.group = s2.group,
+                                    s.inwar = 0,
+                                    s.guard = $guard,
+                                    s.fleet_id = null,
+                                    s.user_id = $user_id,
+                                    s.place_id = s2.place_id,
+                                    s.place_type = s2.place_type,
+                                    s.arg1 = s2.arg1,
+                                    s.arg2 = s2.arg2
+                              WHERE s.id = {$victim['id']} AND s2.id = ".$fw->raoid );
+
+                  db_query( "DELETE FROM ships_war WHERE id = {$victim['id']}" );
+                } else {
+                  db_query( "UPDATE ships s
+                                SET s.shield = 0,
+                                    s.group = s2.group,
+                                    s.inwar = 0,
+                                    s.guard = $guard,
+                                    s.fleet_id = null,
+                                    s.user_id = $user_id
+                              WHERE s.id = ".$victim['id'] );
+
+                  db_query( "DELETE FROM ships_war WHERE id = {$victim['id']}" );
+                }
+
+                $log_text .= t( "корабль %s(<font color=\"#00FF00\">захвачен</font>)", array( $victim['name'] ) );
+
+                db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,               power, defeat )
+                                                   VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype}, {$victim['shield']},     -2 )" );
+              }
+            } else {
+              db_query( "DELETE FROM ships WHERE id = {$victim['id']}" );
+              db_query( "DELETE FROM ships_war WHERE id = {$victim['id']}" );
+
+              $log_text .= t( "корабль %s(<font color=\"#FF0000\">уничтожен</font>)", array( $victim['name'] ) );
+              $dead = true;
+            }
+          }
+        }
+      } else {
+        $log_text .= t( "промазал" );
+
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type, power, defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype},     0,      0 )" );
+      }
+    }
+
+    if( $victim['fleet_id'] ) {
+      if( update_fleet( $victim['fleet_id'] ) == 0 ) {
+        db_query( "DELETE FROM fleets WHERE id = {$victim['fleet_id']}" );
+      }
+    }
+
+    if( $dead ) {
+      $ships = db_fetch_array( "SELECT s.id FROM ships s WHERE s.fleet_id IS null AND s.place_type = 2 AND s.place_id = ".$victim['id'] );
+      $fleets = db_fetch_array( "SELECT f.id FROM fleets f WHERE f.place_type = 2 AND f.place_id = ".$victim['id'] );
+
+      db_query( "UPDATE users_active SET ships = ships + 1 WHERE id = ".$user_id );
+
+      db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,               power, defeat )
+                                         VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0, {$fw->wtype}, {$victim['shield']},     -1 )" );
+
+      if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = {$victim['id']}" );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = {$victim['id']}" );
+      } else {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = {$victim['id']}" );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = {$victim['id']}" );
+      }
+
+      $trash = db_fetch_array( "SELECT res_id
+                                  FROM ship_types st
+                            INNER JOIN objects_sub os ON os.object_id = st.conserv_id
+                            INNER JOIN objects o ON o.id = os.res_id
+                                 WHERE o.class = 2 AND st.object_id = {$victim['object_id']}
+                                 ORDER BY rand()
+                                 LIMIT 0,2" );
+
+      if( is_array( $trash ) && count( $trash ) ) {
+        if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+          db_query( "INSERT INTO trash (              place_type,              place_id,              arg1,              arg2,   object_id, object_cnt )
+                                VALUES ( {$victim['place_type']}, {$victim['place_id']}, {$victim['arg1']}, {$victim['arg2']}, {$trash[0]['res_id']},          1 ),
+                                       ( {$victim['place_type']}, {$victim['place_id']}, {$victim['arg1']}, {$victim['arg2']}, {$trash[1]['res_id']},          1 )
+               ON DUPLICATE KEY UPDATE object_cnt = object_cnt + 1" );
+        } else {
+          db_query( "INSERT INTO trash (              place_type,              place_id,   object_id, object_cnt )
+                                VALUES ( {$victim['place_type']}, {$victim['place_id']}, {$trash[0]['res_id']},          1 ),
+                                       ( {$victim['place_type']}, {$victim['place_id']}, {$trash[1]['res_id']},          1 )
+               ON DUPLICATE KEY UPDATE object_cnt = object_cnt + 1" );
+        }
+      }
+
+      if( !isset( $victim['titul'] ) || $victim['titul'] == 0 ) {
+        if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+          db_query( "INSERT INTO trash (            place_type,                       place_id,   object_id,               object_cnt,                   arg1,                   arg2 )
+                     SELECT {$victim['place_type']} place_type, {$victim['place_id']} place_id, w.object_id, CEIL( w.object_cnt / 2 ), {$victim['arg1']} arg1, {$victim['arg2']} arg2
+                       FROM warehouse w
+                      WHERE w.place_type = 2 AND w.place_id = {$victim['id']}
+               ON DUPLICATE KEY UPDATE trash.object_cnt = trash.object_cnt + w.object_cnt" );
+        } else {
+          db_query( "INSERT INTO trash (            place_type,                       place_id,   object_id,             object_cnt )
+                     SELECT {$victim['place_type']} place_type, {$victim['place_id']} place_id, w.object_id, CEIL( w.object_cnt / 2 )
+                       FROM warehouse w
+                      WHERE w.place_type = 2 AND w.place_id = {$victim['id']}
+               ON DUPLICATE KEY UPDATE trash.object_cnt = trash.object_cnt + CEIL( w.object_cnt / 2 )" );
+        }
+      }
+
+      db_query( "DELETE FROM warehouse WHERE place_type = 2 AND place_id = {$victim['id']}" );
+      db_query( "DELETE FROM ships WHERE id = {$victim['id']}" );
+      db_query( "DELETE FROM ships_war WHERE id = {$victim['id']}" );
+
+      if( count( $ships ) ) {
+        foreach( $ships as $item ) {
+          enter_place( $item['id'], false );
+        }
+      }
+
+      if( count( $fleets ) ) {
+        foreach( $fleets as $item ) {
+          enter_place( $item['id'], true );
+        }
+      }
+
+      if( $ch_status < 0 && $user_id > 14 ) {
+        $premium = $victim['premium'];
+        send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+      } else {
+        $premium = 0;
+      }
+
+      $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+      if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+        $invest = $premium * 4;
+        db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+        send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение %s кредитов.", array( $invest ) ), 17, $fw->fire_time );
+        $premium += $invest;
+      }
+
+      if( $premium > 0 && $user_id > 14 ) {
+        db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );          
+      }
+    }
+  } else {
+    $log_text .= t( "нет цели" );
+  }
+*/
+}
+
+function victim_planet( $ch_status, $move_id, $oid, $place_hash, &$fw, $user_id, $vict_id, &$log_text ) {
+
+  $dead = false;
+  if( $fw->bomber ) {
+    $atck_power = 50;
+  } else {
+    if( $fw->agrav == 0 ) {
+      $atck_power = intval( $fw->power / 10 );
+    } else {
+      $atck_power = $fw->power;
+    }
+  }
+
+  $victim = db_fetch_row( "SELECT pb.id, pb.shield, o.name, pb.x, pb.y, o.premium, pb.object_id
+                             FROM planets_buildings pb
+                       INNER JOIN objects o ON o.id = pb.object_id
+                            WHERE pb.object_id = 31 AND pb.planet_id = $oid ORDER BY pb.shield, pb.id LIMIT 0,1" );
+
+  if( !isset( $victim['id'] ) ) {
+    $target = db_fetch_row( "SELECT x, y
+                               FROM planets_buildings
+                              WHERE object_id IN( 27, 28, 29, 30 ) AND planet_id = $oid
+                           ORDER BY shield, id LIMIT 0,1" );
+
+    $level = get_book_level( 10, $user_id );
+    $x = $target['x'] + mt_rand( -10 + $level, 10 - $level );
+    $y = $target['y'] + mt_rand( -10 + $level, 10 - $level );
+
+    $victim = db_fetch_row( "SELECT pb.id, pb.shield, o.name, o.premium, pb.object_id
+                               FROM planets_buildings pb
+                         INNER JOIN objects o ON o.id = pb.object_id
+                              WHERE pb.x = $x AND pb.y = $y AND pb.planet_id = $oid" );
+  } else {
+    $x = $victim['x'];
+    $y = $victim['y'];
+  }
+
+  if( isset( $victim['id'] ) ) {
+
+    if( $fw->missile ) {
+      add_warehouse_item( 2, $fw->retid, $fw->missile, 1 );
+      $fw->missile = null;
+    }
+
+    if( $atck_power > 0 ) {
+      if( $victim['shield'] >= $atck_power ) {
+        db_query( "UPDATE planets_buildings SET shield = shield - {$atck_power} WHERE id = ".$victim['id'] );
+
+        $log_text .= t( "постройку %s(%s-%s)", array( $victim['name'], $victim['shield'], $atck_power ) );
+
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,         power,        defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      1, {$fw->wtype}, {$atck_power}, {$atck_power} )" );
+      } else {
+        $event = db_fetch_val( "SELECT id FROM planet_events WHERE x = $x AND y = $y AND planet_id = $oid" );
+        if( $event ) {
+          db_query( "DELETE FROM planet_events WHERE id = $event" );
+          db_query( "DELETE FROM planets_disp WHERE event_id = $event" );
+          db_query( "DELETE FROM planets_make WHERE event_id = $event" );
+          db_query( "DELETE FROM planets_mines WHERE event_id = $event" );
+          db_query( "UPDATE robots SET status = 0 WHERE build_type = 1 AND build_id = ".$victim['id'] );
+        }
+
+        $build_map = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT bld FROM planets_maps WHERE id = $oid", 'bld' ) ) ) );
+        $build_map[ $y ]{ $x } = '0';
+        db_query( "UPDATE planets_maps SET bld = '".join( "\n", $build_map )."' WHERE id = $oid" );
+
+        db_query( "DELETE FROM planets_buildings WHERE id = ".$victim['id'] );
+
+        $log_text .= t( "постройку %s(<font color=\"#FF0000\">уничтожена</font>)", array( $victim['name'] ) );
+
+        $dead = true;
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,               power, defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      1, {$fw->wtype}, {$victim['shield']},     -1 )" );
+      }
+    } else {
+      $log_text .= t( "нет подходящих орудий" );
+    }
+
+    if( $dead ) {
+      if( $ch_status < 0 && $user_id > 14 ) {
+        $premium = $victim['premium'];
+        send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+      } else {
+        $premium = 0;
+      }
+
+      $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+      if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+        $invest = $premium * 4;
+        db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+        send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение %s кредитов.", array( $invest ) ), 17, $fw->fire_time );
+        $premium += $invest;
+      }
+
+      if( $premium > 0 && $user_id > 14 ) {
+        db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );          
+      }
+    }
+
+  } else {
+    $log_text .= t( "свободную поверхность %d:%d", array( $x, $y ) );
+    db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type, d_object_id, d_type,       w_type, power, defeat )
+                                       VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype},           0,      1, {$fw->wtype},     0,      0 )" );
+  }
+}
+
+function victim_orbit( $ch_status, $move_id, $oid, $place_hash, &$fw, $user_id, $vict_id, &$log_text ) {
+
+  $dead = false;
+  $target = db_fetch_row( "SELECT x FROM orbits_buildings WHERE object_id IN( 3007, 3008, 3009 ) AND planet_id = $oid ORDER BY shield, id LIMIT 0,1" );
+
+  $level = get_book_level( 10, $user_id );
+  $x = $target['x'] + mt_rand( -10 + $level, 10 - $level );
+  $victim = db_fetch_row( "SELECT ob.id, ob.shield, o.name, o.premium, ob.object_id
+                             FROM orbits_buildings ob, objects o
+                            WHERE o.id = ob.object_id AND ob.x = $x AND ob.planet_id = $oid" );
+
+  if( isset( $victim['id'] ) ) {
+
+    if( $fw->missile ) {
+      if( $victim['shield'] >= $fw->mpower ) {
+        db_query( "UPDATE orbits_buildings SET shield = shield - {$fw->mpower} WHERE id = ".$victim['id'] );
+        $log_text .= t( "ракетой %s спутник %s(%s-%d), ", array( $fw->mname, $victim['name'], $victim['shield'], $fw->mpower ) );
+        $victim['shield'] -= $fw->mpower;
+
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,         power,        defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      2,      3, {$fw->mpower}, {$fw->mpower} )" );
+      } else {
+        $log_text .= t( "ракетой %s спутник %s(<font color=\"#FF0000\">уничтожен</font>), ", array( $fw->mname, $victim['name'] ) );
+        $dead = true;
+        $victim['shield'] = 0;
+
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,               power, defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      2,      3, {$victim['shield']},     -1 )" );
+      }
+
+      if( $fw->mmulti == false ) {
+        $fw->missile = null;
+      }
+    }
+
+    if( $fw->power > 0 ) {
+      if( $victim['shield'] >= $fw->power ) {
+        db_query( "UPDATE orbits_buildings SET shield = shield - {$fw->power} WHERE id = ".$victim['id'] );
+        $log_text .= t( "спутник %s(%s-%d)", array( $victim['name'], $victim['shield'], $fw->power ) );
+
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,        power,       defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      2, {$fw->wtype}, {$fw->power}, {$fw->power} )" );
+      } else {
+        $log_text .= t( "спутник %s(<font color=\"#FF0000\">уничтожен</font>)", array( $victim['name'] ) );
+        $dead = true;
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type,       w_type,               power, defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      2, {$fw->wtype}, {$victim['shield']},     -1 )" );
+      }
+    }
+
+    if( $dead ) {
+
+      $event = db_fetch_val( "SELECT id FROM orbit_events WHERE x = $x AND planet_id = $oid" );
+      if( $event ) {
+        db_query( "DELETE FROM orbit_events WHERE id = $event" );
+        db_query( "DELETE FROM orbits_make WHERE event_id = $event" );
+        db_query( "DELETE FROM orbits_mines WHERE event_id = $event" );
+        db_query( "UPDATE robots SET status = 0 WHERE build_type = 0 AND build_id = ".$victim['id'] );
+      }
+
+      db_query( "UPDATE ships  SET place_type = 0, place_id = $oid WHERE place_type = 3 AND place_id = {$victim['id']}" );
+      db_query( "UPDATE fleets SET place_type = 0, place_id = $oid WHERE place_type = 3 AND place_id = {$victim['id']}" );
+
+      $line = db_fetch_val( "SELECT lin FROM orbits_map WHERE id = $oid", 'lin' );
+      $line{ $x } = '0';
+      db_query( "UPDATE orbits_map SET lin = '$line' WHERE id = $oid" );
+
+      db_query( "DELETE FROM orbits_buildings WHERE id = ".$victim['id'] );
+
+      if( $ch_status < 0 && $user_id > 14 ) {
+        $premium = $victim['premium'];
+        send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+      } else {
+        $premium = 0;
+      }
+
+      $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+      if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+        $invest = $premium * 4;
+        db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+        send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение %s кредитов.", array( $invest ) ), 17, $fw->fire_time );
+        $premium += $invest;
+      }
+
+      if( $premium > 0 && $user_id > 14 ) {
+        db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );          
+      }
+    }
+  } else {
+    $log_text .= t( "открытый космос %d", array( $x ) );
+    db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type, d_object_id, d_type,       w_type, power, defeat )
+                                       VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype},           0,      2, {$fw->wtype},     0,      0 )" );
+  }
+}
+
+function victim_all_fleet( $ch_status, $move_id, $oid, $place_hash, &$fw, $user_id, $vict_id, &$log_text ) {
+  $pre_log_text = array();
+
+  $victim = db_fetch_row( "SELECT place_id, place_type FROM fleets WHERE user_id != $user_id AND id = $oid LIMIT 0,1" );
+
+  if( $fw->atype != 1 && mt_rand( 1, 100 ) < get_book_level( 34, $vict_id ) * 5 ) {
+    $is_orbit = db_fetch_val( "SELECT count(*) cnt
+                                 FROM defence d
+                           INNER JOIN orbits_buildings ob ON planet_id = d.place_id
+                                WHERE d.status != 0 AND ob.object_id IN ( 3007, 3008, 3009 ) AND d.place_id = {$victim['place_id']} AND d.place_type = {$victim['place_type']} AND d.user_id = $vict_id", 'cnt' );
+  } else {
+    $is_orbit = 0;
+  }
+
+  if( $is_orbit > 0 ) {
+    $victims = array();
+    $log_text .= t( "флот под защитой орбиты. " );
+
+    db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type, d_object_id, d_type, w_type, power, defeat )
+                                       VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype},           0,      0,      2,     0,      0 )" );
+  } else {
+    $tpower = 0;
+
+    db_query( "UPDATE ships_war SET shield = shield - {$fw->power} WHERE user_id != $user_id AND object_id NOT IN( 9421, 9423, 9424, 9425, 9428, 9429, 9426, 9427, 9430, 9431, 9468, 9021, 9395, 9127, 9167, 9128, 9397, 9275, 9053, 9329, 9072, 9077 ) AND fleet_id = $oid" );
+    $cnt = mysql_affected_rows();
+    if( $cnt ) {
+      $pre_log_text[] = "$cnt кораблей силой ".$fw->power;
+      $tpower += $cnt * $fw->power;
+    }
+
+    db_query( "UPDATE ships_war SET shield = shield - ".ceil( $fw->power / 2 )." WHERE user_id != $user_id AND object_id IN( 9053, 9329, 9072, 9077 ) AND fleet_id = $oid" );
+    $cnt = mysql_affected_rows();
+    if( $cnt ) {
+      $pre_log_text[] = "$cnt кораблей силой ".ceil( $fw->power / 2 );
+      $tpower += $cnt * ceil( $fw->power / 2 );
+    }
+
+    db_query( "UPDATE ships_war SET shield = shield - ".ceil( $fw->power / 3 )." WHERE user_id != $user_id AND object_id IN( 9397, 9275 ) AND fleet_id = $oid" );
+    $cnt = mysql_affected_rows();
+    if( $cnt ) {
+      $pre_log_text[] = "$cnt кораблей силой ".ceil( $fw->power / 3 );
+      $tpower += $cnt * ceil( $fw->power / 3 );
+    }
+
+    db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type, d_object_id, d_type, w_type,   power,       defeat )
+                                       VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype},           0,      0,      2, $tpower, {$fw->power} )" );
+
+    $victims = db_fetch_array( "SELECT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id
+                                  FROM ships_war s
+                            INNER JOIN objects o ON o.id = s.object_id
+                                 WHERE IFNULL( s.user_id, 10 ) != $user_id AND s.shield < 0 AND s.fleet_id = $oid" );
+
+    foreach( $victims as $victim ) {
+      if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = ".$victim['id'] );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = ".$victim['id'] );
+      } else {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = ".$victim['id'] );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = ".$victim['id'] );
+      }
+
+      db_query( "UPDATE users_active SET ships = ships + 1 WHERE id = ".$user_id );
+
+      db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,               power, defeat )
+                                         VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0,      2, {$victim['shield']},     -1 )" );
+
+      if( $ch_status < 0 && $user_id > 14 ) {
+        $premium = $victim['premium'];
+        send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+      } else {
+        $premium = 0;
+      }
+  
+      $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+      if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+        $invest = $premium * 4;
+        db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+        send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение %s кредитов.", array( $invest ) ), 17, $fw->fire_time );
+        $premium += $invest;
+      }
+  
+      if( $premium > 0 && $user_id > 14 ) {
+        db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );          
+      }
+    }
+
+    if( count( $victims ) > 0 ) {
+      $pre_log_text[] = t( "Уничтожено %d кораблей", array( count( $victims ) ) );
+    }
+
+    if( $user_id == 10 ) {
+      db_query( "DELETE FROM ships WHERE fleet_id = $oid AND id IN ( SELECT s.id FROM ships_war s WHERE s.user_id IS NOT NULL AND s.shield < 0 AND s.fleet_id = $oid )" );
+    } else {
+      db_query( "DELETE FROM ships WHERE fleet_id = $oid AND id IN ( SELECT s.id FROM ships_war s WHERE s.user_id != $user_id AND s.shield < 0 AND s.fleet_id = $oid )" );
+    }
+    db_query( "DELETE FROM ships_war WHERE user_id != $user_id AND shield < 0 AND fleet_id = $oid" );
+
+    if( update_fleet( $oid ) == 0 ) {
+      db_query( "DELETE FROM fleets WHERE id = $oid" );
+    }
+
+    if( count( $pre_log_text ) ) {
+      $log_text .= implode( ', ', $pre_log_text );
+    } else {
+      $log_text .= t( 'Нет цели' );
+    }
+  }
+}
+
+function victim_all_place( $ch_status, $move_id, $place_hash, &$fw, $user_id, $vict_id, &$log_text ) {
+  $pre_log_text = array();
+
+  if( $move_id == 0 ) {
+    $victim = db_fetch_row( "SELECT s.place_id, s.place_type
+                               FROM ships_war s
+                         INNER JOIN war_events we ON ( we.d_type = 0 AND we.d_object_id = s.id ) OR ( we.d_type = 1 AND we.d_object_id = s.fleet_id )
+                              WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash
+                              LIMIT 0,1" );
+  } else {
+    $victim = db_fetch_row( "SELECT s.place_id, s.place_type
+                               FROM ships_war s
+                         INNER JOIN war_events we ON ( we.a_type = 0 AND we.a_object_id = s.id ) OR ( we.a_type = 1 AND we.a_object_id = s.fleet_id )
+                              WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash
+                              LIMIT 0,1" );
+  }
+
+  if( $fw->atype != 1 && isset( $victim['place_id'] ) && $victim['place_type'] == 0 && mt_rand( 1, 100 ) < get_book_level( 34, $vict_id ) * 5 ) {
+    $is_orbit = db_fetch_val( "SELECT count(*) cnt
+                                 FROM defence d
+                           INNER JOIN orbits_buildings ob ON planet_id = d.place_id
+                                WHERE d.status != 0 AND ob.object_id IN ( 3007, 3008, 3009 ) AND d.place_id = {$victim['place_id']} AND d.place_type = {$victim['place_type']} AND d.user_id = $vict_id", 'cnt' );
+  } else {
+    $is_orbit = 0;
+  }
+
+  if( $is_orbit > 0 ) {
+    $victims = array();
+    $log_text .= t( "флот под защитой орбиты. " );
+  } else {
+    if( $move_id == 0 ) {
+      $tpower = 0;
+
+      db_query( "UPDATE ships_war s, war_events we
+                    SET s.shield = s.shield - {$fw->power}
+                  WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash AND ( ( we.d_type = 0 AND we.d_object_id = s.id ) OR ( we.d_type = 1 AND we.d_object_id = s.fleet_id ) ) AND s.object_id NOT IN( 9421, 9423, 9424, 9425, 9428, 9429, 9426, 9427, 9430, 9431, 9468, 9021, 9395, 9127, 9167, 9128, 9397, 9275, 9053, 9329, 9072, 9077 )" );
+      $cnt = mysql_affected_rows();
+      if( $cnt ) {
+        $pre_log_text[] = t( "%d кораблей силой %d", array( $cnt, $fw->power ) );
+
+        $tpower += $cnt * $fw->power;
+      }
+
+      db_query( "UPDATE ships_war s, war_events we
+                    SET s.shield = s.shield - ".ceil( $fw->power / 2 )."
+                  WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash AND ( ( we.d_type = 0 AND we.d_object_id = s.id ) OR ( we.d_type = 1 AND we.d_object_id = s.fleet_id ) ) AND s.object_id IN( 9053, 9329, 9072, 9077 )" );
+      $cnt = mysql_affected_rows();
+      if( $cnt ) {
+        $pre_log_text[] = t( "%d кораблей силой %d", array( $cnt, ceil( $fw->power / 2 ) ) );
+
+        $tpower += $cnt * ceil( $fw->power / 2 );
+      }
+
+      db_query( "UPDATE ships_war s, war_events we
+                    SET s.shield = s.shield - ".ceil( $fw->power / 3 )."
+                  WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash AND ( ( we.d_type = 0 AND we.d_object_id = s.id ) OR ( we.d_type = 1 AND we.d_object_id = s.fleet_id ) ) AND s.object_id IN( 9397, 9275 )" );
+      $cnt = mysql_affected_rows();
+      if( $cnt ) {
+        $pre_log_text[] = t( "%d кораблей силой %d", array( $cnt, ceil( $fw->power / 3 ) ) );
+
+        $tpower += $cnt * ceil( $fw->power / 3 );
+      }
+
+      db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type, d_object_id, d_type, w_type,   power,       defeat )
+                                         VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype},           0,      0,      2, $tpower, {$fw->power} )" );
+
+      $victims = db_fetch_array( "SELECT DISTINCT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, s.fleet_id
+                                    FROM ships_war s
+                              INNER JOIN objects o ON o.id = s.object_id
+                              INNER JOIN war_events we ON ( we.d_type = 0 AND we.d_object_id = s.id ) OR ( we.d_type = 1 AND we.d_object_id = s.fleet_id )
+                                   WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash AND s.shield < 0" );
+    } else {
+      $tpower = 0;
+
+      db_query( "UPDATE ships_war s, war_events we
+                    SET s.shield = s.shield - {$fw->power}
+                  WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash AND ( ( we.a_type = 0 AND we.a_object_id = s.id ) OR ( we.a_type = 1 AND we.a_object_id = s.fleet_id ) ) AND s.object_id NOT IN( 9421, 9423, 9424, 9425, 9428, 9429, 9426, 9427, 9430, 9431, 9468, 9021, 9395, 9127, 9167, 9128, 9397, 9275, 9053, 9329, 9072, 9077 )" );
+      $cnt = mysql_affected_rows();
+      if( $cnt ) {
+        $pre_log_text[] = t( "%d кораблей силой %d", array( $cnt, $fw->power ) );
+
+        $tpower += $cnt * $fw->power;
+      }
+
+      db_query( "UPDATE ships_war s, war_events we
+                    SET s.shield = s.shield - ".ceil( $fw->power / 2 )."
+                  WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash AND ( ( we.a_type = 0 AND we.a_object_id = s.id ) OR ( we.a_type = 1 AND we.a_object_id = s.fleet_id ) ) AND s.object_id IN( 9053, 9329, 9072, 9077 )" );
+      $cnt = mysql_affected_rows();
+      if( $cnt ) {
+        $pre_log_text[] = t( "%d кораблей силой %d", array( $cnt, ceil( $fw->power / 2 ) ) );
+
+        $tpower += $cnt * ceil( $fw->power / 2 );
+      }
+
+      db_query( "UPDATE ships_war s, war_events we
+                    SET s.shield = s.shield - ".ceil( $fw->power / 3 )."
+                  WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash AND ( ( we.a_type = 0 AND we.a_object_id = s.id ) OR ( we.a_type = 1 AND we.a_object_id = s.fleet_id ) ) AND s.object_id IN( 9397, 9275 )" );
+      $cnt = mysql_affected_rows();
+      if( $cnt ) {
+        $pre_log_text[] = t( "%d кораблей силой %d", array( $cnt, ceil( $fw->power / 3 ) ) );
+
+        $tpower += $cnt * ceil( $fw->power / 3 );
+      }
+
+      db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type, d_object_id, d_type, w_type,   power,       defeat )
+                                         VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype},           0,      0,      2, $tpower, {$fw->power} )" );
+
+      $victims = db_fetch_array( "SELECT DISTINCT s.id, s.shield, s.name, o.premium, s.place_id, s.place_type, s.arg1, s.arg2, s.object_id, s.fleet_id
+                                    FROM ships_war s
+                              INNER JOIN objects o ON o.id = s.object_id
+                              INNER JOIN war_events we ON ( we.a_type = 0 AND we.a_object_id = s.id ) OR ( we.a_type = 1 AND we.a_object_id = s.fleet_id )
+                                   WHERE IFNULL( s.user_id, 10 ) != $user_id AND we.place_hash = $place_hash AND s.shield < 0" );
+    }
+
+    $die_list = array();
+
+    foreach( $victims as $victim ) {
+      if( $victim['place_type'] == 7 || $victim['place_type'] == 8 ) {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = ".$victim['id'] );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}, arg1 = {$victim['arg1']}, arg2 = {$victim['arg2']}
+                    WHERE place_type = 2 AND place_id = ".$victim['id'] );
+      } else {
+        db_query( "UPDATE ships
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = ".$victim['id'] );
+
+        db_query( "UPDATE fleets
+                      SET place_id = {$victim['place_id']}, place_type = {$victim['place_type']}
+                    WHERE place_type = 2 AND place_id = ".$victim['id'] );
+      }
+
+      db_query( "UPDATE users_active SET ships = ships + 1 WHERE id = ".$user_id );
+
+      db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,               power, defeat )
+                                         VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      0,      2, {$victim['shield']},     -1 )" );
+
+      if( $ch_status < 0 && $user_id > 14 ) {
+        $premium = $victim['premium'];
+        send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+      } else {
+        $premium = 0;
+      }
+  
+      $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+      if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+        $invest = $premium * 4;
+        db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+        send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение %s кредитов.", array( $invest ) ), 17, $fw->fire_time );
+        $premium += $invest;
+      }
+  
+      if( $premium > 0 && $user_id > 14 ) {
+        db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );          
+      }
+
+      $die_list[] = $victim['id'];
+
+      if( $victim['fleet_id'] ) {
+        if( update_fleet( $victim['fleet_id'] ) == 0 ) {
+          db_query( "DELETE FROM fleets WHERE id = {$victim['fleet_id']}" );
+        }
+      }
+    }
+
+    if( count( $die_list ) > 0 ) {
+      $die_list = implode( ',', $die_list );
+
+      db_query( "DELETE FROM ships WHERE id IN ( $die_list )" );
+      db_query( "DELETE FROM ships_war WHERE id IN ( $die_list )" );
+    }
+
+    if( count( $victims ) > 0 ) {
+      $pre_log_text[] = t( "Уничтожено %d кораблей", array( count( $victims ) ) );
+    }
+
+    if( count( $pre_log_text ) ) {
+      $log_text .= implode( ', ', $pre_log_text );
+    } else {
+      $log_text .= t( 'Нет цели' );
+    }
+  }
+}
+
+function victim_all_planet( $ch_status, $move_id, $oid, $place_hash, &$fw, $user_id, $vict_id, &$log_text ) {
+  $victim = db_fetch_row( "SELECT pb.id, pb.shield, o.name, pb.x, pb.y, o.premium, pb.object_id
+                             FROM planets_buildings pb
+                       INNER JOIN objects o ON o.id = pb.object_id
+                            WHERE pb.object_id = 31 AND pb.planet_id = $oid ORDER BY pb.shield, pb.id LIMIT 0,1" );
+
+  if( !isset( $victim['id'] ) ) {
+    $victims = db_fetch_array( "SELECT pb.id, pb.shield, o.name, pb.x, pb.y, o.premium, pb.object_id
+                                  FROM planets_buildings pb
+                            INNER JOIN objects o ON o.id = pb.object_id
+                                 WHERE pb.planet_id = $oid" );
+
+    $pre_log_text = array();
+
+    if( count( $victims ) ) {
+      foreach( $victims as $victim ) {
+    
+        $dead = false;
+        $x = $victim['x'];
+        $y = $victim['y'];
+    
+        if( $fw->power > 0 ) {
+          if( $victim['shield'] >= $fw->power ) {
+            db_query( "UPDATE planets_buildings SET shield = shield - {$fw->power} WHERE id = ".$victim['id'] );
+    
+            $pre_log_text[] = t( "постройку %s(%s-%s)", array( $victim['name'], $victim['shield'], $fw->power ) );
+
+            db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,        power,       defeat )
+                                               VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      1,      2, {$fw->power}, {$fw->power} )" );
+          } else {
+            $event = db_fetch_val( "SELECT id FROM planet_events WHERE x = $x AND y = $y AND planet_id = $oid" );
+            if( $event ) {
+              db_query( "DELETE FROM planet_events WHERE id = $event" );
+              db_query( "DELETE FROM planets_disp WHERE event_id = $event" );
+              db_query( "DELETE FROM planets_make WHERE event_id = $event" );
+              db_query( "DELETE FROM planets_mines WHERE event_id = $event" );
+              db_query( "UPDATE robots SET status = 0 WHERE build_type = 1 AND build_id = ".$victim['id'] );
+            }
+    
+            $build_map = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT bld FROM planets_maps WHERE id = $oid", 'bld' ) ) ) );
+            $build_map[ $y ]{ $x } = '0';
+            db_query( "UPDATE planets_maps SET bld = '".join( "\n", $build_map )."' WHERE id = $oid" );
+    
+            db_query( "DELETE FROM planets_buildings WHERE id = ".$victim['id'] );
+    
+            $pre_log_text[] = t( "постройку %s(<font color=\"#FF0000\">уничтожена</font>)", array( $victim['name'] ) );
+            $dead = true;
+
+            db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,               power, defeat )
+                                               VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      1,      2, {$victim['shield']},     -1 )" );
+          }
+        } else {
+          $pre_log_text = array( t( 'без выстрела' ) );
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type, d_object_id, d_type, w_type, power, defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype},           0,      1,      2,     0,      0 )" );
+        }
+
+        if( $dead ) {
+          if( $ch_status < 0 && $user_id > 14 ) {
+            $premium = $victim['premium'];
+            send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+          } else {
+            $premium = 0;
+          }
+    
+          $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+          if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+            $invest = $premium * 4;
+            db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+            send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение $invest кредитов.", array( $invest ) ), 17, $fw->fire_time );
+            $premium += $invest;
+          }
+    
+          if( $premium > 0 && $user_id > 14 ) {
+            db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );          
+          }
+        }
+      }
+    
+      $log_text .= implode( ', ', $pre_log_text );
+    }
+  } else {
+
+    $dead = false;
+    $x = $victim['x'];
+    $y = $victim['y'];
+
+    if( $fw->power > 0 ) {
+      if( $victim['shield'] >= $fw->power ) {
+        db_query( "UPDATE planets_buildings SET shield = shield - {$fw->power} WHERE id = ".$victim['id'] );
+
+        $log_text .= t( "постройку %s(%s-%d)", array( $victim['name'], $victim['shield'], $fw->power ) );
+
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,        power,       defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      1,      2, {$fw->power}, {$fw->power} )" );
+      } else {
+        $event = db_fetch_val( "SELECT id FROM planet_events WHERE x = $x AND y = $y AND planet_id = ".$oid );
+        if( $event ) {
+          db_query( "DELETE FROM planet_events WHERE id = $event" );
+          db_query( "DELETE FROM planets_disp WHERE event_id = $event" );
+          db_query( "DELETE FROM planets_make WHERE event_id = $event" );
+          db_query( "DELETE FROM planets_mines WHERE event_id = $event" );
+          db_query( "UPDATE robots SET status = 0 WHERE build_type = 1 AND build_id = ".$victim['id'] );
+        }
+
+        $build_map = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT bld FROM planets_maps WHERE id = $oid", 'bld' ) ) ) );
+        $build_map[ $y ]{ $x } = '0';
+        db_query( "UPDATE planets_maps SET bld = '".join( "\n", $build_map )."' WHERE id = $oid" );
+
+        db_query( "DELETE FROM planets_buildings WHERE id = ".$victim['id'] );
+
+        $log_text .= t( "постройку %s(<font color=\"#FF0000\">уничтожена</font>)", array( $victim['name'] ) );
+        $dead = true;
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,               power, defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      1,      2, {$victim['shield']},     -1 )" );
+      }
+    } else {
+      $log_text .= t( 'без выстрела' );
+
+      db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type, power, defeat )
+                                         VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      1,      2,     0,      0 )" );
+    }
+
+    if( $dead ) {
+      if( $ch_status < 0 && $user_id > 14 ) {
+        $premium = $victim['premium'];
+        send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+      } else {
+        $premium = 0;
+      }
+
+      $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+      if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+        $invest = $premium * 4;
+        db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+        send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение %s кредитов.", array( $invest ) ), 17, $fw->fire_time );
+        $premium += $invest;
+      }
+
+      if( $premium > 0 && $user_id > 14 ) {
+        db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );          
+      }
+    }
+  }
+}
+
+function victim_all_orbit( $ch_status, $move_id, $oid, $place_hash, &$fw, $user_id, $vict_id, &$log_text ) {
+  $victims = db_fetch_array( "SELECT ob.id, ob.shield, o.name, ob.x, o.premium, ob.object_id
+                                FROM orbits_buildings ob, objects o
+                               WHERE o.id = ob.object_id AND ob.planet_id = $oid" );
+
+  $pre_log_text = array();
+  if( count( $victims ) ) {
+    foreach( $victims as $victim ) {
+  
+      $dead = false;
+      $x = $victim['x'];
+  
+      if( $fw->power > 0 ) {
+        if( $victim['shield'] >= $fw->power ) {
+          db_query( "UPDATE orbits_buildings SET shield = shield - {$fw->power} WHERE id = ".$victim['id'] );
+  
+          $pre_log_text[] = t( "спутник %s(%s-%d)", array( $victim['name'], $victim['shield'], $fw->power ) );
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type, d_object_id, d_type, w_type,        power,       defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype},           0,      2,      2, {$fw->power}, {$fw->power} )" );
+        } else {
+          $event = db_fetch_val( "SELECT id FROM orbit_events WHERE x = $x AND planet_id = $oid" );
+          if( $event ) {
+            db_query( "DELETE FROM orbit_events WHERE id = $event" );
+            db_query( "DELETE FROM orbits_make WHERE event_id = $event" );
+            db_query( "DELETE FROM orbits_mines WHERE event_id = $event" );
+            db_query( "UPDATE robots SET status = 0 WHERE build_type = 0 AND build_id = ".$victim['id'] );
+          }
+  
+
+
+          $line = db_fetch_val( "SELECT lin FROM orbits_map WHERE id = $oid", 'lin' );
+          $line{ $x } = '0';
+          db_query( "UPDATE orbits_map SET lin = '$line' WHERE id = $oid" );
+  
+          db_query( "DELETE FROM orbits_buildings WHERE id = ".$victim['id'] );
+  
+          $pre_log_text[] = t( "спутник %s(<font color=\"#FF0000\">уничтожен</font>)", array( $victim['name'] ) );
+          $dead = true;
+
+          db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type,               power, defeat )
+                                             VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      2,      2, {$victim['shield']},     -1 )" );
+        }
+      } else {
+        $pre_log_text = array( t( 'без выстрела' ) );
+
+        db_query( "INSERT DELAYED INTO war_online (  place_hash,     side, a_object_id,       a_type,            d_object_id, d_type, w_type, power, defeat )
+                                           VALUES ( $place_hash, $move_id, {$fw->aoid}, {$fw->atype}, {$victim['object_id']},      2,      2,     0,      0 )" );
+      }
+
+      if( $dead ) {
+        if( $ch_status < 0 && $user_id > 14 ) {
+          $premium = $victim['premium'];
+          send_msg( 1, $user_id, t( "За ваш вклад в борьбу с пиратством конфедерация выплачивает вознаграждение в %s кредитов.", array( $premium ) ), 17, $fw->fire_time );
+        } else {
+          $premium = 0;
+        }
+  
+        $invest = intval( db_fetch_val( "SELECT premium FROM users_premium WHERE user_id = $vict_id", 'premium' ) );
+        if( $premium > 0 && $invest >= $premium * 4 && $user_id > 14 ) {
+          $invest = $premium * 4;
+          db_query( "UPDATE users_premium SET premium = premium - $invest WHERE user_id = $vict_id" );
+          send_msg( 1, $user_id, t( "Частный инвестор выплачивает вам за уничтожение %s кредитов.", array( $invest ) ), 17, $fw->fire_time );
+          $premium += $invest;
+        }
+  
+        if( $premium > 0 && $user_id > 14 ) {
+          db_query( "UPDATE users SET money = money + $premium WHERE id = $user_id" );          
+        }
+      }
+    }
+    $log_text .= implode( ', ', $pre_log_text );
+  } else {
+    $log_text .= t( "нет цели" );
+  }
+}

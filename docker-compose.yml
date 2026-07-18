@@ -44,19 +44,16 @@ services:
       NOON_DB_USER: ${MYSQL_USER}
       NOON_DB_PASSWORD: ${MYSQL_PASSWORD}
       NOON_DB_NAME: ${MYSQL_DATABASE}
-    volumes:
-      - ./www_new:/var/www/noon
     depends_on:
       flyway:
         condition: service_completed_successfully
 
   nginx:
-    image: nginx:1.25-alpine
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
     ports:
       - "${NGINX_PORT}:80"
-    volumes:
-      - ./www_new:/var/www/noon:ro
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - php
 
@@ -70,8 +67,6 @@ services:
       NOON_DB_USER: ${MYSQL_USER}
       NOON_DB_PASSWORD: ${MYSQL_PASSWORD}
       NOON_DB_NAME: ${MYSQL_DATABASE}
-    volumes:
-      - ./www_new:/var/www/noon
     depends_on:
       flyway:
         condition: service_completed_successfully

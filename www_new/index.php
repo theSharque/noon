@@ -239,13 +239,6 @@ var google_conversion_value = 0;
       include "./templates/big.inc";
       break;
 
-    case 'video':
-      $title = 'Видео обучение по прохождению начальных уровней развития.';
-      $sape_link = true;
-      $main_content = file_get_contents('texts/video.page');
-      include "./templates/big.inc";
-      break;
-
     case 'contacts':
       $title = 'Контакты администрации космической онлайн стратегии Полдень 21 века';
       $sape_link = true;

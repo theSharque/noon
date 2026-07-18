@@ -138,14 +138,13 @@ document.write(VK.Share.button({url: "http://21noon.com"},{type: "button", text:
                 </table>
                 <table id="topmenu" width="900" border="0" cellspacing="0" cellpadding="0">
                     <tr>
-                        <td><img src="images/dot.gif" border="0" width="80" height="57"></td>
+                        <td><img src="images/dot.gif" border="0" width="141" height="57"></td>
                         <td><a href="index.php"><img id="Menu01" onmouseover="menuOver('Menu01');" onmouseout="menuOut('Menu01');" src="images/menu01off.png" border="0" width="123" height="46"></a></td>
                         <td><a href="index.php?pid=about"><img id="Menu02" onmouseover="menuOver('Menu02');" onmouseout="menuOut('Menu02');" src="images/menu02off.png" border="0" width="123" height="46"></a></td>
                         <td><a href="index.php?pid=gallery"><img id="Menu05" onmouseover="menuOver('Menu05');" onmouseout="menuOut('Menu05');" src="images/menu05off.png" border="0" width="123" height="46"></a></td>
-                        <td><a href="index.php?pid=video"><img id="Menu07" onmouseover="menuOver('Menu07');" onmouseout="menuOut('Menu07');" src="images/menu07off.png" border="0" width="123" height="46"></a></td>
                         <td><a href="index.php?pid=enc"><img id="Menu03" onmouseover="menuOver('Menu03');" onmouseout="menuOut('Menu03');" src="images/menu03off.png" border="0" width="123" height="46"></a></td>
                         <td><a href="/info/index.php"><img id="Menu06" onmouseover="menuOver('Menu06');" onmouseout="menuOut('Menu06');" src="images/menu06off.png" border="0" width="123" height="46"></a></td>
-                        <td><img src="images/menublank.png" border="0" width="77" height="46"></td>
+                        <td><img src="images/menublank.png" border="0" width="139" height="46"></td>
                         <td><img src="images/dot.gif" border="0" width="4" height="57"></td>
                     </tr>
                 </table>
@@ -174,10 +173,6 @@ document.write(VK.Share.button({url: "http://21noon.com"},{type: "button", text:
                     imgMenu06off.src = "images/menu06off.png";
                     var imgMenu06on = new Image();
                     imgMenu06on.src = "images/menu06on.png";
-                    var imgMenu07off = new Image();
-                    imgMenu07off.src = "images/menu07off.png";
-                    var imgMenu07on = new Image();
-                    imgMenu07on.src = "images/menu07on.png";
 
                     var idMenu01 = document.getElementById("Menu01");
                     var idMenu02 = document.getElementById("Menu02");
@@ -185,7 +180,6 @@ document.write(VK.Share.button({url: "http://21noon.com"},{type: "button", text:
 //                    var idMenu04 = document.getElementById("Menu04");
                     var idMenu05 = document.getElementById("Menu05");
                     var idMenu06 = document.getElementById("Menu06");
-                    var idMenu07 = document.getElementById("Menu07");
                     
                     function menuOver(id) {
                         eval('id'+id+'.src = img'+id+'on.src;');
@@ -213,7 +207,6 @@ document.write(VK.Share.button({url: "http://21noon.com"},{type: "button", text:
                                             <tr>
                                                 <td class="secondarytabletextcontainer" valign="top">
 <form id="login_form" action="page.php" method="POST">
-<input type="hidden" name="vk_id" id="vk_id" value="">
 <table class="logintable" width="257" border="0" cellspacing="0" cellpadding="0">
     <tr>
         <td class="logintablecontainer" align="left"><h3>Вход</h3></td>
@@ -224,28 +217,6 @@ document.write(VK.Share.button({url: "http://21noon.com"},{type: "button", text:
         <td align="left">Игрок</td>
         <td align="right"><input type="text" name="login" class="logintextfield" placeholder="Игрок" /></td>
     </tr>
-
-<? if( !isset( $_GET['relid'] ) && !isset( $_SESSION['relid'] ) && !isset( $_COOKIE["ca_prx"] ) && !isset( $_GET['prx'] ) && !isset( $_COOKIE["so_source"] ) ) { ?>
-    <tr>
-        <td colspan="2" align="right">
-          <div id="vk_api_transport"></div>
-          <div id="login_button" onclick="VK.Auth.login(authInfo);"></div>
-
-          <script type="text/javascript">
-
-            function authInfo(response) {
-              if (response.session.user) {
-                document.getElementById("vk_id").value = response.session.user.id;
-                document.getElementById("login_form").submit();
-              }
-            }
-
-            VK.UI.button('login_button');
-          </script>
-
-        </td>
-    </tr>
-<? } ?>
 
     <tr><td colspan="2"><img src="images/dot.gif" border="0" width="1" height="10"></td></tr>
     <tr>

@@ -153,110 +153,6 @@ function authorization() {
     return true;
   } else {
 
-    if( isset( $_POST['vk_id'] ) && isset( $_COOKIE['vk_app_3732373'] ) ) {
-      $valid_keys = array( 'expire', 'mid', 'secret', 'sid', 'sig' );
-      $app_cookie = $_COOKIE['vk_app_3732373'];
-      $session_data = explode( '&', $app_cookie, 10 );
-      $vk_id = $_POST['vk_id'];
-
-      foreach( $session_data as $pair ) {
-        list( $key, $value) = explode( '=', $pair, 2 );
-        if( empty( $key ) || empty( $value ) || !in_array( $key, $valid_keys ) ) {
-          continue;
-        }
-
-        $session[ $key ] = $value;
-      }
-
-      ksort($session);
-
-      $sign = '';
-      foreach( $session as $key => $value ) {
-        if( $key != 'sig' ) {
-          $sign .= ( $key.'='.$value );
-        }
-      }
-
-      $sign .= 'o91UTPFoSSoPv1iTxRfz';
-      $sign = md5($sign);
-
-      if( $session['mid'] == $_POST['vk_id'] && $session['sig'] == $sign && $session['expire'] > time() ) {
-        $row = db_fetch_row( "SELECT u.id, u.titul, t.name tname, p.name pname
-                                FROM users u
-                           LEFT JOIN users pu ON pu.id = u.parent_id
-                          INNER JOIN tituls t ON t.id = u.titul
-                          INNER JOIN planets p ON p.user_id = u.id
-                               WHERE IFNULL( pu.last_ip, 0 ) != '{$_SERVER["REMOTE_ADDR"]}' AND u.status = 1 AND u.vk_id = '$vk_id' AND u.err_login < NOW()" );
-      }
-
-      $login = $_POST['login'];
-      $unique = db_fetch_val( "SELECT count(*) cnt FROM users u WHERE u.vk_id = '$vk_id' OR u.login='$login'", 'cnt' );
-
-      if( $vk_id && $unique == 0 && isset( $_POST['login'] ) && $login ) {
-        $login = $_POST['login'];
-        $refid = isset( $_COOKIE["refid"] ) ? intval( $_COOKIE["refid"] ? $_COOKIE["refid"] : 1 ) : 1;
-        $reflink = isset( $_COOKIE["ref_link"] ) ? $_COOKIE["ref_link"] : 'none';
-        $entlink = isset( $_COOKIE["ent_link"] ) ? $_COOKIE["ent_link"] : 'none';
-
-        $meta_in = isset( $_SESSION['ext_meta_id'] ) ? "'".$_SESSION['ext_meta_id']."'" : 'null';
-        if( !isset( $_SESSION['ext_meta_id'] ) && strpos( $entlink, 'ext_meta_id' ) > 0 ) {
-          $pre = substr( $entlink, strpos( $entlink, 'ext_meta_id' ) );
-
-          if( strpos( $pre, '&' ) > 0 ) {
-            $pre = substr( $pre, 0, strpos( $pre, '&' ) );
-          }
-
-          list( $nope, $meta_in ) = explode( '=', $pre );
-        }
-
-        $relid = isset( $_SESSION['relid'] ) ? "'".$_SESSION['relid']."'" : 'null';
-        if( !isset( $_SESSION['relid'] ) && strpos( $entlink, 'relid' ) > 0 ) {
-          $pre = substr( $entlink, strpos( $entlink, 'relid' ) );
-
-          if( strpos( $pre, '&' ) > 0 ) {
-            $pre = substr( $pre, 0, strpos( $pre, '&' ) );
-          }
-
-          list( $nope, $relid ) = explode( '=', $pre );
-        }
-
-        if( $meta_in != 'null' ) {
-          $ext_meta_id = $meta_in;
-          $price_rur = '30';
-          $hash = md5("'$price_rur'80347");
-          $target_id = 762;
-          $answ = @file_get_contents( "http://luxup.ru/extmeta/?ext_meta_id=$ext_meta_id&lx_price=$price_rur&user_id=76025&lx_price_hash=$hash&target_id=$target_id" );
-        }
-
-        db_query( "INSERT INTO users (    login,    vk_id, parent_id,   ref_link,   ent_link,  meta_in,  password,     email,   ssid, status, place_id, place_type, money, credits, register_date,                     last_ip,  relid )
-                              VALUES ( '$login', '$vk_id',    $refid, '$reflink', '$entlink', $meta_in, 'From VK', 'From VK', '$sid',      1,        1,          1, 15000,       0,         NOW(), '{$_SERVER["REMOTE_ADDR"]}', $relid )" );
-
-        $user_id = mysql_insert_id();
-        db_query( "INSERT INTO users_active ( id ) VALUES ( $user_id )" );
-
-        setcookie( 'chat_sid', $sid );
-        setcookie( 'chat_uid', $user_id );
-
-        include "./pages/register/gensystem.page";
-        GenerateSystem( $user_id );
-
-        $row = db_fetch_row( "SELECT u.id, u.full_log, u.login, u.titul, u.admin, u.email, u.ssid, u.level, u.lastlevel,
-                                     u.place_id, u.place_type, u.block, u.money, u.credits, u.donate, u.aliance, IF( u.mute < NOW(), 0, 1 ) mute, u.mute mute_date,
-                                     ua.char_status, ua.char_war, ua.char_level,
-                                     u.volume_sound, u.volume_music, u.show_planet, NOW() - u.tutorial_time leveltime, u.insur, u.fid,
-                                     uq.id uq_id, uq.type uq_type, t.name tname, p.name pname
-                                FROM users u
-                           LEFT JOIN users pu ON pu.id = u.parent_id
-                          INNER JOIN tituls t ON t.id = u.titul
-                          INNER JOIN planets p ON p.user_id = u.id
-                          INNER JOIN users_active ua ON ua.id = u.id
-                           LEFT JOIN users_quests uq ON uq.user_id = u.id AND uq.status > 0
-                               WHERE IFNULL( pu.last_ip, 0 ) != '{$_SERVER["REMOTE_ADDR"]}' AND u.status = 1 AND u.vk_id = '$vk_id'" );
-      } else {
-        unset( $row['id'] );
-      }
-    }
-
     if( ( !isset( $row['id'] ) || !is_numeric( $row['id'] ) ) && isset( $_POST['login'] ) && isset( $_POST['pass'] ) ) {
       $login = $_POST['login'];
       $pass = md5( $_POST['pass'] );
@@ -277,14 +173,6 @@ function authorization() {
                         INNER JOIN users_active ua ON ua.id = u.id
                          LEFT JOIN users_quests uq ON uq.user_id = u.id AND uq.status > 0
                              WHERE IFNULL( pu.last_ip, 0 ) != '{$_SERVER["REMOTE_ADDR"]}' AND u.status = 1 AND u.login='$login' AND u.password='$pass' AND u.err_login < NOW()" );
-
-      if( isset( $row['id'] ) && is_numeric( $row['id'] ) ) {
-//        $clons = db_fetch_val( "SELECT group_concat( login ) clons FROM users WHERE id != {$row['id']} AND password = '$pass'", 'clons' );
-
-        if( isset( $session['mid'] ) && $session['mid'] == $_POST['vk_id'] && $session['sig'] == $sign && $session['expire'] > time() ) {
-          db_query( "UPDATE users SET vk_id='$vk_id' WHERE id=".$row['id'] );
-        }
-      }
     }
 
     if( isset( $row['id'] ) && is_numeric( $row['id'] ) ) {

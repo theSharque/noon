@@ -101,12 +101,11 @@
                 </table>
                 <table id="topmenu" width="900" border="0" cellspacing="0" cellpadding="0">
                     <tr>
-                        <td><img src="images/dot.gif" border="0" width="141" height="57"></td>
+                        <td><img src="images/dot.gif" border="0" width="264" height="57"></td>
                         <td><a href="index.php"><img id="Menu01" onmouseover="menuOver('Menu01');" onmouseout="menuOut('Menu01');" src="images/menu01off.png" border="0" width="123" height="46"></a></td>
                         <td><a href="index.php?pid=about"><img id="Menu02" onmouseover="menuOver('Menu02');" onmouseout="menuOut('Menu02');" src="images/menu02off.png" border="0" width="123" height="46"></a></td>
                         <td><a href="index.php?pid=gallery"><img id="Menu05" onmouseover="menuOver('Menu05');" onmouseout="menuOut('Menu05');" src="images/menu05off.png" border="0" width="123" height="46"></a></td>
                         <td><a href="index.php?pid=enc"><img id="Menu03" onmouseover="menuOver('Menu03');" onmouseout="menuOut('Menu03');" src="images/menu03off.png" border="0" width="123" height="46"></a></td>
-                        <td><img src="images/dot.gif" border="0" width="123" height="46"></td>
                         <td><img src="images/menublank.png" border="0" width="139" height="46"></td>
                         <td><img src="images/dot.gif" border="0" width="4" height="57"></td>
                     </tr>

@@ -1,27 +1,287 @@
 <?php
 
-  $vars = "mv=".$user->music."&sv=".$user->sound;
+  $mv = intval( $user->music );
+  $sv = intval( $user->sound );
 
   print <<<EOL
-<HTML>
-<HEAD>
-<meta http-equiv=Content-Type content="text/html; charset=utf-8">
-<TITLE>topmenu</TITLE>
-</HEAD>
-<BODY bgcolor=#000000 TOPMARGIN=0 LEFTMARGIN=0 MARGINHEIGHT=0 MARGINWIDTH=0>
-<center>
-<OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"
- WIDTH="100%" HEIGHT="22" id="topmenu" ALIGN="">
- <PARAM NAME=movie VALUE="swf/topmenu.jpg?ver=9">
- <PARAM NAME=quality VALUE=high>
- <PARAM NAME=bgcolor VALUE=#000000>
- <PARAM NAME=flashvars VALUE="$vars">
- <PARAM NAME=wmode VALUE=window>
- <EMBED src="swf/topmenu.jpg?ver=9" quality=high bgcolor=#000000 WIDTH="100%" HEIGHT="22" NAME="topmenu" ALIGN="" wmode="window"
- TYPE="application/x-shockwave-flash" PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer" flashvars="$vars"></EMBED>
-</OBJECT>
-</center>
-</BODY>
-</HTML>
-EOL;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>topmenu</title>
+<style>
+@font-face {
+  font-family: 'TerminatorCyr';
+  src: url('img/topmenu/TerminatorCyr.ttf') format('truetype');
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 26px;
+  overflow: hidden;
+  background: #000;
+}
+#bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+}
+#nav {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  flex: 0 0 auto;
+}
+#nav a {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex: 0 0 auto;
+  height: 26px;
+  overflow: hidden;
+  text-decoration: none;
+  box-sizing: border-box;
+  padding-bottom: 3px;
+  background-repeat: no-repeat;
+  background-position: 0 -1px;
+  background-size: 100% 25px;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+#nav a.btn-char  { width: 124px; background-image: url('img/topmenu/btn_char.png?v=5'); }
+#nav a.btn-place { width: 136px; background-image: url('img/topmenu/btn_place.png?v=5'); }
+#nav a.btn-ship  { width: 108px; background-image: url('img/topmenu/btn_ship.png?v=5'); }
+#nav a.btn-ware  { width: 82px;  background-image: url('img/topmenu/btn_ware.png?v=5'); }
+#nav a.btn-trade { width: 122px; background-image: url('img/topmenu/btn_trade.png?v=5'); }
+#nav a.btn-misc  { width: 96px;  background-image: url('img/topmenu/btn_misc.png?v=5'); }
+#nav a.btn-exit  { width: 83px;  background-image: url('img/topmenu/btn_exit.png?v=5'); }
+#nav a span {
+  display: block;
+  font: 12px/12px 'TerminatorCyr', sans-serif;
+  color: #fff;
+  pointer-events: none;
+}
+#nav a:hover span {
+  text-shadow: 0 0 5px #00ffff, 0 0 2px #00ffff;
+}
+#nav a.exit span { color: #ff0000; }
+#nav a.exit:hover span {
+  text-shadow: 0 0 5px #ff0000, 0 0 2px #ff6666;
+}
+#tools {
+  position: absolute;
+  right: 8px;
+  top: 0;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+#tools a, #tools button {
+  display: block;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+}
+#tools img {
+  display: block;
+}
+#ping {
+  min-width: 28px;
+  font: 9px/26px Verdana, Arial, sans-serif;
+  color: #00ff00;
+  text-align: right;
+  padding-right: 4px;
+  pointer-events: none;
+}
+#ping.warn { color: #ffff00; }
+#ping.bad  { color: #ff0000; }
+#btn-mail {
+  width: 44px;
+  height: 21px;
+  background: url('img/topmenu/mail_strip.png') 0 0 no-repeat;
+  background-size: 3080px 21px;
+}
+#btn-mail.has-mail {
+  animation: mailBlink 2s steps(70) infinite;
+}
+@keyframes mailBlink {
+  from { background-position: 0 0; }
+  to   { background-position: -3080px 0; }
+}
+#btn-mail:hover {
+  filter: brightness(1.25);
+}
+#tools button:hover img,
+#tools a:hover:not(#btn-mail) {
+  filter: brightness(1.25) drop-shadow(0 0 2px #00ffff);
+}
+</style>
+</head>
+<body>
+<div id="bar">
+  <div id="nav">
+    <a class="btn-char" href="page.php?id=1" target="main" title="Персонаж"><span>персонаж</span></a>
+    <a class="btn-place" href="page.php?id=2" target="main" title="Местность"><span>МЕСТНОСТЬ</span></a>
+    <a class="btn-ship" href="page.php?id=3" target="main" title="Корабли"><span>корабли</span></a>
+    <a class="btn-ware" href="page.php?id=4" target="main" title="Склад"><span>склад</span></a>
+    <a class="btn-trade" href="page.php?id=5" target="main" title="Торговля"><span>торговля</span></a>
+    <a class="btn-misc" href="page.php?id=6" target="main" title="Прочее"><span>прочее</span></a>
+    <a class="btn-exit exit" href="page.php?id=7" target="_top" title="Выход"><span>выход</span></a>
+  </div>
+  <div id="tools">
+    <span id="ping"></span>
+    <button type="button" id="btn-play-off" title="Музыка" hidden><img src="img/topmenu/btn_player_off.png?v=4" width="27" height="21" alt="play"></button>
+    <button type="button" id="btn-play-on" title="Пауза"><img src="img/topmenu/btn_player_on.png?v=4" width="27" height="21" alt="pause"></button>
+    <button type="button" id="btn-next" title="Следующий"><img src="img/topmenu/btn_player_next.png?v=4" width="27" height="21" alt="next"></button>
+    <a id="btn-mail" href="page.php?id=1&amp;sp=1" target="main" title="Почта"></a>
+  </div>
+</div>
+<audio id="player" preload="none"></audio>
+<audio id="snd-hover" preload="auto" src="img/topmenu/sound7.wav"></audio>
+<audio id="snd-click" preload="auto" src="img/topmenu/bleep.wav"></audio>
+<script>
+(function () {
+  var mv = {$mv};
+  var sv = {$sv};
+  var mailId = 0;
+  var trackIndex = Math.floor(Math.random() * 9);
+  var playing = false;
+  var playlist = [
+    'music/1.mp3', 'music/2.mp3', 'music/3.mp3', 'music/4.mp3', 'music/5.mp3',
+    'music/6.mp3', 'music/7.mp3', 'music/8.mp3', 'music/9.mp3'
+  ];
+  var player = document.getElementById('player');
+  var sndHover = document.getElementById('snd-hover');
+  var sndClick = document.getElementById('snd-click');
+  var btnPlayOn = document.getElementById('btn-play-on');
+  var btnPlayOff = document.getElementById('btn-play-off');
+  var btnMail = document.getElementById('btn-mail');
+  var pingEl = document.getElementById('ping');
 
+  function sfxVolume() {
+    var v = Math.max(0, Math.min(1, sv / 100));
+    sndHover.volume = v;
+    sndClick.volume = v;
+  }
+  sfxVolume();
+
+  function playHover() {
+    try { sndHover.pause(); sndHover.currentTime = 0; sndHover.play(); } catch (e) {}
+  }
+  function playClick() {
+    try { sndClick.pause(); sndClick.currentTime = 0; sndClick.play(); } catch (e) {}
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('#nav a, #tools a, #tools button'), function (el) {
+    el.addEventListener('mouseenter', playHover);
+    el.addEventListener('mousedown', playClick);
+  });
+
+  function loadTrack(idx) {
+    trackIndex = ((idx % playlist.length) + playlist.length) % playlist.length;
+    player.src = playlist[trackIndex];
+    player.load();
+  }
+  function setMusicVolume(vol) {
+    player.volume = Math.max(0, Math.min(1, vol / 100));
+  }
+  function updatePlayBtns() {
+    btnPlayOn.hidden = playing;
+    btnPlayOff.hidden = !playing;
+  }
+  function playMusic() {
+    setMusicVolume(mv);
+    player.play().catch(function () {});
+    playing = true;
+    updatePlayBtns();
+  }
+  function pauseMusic() {
+    player.pause();
+    playing = false;
+    updatePlayBtns();
+  }
+  function toggleMusic() {
+    if (playing) pauseMusic();
+    else {
+      if (!player.src) loadTrack(trackIndex);
+      playMusic();
+    }
+  }
+  function nextTrack() {
+    loadTrack(trackIndex + 1);
+    if (playing) playMusic();
+  }
+  player.addEventListener('ended', nextTrack);
+  btnPlayOn.addEventListener('click', toggleMusic);
+  btnPlayOff.addEventListener('click', toggleMusic);
+  document.getElementById('btn-next').addEventListener('click', nextTrack);
+
+  function setPing(ms) {
+    if (ms === null || isNaN(ms)) { pingEl.textContent = ''; return; }
+    pingEl.textContent = String(ms);
+    pingEl.className = '';
+    if (ms <= 1000) return;
+    if (ms <= 3000) pingEl.className = 'warn';
+    else pingEl.className = 'bad';
+  }
+
+  function parseVars(text) {
+    var out = {};
+    text.split('&').forEach(function (pair) {
+      var i = pair.indexOf('=');
+      if (i < 0) return;
+      out[pair.slice(0, i)] = pair.slice(i + 1);
+    });
+    return out;
+  }
+
+  function pollMail() {
+    var ts = Date.now();
+    fetch('page.php?id=15&li=' + mailId + '&p=' + ts, { credentials: 'same-origin' })
+      .then(function (r) { return r.text(); })
+      .then(function (text) {
+        var data = parseVars(text.replace(/&eof=1$/, ''));
+        var sent = parseInt(data.png, 10);
+        if (!isNaN(sent)) setPing(ts - sent);
+        if (parseInt(data.err, 10) === 0) {
+          mailId = parseInt(data.id, 10) || mailId;
+          btnMail.classList.add('has-mail');
+        } else {
+          btnMail.classList.remove('has-mail');
+        }
+        if (data.mv !== undefined) {
+          mv = parseInt(data.mv, 10);
+          if (playing) setMusicVolume(mv);
+        }
+        if (data.sv !== undefined) {
+          sv = parseInt(data.sv, 10);
+          sfxVolume();
+        }
+      })
+      .catch(function () {
+        pingEl.textContent = '!';
+        pingEl.className = 'bad';
+      });
+  }
+
+  pollMail();
+  setInterval(pollMail, 15000);
+
+  loadTrack(trackIndex);
+  updatePlayBtns();
+  if (mv > 0) playMusic();
+  else pauseMusic();
+})();
+</script>
+</body>
+</html>
+EOL;

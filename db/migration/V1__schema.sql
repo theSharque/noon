@@ -1,5 +1,6 @@
 SET NAMES utf8;
 SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';
+
 CREATE TABLE IF NOT EXISTS `2pay_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `pay_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -11,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `2pay_log` (
   PRIMARY KEY (`id`),
   KEY `2pay_id` (`2pay_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `2pay_pays` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `2pay_id` varchar(100) NOT NULL,
@@ -19,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `2pay_pays` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `2pay_id` (`2pay_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `antibot` (
   `user_id` int(10) unsigned NOT NULL,
   `coord` int(10) unsigned NOT NULL DEFAULT '0',
@@ -26,6 +29,7 @@ CREATE TABLE IF NOT EXISTS `antibot` (
   `up` int(10) unsigned NOT NULL,
   PRIMARY KEY (`coord`,`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `bay_log` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `log_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -36,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `bay_log` (
   PRIMARY KEY (`id`),
   KEY `log_time` (`log_time`,`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `books` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(80) NOT NULL,
@@ -46,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `books` (
   `teach_time` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `books_teach` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `book_id` int(10) unsigned NOT NULL,
@@ -56,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `books_teach` (
   UNIQUE KEY `by_book_user` (`book_id`,`user_id`),
   KEY `by_time` (`end_time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `bot_in` (
   `word` varchar(16) NOT NULL,
   `weight` int(11) NOT NULL DEFAULT '0',
@@ -64,11 +71,13 @@ CREATE TABLE IF NOT EXISTS `bot_in` (
   KEY `by_out_id` (`out_id`),
   KEY `weight` (`weight`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `bot_out` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `text` varchar(1400) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `buildings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `desc` varchar(450) NOT NULL,
@@ -90,6 +99,7 @@ CREATE TABLE IF NOT EXISTS `buildings` (
   KEY `by_shield` (`shield`),
   KEY `by_atack` (`atack`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `chat` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
@@ -101,6 +111,7 @@ CREATE TABLE IF NOT EXISTS `chat` (
   KEY `from_to` (`to_user`,`user_id`),
   KEY `by_msgtime` (`msgtime`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `cron` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `filename` varchar(24) NOT NULL,
@@ -110,6 +121,7 @@ CREATE TABLE IF NOT EXISTS `cron` (
   PRIMARY KEY (`id`),
   KEY `laststart` (`laststart`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `defence` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `place_id` int(10) unsigned NOT NULL,
@@ -120,11 +132,13 @@ CREATE TABLE IF NOT EXISTS `defence` (
   UNIQUE KEY `place_and_type` (`place_id`,`place_type`),
   KEY `by_user` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `enciclopedia` (
   `object_id` int(11) NOT NULL AUTO_INCREMENT,
   `desc` longtext NOT NULL,
   PRIMARY KEY (`object_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `fleets` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `cargo` int(10) unsigned NOT NULL,
@@ -161,21 +175,25 @@ CREATE TABLE IF NOT EXISTS `fleets` (
   KEY `by_cloack` (`cloak`),
   KEY `group` (`user_id`,`group`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `foe` (
   `user_id` int(10) unsigned NOT NULL,
   `foe_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`user_id`,`foe_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `friend` (
   `user_id` int(10) unsigned NOT NULL,
   `friend_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`user_id`,`friend_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `hints` (
   `tid` varchar(250) NOT NULL,
   `text` mediumtext NOT NULL,
   UNIQUE KEY `tid` (`tid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `history_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `logdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -185,6 +203,7 @@ CREATE TABLE IF NOT EXISTS `history_log` (
   `stars` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `implants` (
   `object_id` int(11) NOT NULL,
   `book_id` int(11) NOT NULL,
@@ -192,6 +211,7 @@ CREATE TABLE IF NOT EXISTS `implants` (
   PRIMARY KEY (`object_id`),
   KEY `book_id` (`book_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `info_page` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `type` int(10) unsigned NOT NULL,
@@ -200,6 +220,7 @@ CREATE TABLE IF NOT EXISTS `info_page` (
   PRIMARY KEY (`id`),
   KEY `type` (`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `missile_types` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(24) NOT NULL,
@@ -208,6 +229,7 @@ CREATE TABLE IF NOT EXISTS `missile_types` (
   PRIMARY KEY (`object_id`),
   KEY `type` (`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `objects` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(45) NOT NULL,
@@ -226,6 +248,7 @@ CREATE TABLE IF NOT EXISTS `objects` (
   KEY `by_name` (`name`),
   KEY `by_class_name` (`class`,`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `objects_sub` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(10) unsigned NOT NULL,
@@ -235,6 +258,7 @@ CREATE TABLE IF NOT EXISTS `objects_sub` (
   UNIQUE KEY `fuse` (`object_id`,`res_id`),
   KEY `by_res` (`res_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `orbit_events` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `event_type` int(10) unsigned NOT NULL,
@@ -250,6 +274,7 @@ CREATE TABLE IF NOT EXISTS `orbit_events` (
   KEY `event4group` (`event_type`,`x`),
   KEY `by_user_time` (`user_id`,`event_time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `orbits_buildings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(10) unsigned NOT NULL,
@@ -263,12 +288,14 @@ CREATE TABLE IF NOT EXISTS `orbits_buildings` (
   UNIQUE KEY `by_planet_x` (`planet_id`,`x`),
   KEY `by_object` (`object_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `orbits_make` (
   `event_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(10) unsigned NOT NULL,
   `cycle` int(10) NOT NULL,
   PRIMARY KEY (`event_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `orbits_mines` (
   `event_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `res_id` int(10) unsigned NOT NULL,
@@ -276,6 +303,7 @@ CREATE TABLE IF NOT EXISTS `orbits_mines` (
   `cycle` int(10) NOT NULL,
   PRIMARY KEY (`event_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `pay_log` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `log_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -284,11 +312,13 @@ CREATE TABLE IF NOT EXISTS `pay_log` (
   PRIMARY KEY (`id`),
   KEY `log_time` (`log_time`,`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `place_name` (
   `id` int(11) NOT NULL,
   `name` varchar(24) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `planet_events` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `x` int(10) NOT NULL,
@@ -306,11 +336,13 @@ CREATE TABLE IF NOT EXISTS `planet_events` (
   KEY `by_coord` (`x`,`y`),
   KEY `by_user_time` (`user_id`,`event_time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `planet_types` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(45) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `planets` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `type` int(10) unsigned NOT NULL,
@@ -333,6 +365,7 @@ CREATE TABLE IF NOT EXISTS `planets` (
   KEY `by_user` (`user_id`),
   KEY `by_name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `planets_buildings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(10) unsigned NOT NULL,
@@ -348,6 +381,7 @@ CREATE TABLE IF NOT EXISTS `planets_buildings` (
   KEY `by_planets_objects` (`planet_id`,`object_id`),
   KEY `for_upgrade` (`planet_id`,`level`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `planets_disp` (
   `event_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `res_id` int(10) unsigned NOT NULL,
@@ -355,12 +389,14 @@ CREATE TABLE IF NOT EXISTS `planets_disp` (
   `level` int(10) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`event_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `planets_make` (
   `event_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(10) unsigned NOT NULL,
   `cycle` int(10) NOT NULL DEFAULT '1',
   PRIMARY KEY (`event_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `planets_mines` (
   `event_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `res_id` int(10) unsigned NOT NULL,
@@ -368,6 +404,7 @@ CREATE TABLE IF NOT EXISTS `planets_mines` (
   `cycle` int(10) NOT NULL,
   PRIMARY KEY (`event_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `quest_types` (
   `type` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(120) NOT NULL,
@@ -386,12 +423,14 @@ CREATE TABLE IF NOT EXISTS `quest_types` (
   `arg9` varchar(256) NOT NULL DEFAULT 'null',
   PRIMARY KEY (`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `research` (
   `from_object` int(10) unsigned NOT NULL,
   `to_object` int(10) unsigned NOT NULL,
   PRIMARY KEY (`from_object`),
   UNIQUE KEY `to_object` (`to_object`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `robots` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
@@ -405,6 +444,7 @@ CREATE TABLE IF NOT EXISTS `robots` (
   KEY `by_user` (`user_id`,`status`),
   KEY `build_type` (`build_id`,`build_type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `ship_types` (
   `object_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `conserv_id` int(10) unsigned NOT NULL,
@@ -436,6 +476,7 @@ CREATE TABLE IF NOT EXISTS `ship_types` (
   KEY `by_missile` (`missile`),
   KEY `dock` (`dock`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `ships` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(10) unsigned NOT NULL,
@@ -464,6 +505,7 @@ CREATE TABLE IF NOT EXISTS `ships` (
   KEY `group` (`user_id`,`group`),
   KEY `by_place` (`place_id`,`place_type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `sintez` (
   `res_id` int(10) unsigned NOT NULL,
   `object_id` int(10) unsigned NOT NULL,
@@ -471,6 +513,7 @@ CREATE TABLE IF NOT EXISTS `sintez` (
   PRIMARY KEY (`res_id`),
   KEY `by_object` (`object_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `space_events` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `event_type` int(10) unsigned NOT NULL COMMENT '0/100-land ship/fleet,1/101-flyout ship/fleet, 2/102-fly point ship/fleet, 3/103-fly planet ship/fleet, 4/104-fly star ship/fleet, 5/105-fly galaxy ship/fleet, 6-spy planet ship, 7-hyper gate',
@@ -488,6 +531,7 @@ CREATE TABLE IF NOT EXISTS `space_events` (
   KEY `by_time` (`event_time`),
   KEY `by_user` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `star_pos` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `x` int(11) NOT NULL,
@@ -496,6 +540,7 @@ CREATE TABLE IF NOT EXISTS `star_pos` (
   KEY `by_x` (`x`),
   KEY `by_y` (`y`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `stars` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(45) NOT NULL,
@@ -508,6 +553,7 @@ CREATE TABLE IF NOT EXISTS `stars` (
   KEY `by_x` (`x`),
   KEY `by_y` (`y`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `trade_in` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `ob_id` int(10) unsigned NOT NULL,
@@ -520,6 +566,7 @@ CREATE TABLE IF NOT EXISTS `trade_in` (
   KEY `by_ob_object` (`ob_id`,`object_id`),
   KEY `by_count` (`object_cnt`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `trade_log` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `bayer_id` int(11) unsigned NOT NULL,
@@ -530,6 +577,7 @@ CREATE TABLE IF NOT EXISTS `trade_log` (
   `log_sum` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `trade_out` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `ob_id` int(10) unsigned NOT NULL,
@@ -542,6 +590,7 @@ CREATE TABLE IF NOT EXISTS `trade_out` (
   KEY `by_ob_object` (`ob_id`,`object_id`),
   KEY `by_count` (`object_cnt`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `tutorials` (
   `level` int(11) NOT NULL AUTO_INCREMENT,
   `page_id` int(11) NOT NULL,
@@ -549,6 +598,7 @@ CREATE TABLE IF NOT EXISTS `tutorials` (
   `tutorial` longtext NOT NULL,
   PRIMARY KEY (`level`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) unsigned NOT NULL DEFAULT '1',
@@ -582,6 +632,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   KEY `parent_id` (`parent_id`),
   KEY `by_status` (`status`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `users_active` (
   `id` int(10) unsigned NOT NULL,
   `lastlogin` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -591,12 +642,14 @@ CREATE TABLE IF NOT EXISTS `users_active` (
   PRIMARY KEY (`id`),
   KEY `lastlogin` (`lastlogin`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `users_books` (
   `user_id` int(10) unsigned NOT NULL,
   `book_id` int(10) unsigned NOT NULL,
   `level` int(10) unsigned NOT NULL,
   PRIMARY KEY (`user_id`,`book_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `users_imp` (
   `user_id` int(11) NOT NULL,
   `book_id` int(11) NOT NULL,
@@ -605,6 +658,7 @@ CREATE TABLE IF NOT EXISTS `users_imp` (
   PRIMARY KEY (`user_id`,`object_id`),
   KEY `book_id` (`user_id`,`book_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `users_messages` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `readed` int(1) unsigned NOT NULL DEFAULT '0',
@@ -618,6 +672,7 @@ CREATE TABLE IF NOT EXISTS `users_messages` (
   KEY `by_date` (`msg_date`),
   KEY `by_from_date` (`from_user`,`msg_date`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `users_msg_settings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
@@ -627,11 +682,13 @@ CREATE TABLE IF NOT EXISTS `users_msg_settings` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `by_user_type` (`user_id`,`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `users_premium` (
   `user_id` int(10) unsigned NOT NULL,
   `premium` float(12,2) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `users_quests` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
@@ -653,11 +710,13 @@ CREATE TABLE IF NOT EXISTS `users_quests` (
   KEY `by_status` (`status`),
   KEY `user_id` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `variables` (
   `name` varchar(32) NOT NULL,
   `val` bigint(64) NOT NULL DEFAULT '0',
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `war_events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `fire_time` datetime NOT NULL,
@@ -685,6 +744,7 @@ CREATE TABLE IF NOT EXISTS `war_events` (
   KEY `by_a` (`a_type`,`a_object_id`),
   KEY `by_d` (`d_type`,`d_object_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `war_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `war_id` int(10) unsigned NOT NULL,
@@ -694,6 +754,7 @@ CREATE TABLE IF NOT EXISTS `war_log` (
   KEY `msg_time` (`msg_time`),
   KEY `by_war` (`war_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `war_online` (
   `war_id` int(10) unsigned NOT NULL,
   `move_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -705,6 +766,7 @@ CREATE TABLE IF NOT EXISTS `war_online` (
   `defeat` int(11) NOT NULL,
   PRIMARY KEY (`war_id`,`move_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `warehouse` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `place_id` int(10) unsigned NOT NULL,

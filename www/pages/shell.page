@@ -1,0 +1,19 @@
+<?php
+
+  $mv = intval( $user->music );
+  $sv = intval( $user->sound );
+
+  $index_path = __DIR__ . '/../app/index.html';
+  if( !file_exists( $index_path ) ) {
+    header( 'HTTP/1.0 503 Service Unavailable' );
+    print 'Game client not built. Run: cd frontend && npm install && npm run build';
+    exit;
+  }
+
+  $html = file_get_contents( $index_path );
+  $config = json_encode( array( 'mv' => $mv, 'sv' => $sv ) );
+  $boot = '<script>window.__NOON__=' . $config . ';</script>';
+  $html = str_replace( '<!--noon-config-->', $boot, $html );
+
+  header( 'Content-Type: text/html; charset=utf-8' );
+  print $html;

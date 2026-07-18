@@ -43,8 +43,8 @@
 
     switch( $page_id ) {
       case 0:
-        include './pages/topmenu.page';
-        break;
+        header( 'Location: page.php' );
+        exit;
 
       case 1:
 //        do_events();
@@ -774,20 +774,7 @@
         break;
 
       default :
-//        do_events();
-//        authorization();
-        print <<<EOF
-<HTML>
-<HEAD>
-<TITLE>Noon</TITLE>
-</HEAD>
-<FRAMESET id="noon" rows="26,505,*" border=0 frameborder=no framespacing=0>
-  <FRAME src="page.php?id=0" name=topmenu scrolling=no noresize TOPMARGIN=0 LEFTMARGIN=0 MARGINHEIGHT=0 MARGINWIDTH=0>
-  <FRAME src="page.php?id=1" name=main scrolling=auto noresize TOPMARGIN=0 LEFTMARGIN=0 MARGINHEIGHT=0 MARGINWIDTH=0>
-  <FRAME src="page.php?id=9" name=chat scrolling=no noresize TOPMARGIN=0 LEFTMARGIN=0 MARGINHEIGHT=0 MARGINWIDTH=0>
-</FRAMESET>
-</HTML>
-EOF;
+        include './pages/shell.page';
         break;
     }  
   } else {

@@ -1,5 +1,8 @@
 old_data
 .env
 www/debug.log
+www/app/
+frontend/dist/
+frontend/node_modules/
 **/Thumbs.db
 **/desktop.ini

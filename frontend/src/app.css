@@ -1,0 +1,25 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #ccc;
+  font-family: Verdana, Arial, sans-serif;
+}
+
+@font-face {
+  font-family: 'TerminatorCyr';
+  src: url('/app/fonts/TerminatorCyr.ttf') format('truetype');
+}
+
+#app {
+  height: 100%;
+}

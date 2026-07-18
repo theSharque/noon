@@ -8,7 +8,7 @@
 
   $class = array( 0 => 'system object', 1 => 'resource', 2 => 'product', 3 => 'planet buildings', 4 => 'ships', 5 => 'minerals', 6 => 'layouts', 7 => 'model', 8 => 'orbit buildings' );
 
-  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset='><TITLE>admin objects</TITLE></HEAD>
+  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset=utf-8'><TITLE>admin objects</TITLE></HEAD>
 <BODY bgcolor=#000000 text=#00FF00 leftmargin=0 topmargin=0>
 <a href='/page.php?id=990'>Return back</a>
 <form action='/page.php?id=994' method=post>";

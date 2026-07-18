@@ -6850,3 +6850,194 @@ ua.lastlogin - DATE_SUB( NOW(), INTERVAL 7 DAY ) last_way
 06:11:12	Все подарки раздал
 
 Дед Мороз.
+09:02:18	1052 : Column 'gen_date' in where clause is ambiguous
+09:02:18	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 62
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT id
+                              FROM users_quests uq
+                        INNER JOIN quest_types qt ON qt.type = uq.type
+                                  WHERE qt.cnt > 0
+                                    AND user_id IS NULL
+                                    AND UNIX_TIMESTAMP( DATE_ADD( gen_date, INTERVAL 3 DAY ) ) < UNIX_TIMESTAMP( NOW() )
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/cleaner.inc
+            [line] => 58
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT id
+                              FROM users_quests uq
+                        INNER JOIN quest_types qt ON qt.type = uq.type
+                                  WHERE qt.cnt > 0
+                                    AND user_id IS NULL
+                                    AND UNIX_TIMESTAMP( DATE_ADD( gen_date, INTERVAL 3 DAY ) ) < UNIX_TIMESTAMP( NOW() )
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/optimize.inc
+            [line] => 19
+            [function] => free_quest
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [function] => optimize
+            [args] => Array
+                (
+                )
+
+        )
+
+    [4] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 23
+            [function] => call_user_func
+            [args] => Array
+                (
+                    [0] => optimize
+                )
+
+        )
+
+)
+
+09:02:19	1227 : Access denied; you need (at least one of) the RELOAD privilege(s) for this operation
+09:02:19	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/optimize.inc
+            [line] => 97
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => FLUSH QUERY CACHE
+                )
+
+        )
+
+    [1] => Array
+        (
+            [function] => optimize
+            [args] => Array
+                (
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 23
+            [function] => call_user_func
+            [args] => Array
+                (
+                    [0] => optimize
+                )
+
+        )
+
+)
+
+09:02:19	1064 : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' 7,   null,    'abandon', 427,  379,  NULL,     0,      0,     0    )' at line 2
+09:02:19	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/genship.inc
+            [line] => 33
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => INSERT INTO ships (object_id, place_id, place_type, user_id, name,      arg1, arg2, fleet_id, shield, inwar, guard) VALUES
+                                 (9290,     , 7,   null,    'abandon', 427,  379,  NULL,     0,      0,     0    )
+                )
+
+        )
+
+    [1] => Array
+        (
+            [function] => gen_ship
+            [args] => Array
+                (
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 23
+            [function] => call_user_func
+            [args] => Array
+                (
+                    [0] => gen_ship
+                )
+
+        )
+
+)
+
+09:02:19	1064 : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' , 0, 0, 0, 29 )' at line 2
+09:02:19	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/history.inc
+            [line] => 22
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => INSERT INTO history_log ( credits, credits_all, confederates, confederates_all, users, users_all, online, stars )
+                  VALUES ( '', '', , , 0, 0, 0, 29 )
+                )
+
+        )
+
+    [1] => Array
+        (
+            [function] => make_log
+            [args] => Array
+                (
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 23
+            [function] => call_user_func
+            [args] => Array
+                (
+                    [0] => make_log
+                )
+
+        )
+
+)
+
+09:02:19	0
+09:02:19	Все подарки раздал
+
+Дед Мороз.

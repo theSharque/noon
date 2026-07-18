@@ -1,6 +1,6 @@
 <?php
 
-  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset='><TITLE>admin objects</TITLE></HEAD>
+  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset=utf-8'><TITLE>admin objects</TITLE></HEAD>
 <BODY bgcolor=#000000 text=#00FF00 leftmargin=0 topmargin=0>
 <a href='/page.php?id=990'>Return back</a>
 <form action='/page.php?id=980' method=post>";

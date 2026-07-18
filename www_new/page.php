@@ -47,32 +47,6 @@
         include './pages/topmenu.page';
         break;
 
-      case 62731:
-        $title = 'Условия оплаты космической онлайн стратегии Полдень 21 века';
-        $main_content = file_get_contents('texts/billing.page');
-        include "./templates/big.inc";
-        break;
-      case 83910:
-        include './pages/2pay.page';
-        break;
-      case 83911:
-        include './pages/2pay_new.page';
-        break;
-
-      case 83692:
-        include './pages/precalc.page';
-        break;
-
-      case 83693:
-        include './pages/precalc2.page';
-        break;
-
-      case 9234:
-
-debug_it( $_POST );
-
-        break;
-
       case 1:
 //        do_events();
 //        authorization();

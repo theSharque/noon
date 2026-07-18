@@ -59,7 +59,7 @@
 </td></tr>
 <tr><td id="main-footer" colspan="7">
 <a href="index.php/?pid=rules">Пользовательское соглашение</a>
-<a href="index.php/?pid=billing">Условия оплаты</a>
+
 <a href="index.php/?pid=license">Лицензионное соглашение</a>
 </td></tr>
 <tr id="main-footer"><td colspan="7">

@@ -4,8 +4,6 @@
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import flash.net.URLVariables;
-	import flash.net.URLRequestMethod;
 	import flash.net.URLLoaderDataFormat;
 	import flash.text.TextFormat;
 	import fl.controls.DataGrid;
@@ -27,14 +25,11 @@
 
 	public class trade3 extends MovieClip {
 		private var stVolume:SoundTransform = new SoundTransform( Number( root.loaderInfo.parameters.sv ) / 100, 0 );
-		private var selfNick:String = root.loaderInfo.parameters.sn;
-		private var selfUid:String = root.loaderInfo.parameters.uid;
 		private var chanel:SoundChannel;
 		private var cTween:Tween;
 		private var sTween:Tween;
 		private var bTween:Tween;
 		private var oTween:Tween;
-		private var pTween:Tween;
 
 		private var myFormat:TextFormat = new TextFormat();
 		private var myHeadFormat:TextFormat = new TextFormat();
@@ -76,17 +71,6 @@
 			hinter.startDrag( true );
 
 			payCalc.visible = false;
-			payCalc.dtSumm.text = '';
-			payCalc.dtSumm.addEventListener( Event.CHANGE, showBtnPay );
-			payCalc.btnCalc.visible=false;
-			payCalc.dtInCach.visible=false;
-			payCalc.cbPrices.visible=false;
-			payCalc.btnPay.visible=false;
-			payCalc.btnWay.visible=false;
-			payCalc.btnNoPay.addEventListener( MouseEvent.CLICK, hidePay );
-			payCalc.btnPay.addEventListener( MouseEvent.CLICK, payInterkassa );
-//			payCalc.btnWay.addEventListener( MouseEvent.CLICK, payWay2pay );
-			payCalc.dtNick.addEventListener(Event.CHANGE, checkNick);
 
 			root.addEventListener( MouseEvent.MOUSE_OVER, startHint );
 			hintTimer.addEventListener(TimerEvent.TIMER, loadHint);
@@ -244,97 +228,6 @@
 			cLoader.load(new URLRequest("page.php?id=63&min="+comp.dtCount.text+"&rf="+comp.cbFilter.selectedItem.data));
 			comp.btnSell.visible = false;
 			comp.btnBay.visible = false;
-		}
-
-		public function showPay( e:MouseEvent ) {
-			payCalc.visible = true;
-			payCalc.dtSumm.text = '';
-			payCalc.dtNick.text = selfNick;
-			payCalc.dtInCach.visible=false;
-			payCalc.cbPrices.visible = false;
-			payCalc.btnPay.visible = false;
-			payCalc.btnWay.visible = false;
-			pTween = new Tween(payCalc, "alpha", Strong.easeOut, payCalc.alpha, 1, 1, true);
-		}
-
-		public function hidePay( e:MouseEvent ) {
-			var snd:Sound = new buzz();
-			chanel = snd.play();
-			chanel.soundTransform = stVolume;
-
-			pTween = new Tween(payCalc, "alpha", Strong.easeOut, payCalc.alpha, 0, 1, true);
-			pTween.addEventListener(TweenEvent.MOTION_FINISH, pUnvisible);
-		}
-
-		public function pUnvisible( event:Event ) {
-			payCalc.visible = false;
-		}
-
-		public function summChange(event:Event) {
-			if( payCalc.dtSumm.text != '' && int( payCalc.dtSumm.text ) == payCalc.dtSumm.text ) {
-				payCalc.btnCalc.visible = true;
-			} else {
-				payCalc.btnCalc.visible = false;
-			}
-		}
-
-		public function showBtnPay(event:Event) {
-			if( payCalc.dtSumm.text != '' && int( payCalc.dtSumm.text ) == payCalc.dtSumm.text ) {
-				payCalc.btnPay.visible = true;
-//				payCalc.btnWay.visible = true;
-			} else {
-				payCalc.btnPay.visible = false;
-				payCalc.btnWay.visible = false;
-			}
-		}
-
-		public function checkNick( event:Event ) {
-			nopLoader.addEventListener(Event.COMPLETE, checkedNick);
-//			nopLoader.load(new URLRequest("d:\nop.txt"));
-			nopLoader.load(new URLRequest( "page.php?id=128&user="+payCalc.dtNick.text ));
-		}
-
-		public function checkedNick( event:Event ) {
-			event.target.removeEventListener( Event.COMPLETE, checkedNick );
-			var outGlow:GlowFilter = new GlowFilter(0x0000FF, 1, 5, 5, 2, 1, false, false);
-			var inGlow:GlowFilter = new GlowFilter(0x00FFFF, 0.4, 10, 10, 2, 3, true, false);
-
-			if( nopLoader.data.err != 0 ) {
-				inGlow.color = 0xFF0000;
-			} else {
-				selfNick = payCalc.dtNick.text;
-				selfUid = nopLoader.data.uid;
-			}
-
-			payCalc.bgTo.filters = [inGlow, outGlow];
-		}
-
-		private function payInterkassa( e:MouseEvent ) {
-			var req:URLRequest = new URLRequest( 'https://21noon.com/page.php?id=83693' );
-			var uVar:URLVariables = new URLVariables();
-			var e:MouseEvent;
-			req.method = URLRequestMethod.POST;
-
-			uVar.ik_desc = "Покупка "+payCalc.dtSumm.text+" конфедерат для "+selfNick;
-			uVar.ik_am = payCalc.dtSumm.text;
-			uVar.ik_x_uid = selfUid;
-			uVar.ik_x_sum = payCalc.dtSumm.text;
-            req.data = uVar;
-			navigateToURL( req, "_blank" );
-			hidePay( e );
-		}
-
-		private function payWay2pay( e:MouseEvent ) {
-			var req:URLRequest = new URLRequest( 'https://21noon.com/w2p_out.php' );
-			var uVar:URLVariables = new URLVariables();
-			var e:MouseEvent;
-			req.method = URLRequestMethod.POST;
-			
-			uVar.uid = selfUid;
-			uVar.summ = payCalc.dtSumm.text;
-            req.data = uVar;
-			navigateToURL( req, "_blank" );
-			hidePay( e );
 		}
 
 		private function startHint( e:MouseEvent ) {
@@ -778,11 +671,6 @@
 		private function loadConf(event:Event) {
 			var i:uint;
 
-			if( oLoader.data.link != '0' ) {
-				conf.dtConfTitle.htmlText = "<font color='#FFFF00'>Купить конфедераты</font>";
-				conf.dtConfTitle.addEventListener( MouseEvent.CLICK, showPay );
-//				conf.dtConfTitle.htmlText = "<font color='#FFFF00'><a href=" + unescape( oLoader.data.link ) + ">Купить конфедераты</a></font>";
-			}
 			oDp.removeAll();
 			if (oLoader.data.cnt>0) {
 				for (i=0; i<oLoader.data.cnt; i++) {

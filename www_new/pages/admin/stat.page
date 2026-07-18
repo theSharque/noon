@@ -1,6 +1,6 @@
 <?php
 
-  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset='><TITLE>admin objects</TITLE></HEAD>
+  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset=utf-8'><TITLE>admin objects</TITLE></HEAD>
 <BODY bgcolor=#000000 text=#00FF00 leftmargin=0 topmargin=0>
 <a href='/page.php?id=990'>Return back</a><br>";
 
@@ -206,7 +206,6 @@
   echo '</table>';
 
   echo '<br>Donators<br>';
-//  $res = db_fetch_array( "SELECT pay_date, full_output FROM 2pay_log WHERE command = 'pay' ORDER BY id DESC LIMIT 0,15" );
   $res = db_fetch_array( "SELECT pl.log_time, u.login, pl.mess, u.ref_link
                             FROM pay_log pl
                       INNER JOIN users u ON u.id = pl.user_id

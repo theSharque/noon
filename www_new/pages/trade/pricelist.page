@@ -2,8 +2,7 @@
 
   global $user;
 
-//  $out = "link='https://secure.xsolla.com/paystation/?projectid=4032%26id_theme=34%26fix_email={$user->email}%26fix_v1={$user->login}%27 target=%27main%27";
-  $out = "link='http://21noon.com/pre_pay.php'";
+  $out = "link=0";
 
   $result = db_fetch_array( "SELECT id, name, class FROM objects WHERE price > 0 OR cprice > 0 ORDER BY class, name" );
 

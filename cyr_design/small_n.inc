@@ -243,7 +243,7 @@
 <table class="footertable" width="860" border="0" cellspacing="0" cellpadding="0">
     <tr>
         <td class="footertabletextcontainer" align="center">
-            <a href="index.php?pid=rules">Правила игры</a> | <a href="index.php?pid=billing">Условия оплаты</a> | <a href="index.php?pid=license">Пользовательское соглашение</a> | <a href="index.php?pid=contacts">Контакты</a>
+            <a href="index.php?pid=rules">Правила игры</a> | <a href="index.php?pid=license">Пользовательское соглашение</a> | <a href="index.php?pid=contacts">Контакты</a>
         </td>
     </tr>
     <tr>

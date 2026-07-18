@@ -1,7 +1,7 @@
 <?php
 
 
-  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset='><TITLE>Log read</TITLE></HEAD>
+  echo "<HTML><HEAD><meta http-equiv=Content-Type content='text/html;  charset=utf-8'><TITLE>Log read</TITLE></HEAD>
 <BODY bgcolor=#000000 text=#00FF00 leftmargin=0 topmargin=0>
 <a href='/page.php?id=990'>Return back</a>
 <form action='/page.php?id=999' method=post>";
@@ -33,22 +33,6 @@
     switch( $line['id'] ) {
       case 0:
         $out = 'Загрузка меню';
-        break;
-
-      case 62731:
-        $out = 'Загрузка условий оплаты';
-        break;
-
-      case 83910:
-        $out = 'Загрузка странички 2пэй';
-        break;
-
-      case 83911:
-        $out = 'Загрузка новой странички 2пэй';
-        break;
-
-      case 83692:
-        $out = 'Предварительный расчет стоимости конфедерат';
         break;
 
       case 9234:

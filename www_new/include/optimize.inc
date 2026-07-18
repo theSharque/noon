@@ -74,7 +74,7 @@ function optimize() {
     db_query( "ALTER TABLE `users_quests` ORDER BY `user_id`, `type`" );
     db_query( "ALTER TABLE `users_report` ORDER BY `user_id`, `msg_date` DESC" );
 
-    db_query( "OPTIMIZE TABLE 2pay_log, 2pay_pays, aliance, aliance_in, antibot, bay_log, books, books_teach, bot_in, bot_out,
+    db_query( "OPTIMIZE TABLE aliance, aliance_in, antibot, bay_log, books, books_teach, bot_in, bot_out,
                               buildings, chat, cron, defence, enciclopedia, fleets, foe, friend, hints, history_log, implants,
                               info_page, market, market_events, medals_type, missile_types, objects, objects_sub, orbits_buildings,
                               orbits_make, orbits_mines, orbit_events, pay_log, place_name, planets, planets_active, planets_buildings,
@@ -84,7 +84,7 @@ function optimize() {
                               users_messages, users_msg_settings, users_premium, users_quests, users_report, variables, warehouse,
                               warequest, war_events, war_log, war_online, war_test, war_places, planets_maps, orbits_map" );
 
-    db_query( "ANALYZE TABLE 2pay_log, 2pay_pays, aliance, aliance_in, antibot, bay_log, books, books_teach, bot_in, bot_out,
+    db_query( "ANALYZE TABLE aliance, aliance_in, antibot, bay_log, books, books_teach, bot_in, bot_out,
                              buildings, chat, cron, defence, enciclopedia, fleets, foe, friend, hints, history_log, implants,
                              info_page, market, market_events, medals_type, missile_types, objects, objects_sub, orbits_buildings,
                              orbits_make, orbits_mines, orbit_events, pay_log, place_name, planets, planets_active, planets_buildings,

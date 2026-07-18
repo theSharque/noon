@@ -81,8 +81,7 @@
   }
   $out .= "&c_lv=".$lev_dic[ strlen( abs( $user->char_level ) ) * $correct ].'('.$user->char_level.') ';
 
-//  $out .= "&link='https://secure.xsolla.com/paystation/?projectid=4032%26id_theme=34%26fix_email={$user->email}%26fix_v1={$user->login}%27 target=%27main%27";
-  $out .= "&link='http://21noon.com/pre_pay.php'";
+  $out .= "&link=0";
 
   $out .= "&referal=21noon.com/index.php?refid=".$user->uid;
 

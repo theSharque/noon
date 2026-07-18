@@ -341,13 +341,6 @@ document.write(VK.Share.button({url: "http://21noon.com"},{type: "button", text:
 VK.Widgets.Group("vk_groups", {mode: 0, width: "274", height: "390"}, 22182769);
 </script><br>
 
-<!-- begin WebMoney Transfer : accept label -->
-<a href="http://www.megastock.ru/" target="_blank">
-<img src="images/blue_rus_wm.gif" alt="www.megastock.ru" border="0"></a>
-<a href="https://passport.webmoney.ru/asp/certview.asp?wmid=728822979190" target="_blank">
-<img src="images/blue_rus.gif" alt="Здесь находится аттестат нашего WM идентификатора 728822979190" border="0"></a>
-<a href="http://interkassa.com/index.php?ref_id=56230"><img src="http://www.interkassa.com/docs/ik_88x31_01.png"></a></br>
-<!-- end WebMoney Transfer : attestation label -->
 <!-- begin of Top100 code -->
 <script id="top100Counter" type="text/javascript" src="http://counter.rambler.ru/top100.jcn?2821555"></script>
 <noscript>
@@ -426,7 +419,7 @@ screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
 <table class="footertable" width="860" border="0" cellspacing="0" cellpadding="0">
     <tr>
         <td class="footertabletextcontainer" align="center">
-            <a href="index.php?pid=rules">Правила игры</a> | <a href="index.php?pid=billing">Условия оплаты</a> | <a href="index.php?pid=license">Пользовательское соглашение</a> | <a href="index.php?pid=contacts">Контакты</a>
+            <a href="index.php?pid=rules">Правила игры</a> | <a href="index.php?pid=license">Пользовательское соглашение</a> | <a href="index.php?pid=contacts">Контакты</a>
         </td>
     </tr>
     <tr>

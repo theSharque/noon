@@ -174,10 +174,6 @@ var google_conversion_value = 0;
       include "./templates/small_n.inc";
       break;
 
-    case 64536:
-      include "./pages/result.page";
-      break;
-
     case 'about':
       $title = 'О космической онлайн стратегии - Полдень 21 века';
       $sape_link = true;
@@ -293,13 +289,6 @@ var google_conversion_value = 0;
     case 'rereg_err':
       $title = 'Ошибка изменения пароля космической онлайн стратегии Полдень 21 века';
       $main_content = "<h3>Ошибка</h3><br>Неверная ссылка для восстановления пароля. Попробуйте еще раз. Если ошибка повторится, обратитесь к администрации.";
-      include "./templates/big.inc";
-      break;
-
-    case 'billing':
-      $title = 'Условия оплаты космической онлайн стратегии Полдень 21 века';
-      $sape_link = true;
-      $main_content = file_get_contents('texts/billing.page');
       include "./templates/big.inc";
       break;
 

@@ -39,7 +39,7 @@ function books_event( $uid ) {
     } else {
       db_query( "INSERT INTO users_books (user_id, book_id, level) VALUES( $uid, {$learned['book_id']}, 1 )" );
     }
-    send_msg( 1, $uid, t( "Изучение науки '%s' завершено успешно.\n<u><a target='main' href='page.php?id=1%%26sp=2'>Перейти к обучению</a></u>", array( $learned['name'] ) ), 1, $learned['end_time'] );
+    send_msg( 1, $uid, t( "РР·СѓС‡РµРЅРёРµ РЅР°СѓРєРё '%s' Р·Р°РІРµСЂС€РµРЅРѕ СѓСЃРїРµС€РЅРѕ.\n<u><a target='main' href='page.php?id=1%%26sp=2'>РџРµСЂРµР№С‚Рё Рє РѕР±СѓС‡РµРЅРёСЋ</a></u>", array( $learned['name'] ) ), 1, $learned['end_time'] );
     db_query( "DELETE FROM books_teach WHERE id={$learned['id']}" );
   }
 }

@@ -7,7 +7,7 @@
 
     switch( $user->place_type ) {
       case 0:
-        $out = "dg_h=Корабли на орбите";
+        $out = "dg_h=РљРѕСЂР°Р±Р»Рё РЅР° РѕСЂР±РёС‚Рµ";
         $ships = db_fetch_array("SELECT u.id, s.name, u.login, fe.user_id foe, fr.user_id friend, u.aliance
                                    FROM ships s
                              INNER JOIN users u ON s.user_id = u.id
@@ -16,7 +16,7 @@
                                   WHERE s.place_type = 0 AND s.place_id = ".$user->place_id);
         break;
       case 1:
-        $out = "dg_h=Корабли на планете";
+        $out = "dg_h=РљРѕСЂР°Р±Р»Рё РЅР° РїР»Р°РЅРµС‚Рµ";
         $ships = db_fetch_array("SELECT u.id, s.name, u.login, fe.user_id foe, fr.user_id friend, u.aliance
                                    FROM ships s
                              INNER JOIN users u ON s.user_id = u.id
@@ -25,8 +25,8 @@
                                   WHERE s.place_type = 1 AND s.place_id = ".$user->place_id);
         break;
     }
-    $out .= "&col0=Наименование";
-    $out .= "&col1=Владелец";
+    $out .= "&col0=РќР°РёРјРµРЅРѕРІР°РЅРёРµ";
+    $out .= "&col1=Р’Р»Р°РґРµР»РµС†";
     $out .= "&cols=2&rows=".count( $ships );
 
     $i=0;
@@ -71,19 +71,19 @@
     }
     switch( $rf ) {
       case 0:
-        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=0";
+        $out .= "&btLabel=РЈСЃС‚Р°РЅРѕРІРёС‚СЊ СѓСЂРѕРІРµРЅСЊ Р·Р°С‰РёС‚С‹&hide=1&btOnClick=page.php?id=283%26rf=0";
         break;
       case 1:
-        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=1";
+        $out .= "&btLabel=РЈСЃС‚Р°РЅРѕРІРёС‚СЊ СѓСЂРѕРІРµРЅСЊ Р·Р°С‰РёС‚С‹&hide=1&btOnClick=page.php?id=283%26rf=1";
         break;
       case 2:
-        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=2";
+        $out .= "&btLabel=РЈСЃС‚Р°РЅРѕРІРёС‚СЊ СѓСЂРѕРІРµРЅСЊ Р·Р°С‰РёС‚С‹&hide=1&btOnClick=page.php?id=283%26rf=2";
         break;
       case 3:
-        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=3";
+        $out .= "&btLabel=РЈСЃС‚Р°РЅРѕРІРёС‚СЊ СѓСЂРѕРІРµРЅСЊ Р·Р°С‰РёС‚С‹&hide=1&btOnClick=page.php?id=283%26rf=3";
         break;
       case 4:
-        $out .= "&btLabel=Установить уровень защиты&hide=1&btOnClick=page.php?id=283%26rf=4";
+        $out .= "&btLabel=РЈСЃС‚Р°РЅРѕРІРёС‚СЊ СѓСЂРѕРІРµРЅСЊ Р·Р°С‰РёС‚С‹&hide=1&btOnClick=page.php?id=283%26rf=4";
         break;
     }
 

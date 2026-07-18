@@ -69,10 +69,10 @@ debug_it( $answ );
       ca_message( $uid, array( 'price' => $ca_sum, 'currency' => 'USD100' ) );
 */
       db_query( "UPDATE users SET donate = donate + $sum, credits = credits + $sum WHERE id = $uid" );
-      db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $uid, 1, 'На ваш игровой счет зачислено $sum конфедератов, номер транзакции $id.' )" );
+      db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $uid, 1, 'РќР° РІР°С€ РёРіСЂРѕРІРѕР№ СЃС‡РµС‚ Р·Р°С‡РёСЃР»РµРЅРѕ $sum РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, РЅРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё $id.' )" );
 
       db_query( "UPDATE users SET donate = donate + ".intval($sum/10).", credits = credits + ".intval($sum/10)." WHERE id = $pid" );
-      db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $pid, 1, 'На ваш игровой счет зачислено ".intval($sum/10)." конфедератов, это процент от зачисления одного из ваших рефералов.' )" );
+      db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $pid, 1, 'РќР° РІР°С€ РёРіСЂРѕРІРѕР№ СЃС‡РµС‚ Р·Р°С‡РёСЃР»РµРЅРѕ ".intval($sum/10)." РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, СЌС‚Рѕ РїСЂРѕС†РµРЅС‚ РѕС‚ Р·Р°С‡РёСЃР»РµРЅРёСЏ РѕРґРЅРѕРіРѕ РёР· РІР°С€РёС… СЂРµС„РµСЂР°Р»РѕРІ.' )" );
     } else {
 debug_it( 'Double pay !' );
 debug_it( $_POST );

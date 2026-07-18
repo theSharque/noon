@@ -17,10 +17,10 @@ function gen_tritit() {
       db_query( "UPDATE ships SET arg1 = $xr, arg2 = $yr WHERE id = ".$item['shid'] );
     } else {
 
-      user_report( $item['stid'], 1, 2, t( "Астрономы обнаружили малый объект <font color=\"#FF0000\">в вашей системе в точке %d:%d. Предположительно, это тритит</font>.", array( $xr, $yr ) ) );
+      user_report( $item['stid'], 1, 2, t( "РђСЃС‚СЂРѕРЅРѕРјС‹ РѕР±РЅР°СЂСѓР¶РёР»Рё РјР°Р»С‹Р№ РѕР±СЉРµРєС‚ <font color=\"#FF0000\">РІ РІР°С€РµР№ СЃРёСЃС‚РµРјРµ РІ С‚РѕС‡РєРµ %d:%d. РџСЂРµРґРїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕ, СЌС‚Рѕ С‚СЂРёС‚РёС‚</font>.", array( $xr, $yr ) ) );
 
       db_query( "INSERT INTO ships (object_id, place_id, place_type, user_id, name, arg1, arg2, fleet_id, shield, inwar, guard) VALUES
-                                   ({$trits[$type]}, {$item['stid']}, 7, 3, 'Тритит', $xr, $yr, NULL, {$shield[$type]}, 0, 1 )" );
+                                   ({$trits[$type]}, {$item['stid']}, 7, 3, 'РўСЂРёС‚РёС‚', $xr, $yr, NULL, {$shield[$type]}, 0, 1 )" );
     }
   }
 

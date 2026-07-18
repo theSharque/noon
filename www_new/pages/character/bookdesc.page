@@ -21,7 +21,7 @@
 
       $item = $book_list[$bid];
       if( $item['parent_id'] ) {
-        $desc .= t( '<br>Для изучения необходимо:' );
+        $desc .= t( '<br>Р”Р»СЏ РёР·СѓС‡РµРЅРёСЏ РЅРµРѕР±С…РѕРґРёРјРѕ:' );
       }
 
       do {
@@ -30,10 +30,10 @@
           $p_item = $book_list[$item['parent_id']];
 
           if( $p_item['level'] < $item['parent_level'] ) {
-            $desc .= t( '<font color="#FF0000"><br>%s %d уровня</font>', array( $p_item['name'], $item['parent_level'] ) );
+            $desc .= t( '<font color="#FF0000"><br>%s %d СѓСЂРѕРІРЅСЏ</font>', array( $p_item['name'], $item['parent_level'] ) );
           } else {
             if( $p_item['name'] ) {
-              $desc .= t( '<font color="#00FF00"><br>%s %d уровня</font>', array( $p_item['name'], $item['parent_level'] ) );
+              $desc .= t( '<font color="#00FF00"><br>%s %d СѓСЂРѕРІРЅСЏ</font>', array( $p_item['name'], $item['parent_level'] ) );
             }
           }
         }
@@ -43,7 +43,7 @@
       $desc .= t( '<br>' );
 
       if( $book['price'] > 0 ) {
-        $out = 'err=0&desc=<b>'.$book['name'].t( ' <font color="#FFFF00">%s конфедерат за уровень</font></b><br><br>%s<br>%s', array( $book['price'], $book['description'], $desc ) );
+        $out = 'err=0&desc=<b>'.$book['name'].t( ' <font color="#FFFF00">%s РєРѕРЅС„РµРґРµСЂР°С‚ Р·Р° СѓСЂРѕРІРµРЅСЊ</font></b><br><br>%s<br>%s', array( $book['price'], $book['description'], $desc ) );
       } else {
         $out = 'err=0&desc=<b>'.$book['name'].t( "</b><br><br>%s<br>%s", array( $book['description'], $desc ) );
       }

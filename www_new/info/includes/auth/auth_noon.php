@@ -49,7 +49,7 @@ function login_noon(&$username, &$password)
 		);
 	}
 
-	$login = mb_convert_encoding( $username, 'Windows-1251', 'UTF-8' );
+	$login = $username;
 	$pass = md5( $password );
 	db_safe( $login );
 	db_safe( $pass );

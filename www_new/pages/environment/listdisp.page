@@ -20,9 +20,9 @@
     
       if( $count['cnt'] >= $count['min_cnt'] && $count['min_cnt'] > 0 ) {
         if( $count['class'] == 5 ) {
-          $out = "dg_h=".t( 'Объем:%d, время:%s', array( $count['cnt'], time_to_str( get_disp_time( $rid ) ) ) );
+          $out = "dg_h=".t( 'РћР±СЉРµРј:%d, РІСЂРµРјСЏ:%s', array( $count['cnt'], time_to_str( get_disp_time( $rid ) ) ) );
         } else {
-          $out = "dg_h=".t( 'Объем:%d, время:%s', array( $count['min_cnt'], time_to_str( get_disp_time( $rid ) ) ) );
+          $out = "dg_h=".t( 'РћР±СЉРµРј:%d, РІСЂРµРјСЏ:%s', array( $count['min_cnt'], time_to_str( get_disp_time( $rid ) ) ) );
         }
     
         if( $count['class'] == 5 ) {
@@ -32,8 +32,8 @@
         }
     
         $out .= "&cols=2";
-        $out .= "&col0=Ресурс";
-        $out .= "&col1=Выход";
+        $out .= "&col0=Р РµСЃСѓСЂСЃ";
+        $out .= "&col1=Р’С‹С…РѕРґ";
     
         $items = db_fetch_array( "SELECT o1.name, o.res_cnt
                                     FROM objects_sub o
@@ -51,12 +51,12 @@
           $i++;
         }
 
-        $out .= "&btLabel=".t('Запустить переработку')."&btOnClick=page.php?id=272%26rid=$rid%26l=$last%26x=$x%26y=$y%26count=";
+        $out .= "&btLabel=".t('Р—Р°РїСѓСЃС‚РёС‚СЊ РїРµСЂРµСЂР°Р±РѕС‚РєСѓ')."&btOnClick=page.php?id=272%26rid=$rid%26l=$last%26x=$x%26y=$y%26count=";
       } else {
-        $out = "dg_h=".t( 'Недостаточно %d сырья, минимум %d', array( $count['cnt'], $count['min_cnt'] ) );
+        $out = "dg_h=".t( 'РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ %d СЃС‹СЂСЊСЏ, РјРёРЅРёРјСѓРј %d', array( $count['cnt'], $count['min_cnt'] ) );
       }
     } else {
-      $out = "dg_h=<b><font color=\"#FF0000\">".t( 'Недостаточно энергии' )."</font>";
+      $out = "dg_h=<b><font color=\"#FF0000\">".t( 'РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЌРЅРµСЂРіРёРё' )."</font>";
     }
     printOut( $out );
   }

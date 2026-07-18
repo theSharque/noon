@@ -95,7 +95,7 @@ function return_sub( $items, $is_ships, $num ) {
   if( $is_ships ) {
     foreach( $items as $item ) {
       if( $item['pid'] ) {
-        send_msg( 1, $item['user_id'], t( "Ваш корабль %s сбился с курса и подал сигнал СОС-%d. Силы конфедерации возвратили его на орбиту вашей родной планеты.", array( $item['name'], $num ) ), 15 );
+        send_msg( 1, $item['user_id'], t( "Р’Р°С€ РєРѕСЂР°Р±Р»СЊ %s СЃР±РёР»СЃСЏ СЃ РєСѓСЂСЃР° Рё РїРѕРґР°Р» СЃРёРіРЅР°Р» РЎРћРЎ-%d. РЎРёР»С‹ РєРѕРЅС„РµРґРµСЂР°С†РёРё РІРѕР·РІСЂР°С‚РёР»Рё РµРіРѕ РЅР° РѕСЂР±РёС‚Сѓ РІР°С€РµР№ СЂРѕРґРЅРѕР№ РїР»Р°РЅРµС‚С‹.", array( $item['name'], $num ) ), 15 );
         db_query( "UPDATE ships SET fleet_id = null, guard = 0, arg1 = null, arg2 = null, place_type = 0, place_id = {$item['pid']} WHERE id = ".$item['id'] );
       } else {
         db_query( "DELETE FROM ships WHERE id = ".$item['id'] );
@@ -104,7 +104,7 @@ function return_sub( $items, $is_ships, $num ) {
   } else {
     foreach( $items as $item ) {
       if( $item['pid'] ) {
-        send_msg( 1, $item['user_id'], t( "Ваш флот %s сбился с курса и подал сигнал СОС-%d. Силы конфедерации возвратили его на орбиту вашей родной планеты.", array( $item['name'], $num ) ), 15 );
+        send_msg( 1, $item['user_id'], t( "Р’Р°С€ С„Р»РѕС‚ %s СЃР±РёР»СЃСЏ СЃ РєСѓСЂСЃР° Рё РїРѕРґР°Р» СЃРёРіРЅР°Р» РЎРћРЎ-%d. РЎРёР»С‹ РєРѕРЅС„РµРґРµСЂР°С†РёРё РІРѕР·РІСЂР°С‚РёР»Рё РµРіРѕ РЅР° РѕСЂР±РёС‚Сѓ РІР°С€РµР№ СЂРѕРґРЅРѕР№ РїР»Р°РЅРµС‚С‹.", array( $item['name'], $num ) ), 15 );
         db_query( "UPDATE fleets SET guard = 0, arg1 = null, arg2 = null, place_type = 0, place_id = {$item['pid']} WHERE id = ".$item['id'] );
         db_query( "UPDATE ships SET guard = 0, arg1 = null, arg2 = null, place_type = 0, place_id = {$item['pid']} WHERE fleet_id = ".$item['id'] );
       } else {

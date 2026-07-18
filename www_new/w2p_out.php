@@ -25,7 +25,7 @@
       $vars = 'MerchantId=5543';
       $vars .= '&OutSum='.( ( $summ * 0.15 ) * $usd );
       $vars .= '&InvId='.$id;
-      $vars .= '&InvDesc='.mb_convert_encoding( "Покупка $summ конфедерат для $login", 'UTF-8', 'Windows-1251' );;
+      $vars .= '&InvDesc='.rawurlencode( "РџРѕРєСѓРїРєР° $summ РєРѕРЅС„РµРґРµСЂР°С‚ РґР»СЏ $login" );;
       $vars .= '&w_uid='.$uid;
       $vars .= '&w_summ='.$summ;
 

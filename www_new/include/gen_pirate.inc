@@ -28,7 +28,7 @@ ua.lastlogin - DATE_SUB( NOW(), INTERVAL 7 DAY ) last_way
     }
 
     db_query( "INSERT INTO fleets (     name, user_id, place_type, place_id, arg1, arg2, guard, abordage ) 
-                           VALUES ( 'Пираты',       4,          5,        0, null, null,     1,        0 )" );
+                           VALUES ( 'РџРёСЂР°С‚С‹',       4,          5,        0, null, null,     1,        0 )" );
     $fleet_id = mysql_insert_id();
 
     $pirates = db_fetch_array( "SELECT st.object_id, st.shield, mt.object_id missile, st.code
@@ -46,7 +46,7 @@ ua.lastlogin - DATE_SUB( NOW(), INTERVAL 7 DAY ) last_way
       $rnd = mt_rand( 0, count( $pirates ) - 1 );
 
       db_query( "INSERT INTO ships (                    object_id, place_type, place_id, user_id,                                name, arg1, arg2, fleet_id,                      shield, inwar, guard, abordage )
-                            VALUES ({$pirates[$rnd]['object_id']},          5,        0,       4, '{$pirates[$rnd]['code']} - пираты', null, null, $fleet_id, {$pirates[$rnd]['shield']},     0,     1,        0 )" );
+                            VALUES ({$pirates[$rnd]['object_id']},          5,        0,       4, '{$pirates[$rnd]['code']} - РїРёСЂР°С‚С‹', null, null, $fleet_id, {$pirates[$rnd]['shield']},     0,     1,        0 )" );
       $ship_id = mysql_insert_id();
 
       if( $pirates[$rnd]['missile'] > 0 ) {
@@ -68,7 +68,7 @@ ua.lastlogin - DATE_SUB( NOW(), INTERVAL 7 DAY ) last_way
     db_query( "INSERT INTO users_quests ( user_id, status, type,                arg0,                 arg1,      arg2 )
                                  VALUES (       4,     10,   11, {$target['star_id']}, {$target['place_id']}, $fleet_id )" );
 
-    user_report( $target['star_id'], 1, 50, t( "Из департамента безопасности конфедерации поступило уведомление, что <font color=\"#FF0000\">в систему %s направляется флот пиратов</font>, советуем принять меры по перехвату и уничтожению флота.", array( $target['sname'] ) ) );
+    user_report( $target['star_id'], 1, 50, t( "РР· РґРµРїР°СЂС‚Р°РјРµРЅС‚Р° Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё РєРѕРЅС„РµРґРµСЂР°С†РёРё РїРѕСЃС‚СѓРїРёР»Рѕ СѓРІРµРґРѕРјР»РµРЅРёРµ, С‡С‚Рѕ <font color=\"#FF0000\">РІ СЃРёСЃС‚РµРјСѓ %s РЅР°РїСЂР°РІР»СЏРµС‚СЃСЏ С„Р»РѕС‚ РїРёСЂР°С‚РѕРІ</font>, СЃРѕРІРµС‚СѓРµРј РїСЂРёРЅСЏС‚СЊ РјРµСЂС‹ РїРѕ РїРµСЂРµС…РІР°С‚Сѓ Рё СѓРЅРёС‡С‚РѕР¶РµРЅРёСЋ С„Р»РѕС‚Р°.", array( $target['sname'] ) ) );
 
     $inter = db_fetch_array( "SELECT f.user_id, f.interupt, f.name, s.name sname
                                 FROM fleets f
@@ -83,9 +83,9 @@ ua.lastlogin - DATE_SUB( NOW(), INTERVAL 7 DAY ) last_way
     if( count( $inter ) ) {
       foreach( $inter as $mess ) {
         if( $mess['interupt'] == 1 ) {
-          send_msg( 1, $mess['user_id'], t( "Обнаружено искажение пространства в системе %s перехватчиком %s. Приближается флот Пиратов. Ожидается прибытие через %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
+          send_msg( 1, $mess['user_id'], t( "РћР±РЅР°СЂСѓР¶РµРЅРѕ РёСЃРєР°Р¶РµРЅРёРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° РІ СЃРёСЃС‚РµРјРµ %s РїРµСЂРµС…РІР°С‚С‡РёРєРѕРј %s. РџСЂРёР±Р»РёР¶Р°РµС‚СЃСЏ С„Р»РѕС‚ РџРёСЂР°С‚РѕРІ. РћР¶РёРґР°РµС‚СЃСЏ РїСЂРёР±С‹С‚РёРµ С‡РµСЂРµР· %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
         } else {
-          send_msg( 1, $mess['user_id'], t( "Обнаружено искажение пространства в системе %s перехватчиком %s, возможен гиперперехват. Приближается флот Пиратов. Ожидается прибытие через %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
+          send_msg( 1, $mess['user_id'], t( "РћР±РЅР°СЂСѓР¶РµРЅРѕ РёСЃРєР°Р¶РµРЅРёРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° РІ СЃРёСЃС‚РµРјРµ %s РїРµСЂРµС…РІР°С‚С‡РёРєРѕРј %s, РІРѕР·РјРѕР¶РµРЅ РіРёРїРµСЂРїРµСЂРµС…РІР°С‚. РџСЂРёР±Р»РёР¶Р°РµС‚СЃСЏ С„Р»РѕС‚ РџРёСЂР°С‚РѕРІ. РћР¶РёРґР°РµС‚СЃСЏ РїСЂРёР±С‹С‚РёРµ С‡РµСЂРµР· %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
         }
       }
     }

@@ -127,7 +127,7 @@ function quest_mine_event( $event ) {
                               WHERE w.place_type = 1 AND w.place_id = p.id AND p.user_id = ".$event['user_id'].
                                   " AND w.object_id = ".$event['arg2'] );
       if( $test['object_cnt'] < $event['arg1'] ) {
-        send_msg( 1, $event['user_id'], t( "Вам необходимо добыть '%s' %s или доставить их на вашу планету %s.", array( $event['arg1'], $event['arg5'], $test['name'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РґРѕР±С‹С‚СЊ '%s' %s РёР»Рё РґРѕСЃС‚Р°РІРёС‚СЊ РёС… РЅР° РІР°С€Сѓ РїР»Р°РЅРµС‚Сѓ %s.", array( $event['arg1'], $event['arg5'], $test['name'] ) ), 7 );
       }
       step_up( $event['id'] );
     break;
@@ -142,7 +142,7 @@ function quest_mine_event( $event ) {
 
         setChar( 'status', $event['arg4'], $event['user_id'] );
 
-        send_msg( 1, $event['user_id'], t( "Конфедерация гордится вами! Корабль конфедерации загрузил %s в количестве %s и улетел с вашей планеты. Именно такие колонисты как вы покоряют космос шаг за шагом. За выполнение задания вы получаете %s кредитов.", array( $event['arg5'], $event['arg1'], $event['arg3'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "РљРѕРЅС„РµРґРµСЂР°С†РёСЏ РіРѕСЂРґРёС‚СЃСЏ РІР°РјРё! РљРѕСЂР°Р±Р»СЊ РєРѕРЅС„РµРґРµСЂР°С†РёРё Р·Р°РіСЂСѓР·РёР» %s РІ РєРѕР»РёС‡РµСЃС‚РІРµ %s Рё СѓР»РµС‚РµР» СЃ РІР°С€РµР№ РїР»Р°РЅРµС‚С‹. РРјРµРЅРЅРѕ С‚Р°РєРёРµ РєРѕР»РѕРЅРёСЃС‚С‹ РєР°Рє РІС‹ РїРѕРєРѕСЂСЏСЋС‚ РєРѕСЃРјРѕСЃ С€Р°Рі Р·Р° С€Р°РіРѕРј. Р—Р° РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РґР°РЅРёСЏ РІС‹ РїРѕР»СѓС‡Р°РµС‚Рµ %s РєСЂРµРґРёС‚РѕРІ.", array( $event['arg5'], $event['arg1'], $event['arg3'] ) ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -158,9 +158,9 @@ function quest_search_event( $event ) {
                          INNER JOIN ship_types st ON st.object_id = s.object_id
                               WHERE st.radar > 0 AND s.user_id = ".$event['user_id'] );
       if( $test['cnt'] == 0 ) {
-        send_msg( 1, $event['user_id'], t( "Вам необходимо приобрести или построить радарный корабль." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРёРѕР±СЂРµСЃС‚Рё РёР»Рё РїРѕСЃС‚СЂРѕРёС‚СЊ СЂР°РґР°СЂРЅС‹Р№ РєРѕСЂР°Р±Р»СЊ." ), 7 );
       } else {
-        send_msg( 1, $event['user_id'], t( "Отправьте ваш радарный корабль к звезде %s.", array( $event['arg4'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "РћС‚РїСЂР°РІСЊС‚Рµ РІР°С€ СЂР°РґР°СЂРЅС‹Р№ РєРѕСЂР°Р±Р»СЊ Рє Р·РІРµР·РґРµ %s.", array( $event['arg4'] ) ), 7 );
       }
       step_up( $event['id'] );
     break;
@@ -188,7 +188,7 @@ function quest_search_event( $event ) {
         $ship_id = mysql_insert_id();
         db_query( "UPDATE users_quests SET arg5 = $ship_id WHERE id=".$event['id'] );
 
-        send_msg( 1, $event['user_id'], t( "Найдите потерянный корабль, будьте осторожны, в системе могут быть Трититы и пираты! Для поиска переместитесь любым вашим кораблем к желтой метке" ), 7 );
+        send_msg( 1, $event['user_id'], t( "РќР°Р№РґРёС‚Рµ РїРѕС‚РµСЂСЏРЅРЅС‹Р№ РєРѕСЂР°Р±Р»СЊ, Р±СѓРґСЊС‚Рµ РѕСЃС‚РѕСЂРѕР¶РЅС‹, РІ СЃРёСЃС‚РµРјРµ РјРѕРіСѓС‚ Р±С‹С‚СЊ РўСЂРёС‚РёС‚С‹ Рё РїРёСЂР°С‚С‹! Р”Р»СЏ РїРѕРёСЃРєР° РїРµСЂРµРјРµСЃС‚РёС‚РµСЃСЊ Р»СЋР±С‹Рј РІР°С€РёРј РєРѕСЂР°Р±Р»РµРј Рє Р¶РµР»С‚РѕР№ РјРµС‚РєРµ" ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -198,7 +198,7 @@ function quest_search_event( $event ) {
       if( !isset( $lost['id'] ) || !is_numeric( $lost['id'] ) || $lost['id'] <= 0 ) {
         setChar( 'status', -1 * $event['arg3'], $event['user_id'] );
 
-        send_msg( 1, $event['user_id'], t( "Корабль просивший вас о помощи потерян, вы нарушили договоренность! Конфедерация не одобряет ваших действий." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РљРѕСЂР°Р±Р»СЊ РїСЂРѕСЃРёРІС€РёР№ РІР°СЃ Рѕ РїРѕРјРѕС‰Рё РїРѕС‚РµСЂСЏРЅ, РІС‹ РЅР°СЂСѓС€РёР»Рё РґРѕРіРѕРІРѕСЂРµРЅРЅРѕСЃС‚СЊ! РљРѕРЅС„РµРґРµСЂР°С†РёСЏ РЅРµ РѕРґРѕР±СЂСЏРµС‚ РІР°С€РёС… РґРµР№СЃС‚РІРёР№." ), 7 );
         step_up( $event['id'], -4 );
       }
 
@@ -206,7 +206,7 @@ function quest_search_event( $event ) {
                                FROM ships
                               WHERE place_type = 7 AND place_id = {$event['arg1']} AND arg1 = {$lost['arg1']} AND arg2 = {$lost['arg2']} AND user_id = ".$event['user_id'] );
       if( $test['cnt'] ) {
-        send_msg( 1, $event['user_id'], t( "СОС!!! СОС!!! Щиты нашего корабля не смогли отразить метеорит, и он пробил топливные баки. Пожалуйста, возьмите нас во флот, нам надо добраться до любой станции конфедерации." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РЎРћРЎ!!! РЎРћРЎ!!! Р©РёС‚С‹ РЅР°С€РµРіРѕ РєРѕСЂР°Р±Р»СЏ РЅРµ СЃРјРѕРіР»Рё РѕС‚СЂР°Р·РёС‚СЊ РјРµС‚РµРѕСЂРёС‚, Рё РѕРЅ РїСЂРѕР±РёР» С‚РѕРїР»РёРІРЅС‹Рµ Р±Р°РєРё. РџРѕР¶Р°Р»СѓР№СЃС‚Р°, РІРѕР·СЊРјРёС‚Рµ РЅР°СЃ РІРѕ С„Р»РѕС‚, РЅР°Рј РЅР°РґРѕ РґРѕР±СЂР°С‚СЊСЃСЏ РґРѕ Р»СЋР±РѕР№ СЃС‚Р°РЅС†РёРё РєРѕРЅС„РµРґРµСЂР°С†РёРё." ), 7 );
         db_query( "UPDATE ships SET user_id = {$event['user_id']} WHERE id=".$event['arg5'] );
         step_up( $event['id'] );
       }
@@ -217,13 +217,13 @@ function quest_search_event( $event ) {
       if( !$test['id'] ) {
         setChar( 'status', -1 * $event['arg3'], $event['user_id'] );
 
-        send_msg( 1, $event['user_id'], t( "Корабль просивший вас о помощи потерян, вы нарушили договоренность! Конфедерация не одобряет ваших действий." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РљРѕСЂР°Р±Р»СЊ РїСЂРѕСЃРёРІС€РёР№ РІР°СЃ Рѕ РїРѕРјРѕС‰Рё РїРѕС‚РµСЂСЏРЅ, РІС‹ РЅР°СЂСѓС€РёР»Рё РґРѕРіРѕРІРѕСЂРµРЅРЅРѕСЃС‚СЊ! РљРѕРЅС„РµРґРµСЂР°С†РёСЏ РЅРµ РѕРґРѕР±СЂСЏРµС‚ РІР°С€РёС… РґРµР№СЃС‚РІРёР№." ), 7 );
         step_up( $event['id'], -3 );
       }
 
       $test = db_fetch_row( "SELECT IFNULL(fleet_id,0) fleet FROM ships WHERE id = ".$event['arg5'] );
       if( $test['fleet'] ) {
-        send_msg( 1, $event['user_id'], t( "В составе флота отбуксируйте корабль на ближайшую станцию конфедерации." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’ СЃРѕСЃС‚Р°РІРµ С„Р»РѕС‚Р° РѕС‚Р±СѓРєСЃРёСЂСѓР№С‚Рµ РєРѕСЂР°Р±Р»СЊ РЅР° Р±Р»РёР¶Р°Р№С€СѓСЋ СЃС‚Р°РЅС†РёСЋ РєРѕРЅС„РµРґРµСЂР°С†РёРё." ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -232,13 +232,13 @@ function quest_search_event( $event ) {
       $test = db_fetch_row( "SELECT id FROM ships WHERE id = ".$event['arg5'] );
       if( !$test['id'] ) {
         setChar( 'status', -1 * $event['arg3'], $event['user_id'] );
-        send_msg( 1, $event['user_id'], t( "Корабль просивший вас о помощи потерян, вы нарушили договоренность! Конфедерация не одобряет ваших действий." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РљРѕСЂР°Р±Р»СЊ РїСЂРѕСЃРёРІС€РёР№ РІР°СЃ Рѕ РїРѕРјРѕС‰Рё РїРѕС‚РµСЂСЏРЅ, РІС‹ РЅР°СЂСѓС€РёР»Рё РґРѕРіРѕРІРѕСЂРµРЅРЅРѕСЃС‚СЊ! РљРѕРЅС„РµРґРµСЂР°С†РёСЏ РЅРµ РѕРґРѕР±СЂСЏРµС‚ РІР°С€РёС… РґРµР№СЃС‚РІРёР№." ), 7 );
         step_up( $event['id'], -2 );
       }
 
       $test = db_fetch_row( "SELECT place_type FROM ships WHERE id = ".$event['arg5'] );
       if( $test['place_type'] == 3 ) {
-        send_msg( 1, $event['user_id'], t( "Корабль доставлен на станцию, расформируйте флот для завершения задания." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РљРѕСЂР°Р±Р»СЊ РґРѕСЃС‚Р°РІР»РµРЅ РЅР° СЃС‚Р°РЅС†РёСЋ, СЂР°СЃС„РѕСЂРјРёСЂСѓР№С‚Рµ С„Р»РѕС‚ РґР»СЏ Р·Р°РІРµСЂС€РµРЅРёСЏ Р·Р°РґР°РЅРёСЏ." ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -247,7 +247,7 @@ function quest_search_event( $event ) {
       $test = db_fetch_row( "SELECT id FROM ships WHERE id = ".$event['arg5'] );
       if( !$test['id'] ) {
         setChar( 'status', -1 * $event['arg3'], $event['user_id'] );
-        send_msg( 1, $event['user_id'], t( "Корабль просивший вас о помощи потерян, вы нарушили договоренность! Конфедерация не одобряет ваших действий." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РљРѕСЂР°Р±Р»СЊ РїСЂРѕСЃРёРІС€РёР№ РІР°СЃ Рѕ РїРѕРјРѕС‰Рё РїРѕС‚РµСЂСЏРЅ, РІС‹ РЅР°СЂСѓС€РёР»Рё РґРѕРіРѕРІРѕСЂРµРЅРЅРѕСЃС‚СЊ! РљРѕРЅС„РµРґРµСЂР°С†РёСЏ РЅРµ РѕРґРѕР±СЂСЏРµС‚ РІР°С€РёС… РґРµР№СЃС‚РІРёР№." ), 7 );
         step_up( $event['id'], -1 );
       }
 
@@ -257,7 +257,7 @@ function quest_search_event( $event ) {
         setChar( 'status', $event['arg3'], $event['user_id'] );
 
         db_query( "DELETE FROM ships WHERE id = ".$event['arg5'] );
-        send_msg( 1, $event['user_id'], t( "Конфедерация гордится вами! Корабль спасен и доставлен в целости и сохранности. Вы получаете %s кредитов.", array( $event['arg2'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "РљРѕРЅС„РµРґРµСЂР°С†РёСЏ РіРѕСЂРґРёС‚СЃСЏ РІР°РјРё! РљРѕСЂР°Р±Р»СЊ СЃРїР°СЃРµРЅ Рё РґРѕСЃС‚Р°РІР»РµРЅ РІ С†РµР»РѕСЃС‚Рё Рё СЃРѕС…СЂР°РЅРЅРѕСЃС‚Рё. Р’С‹ РїРѕР»СѓС‡Р°РµС‚Рµ %s РєСЂРµРґРёС‚РѕРІ.", array( $event['arg2'] ) ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -274,7 +274,7 @@ function quest_courier_event( $event ) {
 
       $test = db_fetch_row( "SELECT place_type FROM users WHERE id = ".$event['user_id'] );
       if( $test['place_type'] != 2 && $test['place_type'] != 6 ) {
-        send_msg( 1, $event['user_id'], t( "Вам необходим корабль для доставки секретного пакета. Для получения пакета необходимо ваше личное присутствие на корабле. После получения пакета вы можете сменить корабль, пакет всегда будет с вами." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРј РєРѕСЂР°Р±Р»СЊ РґР»СЏ РґРѕСЃС‚Р°РІРєРё СЃРµРєСЂРµС‚РЅРѕРіРѕ РїР°РєРµС‚Р°. Р”Р»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РїР°РєРµС‚Р° РЅРµРѕР±С…РѕРґРёРјРѕ РІР°С€Рµ Р»РёС‡РЅРѕРµ РїСЂРёСЃСѓС‚СЃС‚РІРёРµ РЅР° РєРѕСЂР°Р±Р»Рµ. РџРѕСЃР»Рµ РїРѕР»СѓС‡РµРЅРёСЏ РїР°РєРµС‚Р° РІС‹ РјРѕР¶РµС‚Рµ СЃРјРµРЅРёС‚СЊ РєРѕСЂР°Р±Р»СЊ, РїР°РєРµС‚ РІСЃРµРіРґР° Р±СѓРґРµС‚ СЃ РІР°РјРё." ), 7 );
       }
       step_up( $event['id'] );
     break;
@@ -290,7 +290,7 @@ function quest_courier_event( $event ) {
 
         db_query( "UPDATE users_quests SET arg6 = {$upd['fid']}, arg7={$upd['tid']}, arg8={$upd['pid']} WHERE id = ".$event['id'] );
 
-        send_msg( 1, $event['user_id'], t( "Летите в систему %s и пристыкуйтесь к торговой станции, не имеет значение на каком корабле, вы должны лично прилететь в систему. К вам на корабль поднимется наш человек и передаст пакет.", array( $event['arg1'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р›РµС‚РёС‚Рµ РІ СЃРёСЃС‚РµРјСѓ %s Рё РїСЂРёСЃС‚С‹РєСѓР№С‚РµСЃСЊ Рє С‚РѕСЂРіРѕРІРѕР№ СЃС‚Р°РЅС†РёРё, РЅРµ РёРјРµРµС‚ Р·РЅР°С‡РµРЅРёРµ РЅР° РєР°РєРѕРј РєРѕСЂР°Р±Р»Рµ, РІС‹ РґРѕР»Р¶РЅС‹ Р»РёС‡РЅРѕ РїСЂРёР»РµС‚РµС‚СЊ РІ СЃРёСЃС‚РµРјСѓ. Рљ РІР°Рј РЅР° РєРѕСЂР°Р±Р»СЊ РїРѕРґРЅРёРјРµС‚СЃСЏ РЅР°С€ С‡РµР»РѕРІРµРє Рё РїРµСЂРµРґР°СЃС‚ РїР°РєРµС‚.", array( $event['arg1'] ) ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -300,7 +300,7 @@ function quest_courier_event( $event ) {
       if( $test['place_type'] == 2 || $test['place_type'] == 6 ) {
         $ship = get_place_info( $test['place_id'], $test['place_type'] );
         if( $ship->place_type == 3 && $ship->place_id == $event['arg6'] ) {
-          send_msg( 1, $event['user_id'], t( "Вы получили пакет, ваша задача как можно быстрее доставить его в систему %s, мы предприняли все меры по сохранению секретности, однако по пути вас могут перехватить, постарайтесь не вступать в конфликт. Помните, что вы лично должны присутствовать на корабле", array( $event['arg3'] ) ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’С‹ РїРѕР»СѓС‡РёР»Рё РїР°РєРµС‚, РІР°С€Р° Р·Р°РґР°С‡Р° РєР°Рє РјРѕР¶РЅРѕ Р±С‹СЃС‚СЂРµРµ РґРѕСЃС‚Р°РІРёС‚СЊ РµРіРѕ РІ СЃРёСЃС‚РµРјСѓ %s, РјС‹ РїСЂРµРґРїСЂРёРЅСЏР»Рё РІСЃРµ РјРµСЂС‹ РїРѕ СЃРѕС…СЂР°РЅРµРЅРёСЋ СЃРµРєСЂРµС‚РЅРѕСЃС‚Рё, РѕРґРЅР°РєРѕ РїРѕ РїСѓС‚Рё РІР°СЃ РјРѕРіСѓС‚ РїРµСЂРµС…РІР°С‚РёС‚СЊ, РїРѕСЃС‚Р°СЂР°Р№С‚РµСЃСЊ РЅРµ РІСЃС‚СѓРїР°С‚СЊ РІ РєРѕРЅС„Р»РёРєС‚. РџРѕРјРЅРёС‚Рµ, С‡С‚Рѕ РІС‹ Р»РёС‡РЅРѕ РґРѕР»Р¶РЅС‹ РїСЂРёСЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ РЅР° РєРѕСЂР°Р±Р»Рµ", array( $event['arg3'] ) ), 7 );
           step_up( $event['id'] );
         }
       }
@@ -313,7 +313,7 @@ function quest_courier_event( $event ) {
         if( $ship->place_type == 5 ) {
           $star = db_fetch_val( "SELECT arg2 FROM space_events se WHERE se.ship_id = ".$test['place_id'], 'arg2' );
           if( $star == $event['arg2'] ) {
-            send_msg( 4, $event['user_id'], t( "Мы знаем, что вы везете пакет в систему %s, лучевой канал гиперпередачи невозможно отследить и мы с радостью сделаем вам щедрое предложение. Мы заплатим вам %d кредитов, если вы привезете пакет в систему %s.", array( $event['arg3'], $event['arg4']*2, $event['arg9'] ) ), 7 );
+            send_msg( 4, $event['user_id'], t( "РњС‹ Р·РЅР°РµРј, С‡С‚Рѕ РІС‹ РІРµР·РµС‚Рµ РїР°РєРµС‚ РІ СЃРёСЃС‚РµРјСѓ %s, Р»СѓС‡РµРІРѕР№ РєР°РЅР°Р» РіРёРїРµСЂРїРµСЂРµРґР°С‡Рё РЅРµРІРѕР·РјРѕР¶РЅРѕ РѕС‚СЃР»РµРґРёС‚СЊ Рё РјС‹ СЃ СЂР°РґРѕСЃС‚СЊСЋ СЃРґРµР»Р°РµРј РІР°Рј С‰РµРґСЂРѕРµ РїСЂРµРґР»РѕР¶РµРЅРёРµ. РњС‹ Р·Р°РїР»Р°С‚РёРј РІР°Рј %d РєСЂРµРґРёС‚РѕРІ, РµСЃР»Рё РІС‹ РїСЂРёРІРµР·РµС‚Рµ РїР°РєРµС‚ РІ СЃРёСЃС‚РµРјСѓ %s.", array( $event['arg3'], $event['arg4']*2, $event['arg9'] ) ), 7 );
 	      step_up( $event['id'] );
           }
         }
@@ -323,16 +323,16 @@ function quest_courier_event( $event ) {
             db_query( "UPDATE users u SET u.money = u.money + {$event['arg4']} WHERE u.id = {$event['user_id']}" );
             setChar( 'status', $event['arg5'], $event['user_id'] );
 
-            send_msg( 1, $event['user_id'], t( "Конфедерация благодарит вас за оказанную услугу! Мы надеемся, что вы не будете говорить о проделанной работе, помните сведения которые вы привезли помогут спасти чью-то жизнь. В качества поощрения примите %d кредитов.", array( $event['arg4'] ) ), 7 );
-            send_msg( 4, $event['user_id'], t( "Мы видели, как к вам на корабль пришел человек конфедерации, надеемся вы не сболтнули лишнего, потому что космос огромен и в нем часто теряются корабли..." ), 7 );
+            send_msg( 1, $event['user_id'], t( "РљРѕРЅС„РµРґРµСЂР°С†РёСЏ Р±Р»Р°РіРѕРґР°СЂРёС‚ РІР°СЃ Р·Р° РѕРєР°Р·Р°РЅРЅСѓСЋ СѓСЃР»СѓРіСѓ! РњС‹ РЅР°РґРµРµРјСЃСЏ, С‡С‚Рѕ РІС‹ РЅРµ Р±СѓРґРµС‚Рµ РіРѕРІРѕСЂРёС‚СЊ Рѕ РїСЂРѕРґРµР»Р°РЅРЅРѕР№ СЂР°Р±РѕС‚Рµ, РїРѕРјРЅРёС‚Рµ СЃРІРµРґРµРЅРёСЏ РєРѕС‚РѕСЂС‹Рµ РІС‹ РїСЂРёРІРµР·Р»Рё РїРѕРјРѕРіСѓС‚ СЃРїР°СЃС‚Рё С‡СЊСЋ-С‚Рѕ Р¶РёР·РЅСЊ. Р’ РєР°С‡РµСЃС‚РІР° РїРѕРѕС‰СЂРµРЅРёСЏ РїСЂРёРјРёС‚Рµ %d РєСЂРµРґРёС‚РѕРІ.", array( $event['arg4'] ) ), 7 );
+            send_msg( 4, $event['user_id'], t( "РњС‹ РІРёРґРµР»Рё, РєР°Рє Рє РІР°Рј РЅР° РєРѕСЂР°Р±Р»СЊ РїСЂРёС€РµР» С‡РµР»РѕРІРµРє РєРѕРЅС„РµРґРµСЂР°С†РёРё, РЅР°РґРµРµРјСЃСЏ РІС‹ РЅРµ СЃР±РѕР»С‚РЅСѓР»Рё Р»РёС€РЅРµРіРѕ, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РєРѕСЃРјРѕСЃ РѕРіСЂРѕРјРµРЅ Рё РІ РЅРµРј С‡Р°СЃС‚Рѕ С‚РµСЂСЏСЋС‚СЃСЏ РєРѕСЂР°Р±Р»Рё..." ), 7 );
             step_up( $event['id'], -2 );
           }
           if( $ship->place_id == $event['arg8'] ) {
             db_query( "UPDATE users u SET u.money = u.money + ".($event['arg4']*2)." WHERE u.id = {$event['user_id']}" );
             setChar( 'status', $event['arg5'] * -10, $event['user_id'] );
 
-            send_msg( 1, $event['user_id'], t( "Вы предали конфедерацию! В пакете были сведения которые могли спасти чью-то жизнь, из-за вас во вселенной будет больше смертей! Такие как вы позорят конфедерацию!" ), 7 );
-            send_msg( 4, $event['user_id'], t( "Держите ваши тридцать серебренников, помните мы с вами не встречались, вы нам ничего не отдавали, к чему лишние хлопоты по потерянным кораблям. Тут ровно %d можете не пересчитывать.", array( $event['arg4']*2 ) ), 7 );
+            send_msg( 1, $event['user_id'], t( "Р’С‹ РїСЂРµРґР°Р»Рё РєРѕРЅС„РµРґРµСЂР°С†РёСЋ! Р’ РїР°РєРµС‚Рµ Р±С‹Р»Рё СЃРІРµРґРµРЅРёСЏ РєРѕС‚РѕСЂС‹Рµ РјРѕРіР»Рё СЃРїР°СЃС‚Рё С‡СЊСЋ-С‚Рѕ Р¶РёР·РЅСЊ, РёР·-Р·Р° РІР°СЃ РІРѕ РІСЃРµР»РµРЅРЅРѕР№ Р±СѓРґРµС‚ Р±РѕР»СЊС€Рµ СЃРјРµСЂС‚РµР№! РўР°РєРёРµ РєР°Рє РІС‹ РїРѕР·РѕСЂСЏС‚ РєРѕРЅС„РµРґРµСЂР°С†РёСЋ!" ), 7 );
+            send_msg( 4, $event['user_id'], t( "Р”РµСЂР¶РёС‚Рµ РІР°С€Рё С‚СЂРёРґС†Р°С‚СЊ СЃРµСЂРµР±СЂРµРЅРЅРёРєРѕРІ, РїРѕРјРЅРёС‚Рµ РјС‹ СЃ РІР°РјРё РЅРµ РІСЃС‚СЂРµС‡Р°Р»РёСЃСЊ, РІС‹ РЅР°Рј РЅРёС‡РµРіРѕ РЅРµ РѕС‚РґР°РІР°Р»Рё, Рє С‡РµРјСѓ Р»РёС€РЅРёРµ С…Р»РѕРїРѕС‚С‹ РїРѕ РїРѕС‚РµСЂСЏРЅРЅС‹Рј РєРѕСЂР°Р±Р»СЏРј. РўСѓС‚ СЂРѕРІРЅРѕ %d РјРѕР¶РµС‚Рµ РЅРµ РїРµСЂРµСЃС‡РёС‚С‹РІР°С‚СЊ.", array( $event['arg4']*2 ) ), 7 );
             step_up( $event['id'], -2 );
           }
         }
@@ -348,16 +348,16 @@ function quest_courier_event( $event ) {
             db_query( "UPDATE users u SET u.money = u.money + {$event['arg4']} WHERE u.id = {$event['user_id']}" );
             setChar( 'status', $event['arg5'], $event['user_id'] );
 
-            send_msg( 1, $event['user_id'], t( "Конфедерация благодарит вас за оказанную услугу! Мы надеемся, что вы не будете говорить о проделанной работе, помните сведения которые вы привезли помогут спасти чью-то жизнь. В качества поощрения примите %d кредитов.", array( $event['arg4'] ) ), 7 );
-            send_msg( 4, $event['user_id'], t( "Мы видели, как к вам на корабль пришел человек конфедерации, надеемся вы не сболтнули лишнего, потому что космос огромен и в нем часто теряются корабли..." ), 7 );
+            send_msg( 1, $event['user_id'], t( "РљРѕРЅС„РµРґРµСЂР°С†РёСЏ Р±Р»Р°РіРѕРґР°СЂРёС‚ РІР°СЃ Р·Р° РѕРєР°Р·Р°РЅРЅСѓСЋ СѓСЃР»СѓРіСѓ! РњС‹ РЅР°РґРµРµРјСЃСЏ, С‡С‚Рѕ РІС‹ РЅРµ Р±СѓРґРµС‚Рµ РіРѕРІРѕСЂРёС‚СЊ Рѕ РїСЂРѕРґРµР»Р°РЅРЅРѕР№ СЂР°Р±РѕС‚Рµ, РїРѕРјРЅРёС‚Рµ СЃРІРµРґРµРЅРёСЏ РєРѕС‚РѕСЂС‹Рµ РІС‹ РїСЂРёРІРµР·Р»Рё РїРѕРјРѕРіСѓС‚ СЃРїР°СЃС‚Рё С‡СЊСЋ-С‚Рѕ Р¶РёР·РЅСЊ. Р’ РєР°С‡РµСЃС‚РІР° РїРѕРѕС‰СЂРµРЅРёСЏ РїСЂРёРјРёС‚Рµ %d РєСЂРµРґРёС‚РѕРІ.", array( $event['arg4'] ) ), 7 );
+            send_msg( 4, $event['user_id'], t( "РњС‹ РІРёРґРµР»Рё, РєР°Рє Рє РІР°Рј РЅР° РєРѕСЂР°Р±Р»СЊ РїСЂРёС€РµР» С‡РµР»РѕРІРµРє РєРѕРЅС„РµРґРµСЂР°С†РёРё, РЅР°РґРµРµРјСЃСЏ РІС‹ РЅРµ СЃР±РѕР»С‚РЅСѓР»Рё Р»РёС€РЅРµРіРѕ, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РєРѕСЃРјРѕСЃ РѕРіСЂРѕРјРµРЅ Рё РІ РЅРµРј С‡Р°СЃС‚Рѕ С‚РµСЂСЏСЋС‚СЃСЏ РєРѕСЂР°Р±Р»Рё..." ), 7 );
             step_up( $event['id'] );
           }
           if( $ship->place_id == $event['arg8'] ) {
             db_query( "UPDATE users u SET u.money = u.money + ".($event['arg4']*2)." WHERE u.id = {$event['user_id']}" );
             setChar( 'status', $event['arg5'] * -10, $event['user_id'] );
 
-            send_msg( 1, $event['user_id'], t( "Вы предали конфедерацию! В пакете были сведения которые могли спасти чью-то жизнь, из-за вас во вселенной будет больше смертей! Такие как вы позорят конфедерацию!" ), 7 );
-            send_msg( 4, $event['user_id'], t( "Держите ваши тридцать серебренников, помните мы с вами не встречались, вы нам ничего не отдавали, к чему лишние хлопоты по потерянным кораблям. Тут ровно %d можете не пересчитывать.", array( $event['arg4']*2 ) ), 7 );
+            send_msg( 1, $event['user_id'], t( "Р’С‹ РїСЂРµРґР°Р»Рё РєРѕРЅС„РµРґРµСЂР°С†РёСЋ! Р’ РїР°РєРµС‚Рµ Р±С‹Р»Рё СЃРІРµРґРµРЅРёСЏ РєРѕС‚РѕСЂС‹Рµ РјРѕРіР»Рё СЃРїР°СЃС‚Рё С‡СЊСЋ-С‚Рѕ Р¶РёР·РЅСЊ, РёР·-Р·Р° РІР°СЃ РІРѕ РІСЃРµР»РµРЅРЅРѕР№ Р±СѓРґРµС‚ Р±РѕР»СЊС€Рµ СЃРјРµСЂС‚РµР№! РўР°РєРёРµ РєР°Рє РІС‹ РїРѕР·РѕСЂСЏС‚ РєРѕРЅС„РµРґРµСЂР°С†РёСЋ!" ), 7 );
+            send_msg( 4, $event['user_id'], t( "Р”РµСЂР¶РёС‚Рµ РІР°С€Рё С‚СЂРёРґС†Р°С‚СЊ СЃРµСЂРµР±СЂРµРЅРЅРёРєРѕРІ, РїРѕРјРЅРёС‚Рµ РјС‹ СЃ РІР°РјРё РЅРµ РІСЃС‚СЂРµС‡Р°Р»РёСЃСЊ, РІС‹ РЅР°Рј РЅРёС‡РµРіРѕ РЅРµ РѕС‚РґР°РІР°Р»Рё, Рє С‡РµРјСѓ Р»РёС€РЅРёРµ С…Р»РѕРїРѕС‚С‹ РїРѕ РїРѕС‚РµСЂСЏРЅРЅС‹Рј РєРѕСЂР°Р±Р»СЏРј. РўСѓС‚ СЂРѕРІРЅРѕ %d РјРѕР¶РµС‚Рµ РЅРµ РїРµСЂРµСЃС‡РёС‚С‹РІР°С‚СЊ.", array( $event['arg4']*2 ) ), 7 );
             step_up( $event['id'] );
           }
         }
@@ -375,9 +375,9 @@ function quest_tritit_event( $event ) {
                          INNER JOIN ship_types st ON st.object_id = s.object_id
                               WHERE st.radar > 0 AND s.user_id = ".$event['user_id'] );
       if( $test['cnt'] == 0 ) {
-        send_msg( 1, $event['user_id'], t( "Вам необходимо приобрести или построить радарный корабль. Трититы могут не перехватить ваш флот." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРёРѕР±СЂРµСЃС‚Рё РёР»Рё РїРѕСЃС‚СЂРѕРёС‚СЊ СЂР°РґР°СЂРЅС‹Р№ РєРѕСЂР°Р±Р»СЊ. РўСЂРёС‚РёС‚С‹ РјРѕРіСѓС‚ РЅРµ РїРµСЂРµС…РІР°С‚РёС‚СЊ РІР°С€ С„Р»РѕС‚." ), 7 );
       } else {
-        send_msg( 1, $event['user_id'], t( "Отправьте ваш флот к звезде %s. Не забудьте включить в состав флота радарный корабль. Трититы могут не перехватить ваш флот.", array( $event['arg1'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "РћС‚РїСЂР°РІСЊС‚Рµ РІР°С€ С„Р»РѕС‚ Рє Р·РІРµР·РґРµ %s. РќРµ Р·Р°Р±СѓРґСЊС‚Рµ РІРєР»СЋС‡РёС‚СЊ РІ СЃРѕСЃС‚Р°РІ С„Р»РѕС‚Р° СЂР°РґР°СЂРЅС‹Р№ РєРѕСЂР°Р±Р»СЊ. РўСЂРёС‚РёС‚С‹ РјРѕРіСѓС‚ РЅРµ РїРµСЂРµС…РІР°С‚РёС‚СЊ РІР°С€ С„Р»РѕС‚.", array( $event['arg1'] ) ), 7 );
       }
       step_up( $event['id'] );
     break;
@@ -409,12 +409,12 @@ function quest_tritit_event( $event ) {
             $rnd = 2;
           }
           db_query( "INSERT INTO ships (object_id,     place_id, place_type, user_id,  name,    arg1, arg2, fleet_id,          shield, inwar, guard) VALUES
-                                       ({$trit[$rnd]},{$event['arg0']},   7,       3, 'Тритит', $xr,  $yr,  $fleet_id,{$shield[$rnd]},     0,     1)" );
+                                       ({$trit[$rnd]},{$event['arg0']},   7,       3, 'РўСЂРёС‚РёС‚', $xr,  $yr,  $fleet_id,{$shield[$rnd]},     0,     1)" );
         }
 
         update_fleet( $fleet_id );
 
-        send_msg( 1, $event['user_id'], t( "Найдите Трититов, их флот находится в этой системе! Для поиска переместитесь любым вашим кораблем к желтой метке" ), 7 );
+        send_msg( 1, $event['user_id'], t( "РќР°Р№РґРёС‚Рµ РўСЂРёС‚РёС‚РѕРІ, РёС… С„Р»РѕС‚ РЅР°С…РѕРґРёС‚СЃСЏ РІ СЌС‚РѕР№ СЃРёСЃС‚РµРјРµ! Р”Р»СЏ РїРѕРёСЃРєР° РїРµСЂРµРјРµСЃС‚РёС‚РµСЃСЊ Р»СЋР±С‹Рј РІР°С€РёРј РєРѕСЂР°Р±Р»РµРј Рє Р¶РµР»С‚РѕР№ РјРµС‚РєРµ" ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -425,7 +425,7 @@ function quest_tritit_event( $event ) {
         db_query( "UPDATE users u SET u.money = u.money + {$event['arg3']} WHERE u.id = {$event['user_id']}" );
         setChar( 'status', $event['arg2'], $event['user_id'] );
 
-        send_msg( 1, $event['user_id'], t( "Флот Трититов разбит! Возможно Вам помогли, но это все равно великолепное выполнение миссии. Вы получаете %d кредитов.", array( $event['arg3'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р¤Р»РѕС‚ РўСЂРёС‚РёС‚РѕРІ СЂР°Р·Р±РёС‚! Р’РѕР·РјРѕР¶РЅРѕ Р’Р°Рј РїРѕРјРѕРіР»Рё, РЅРѕ СЌС‚Рѕ РІСЃРµ СЂР°РІРЅРѕ РІРµР»РёРєРѕР»РµРїРЅРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ РјРёСЃСЃРёРё. Р’С‹ РїРѕР»СѓС‡Р°РµС‚Рµ %d РєСЂРµРґРёС‚РѕРІ.", array( $event['arg3'] ) ), 7 );
         step_up( $event['id'], -2 );
       } else {
         $lost = db_fetch_row( "SELECT arg1, arg2 FROM fleets WHERE id = ".$event['arg4'] );
@@ -433,7 +433,7 @@ function quest_tritit_event( $event ) {
                                  FROM ships
                                 WHERE place_type = 7 AND place_id = {$event['arg0']} AND arg1 = {$lost['arg1']} AND arg2 = {$lost['arg2']} AND user_id = ".$event['user_id'] );      
         if( $test['cnt'] ) {
-          send_msg( 1, $event['user_id'], t( "Уничтожьте Трититов! Ваш флот должен одержать победу в этой битве!" ), 7 );
+          send_msg( 1, $event['user_id'], t( "РЈРЅРёС‡С‚РѕР¶СЊС‚Рµ РўСЂРёС‚РёС‚РѕРІ! Р’Р°С€ С„Р»РѕС‚ РґРѕР»Р¶РµРЅ РѕРґРµСЂР¶Р°С‚СЊ РїРѕР±РµРґСѓ РІ СЌС‚РѕР№ Р±РёС‚РІРµ!" ), 7 );
           step_up( $event['id'] );
         }
       }
@@ -445,7 +445,7 @@ function quest_tritit_event( $event ) {
         db_query( "UPDATE users u SET u.money = u.money + {$event['arg3']} WHERE u.id = {$event['user_id']}" );
         setChar( 'status', $event['arg2'], $event['user_id'] );
 
-        send_msg( 1, $event['user_id'], t( "Флот Трититов разбит, вы проявили себя как истинный военачальник! Вы получаете %d кредитов.", array( $event['arg3'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р¤Р»РѕС‚ РўСЂРёС‚РёС‚РѕРІ СЂР°Р·Р±РёС‚, РІС‹ РїСЂРѕСЏРІРёР»Рё СЃРµР±СЏ РєР°Рє РёСЃС‚РёРЅРЅС‹Р№ РІРѕРµРЅР°С‡Р°Р»СЊРЅРёРє! Р’С‹ РїРѕР»СѓС‡Р°РµС‚Рµ %d РєСЂРµРґРёС‚РѕРІ.", array( $event['arg3'] ) ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -458,7 +458,7 @@ function quest_pirates_event( $event ) {
       db_query( "UPDATE users_quests SET arg0 = (SELECT id FROM stars WHERE name = '{$event['arg1']}') WHERE id = ".$event['id'] );
       db_query( "UPDATE users_quests SET arg2 = (SELECT id FROM planets WHERE name = '{$event['arg3']}') WHERE id = ".$event['id'] );
 
-      send_msg( 1, $event['user_id'], t( "Отправьте ваш флот к звезде %s. Пираты оккупировали планету %s и требуют у конфедерации выкуп за освобождение планеты. Расправьтесь с вражеским флотом.", array( $event['arg1'], $event['arg3'] ) ), 7 );
+      send_msg( 1, $event['user_id'], t( "РћС‚РїСЂР°РІСЊС‚Рµ РІР°С€ С„Р»РѕС‚ Рє Р·РІРµР·РґРµ %s. РџРёСЂР°С‚С‹ РѕРєРєСѓРїРёСЂРѕРІР°Р»Рё РїР»Р°РЅРµС‚Сѓ %s Рё С‚СЂРµР±СѓСЋС‚ Сѓ РєРѕРЅС„РµРґРµСЂР°С†РёРё РІС‹РєСѓРї Р·Р° РѕСЃРІРѕР±РѕР¶РґРµРЅРёРµ РїР»Р°РЅРµС‚С‹. Р Р°СЃРїСЂР°РІСЊС‚РµСЃСЊ СЃ РІСЂР°Р¶РµСЃРєРёРј С„Р»РѕС‚РѕРј.", array( $event['arg1'], $event['arg3'] ) ), 7 );
       step_up( $event['id'] );
     break;
 
@@ -482,7 +482,7 @@ function quest_pirates_event( $event ) {
           $rnd = mt_rand(0,count($pirates)-1);
 
           db_query( "INSERT INTO ships (object_id,       place_id, place_type, user_id, name,    arg1, arg2, fleet_id,          shield, inwar, guard, abordage) VALUES
-                                       ({$pirates[$rnd]},{$event['arg2']},  0,       4, 'Пираты',null, null, $fleet_id,{$shield[$rnd]},     0,     1,        0)" );
+                                       ({$pirates[$rnd]},{$event['arg2']},  0,       4, 'РџРёСЂР°С‚С‹',null, null, $fleet_id,{$shield[$rnd]},     0,     1,        0)" );
           $ship_id = mysql_insert_id();
           if( $missile[$rnd] > 0 ) {
             add_warehouse_item( 2, $ship_id, $missile[$rnd], 4 );
@@ -491,7 +491,7 @@ function quest_pirates_event( $event ) {
 
         update_fleet( $fleet_id );
 
-        send_msg( 1, $event['user_id'], t( "Атакуйте орбиту захваченной планеты %s! Флот пиратов находится на орбите.", array( $event['arg3'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "РђС‚Р°РєСѓР№С‚Рµ РѕСЂР±РёС‚Сѓ Р·Р°С…РІР°С‡РµРЅРЅРѕР№ РїР»Р°РЅРµС‚С‹ %s! Р¤Р»РѕС‚ РїРёСЂР°С‚РѕРІ РЅР°С…РѕРґРёС‚СЃСЏ РЅР° РѕСЂР±РёС‚Рµ.", array( $event['arg3'] ) ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -502,12 +502,12 @@ function quest_pirates_event( $event ) {
         db_query( "UPDATE users u SET u.pirate_status = u.pirate_status + 1, u.money = u.money + {$event['arg5']} WHERE u.id = {$event['user_id']}" );
         setChar( 'status', $event['arg4'], $event['user_id'] );
 
-        send_msg( 1, $event['user_id'], t( "Флот пиратов разбит! Возможно Вам помогли, но это все равно великолепное выполнение миссии. Вы получаете %d кредитов.", array( $event['arg5'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р¤Р»РѕС‚ РїРёСЂР°С‚РѕРІ СЂР°Р·Р±РёС‚! Р’РѕР·РјРѕР¶РЅРѕ Р’Р°Рј РїРѕРјРѕРіР»Рё, РЅРѕ СЌС‚Рѕ РІСЃРµ СЂР°РІРЅРѕ РІРµР»РёРєРѕР»РµРїРЅРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ РјРёСЃСЃРёРё. Р’С‹ РїРѕР»СѓС‡Р°РµС‚Рµ %d РєСЂРµРґРёС‚РѕРІ.", array( $event['arg5'] ) ), 7 );
         step_up( $event['id'], -2 );
       } else {
         $test = db_fetch_row( "SELECT count(*) cnt FROM ships WHERE place_type = 0 AND place_id = {$event['arg2']} AND user_id = ".$event['user_id'] );
         if( $test['cnt'] ) {
-          send_msg( 1, $event['user_id'], t( "Уничтожьте пиратов! Ваш флот должен одержать победу в этой битве!" ), 7 );
+          send_msg( 1, $event['user_id'], t( "РЈРЅРёС‡С‚РѕР¶СЊС‚Рµ РїРёСЂР°С‚РѕРІ! Р’Р°С€ С„Р»РѕС‚ РґРѕР»Р¶РµРЅ РѕРґРµСЂР¶Р°С‚СЊ РїРѕР±РµРґСѓ РІ СЌС‚РѕР№ Р±РёС‚РІРµ!" ), 7 );
           step_up( $event['id'] );
         }
       }
@@ -519,7 +519,7 @@ function quest_pirates_event( $event ) {
         db_query( "UPDATE users u SET u.pirate_status = u.pirate_status + 1, u.money = u.money + {$event['arg5']} WHERE u.id = {$event['user_id']}" );
         setChar( 'status', $event['arg4'], $event['user_id'] );
 
-        send_msg( 1, $event['user_id'], t( "Флот пиратов разбит, вы проявили себя как истинный военачальник! Вы получаете %d кредитов.", array( $event['arg5'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р¤Р»РѕС‚ РїРёСЂР°С‚РѕРІ СЂР°Р·Р±РёС‚, РІС‹ РїСЂРѕСЏРІРёР»Рё СЃРµР±СЏ РєР°Рє РёСЃС‚РёРЅРЅС‹Р№ РІРѕРµРЅР°С‡Р°Р»СЊРЅРёРє! Р’С‹ РїРѕР»СѓС‡Р°РµС‚Рµ %d РєСЂРµРґРёС‚РѕРІ.", array( $event['arg5'] ) ), 7 );
         step_up( $event['id'] );
       }
     break;
@@ -558,9 +558,9 @@ function quest_dolphin_event( $event ) {
       if( count( $inter ) ) {
         foreach( $inter as $mess ) {
           if( $mess['interupt'] == 1 ) {
-            send_msg( 1, $mess['user_id'], t( "Обнаружено искажение пространства в системе %s перехватчиком %s. Приближается корабль Дельфинов. Ожидается прибытие через %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
+            send_msg( 1, $mess['user_id'], t( "РћР±РЅР°СЂСѓР¶РµРЅРѕ РёСЃРєР°Р¶РµРЅРёРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° РІ СЃРёСЃС‚РµРјРµ %s РїРµСЂРµС…РІР°С‚С‡РёРєРѕРј %s. РџСЂРёР±Р»РёР¶Р°РµС‚СЃСЏ РєРѕСЂР°Р±Р»СЊ Р”РµР»СЊС„РёРЅРѕРІ. РћР¶РёРґР°РµС‚СЃСЏ РїСЂРёР±С‹С‚РёРµ С‡РµСЂРµР· %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
           } else {
-            send_msg( 1, $mess['user_id'], t( "Обнаружено искажение пространства в системе %s перехватчиком %s, возможен гиперперехват. Приближается корабль Дельфинов. Ожидается прибытие через %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
+            send_msg( 1, $mess['user_id'], t( "РћР±РЅР°СЂСѓР¶РµРЅРѕ РёСЃРєР°Р¶РµРЅРёРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° РІ СЃРёСЃС‚РµРјРµ %s РїРµСЂРµС…РІР°С‚С‡РёРєРѕРј %s, РІРѕР·РјРѕР¶РµРЅ РіРёРїРµСЂРїРµСЂРµС…РІР°С‚. РџСЂРёР±Р»РёР¶Р°РµС‚СЃСЏ РєРѕСЂР°Р±Р»СЊ Р”РµР»СЊС„РёРЅРѕРІ. РћР¶РёРґР°РµС‚СЃСЏ РїСЂРёР±С‹С‚РёРµ С‡РµСЂРµР· %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
           }
         }
       }
@@ -580,9 +580,9 @@ function quest_dolphin_event( $event ) {
       if( count( $inter ) ) {
         foreach( $inter as $mess ) {
           if( $mess['interupt'] == 1 ) {
-            send_msg( 1, $mess['user_id'], t( "Обнаружено искажение пространства в системе %s перехватчиком %s. Приближается корабль Дельфинов. Ожидается прибытие через %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
+            send_msg( 1, $mess['user_id'], t( "РћР±РЅР°СЂСѓР¶РµРЅРѕ РёСЃРєР°Р¶РµРЅРёРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° РІ СЃРёСЃС‚РµРјРµ %s РїРµСЂРµС…РІР°С‚С‡РёРєРѕРј %s. РџСЂРёР±Р»РёР¶Р°РµС‚СЃСЏ РєРѕСЂР°Р±Р»СЊ Р”РµР»СЊС„РёРЅРѕРІ. РћР¶РёРґР°РµС‚СЃСЏ РїСЂРёР±С‹С‚РёРµ С‡РµСЂРµР· %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
           } else {
-            send_msg( 1, $mess['user_id'], t( "Обнаружено искажение пространства в системе %s перехватчиком %s, возможен гиперперехват. Приближается корабль Дельфинов. Ожидается прибытие через %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
+            send_msg( 1, $mess['user_id'], t( "РћР±РЅР°СЂСѓР¶РµРЅРѕ РёСЃРєР°Р¶РµРЅРёРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° РІ СЃРёСЃС‚РµРјРµ %s РїРµСЂРµС…РІР°С‚С‡РёРєРѕРј %s, РІРѕР·РјРѕР¶РµРЅ РіРёРїРµСЂРїРµСЂРµС…РІР°С‚. РџСЂРёР±Р»РёР¶Р°РµС‚СЃСЏ РєРѕСЂР°Р±Р»СЊ Р”РµР»СЊС„РёРЅРѕРІ. РћР¶РёРґР°РµС‚СЃСЏ РїСЂРёР±С‹С‚РёРµ С‡РµСЂРµР· %s", array( $mess['sname'], $mess['name'], time_to_str( $time ) ) ), 6 );
           }
         }
       }
@@ -682,7 +682,7 @@ function quest_dolphin_event( $event ) {
             add_warehouse_item( 0, $tin['planet_id'], $event['arg0'], $event['arg1'] );
           }
 
-          send_msg( 6, $tin['user_id'], t( "Вам продали %s в количестве %s на общую сумму %s.", array( $tin['name'], $event['arg1'], $summ ) ), 16 );
+          send_msg( 6, $tin['user_id'], t( "Р’Р°Рј РїСЂРѕРґР°Р»Рё %s РІ РєРѕР»РёС‡РµСЃС‚РІРµ %s РЅР° РѕР±С‰СѓСЋ СЃСѓРјРјСѓ %s.", array( $tin['name'], $event['arg1'], $summ ) ), 16 );
 
           if( $tou['object_cnt'] > $event['arg1'] ) {
             db_query( "UPDATE trade_out SET object_cnt = object_cnt - {$event['arg1']} WHERE object_id = {$event['arg0']} AND ob_id = {$event['arg8']}" );
@@ -695,7 +695,7 @@ function quest_dolphin_event( $event ) {
           db_query( "UPDATE users SET money = money - '$summ' WHERE id = 6" );
           db_query( "UPDATE users SET money = money + '$summ' WHERE id = ".$tou['user_id'] );
 
-          send_msg( 6, $tou['user_id'], t( "У вас купили %s в количестве %s на общую сумму %s.", array( $tou['name'], $event['arg1'], $summ ) ), 16 );
+          send_msg( 6, $tou['user_id'], t( "РЈ РІР°СЃ РєСѓРїРёР»Рё %s РІ РєРѕР»РёС‡РµСЃС‚РІРµ %s РЅР° РѕР±С‰СѓСЋ СЃСѓРјРјСѓ %s.", array( $tou['name'], $event['arg1'], $summ ) ), 16 );
         }
 
         db_query( "DELETE FROM warehouse WHERE place_type = 2 AND place_id IN( {$event['arg6']}, {$event['arg7']} )" );
@@ -809,7 +809,7 @@ function quest_explore_event( $event ) {
 
       $xr = $event['arg2'];
       $yr = $event['arg3'];
-      send_msg( 1, $event['user_id'], t( "Отправьте ваш флот на исследование точки пространства %d:%d.", array( $xr, $yr ) ), 7 );
+      send_msg( 1, $event['user_id'], t( "РћС‚РїСЂР°РІСЊС‚Рµ РІР°С€ С„Р»РѕС‚ РЅР° РёСЃСЃР»РµРґРѕРІР°РЅРёРµ С‚РѕС‡РєРё РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° %d:%d.", array( $xr, $yr ) ), 7 );
 
       switch( $event['arg1'] ) {
 
@@ -839,7 +839,7 @@ function quest_explore_event( $event ) {
 
         case 2: // Pirates (40-150)
           db_query( "INSERT INTO fleets (              name, user_id, place_type, place_id, arg1, arg2, guard, abordage ) 
-                                 VALUES ( '".t('Пираты')."',       4,          8,        0,  $xr,  $yr,     1,        0 )" );
+                                 VALUES ( '".t('РџРёСЂР°С‚С‹')."',       4,          8,        0,  $xr,  $yr,     1,        0 )" );
           $fleet_id = mysql_insert_id();
           db_query( "UPDATE users_quests SET arg4 = $fleet_id, arg5 = 1 WHERE id = ".$event['id'] );
 
@@ -852,7 +852,7 @@ function quest_explore_event( $event ) {
             $rnd = mt_rand(0,count($pirates)-1);
 
             db_query( "INSERT INTO ships (       object_id, place_type, place_id, user_id,              name, arg1, arg2, fleet_id,           shield, inwar, guard, abordage)
-                                  VALUES ({$pirates[$rnd]},          8,        0,       4, '".t('Пираты')."',  $xr,  $yr, $fleet_id, {$shield[$rnd]},     0,     1,        0)" );
+                                  VALUES ({$pirates[$rnd]},          8,        0,       4, '".t('РџРёСЂР°С‚С‹')."',  $xr,  $yr, $fleet_id, {$shield[$rnd]},     0,     1,        0)" );
             $ship_id = mysql_insert_id();
             if( $missile[$rnd] > 0 ) {
               add_warehouse_item( 2, $ship_id, $missile[$rnd], 4 );
@@ -863,7 +863,7 @@ function quest_explore_event( $event ) {
 
         case 3: // Abandon aircraft carrier and 20-30 pirates
           db_query( "INSERT INTO fleets (     name, user_id, place_type, place_id, arg1, arg2, guard, abordage ) 
-                                 VALUES ( 'Пираты',       4,          8,        0,  $xr,  $yr,     1,        0 )" );
+                                 VALUES ( 'РџРёСЂР°С‚С‹',       4,          8,        0,  $xr,  $yr,     1,        0 )" );
           $fleet_id = mysql_insert_id();
           db_query( "UPDATE users_quests SET arg4 = $fleet_id, arg5 = 1 WHERE id = ".$event['id'] );
 
@@ -876,7 +876,7 @@ function quest_explore_event( $event ) {
             $rnd = mt_rand(0,count($pirates)-1);
 
             db_query( "INSERT INTO ships (       object_id, place_type, place_id, user_id,              name, arg1, arg2, fleet_id,           shield, inwar, guard, abordage)
-                                  VALUES ({$pirates[$rnd]},          8,        0,       4, '".t('Пираты')."',  $xr,  $yr, $fleet_id, {$shield[$rnd]},     0,     1,        0)" );
+                                  VALUES ({$pirates[$rnd]},          8,        0,       4, '".t('РџРёСЂР°С‚С‹')."',  $xr,  $yr, $fleet_id, {$shield[$rnd]},     0,     1,        0)" );
             $ship_id = mysql_insert_id();
             if( $missile[$rnd] > 0 ) {
               add_warehouse_item( 2, $ship_id, $missile[$rnd], 4 );
@@ -896,7 +896,7 @@ function quest_explore_event( $event ) {
 
         case 4: // Fleet of tritit (100-300)
           db_query( "INSERT INTO fleets (     name, user_id, place_type, place_id, arg1, arg2, guard ) 
-                                 VALUES ( 'Тритит',       3,          8,        0,  $xr,  $yr,     1 )" );
+                                 VALUES ( 'РўСЂРёС‚РёС‚',       3,          8,        0,  $xr,  $yr,     1 )" );
           $fleet_id = mysql_insert_id();
           db_query( "UPDATE users_quests SET arg4 = $fleet_id, arg5 = 1 WHERE id = ".$event['id'] );
 
@@ -908,7 +908,7 @@ function quest_explore_event( $event ) {
             $rnd = mt_rand(0,count($pirates)-1);
 
             db_query( "INSERT INTO ships (       object_id, place_type, place_id, user_id,              name, arg1, arg2, fleet_id,           shield, inwar, guard)
-                                  VALUES ({$pirates[$rnd]},          8,        0,       3, '".t('Тритит')."',  $xr,  $yr, $fleet_id, {$shield[$rnd]},     0,     1)" );
+                                  VALUES ({$pirates[$rnd]},          8,        0,       3, '".t('РўСЂРёС‚РёС‚')."',  $xr,  $yr, $fleet_id, {$shield[$rnd]},     0,     1)" );
             $ship_id = mysql_insert_id();
           }
           update_fleet( $fleet_id );
@@ -957,7 +957,7 @@ function quest_explore_event( $event ) {
       }
 
       if( $control === null ) {
-        send_msg( 1, $event['user_id'], t( "Конфедерация гордится вами! Все, что вы обнаружили в этой точке по праву принадлежит вам." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РљРѕРЅС„РµРґРµСЂР°С†РёСЏ РіРѕСЂРґРёС‚СЃСЏ РІР°РјРё! Р’СЃРµ, С‡С‚Рѕ РІС‹ РѕР±РЅР°СЂСѓР¶РёР»Рё РІ СЌС‚РѕР№ С‚РѕС‡РєРµ РїРѕ РїСЂР°РІСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚ РІР°Рј." ), 7 );
         db_query( "UPDATE users u SET u.money = u.money + {$event['arg0']} WHERE u.id = {$event['user_id']}" );
         setChar( 'status', $event['arg0'], $event['user_id'] );
 
@@ -974,13 +974,13 @@ function quest_battle_event( $event ) {
     case 3: // generate objects and subquest
       $xr = $event['arg2'];
       $yr = $event['arg3'];
-      send_msg( 1, $event['user_id'], t( "Отправьте ваш флот в точку пространства %d:%d.", array( $xr, $yr ) ), 7 );
-      send_msg( 4, $event['user_id'], t( "Мы знаем, что вы отправляетесь в точку пространства %d:%d, наши радары засекли вас, лучевой канал гиперпередачи невозможно отследить и мы с радостью сделаем вам предложение. Мы заплатим вам %d кредитов, если по прилету вы атакуете флот конфедерации.", array( $xr, $yr, $event['arg0'] ) ), 7 );
+      send_msg( 1, $event['user_id'], t( "РћС‚РїСЂР°РІСЊС‚Рµ РІР°С€ С„Р»РѕС‚ РІ С‚РѕС‡РєСѓ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° %d:%d.", array( $xr, $yr ) ), 7 );
+      send_msg( 4, $event['user_id'], t( "РњС‹ Р·РЅР°РµРј, С‡С‚Рѕ РІС‹ РѕС‚РїСЂР°РІР»СЏРµС‚РµСЃСЊ РІ С‚РѕС‡РєСѓ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° %d:%d, РЅР°С€Рё СЂР°РґР°СЂС‹ Р·Р°СЃРµРєР»Рё РІР°СЃ, Р»СѓС‡РµРІРѕР№ РєР°РЅР°Р» РіРёРїРµСЂРїРµСЂРµРґР°С‡Рё РЅРµРІРѕР·РјРѕР¶РЅРѕ РѕС‚СЃР»РµРґРёС‚СЊ Рё РјС‹ СЃ СЂР°РґРѕСЃС‚СЊСЋ СЃРґРµР»Р°РµРј РІР°Рј РїСЂРµРґР»РѕР¶РµРЅРёРµ. РњС‹ Р·Р°РїР»Р°С‚РёРј РІР°Рј %d РєСЂРµРґРёС‚РѕРІ, РµСЃР»Рё РїРѕ РїСЂРёР»РµС‚Сѓ РІС‹ Р°С‚Р°РєСѓРµС‚Рµ С„Р»РѕС‚ РєРѕРЅС„РµРґРµСЂР°С†РёРё.", array( $xr, $yr, $event['arg0'] ) ), 7 );
 
       $cnt = mt_rand( 80, 200 );
 
       db_query( "INSERT INTO fleets (              name, user_id, place_type, place_id, arg1, arg2, guard, abordage ) 
-                             VALUES ( '".t('Пираты')."',       4,          8,        0,  $xr,  $yr,     0,        0 )" );
+                             VALUES ( '".t('РџРёСЂР°С‚С‹')."',       4,          8,        0,  $xr,  $yr,     0,        0 )" );
       $p_fleet_id = mysql_insert_id();
       db_query( "UPDATE users_quests SET arg5 = $p_fleet_id WHERE id = ".$event['id'] );
 
@@ -992,7 +992,7 @@ function quest_battle_event( $event ) {
         $rnd = mt_rand(0,count($pirates)-1);
 
         db_query( "INSERT INTO ships (       object_id, place_type, place_id, user_id,              name, arg1, arg2,    fleet_id,          shield, inwar, guard, abordage)
-                              VALUES ({$pirates[$rnd]},          8,        0,       4, '".t('Пираты')."',  $xr,  $yr, $p_fleet_id, {$shield[$rnd]},     0,     0,        0)" );
+                              VALUES ({$pirates[$rnd]},          8,        0,       4, '".t('РџРёСЂР°С‚С‹')."',  $xr,  $yr, $p_fleet_id, {$shield[$rnd]},     0,     0,        0)" );
         $ship_id = mysql_insert_id();
         if( $missile[$rnd] > 0 ) {
           add_warehouse_item( 2, $ship_id, $missile[$rnd], 4 );
@@ -1001,7 +1001,7 @@ function quest_battle_event( $event ) {
       update_fleet( $p_fleet_id );
 
       db_query( "INSERT INTO fleets (                    name, user_id, place_type, place_id, arg1, arg2, guard, abordage ) 
-                             VALUES ( '".t('Конфедерация')."',       5,          8,        0,  $xr,  $yr,     0,        0 )" );
+                             VALUES ( '".t('РљРѕРЅС„РµРґРµСЂР°С†РёСЏ')."',       5,          8,        0,  $xr,  $yr,     0,        0 )" );
       $c_fleet_id = mysql_insert_id();
       db_query( "UPDATE users_quests SET arg4 = $c_fleet_id WHERE id = ".$event['id'] );
 
@@ -1013,7 +1013,7 @@ function quest_battle_event( $event ) {
         $rnd = mt_rand(0,count($pirates)-1);
 
         db_query( "INSERT INTO ships (       object_id, place_type, place_id, user_id,                    name, arg1, arg2,    fleet_id,          shield, inwar, guard, abordage)
-                              VALUES ({$pirates[$rnd]},          8,        0,       5, '".t('Конфедерация')."',  $xr,  $yr, $c_fleet_id, {$shield[$rnd]},     0,     0,        0)" );
+                              VALUES ({$pirates[$rnd]},          8,        0,       5, '".t('РљРѕРЅС„РµРґРµСЂР°С†РёСЏ')."',  $xr,  $yr, $c_fleet_id, {$shield[$rnd]},     0,     0,        0)" );
         $ship_id = mysql_insert_id();
         if( $missile[$rnd] > 0 ) {
           add_warehouse_item( 2, $ship_id, $missile[$rnd], 4 );
@@ -1052,7 +1052,7 @@ function quest_battle_event( $event ) {
       $isend = db_fetch_val( "SELECT count(*) cnt FROM fleets f WHERE f.id IN ( {$event['arg4']}, {$event['arg5']} )", 'cnt' );
 
       if( $isend < 2 ) {
-        send_msg( 1, $event['user_id'], t( "Вы оказали неоценимую поддержку в этой битве и по праву получаете заработанные деньги." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’С‹ РѕРєР°Р·Р°Р»Рё РЅРµРѕС†РµРЅРёРјСѓСЋ РїРѕРґРґРµСЂР¶РєСѓ РІ СЌС‚РѕР№ Р±РёС‚РІРµ Рё РїРѕ РїСЂР°РІСѓ РїРѕР»СѓС‡Р°РµС‚Рµ Р·Р°СЂР°Р±РѕС‚Р°РЅРЅС‹Рµ РґРµРЅСЊРіРё." ), 7 );
         db_query( "UPDATE users u SET u.money = u.money + {$event['arg0']} WHERE u.id = {$event['user_id']}" );
 
         db_query( "DELETE FROM ships WHERE fleet_id IN ( {$event['arg4']}, {$event['arg5']} )" );
@@ -1088,7 +1088,7 @@ function quest_battle2_event( $event ) {
       $isend = db_fetch_val( "SELECT count(*) cnt FROM fleets f WHERE f.id IN ( {$event['arg4']}, {$event['arg5']} )", 'cnt' );
 
       if( $isend < 2 ) {
-        send_msg( 1, $event['user_id'], t( "Вы оказали неоценимую поддержку в этой битве и по праву получаете заработанные деньги." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’С‹ РѕРєР°Р·Р°Р»Рё РЅРµРѕС†РµРЅРёРјСѓСЋ РїРѕРґРґРµСЂР¶РєСѓ РІ СЌС‚РѕР№ Р±РёС‚РІРµ Рё РїРѕ РїСЂР°РІСѓ РїРѕР»СѓС‡Р°РµС‚Рµ Р·Р°СЂР°Р±РѕС‚Р°РЅРЅС‹Рµ РґРµРЅСЊРіРё." ), 7 );
         db_query( "UPDATE users u SET u.money = u.money + {$event['arg0']} WHERE u.id = {$event['user_id']}" );
 
         db_query( "DELETE FROM ships WHERE fleet_id IN ( {$event['arg4']}, {$event['arg5']} )" );
@@ -1108,7 +1108,7 @@ function quest_lost_ship( $event ) {
     case 2: // generate objects
       $xr = $event['arg2'];
       $yr = $event['arg3'];
-      send_msg( 1, $event['user_id'], t( "Отправьте ваш флот на исследование точки пространства %d:%d.", array( $xr, $yr ) ), 7 );
+      send_msg( 1, $event['user_id'], t( "РћС‚РїСЂР°РІСЊС‚Рµ РІР°С€ С„Р»РѕС‚ РЅР° РёСЃСЃР»РµРґРѕРІР°РЅРёРµ С‚РѕС‡РєРё РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° %d:%d.", array( $xr, $yr ) ), 7 );
       step_up( $event['id'] );
       break;
 
@@ -1116,7 +1116,7 @@ function quest_lost_ship( $event ) {
       $control = db_fetch_val( "SELECT s.id FROM ships s WHERE s.place_type = 8 AND s.arg1 = {$event['arg2']} AND s.arg2 = {$event['arg3']} AND s.id = ".$event['arg1'], 'id' );
 
       if( $control === null ) {
-        send_msg( 1, $event['user_id'], t( "Конфедерация гордится вами! Все, что вы обнаружили в этой точке по праву принадлежит вам." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РљРѕРЅС„РµРґРµСЂР°С†РёСЏ РіРѕСЂРґРёС‚СЃСЏ РІР°РјРё! Р’СЃРµ, С‡С‚Рѕ РІС‹ РѕР±РЅР°СЂСѓР¶РёР»Рё РІ СЌС‚РѕР№ С‚РѕС‡РєРµ РїРѕ РїСЂР°РІСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚ РІР°Рј." ), 7 );
         db_query( "UPDATE users u SET u.money = u.money + {$event['arg0']} WHERE u.id = {$event['user_id']}" );
 
         step_up( $event['id'] );
@@ -1132,8 +1132,8 @@ function quest_planet_exchange( $event ) {
                            WHERE event_id = {$event['id']}" );
 
   if( $quest['timer'] < 0 ) {
-    send_msg( 1, $quest['user_id'], t( "Ваше задание просрочено, задание снято с исполнителя." ), 7 );
-    send_msg( 1, $event['user_id'], t( "Вы просрочили выполнение задания. Все произведенные вами действия не будут оплачены, поскольку срок и условия были обговорены заранее." ), 7 );
+    send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РїСЂРѕСЃСЂРѕС‡РµРЅРѕ, Р·Р°РґР°РЅРёРµ СЃРЅСЏС‚Рѕ СЃ РёСЃРїРѕР»РЅРёС‚РµР»СЏ." ), 7 );
+    send_msg( 1, $event['user_id'], t( "Р’С‹ РїСЂРѕСЃСЂРѕС‡РёР»Рё РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РґР°РЅРёСЏ. Р’СЃРµ РїСЂРѕРёР·РІРµРґРµРЅРЅС‹Рµ РІР°РјРё РґРµР№СЃС‚РІРёСЏ РЅРµ Р±СѓРґСѓС‚ РѕРїР»Р°С‡РµРЅС‹, РїРѕСЃРєРѕР»СЊРєСѓ СЃСЂРѕРє Рё СѓСЃР»РѕРІРёСЏ Р±С‹Р»Рё РѕР±РіРѕРІРѕСЂРµРЅС‹ Р·Р°СЂР°РЅРµРµ." ), 7 );
 
     db_query( "UPDATE users SET decline_time = NOW() WHERE id = ".$event['user_id'] );
     db_query( "UPDATE users_quests SET user_id = null, status = 4 WHERE id = {$event['id']}" );
@@ -1146,7 +1146,7 @@ function quest_planet_exchange( $event ) {
     case 4:
       $control = db_fetch_val( "SELECT count(*) cnt FROM ships s WHERE s.user_id = {$event['user_id']} AND s.object_id = 9321", 'cnt' );
       if( $control < 2 ) {
-        send_msg( 1, $event['user_id'], t( "Вам необходимо 2 корабля Гипер врата, без наличия этих кораблей вы не сможете переместить планеты." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ 2 РєРѕСЂР°Р±Р»СЏ Р“РёРїРµСЂ РІСЂР°С‚Р°, Р±РµР· РЅР°Р»РёС‡РёСЏ СЌС‚РёС… РєРѕСЂР°Р±Р»РµР№ РІС‹ РЅРµ СЃРјРѕР¶РµС‚Рµ РїРµСЂРµРјРµСЃС‚РёС‚СЊ РїР»Р°РЅРµС‚С‹." ), 7 );
       }
       step_up( $event['id'] );
       break;
@@ -1154,7 +1154,7 @@ function quest_planet_exchange( $event ) {
     case 3:
       $control = db_fetch_val( "SELECT count(*) cnt FROM ships s WHERE s.user_id = {$event['user_id']} AND s.object_id = 9321", 'cnt' );
       if( $control >= 2 ) {
-        send_msg( 1, $event['user_id'], t( "Отправьте два ваших корабля Гипер врата к планетам %s в системе %s и %s в системе %s. Будьте бдительны, ваши корабли могут быть атакованы!", array( $event['arg0'], $event['arg1'], $event['arg2'], $event['arg3'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "РћС‚РїСЂР°РІСЊС‚Рµ РґРІР° РІР°С€РёС… РєРѕСЂР°Р±Р»СЏ Р“РёРїРµСЂ РІСЂР°С‚Р° Рє РїР»Р°РЅРµС‚Р°Рј %s РІ СЃРёСЃС‚РµРјРµ %s Рё %s РІ СЃРёСЃС‚РµРјРµ %s. Р‘СѓРґСЊС‚Рµ Р±РґРёС‚РµР»СЊРЅС‹, РІР°С€Рё РєРѕСЂР°Р±Р»Рё РјРѕРіСѓС‚ Р±С‹С‚СЊ Р°С‚Р°РєРѕРІР°РЅС‹!", array( $event['arg0'], $event['arg1'], $event['arg2'], $event['arg3'] ) ), 7 );
 
         step_up( $event['id'] );
       }
@@ -1163,7 +1163,7 @@ function quest_planet_exchange( $event ) {
     case 2:
       $control = db_fetch_val( "SELECT COUNT( DISTINCT s.place_id ) cnt FROM ships s WHERE s.user_id = {$event['user_id']} AND s.object_id = 9321 AND s.place_type = 0 AND s.place_id IN ( {$quest['arg0']}, {$quest['arg2']} )", 'cnt' );
       if( $control >= 2 ) {
-        send_msg( 1, $event['user_id'], t( "Хорошая работа! Вам осталось открыть врата и дождаться когда планеты поменяются местами. Охраняйте ваши корабли до завершения обмена планет, вам могут помешать." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РҐРѕСЂРѕС€Р°СЏ СЂР°Р±РѕС‚Р°! Р’Р°Рј РѕСЃС‚Р°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ РІСЂР°С‚Р° Рё РґРѕР¶РґР°С‚СЊСЃСЏ РєРѕРіРґР° РїР»Р°РЅРµС‚С‹ РїРѕРјРµРЅСЏСЋС‚СЃСЏ РјРµСЃС‚Р°РјРё. РћС…СЂР°РЅСЏР№С‚Рµ РІР°С€Рё РєРѕСЂР°Р±Р»Рё РґРѕ Р·Р°РІРµСЂС€РµРЅРёСЏ РѕР±РјРµРЅР° РїР»Р°РЅРµС‚, РІР°Рј РјРѕРіСѓС‚ РїРѕРјРµС€Р°С‚СЊ." ), 7 );
 
         step_up( $event['id'] );
       }
@@ -1172,8 +1172,8 @@ function quest_planet_exchange( $event ) {
     case 1: // check new place of planets
       $control = db_fetch_val( "SELECT count(*) cnt FROM planets p WHERE ( p.star_id = {$quest['arg3']} AND p.id = {$quest['arg0']} AND p.planet_pos = {$quest['arg5']} ) OR ( p.star_id = {$quest['arg1']} AND p.id = {$quest['arg2']} AND p.planet_pos = {$quest['arg4']} )", 'cnt' );
       if( $control == 2 ) {
-        send_msg( 1, $quest['user_id'], t( "Ваше задание выполнено. Планеты %s в системе %s и %s в системе %s перемещены.", array( $event['arg0'], $event['arg1'], $event['arg2'], $event['arg3'] ) ), 7 );
-        send_msg( 1, $event['user_id'], t( "Благодарим вас за оказанную услугу, в будующем мы к вам еще обратимся." ), 7 );
+        send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РІС‹РїРѕР»РЅРµРЅРѕ. РџР»Р°РЅРµС‚С‹ %s РІ СЃРёСЃС‚РµРјРµ %s Рё %s РІ СЃРёСЃС‚РµРјРµ %s РїРµСЂРµРјРµС‰РµРЅС‹.", array( $event['arg0'], $event['arg1'], $event['arg2'], $event['arg3'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р‘Р»Р°РіРѕРґР°СЂРёРј РІР°СЃ Р·Р° РѕРєР°Р·Р°РЅРЅСѓСЋ СѓСЃР»СѓРіСѓ, РІ Р±СѓРґСѓСЋС‰РµРј РјС‹ Рє РІР°Рј РµС‰Рµ РѕР±СЂР°С‚РёРјСЃСЏ." ), 7 );
         if( $quest['currency'] == 1 ) {
           db_query( "UPDATE users u SET u.donate = u.donate + {$quest['summ']}, u.credits = u.credits + {$quest['summ']} WHERE u.id = {$event['user_id']}" );
         } else {
@@ -1193,8 +1193,8 @@ function quest_destroy_mission( $event ) {
                            WHERE event_id = {$event['id']}" );
 
   if( $quest['timer'] < 0 ) {
-    send_msg( 1, $quest['user_id'], t( "Ваше задание просрочено, задание снято с исполнителя." ), 7 );
-    send_msg( 1, $event['user_id'], t( "Вы просрочили выполнение задания. Все произведенные вами действия не будут оплачены, поскольку срок и условия были обговорены заранее." ), 7 );
+    send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РїСЂРѕСЃСЂРѕС‡РµРЅРѕ, Р·Р°РґР°РЅРёРµ СЃРЅСЏС‚Рѕ СЃ РёСЃРїРѕР»РЅРёС‚РµР»СЏ." ), 7 );
+    send_msg( 1, $event['user_id'], t( "Р’С‹ РїСЂРѕСЃСЂРѕС‡РёР»Рё РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РґР°РЅРёСЏ. Р’СЃРµ РїСЂРѕРёР·РІРµРґРµРЅРЅС‹Рµ РІР°РјРё РґРµР№СЃС‚РІРёСЏ РЅРµ Р±СѓРґСѓС‚ РѕРїР»Р°С‡РµРЅС‹, РїРѕСЃРєРѕР»СЊРєСѓ СЃСЂРѕРє Рё СѓСЃР»РѕРІРёСЏ Р±С‹Р»Рё РѕР±РіРѕРІРѕСЂРµРЅС‹ Р·Р°СЂР°РЅРµРµ." ), 7 );
 
     db_query( "UPDATE users SET decline_time = NOW() WHERE id = ".$event['user_id'] );
     db_query( "UPDATE users_quests SET user_id = null, status = 2 WHERE id = {$event['id']}" );
@@ -1205,9 +1205,9 @@ function quest_destroy_mission( $event ) {
   switch( $event['status'] ) {
     case 2: // ready and go
       if( $event['type'] == 17 ) {
-        send_msg( 1, $event['user_id'], t( "Соберите военный флот и отправьте его на уничтожение орбитальной обороны планеты {$event['arg1']} в системе {$event['arg2']}. Проведите разведку, что бы выйграть сражение с наименьшими потерями.", array( $event['arg1'], $event['arg2'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "РЎРѕР±РµСЂРёС‚Рµ РІРѕРµРЅРЅС‹Р№ С„Р»РѕС‚ Рё РѕС‚РїСЂР°РІСЊС‚Рµ РµРіРѕ РЅР° СѓРЅРёС‡С‚РѕР¶РµРЅРёРµ РѕСЂР±РёС‚Р°Р»СЊРЅРѕР№ РѕР±РѕСЂРѕРЅС‹ РїР»Р°РЅРµС‚С‹ {$event['arg1']} РІ СЃРёСЃС‚РµРјРµ {$event['arg2']}. РџСЂРѕРІРµРґРёС‚Рµ СЂР°Р·РІРµРґРєСѓ, С‡С‚Рѕ Р±С‹ РІС‹Р№РіСЂР°С‚СЊ СЃСЂР°Р¶РµРЅРёРµ СЃ РЅР°РёРјРµРЅСЊС€РёРјРё РїРѕС‚РµСЂСЏРјРё.", array( $event['arg1'], $event['arg2'] ) ), 7 );
       } else {
-        send_msg( 1, $event['user_id'], t( "Соберите военный флот и отправьте его на уничтожение планетарной обороны планеты {$event['arg1']} в системе {$event['arg2']}. Проведите разведку, что бы выйграть сражение с наименьшими потерями.", array( $event['arg1'], $event['arg2'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "РЎРѕР±РµСЂРёС‚Рµ РІРѕРµРЅРЅС‹Р№ С„Р»РѕС‚ Рё РѕС‚РїСЂР°РІСЊС‚Рµ РµРіРѕ РЅР° СѓРЅРёС‡С‚РѕР¶РµРЅРёРµ РїР»Р°РЅРµС‚Р°СЂРЅРѕР№ РѕР±РѕСЂРѕРЅС‹ РїР»Р°РЅРµС‚С‹ {$event['arg1']} РІ СЃРёСЃС‚РµРјРµ {$event['arg2']}. РџСЂРѕРІРµРґРёС‚Рµ СЂР°Р·РІРµРґРєСѓ, С‡С‚Рѕ Р±С‹ РІС‹Р№РіСЂР°С‚СЊ СЃСЂР°Р¶РµРЅРёРµ СЃ РЅР°РёРјРµРЅСЊС€РёРјРё РїРѕС‚РµСЂСЏРјРё.", array( $event['arg1'], $event['arg2'] ) ), 7 );
       }
 
       step_up( $event['id'] );
@@ -1222,12 +1222,12 @@ function quest_destroy_mission( $event ) {
 
       if( $control == 0 ) {
         if( $event['type'] == 17 ) {
-          send_msg( 1, $quest['user_id'], t( "Ваше задание выполнено. Орбитальная оборона планеты {$event['arg1']} в системе {$event['arg2']} уничтожена.", array( $event['arg1'], $event['arg2'] ) ), 7 );
+          send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РІС‹РїРѕР»РЅРµРЅРѕ. РћСЂР±РёС‚Р°Р»СЊРЅР°СЏ РѕР±РѕСЂРѕРЅР° РїР»Р°РЅРµС‚С‹ {$event['arg1']} РІ СЃРёСЃС‚РµРјРµ {$event['arg2']} СѓРЅРёС‡С‚РѕР¶РµРЅР°.", array( $event['arg1'], $event['arg2'] ) ), 7 );
         } else {
-          send_msg( 1, $quest['user_id'], t( "Ваше задание выполнено. Планетарная оборона планеты {$event['arg1']} в системе {$event['arg2']} уничтожена.", array( $event['arg1'], $event['arg2'] ) ), 7 );
+          send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РІС‹РїРѕР»РЅРµРЅРѕ. РџР»Р°РЅРµС‚Р°СЂРЅР°СЏ РѕР±РѕСЂРѕРЅР° РїР»Р°РЅРµС‚С‹ {$event['arg1']} РІ СЃРёСЃС‚РµРјРµ {$event['arg2']} СѓРЅРёС‡С‚РѕР¶РµРЅР°.", array( $event['arg1'], $event['arg2'] ) ), 7 );
         }
 
-        send_msg( 1, $event['user_id'], t( "Благодарим вас за оказанную услугу, вы проявили себя настоящим воином." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р‘Р»Р°РіРѕРґР°СЂРёРј РІР°СЃ Р·Р° РѕРєР°Р·Р°РЅРЅСѓСЋ СѓСЃР»СѓРіСѓ, РІС‹ РїСЂРѕСЏРІРёР»Рё СЃРµР±СЏ РЅР°СЃС‚РѕСЏС‰РёРј РІРѕРёРЅРѕРј." ), 7 );
         if( $quest['currency'] == 1 ) {
           db_query( "UPDATE users u SET u.donate = u.donate + {$quest['summ']}, u.credits = u.credits + {$quest['summ']} WHERE u.id = {$event['user_id']}" );
         } else {
@@ -1250,8 +1250,8 @@ function quest_build_mission( $event ) {
     $control = db_fetch_val( "SELECT count(*) cnt FROM planets_buildings WHERE planet_id = {$quest['arg0']} AND object_id = {$event['arg3']}", 'cnt' );
     $ready = $control - $quest['arg4'];
 
-    send_msg( 1, $quest['user_id'], t( "Ваше задание просрочено, построенно %d %s данная работа не будет оплачена.", array( $ready, $event['arg4'] ) ), 7 );
-    send_msg( 1, $event['user_id'], t( "Вы просрочили задания, построенно %d %s данная работа не будет оплачена.", array( $ready, $event['arg4'] ) ), 7 );
+    send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РїСЂРѕСЃСЂРѕС‡РµРЅРѕ, РїРѕСЃС‚СЂРѕРµРЅРЅРѕ %d %s РґР°РЅРЅР°СЏ СЂР°Р±РѕС‚Р° РЅРµ Р±СѓРґРµС‚ РѕРїР»Р°С‡РµРЅР°.", array( $ready, $event['arg4'] ) ), 7 );
+    send_msg( 1, $event['user_id'], t( "Р’С‹ РїСЂРѕСЃСЂРѕС‡РёР»Рё Р·Р°РґР°РЅРёСЏ, РїРѕСЃС‚СЂРѕРµРЅРЅРѕ %d %s РґР°РЅРЅР°СЏ СЂР°Р±РѕС‚Р° РЅРµ Р±СѓРґРµС‚ РѕРїР»Р°С‡РµРЅР°.", array( $ready, $event['arg4'] ) ), 7 );
 
     $res = db_fetch_array( "SELECT w.object_id, w.object_cnt
                               FROM warequest w
@@ -1281,7 +1281,7 @@ function quest_build_mission( $event ) {
     case 3:
       $control = db_fetch_row( "SELECT place_id, place_type FROM users WHERE id = ".$event['user_id'] );
       if( $control['place_type'] != 3 ) {
-        send_msg( 1, $event['user_id'], t( "Вам необходимо прибыть на любую торговую станцию и покинуть корабль. Вас переместят на планету заказчика." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРёР±С‹С‚СЊ РЅР° Р»СЋР±СѓСЋ С‚РѕСЂРіРѕРІСѓСЋ СЃС‚Р°РЅС†РёСЋ Рё РїРѕРєРёРЅСѓС‚СЊ РєРѕСЂР°Р±Р»СЊ. Р’Р°СЃ РїРµСЂРµРјРµСЃС‚СЏС‚ РЅР° РїР»Р°РЅРµС‚Сѓ Р·Р°РєР°Р·С‡РёРєР°." ), 7 );
       }
       step_up( $event['id'] );
       break;
@@ -1289,7 +1289,7 @@ function quest_build_mission( $event ) {
     case 2: // Test on station and teleport to planet
       $control = db_fetch_row( "SELECT place_id, place_type FROM users WHERE id = ".$event['user_id'] );
       if( $control['place_type'] == 3 ) {
-        send_msg( 1, $event['user_id'], t( "Вас переместили на планету, ваша задача построить %s %s после чего вас переместят обратно на ту же торговую станцию и выплатят вознаграждение.", array( $event['arg0'], $event['arg4'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’Р°СЃ РїРµСЂРµРјРµСЃС‚РёР»Рё РЅР° РїР»Р°РЅРµС‚Сѓ, РІР°С€Р° Р·Р°РґР°С‡Р° РїРѕСЃС‚СЂРѕРёС‚СЊ %s %s РїРѕСЃР»Рµ С‡РµРіРѕ РІР°СЃ РїРµСЂРµРјРµСЃС‚СЏС‚ РѕР±СЂР°С‚РЅРѕ РЅР° С‚Сѓ Р¶Рµ С‚РѕСЂРіРѕРІСѓСЋ СЃС‚Р°РЅС†РёСЋ Рё РІС‹РїР»Р°С‚СЏС‚ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ.", array( $event['arg0'], $event['arg4'] ) ), 7 );
 
         $cnt = db_fetch_val( "SELECT count(*) cnt FROM planets_buildings WHERE planet_id = {$quest['arg0']} AND object_id = {$event['arg3']}", 'cnt' );
         db_query( "UPDATE u2u_quests SET arg1 = {$control['place_id']}, arg4 = $cnt WHERE event_id = {$event['id']}" );
@@ -1302,8 +1302,8 @@ function quest_build_mission( $event ) {
       $control = db_fetch_val( "SELECT count(*) cnt FROM planets_buildings WHERE planet_id = {$quest['arg0']} AND object_id = {$event['arg3']}", 'cnt' );
 
       if( $control >= $event['arg0'] + $quest['arg4'] ) {
-        send_msg( 1, $quest['user_id'], t( "Ваше задание выполнено. На планете %s в системе %s построено %d %s.", array( $event['arg5'], $event['arg6'], $event['arg0'], $event['arg4'] ) ), 7 );
-        send_msg( 1, $event['user_id'], t( "Благодарим вас за оказанную услугу, вы очень помогли развитию колонии. Сейчас вас переместят обратно на торговую станцию." ), 7 );
+        send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РІС‹РїРѕР»РЅРµРЅРѕ. РќР° РїР»Р°РЅРµС‚Рµ %s РІ СЃРёСЃС‚РµРјРµ %s РїРѕСЃС‚СЂРѕРµРЅРѕ %d %s.", array( $event['arg5'], $event['arg6'], $event['arg0'], $event['arg4'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р‘Р»Р°РіРѕРґР°СЂРёРј РІР°СЃ Р·Р° РѕРєР°Р·Р°РЅРЅСѓСЋ СѓСЃР»СѓРіСѓ, РІС‹ РѕС‡РµРЅСЊ РїРѕРјРѕРіР»Рё СЂР°Р·РІРёС‚РёСЋ РєРѕР»РѕРЅРёРё. РЎРµР№С‡Р°СЃ РІР°СЃ РїРµСЂРµРјРµСЃС‚СЏС‚ РѕР±СЂР°С‚РЅРѕ РЅР° С‚РѕСЂРіРѕРІСѓСЋ СЃС‚Р°РЅС†РёСЋ." ), 7 );
 
         if( $quest['currency'] == 1 ) {
           db_query( "UPDATE users u SET place_type = 3, place_id = {$quest['arg1']}, u.donate = u.donate + {$quest['summ']}, u.credits = u.credits + {$quest['summ']} WHERE u.id = {$event['user_id']}" );
@@ -1316,8 +1316,8 @@ function quest_build_mission( $event ) {
 
       $control = db_fetch_val( "SELECT sum( w.object_cnt ) cnt FROM warequest w WHERE w.quest_id = {$event['id']}", 'cnt' );
       if( $control == 0 ) {
-        send_msg( 1, $quest['user_id'], t( "Ресурсы закончились, ваше задание считается выполненым. На планете %s в системе %s построено %d %s.", array( $event['arg5'], $event['arg6'], $event['arg0'], $event['arg4'] ) ), 7 );
-        send_msg( 1, $event['user_id'], t( "Благодарим вас за оказанную услугу, вы очень помогли развитию колонии. Сейчас вас переместят обратно на торговую станцию." ), 7 );
+        send_msg( 1, $quest['user_id'], t( "Р РµСЃСѓСЂСЃС‹ Р·Р°РєРѕРЅС‡РёР»РёСЃСЊ, РІР°С€Рµ Р·Р°РґР°РЅРёРµ СЃС‡РёС‚Р°РµС‚СЃСЏ РІС‹РїРѕР»РЅРµРЅС‹Рј. РќР° РїР»Р°РЅРµС‚Рµ %s РІ СЃРёСЃС‚РµРјРµ %s РїРѕСЃС‚СЂРѕРµРЅРѕ %d %s.", array( $event['arg5'], $event['arg6'], $event['arg0'], $event['arg4'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р‘Р»Р°РіРѕРґР°СЂРёРј РІР°СЃ Р·Р° РѕРєР°Р·Р°РЅРЅСѓСЋ СѓСЃР»СѓРіСѓ, РІС‹ РѕС‡РµРЅСЊ РїРѕРјРѕРіР»Рё СЂР°Р·РІРёС‚РёСЋ РєРѕР»РѕРЅРёРё. РЎРµР№С‡Р°СЃ РІР°СЃ РїРµСЂРµРјРµСЃС‚СЏС‚ РѕР±СЂР°С‚РЅРѕ РЅР° С‚РѕСЂРіРѕРІСѓСЋ СЃС‚Р°РЅС†РёСЋ." ), 7 );
 
         if( $quest['currency'] == 1 ) {
           db_query( "UPDATE users u SET place_type = 3, place_id = {$quest['arg1']}, u.donate = u.donate + {$quest['summ']}, u.credits = u.credits + {$quest['summ']} WHERE u.id = {$event['user_id']}" );
@@ -1341,8 +1341,8 @@ function quest_upgrade_mission( $event ) {
 
   if( $quest['timer'] < 0 ) {
     if( $event['status'] == 2 ) {
-      send_msg( 1, $quest['user_id'], t( "Ваше задание просрочено, квест возвращен на задания." ), 7 );
-      send_msg( 1, $event['user_id'], t( "Вы просрочили задания. Данная работа не будет оплачена." ), 7 );
+      send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РїСЂРѕСЃСЂРѕС‡РµРЅРѕ, РєРІРµСЃС‚ РІРѕР·РІСЂР°С‰РµРЅ РЅР° Р·Р°РґР°РЅРёСЏ." ), 7 );
+      send_msg( 1, $event['user_id'], t( "Р’С‹ РїСЂРѕСЃСЂРѕС‡РёР»Рё Р·Р°РґР°РЅРёСЏ. Р”Р°РЅРЅР°СЏ СЂР°Р±РѕС‚Р° РЅРµ Р±СѓРґРµС‚ РѕРїР»Р°С‡РµРЅР°." ), 7 );
 
       db_query( "UPDATE users_quests SET user_id = null, status = 3 WHERE id = {$event['id']}" );
     } else {
@@ -1362,8 +1362,8 @@ function quest_upgrade_mission( $event ) {
         $control = db_fetch_val( "SELECT COUNT(*) cnt FROM planets_buildings pb WHERE planet_id = {$quest['arg0']} AND pb.level < 10", 'cnt' );
       }
 
-      send_msg( 1, $quest['user_id'], t( "Ваше задание просрочено, на планете %s в системе %s не улучшено %d строений. Данная работа не будет оплачена.", array( $event['arg5'], $event['arg6'], $control ) ), 7 );
-      send_msg( 1, $event['user_id'], t( "Вы просрочили задания, не улучшено %d строений. Данная работа не будет оплачена.", array( $control ) ), 7 );
+      send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РїСЂРѕСЃСЂРѕС‡РµРЅРѕ, РЅР° РїР»Р°РЅРµС‚Рµ %s РІ СЃРёСЃС‚РµРјРµ %s РЅРµ СѓР»СѓС‡С€РµРЅРѕ %d СЃС‚СЂРѕРµРЅРёР№. Р”Р°РЅРЅР°СЏ СЂР°Р±РѕС‚Р° РЅРµ Р±СѓРґРµС‚ РѕРїР»Р°С‡РµРЅР°.", array( $event['arg5'], $event['arg6'], $control ) ), 7 );
+      send_msg( 1, $event['user_id'], t( "Р’С‹ РїСЂРѕСЃСЂРѕС‡РёР»Рё Р·Р°РґР°РЅРёСЏ, РЅРµ СѓР»СѓС‡С€РµРЅРѕ %d СЃС‚СЂРѕРµРЅРёР№. Р”Р°РЅРЅР°СЏ СЂР°Р±РѕС‚Р° РЅРµ Р±СѓРґРµС‚ РѕРїР»Р°С‡РµРЅР°.", array( $control ) ), 7 );
 
       $res = db_fetch_array( "SELECT w.object_id, w.object_cnt
                                 FROM warequest w
@@ -1395,7 +1395,7 @@ function quest_upgrade_mission( $event ) {
     case 3:
       $control = db_fetch_row( "SELECT place_id, place_type FROM users WHERE id = ".$event['user_id'] );
       if( $control['place_type'] != 3 ) {
-        send_msg( 1, $event['user_id'], t( "Вам необходимо прибыть на любую торговую станцию и покинуть корабль. Вас переместят на планету заказчика." ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРёР±С‹С‚СЊ РЅР° Р»СЋР±СѓСЋ С‚РѕСЂРіРѕРІСѓСЋ СЃС‚Р°РЅС†РёСЋ Рё РїРѕРєРёРЅСѓС‚СЊ РєРѕСЂР°Р±Р»СЊ. Р’Р°СЃ РїРµСЂРµРјРµСЃС‚СЏС‚ РЅР° РїР»Р°РЅРµС‚Сѓ Р·Р°РєР°Р·С‡РёРєР°." ), 7 );
       }
       step_up( $event['id'] );
       break;
@@ -1405,9 +1405,9 @@ function quest_upgrade_mission( $event ) {
       if( $control['place_type'] == 3 ) {
 
         if( $event['type'] == 28 ) {
-          send_msg( 1, $event['user_id'], t( "Вас переместили на планету, ваша задача улучшить все постройки на 1 уровень, определить не улучшенные здания можно найти на миникарте используя (+). После выполнения вас переместят обратно на ту же торговую станцию и выплатят вознаграждение." ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’Р°СЃ РїРµСЂРµРјРµСЃС‚РёР»Рё РЅР° РїР»Р°РЅРµС‚Сѓ, РІР°С€Р° Р·Р°РґР°С‡Р° СѓР»СѓС‡С€РёС‚СЊ РІСЃРµ РїРѕСЃС‚СЂРѕР№РєРё РЅР° 1 СѓСЂРѕРІРµРЅСЊ, РѕРїСЂРµРґРµР»РёС‚СЊ РЅРµ СѓР»СѓС‡С€РµРЅРЅС‹Рµ Р·РґР°РЅРёСЏ РјРѕР¶РЅРѕ РЅР°Р№С‚Рё РЅР° РјРёРЅРёРєР°СЂС‚Рµ РёСЃРїРѕР»СЊР·СѓСЏ (+). РџРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ РІР°СЃ РїРµСЂРµРјРµСЃС‚СЏС‚ РѕР±СЂР°С‚РЅРѕ РЅР° С‚Сѓ Р¶Рµ С‚РѕСЂРіРѕРІСѓСЋ СЃС‚Р°РЅС†РёСЋ Рё РІС‹РїР»Р°С‚СЏС‚ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ." ), 7 );
         } else {
-          send_msg( 1, $event['user_id'], t( "Вас переместили на планету, ваша задача улучшить все постройки до 10 уровня, определить не улучшенные здания можно найти на миникарте используя (+). После выполнения вас переместят обратно на ту же торговую станцию и выплатят вознаграждение." ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’Р°СЃ РїРµСЂРµРјРµСЃС‚РёР»Рё РЅР° РїР»Р°РЅРµС‚Сѓ, РІР°С€Р° Р·Р°РґР°С‡Р° СѓР»СѓС‡С€РёС‚СЊ РІСЃРµ РїРѕСЃС‚СЂРѕР№РєРё РґРѕ 10 СѓСЂРѕРІРЅСЏ, РѕРїСЂРµРґРµР»РёС‚СЊ РЅРµ СѓР»СѓС‡С€РµРЅРЅС‹Рµ Р·РґР°РЅРёСЏ РјРѕР¶РЅРѕ РЅР°Р№С‚Рё РЅР° РјРёРЅРёРєР°СЂС‚Рµ РёСЃРїРѕР»СЊР·СѓСЏ (+). РџРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ РІР°СЃ РїРµСЂРµРјРµСЃС‚СЏС‚ РѕР±СЂР°С‚РЅРѕ РЅР° С‚Сѓ Р¶Рµ С‚РѕСЂРіРѕРІСѓСЋ СЃС‚Р°РЅС†РёСЋ Рё РІС‹РїР»Р°С‚СЏС‚ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ." ), 7 );
         }
 
 /*
@@ -1477,8 +1477,8 @@ function quest_upgrade_mission( $event ) {
       }
 
       if( $control == 0 ) {
-        send_msg( 1, $quest['user_id'], t( "Ваше задание выполнено. На планете {$event['arg5']} в системе {$event['arg6']} улучшены все постройки.", array( $event['arg5'], $event['arg6'] ) ), 7 );
-        send_msg( 1, $event['user_id'], t( "Благодарим вас за оказанную услугу, вы очень помогли развитию колонии. Сейчас вас переместят обратно на торговую станцию." ), 7 );
+        send_msg( 1, $quest['user_id'], t( "Р’Р°С€Рµ Р·Р°РґР°РЅРёРµ РІС‹РїРѕР»РЅРµРЅРѕ. РќР° РїР»Р°РЅРµС‚Рµ {$event['arg5']} РІ СЃРёСЃС‚РµРјРµ {$event['arg6']} СѓР»СѓС‡С€РµРЅС‹ РІСЃРµ РїРѕСЃС‚СЂРѕР№РєРё.", array( $event['arg5'], $event['arg6'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р‘Р»Р°РіРѕРґР°СЂРёРј РІР°СЃ Р·Р° РѕРєР°Р·Р°РЅРЅСѓСЋ СѓСЃР»СѓРіСѓ, РІС‹ РѕС‡РµРЅСЊ РїРѕРјРѕРіР»Рё СЂР°Р·РІРёС‚РёСЋ РєРѕР»РѕРЅРёРё. РЎРµР№С‡Р°СЃ РІР°СЃ РїРµСЂРµРјРµСЃС‚СЏС‚ РѕР±СЂР°С‚РЅРѕ РЅР° С‚РѕСЂРіРѕРІСѓСЋ СЃС‚Р°РЅС†РёСЋ." ), 7 );
 
         if( $quest['currency'] == 1 ) {
           db_query( "UPDATE users u SET place_type = 3, place_id = {$quest['arg1']}, u.donate = u.donate + {$quest['summ']}, u.credits = u.credits + {$quest['summ']} WHERE u.id = {$event['user_id']}" );
@@ -1495,7 +1495,7 @@ function quest_upgrade_mission( $event ) {
 function quest_ring_event( $event ) {
   switch( $event['status'] ) {
     case 7:
-      send_msg( 1, $event['user_id'], t( "Вам необходимо собрать экспедицию в систему {$event['arg2']} на планету {$event['arg4']}. Мы не знаем, в каких отношениях вы состоите с властями данной системы, однако во время нашего визита она была не обитаема.", array( $event['arg2'], $event['arg4'] ) ), 7 );
+      send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ СЃРѕР±СЂР°С‚СЊ СЌРєСЃРїРµРґРёС†РёСЋ РІ СЃРёСЃС‚РµРјСѓ {$event['arg2']} РЅР° РїР»Р°РЅРµС‚Сѓ {$event['arg4']}. РњС‹ РЅРµ Р·РЅР°РµРј, РІ РєР°РєРёС… РѕС‚РЅРѕС€РµРЅРёСЏС… РІС‹ СЃРѕСЃС‚РѕРёС‚Рµ СЃ РІР»Р°СЃС‚СЏРјРё РґР°РЅРЅРѕР№ СЃРёСЃС‚РµРјС‹, РѕРґРЅР°РєРѕ РІРѕ РІСЂРµРјСЏ РЅР°С€РµРіРѕ РІРёР·РёС‚Р° РѕРЅР° Р±С‹Р»Р° РЅРµ РѕР±РёС‚Р°РµРјР°.", array( $event['arg2'], $event['arg4'] ) ), 7 );
       step_up( $event['id'] );
       break;
 
@@ -1505,9 +1505,9 @@ function quest_ring_event( $event ) {
                               WHERE s.place_type = 7 AND s.place_id = {$event['arg1']} AND s.user_id = ".$event['user_id'], 'cnt' );
       if( $test > 0 ) {
         db_query( "INSERT INTO ships ( object_id,         place_id, place_type, user_id,     name, arg1, arg2, fleet_id, shield, inwar, guard, abordage ) VALUES
-                                     (      9148, {$event['arg3']},          0,       4, 'Пираты', null, null,     null,     10,     0,     1,        0 )" );
+                                     (      9148, {$event['arg3']},          0,       4, 'РџРёСЂР°С‚С‹', null, null,     null,     10,     0,     1,        0 )" );
 
-        send_msg( 1, $event['user_id'], t( "Вам необходимо приземлиться на планету {$event['arg4']} и найти кольцо.", array( $event['arg4'] ) ), 7 );
+        send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРёР·РµРјР»РёС‚СЊСЃСЏ РЅР° РїР»Р°РЅРµС‚Сѓ {$event['arg4']} Рё РЅР°Р№С‚Рё РєРѕР»СЊС†Рѕ.", array( $event['arg4'] ) ), 7 );
         step_up( $event['id'] );
       }
       break;
@@ -1525,14 +1525,14 @@ function quest_ring_event( $event ) {
                                    WHERE p.id = {$event['arg8']}" );
           add_warehouse_item( 1, $event['arg3'], 9460, 1 );
 
-          send_msg( 1, $event['user_id'], t( "Вам повезло! Вы нашли кольцо - погрузите его в корабль и отправляйтесь в систему {$names['sname']} к планете {$names['pname']} на торговой станции вас встретят представители короля и вручат вознаграждение.", array( $names['sname'], $names['pname'] ) ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’Р°Рј РїРѕРІРµР·Р»Рѕ! Р’С‹ РЅР°С€Р»Рё РєРѕР»СЊС†Рѕ - РїРѕРіСЂСѓР·РёС‚Рµ РµРіРѕ РІ РєРѕСЂР°Р±Р»СЊ Рё РѕС‚РїСЂР°РІР»СЏР№С‚РµСЃСЊ РІ СЃРёСЃС‚РµРјСѓ {$names['sname']} Рє РїР»Р°РЅРµС‚Рµ {$names['pname']} РЅР° С‚РѕСЂРіРѕРІРѕР№ СЃС‚Р°РЅС†РёРё РІР°СЃ РІСЃС‚СЂРµС‚СЏС‚ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»Рё РєРѕСЂРѕР»СЏ Рё РІСЂСѓС‡Р°С‚ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ.", array( $names['sname'], $names['pname'] ) ), 7 );
           step_up( $event['id'] );
         } else {
           $new_coord = db_fetch_row( "SELECT s.id sid, s.name sname, p.id pid, p.name pname FROM planets p LEFT JOIN planets_buildings pb ON pb.planet_id = p.id INNER JOIN stars s ON s.type != 4 AND p.star_id = s.id WHERE p.type IN( 3, 4 ) AND pb.id IS NULL ORDER BY rand() LIMIT 0,1" );
 
           db_query( "UPDATE users_quests SET arg1 = {$new_coord['sid']}, arg2 = '{$new_coord['sname']}', arg3 = {$new_coord['pid']}, arg4 = '{$new_coord['pname']}' WHERE id = ".$event['id'] );
 
-          send_msg( 1, $event['user_id'], t( "Ваши поисковые боты доложили, что кольцо не обнаружено. Возможно, оно утеряно на другой планете. Отправьте вашу экспедицию в систему {$new_coord['sname']} к планете {$new_coord['pname']}.", array( $new_coord['sname'], $new_coord['pname'] ) ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’Р°С€Рё РїРѕРёСЃРєРѕРІС‹Рµ Р±РѕС‚С‹ РґРѕР»РѕР¶РёР»Рё, С‡С‚Рѕ РєРѕР»СЊС†Рѕ РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ. Р’РѕР·РјРѕР¶РЅРѕ, РѕРЅРѕ СѓС‚РµСЂСЏРЅРѕ РЅР° РґСЂСѓРіРѕР№ РїР»Р°РЅРµС‚Рµ. РћС‚РїСЂР°РІСЊС‚Рµ РІР°С€Сѓ СЌРєСЃРїРµРґРёС†РёСЋ РІ СЃРёСЃС‚РµРјСѓ {$new_coord['sname']} Рє РїР»Р°РЅРµС‚Рµ {$new_coord['pname']}.", array( $new_coord['sname'], $new_coord['pname'] ) ), 7 );
           step_up( $event['id'], 1 );
         }
       }
@@ -1550,14 +1550,14 @@ function quest_ring_event( $event ) {
       if( $orbit > 0 && $planet == 0 ) {
         $ring = db_fetch_val( "SELECT count(*) cnt FROM warehouse w WHERE w.object_id = 9460 AND w.place_type = 1 AND w.place_id = {$event['arg3']}", 'cnt' );
         if( $ring ) {
-          send_msg( 1, $event['user_id'], t( "Вернитесь на планету %s и загрузите кольцо! Вы забыли его там.", array( $event['arg4'] ) ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’РµСЂРЅРёС‚РµСЃСЊ РЅР° РїР»Р°РЅРµС‚Сѓ %s Рё Р·Р°РіСЂСѓР·РёС‚Рµ РєРѕР»СЊС†Рѕ! Р’С‹ Р·Р°Р±С‹Р»Рё РµРіРѕ С‚Р°Рј.", array( $event['arg4'] ) ), 7 );
         } else {
           $names = db_fetch_row( "SELECT p.name pname, s.name sname
                                     FROM planets p
                               INNER JOIN stars s ON s.id = p.star_id
                                    WHERE p.id = {$event['arg6']}" );
 
-          send_msg( 4, $event['user_id'], t( "Вы сбили наш корабль, однако мы не в обиде, все, что от вас требуется, это продать нам кольцо. Заметьте, мы предлагаем вам %d кредитов, а это в четыре раза больше обещанного. Если вы согласны, вам необходимо прибыть в систему %s на астероид %s.", array( $event['arg0'] * 4, $names['sname'], $names['pname'] ) ), 7 );
+          send_msg( 4, $event['user_id'], t( "Р’С‹ СЃР±РёР»Рё РЅР°С€ РєРѕСЂР°Р±Р»СЊ, РѕРґРЅР°РєРѕ РјС‹ РЅРµ РІ РѕР±РёРґРµ, РІСЃРµ, С‡С‚Рѕ РѕС‚ РІР°СЃ С‚СЂРµР±СѓРµС‚СЃСЏ, СЌС‚Рѕ РїСЂРѕРґР°С‚СЊ РЅР°Рј РєРѕР»СЊС†Рѕ. Р—Р°РјРµС‚СЊС‚Рµ, РјС‹ РїСЂРµРґР»Р°РіР°РµРј РІР°Рј %d РєСЂРµРґРёС‚РѕРІ, Р° СЌС‚Рѕ РІ С‡РµС‚С‹СЂРµ СЂР°Р·Р° Р±РѕР»СЊС€Рµ РѕР±РµС‰Р°РЅРЅРѕРіРѕ. Р•СЃР»Рё РІС‹ СЃРѕРіР»Р°СЃРЅС‹, РІР°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРёР±С‹С‚СЊ РІ СЃРёСЃС‚РµРјСѓ %s РЅР° Р°СЃС‚РµСЂРѕРёРґ %s.", array( $event['arg0'] * 4, $names['sname'], $names['pname'] ) ), 7 );
           step_up( $event['id'] );
         }
       }
@@ -1569,12 +1569,12 @@ function quest_ring_event( $event ) {
                               WHERE s.place_type = 0 AND s.place_id IN( {$event['arg6']}, {$event['arg8']} ) AND s.user_id = ".$event['user_id'], 'place' );
 
       if( $test == $event['arg6'] ) {
-        send_msg( 4, $event['user_id'], t( "Мы видим, что вы оказались разумным человеком, что бы не привлекать внимания приземлитесь на астероид, там вас встретит доверенный человек, выгрузите кольцо на поверхность и получите ваши деньги." ), 7 );
+        send_msg( 4, $event['user_id'], t( "РњС‹ РІРёРґРёРј, С‡С‚Рѕ РІС‹ РѕРєР°Р·Р°Р»РёСЃСЊ СЂР°Р·СѓРјРЅС‹Рј С‡РµР»РѕРІРµРєРѕРј, С‡С‚Рѕ Р±С‹ РЅРµ РїСЂРёРІР»РµРєР°С‚СЊ РІРЅРёРјР°РЅРёСЏ РїСЂРёР·РµРјР»РёС‚РµСЃСЊ РЅР° Р°СЃС‚РµСЂРѕРёРґ, С‚Р°Рј РІР°СЃ РІСЃС‚СЂРµС‚РёС‚ РґРѕРІРµСЂРµРЅРЅС‹Р№ С‡РµР»РѕРІРµРє, РІС‹РіСЂСѓР·РёС‚Рµ РєРѕР»СЊС†Рѕ РЅР° РїРѕРІРµСЂС…РЅРѕСЃС‚СЊ Рё РїРѕР»СѓС‡РёС‚Рµ РІР°С€Рё РґРµРЅСЊРіРё." ), 7 );
         step_up( $event['id'] );
       }
 
       if( $test == $event['arg8'] ) {
-        send_msg( 1, $event['user_id'], t( "Отлично! Вы вернули кольцо королю, пристыкуйтесь к торговой станции, и я отдам вам ваше вознаграждение." ), 7 );
+        send_msg( 1, $event['user_id'], t( "РћС‚Р»РёС‡РЅРѕ! Р’С‹ РІРµСЂРЅСѓР»Рё РєРѕР»СЊС†Рѕ РєРѕСЂРѕР»СЋ, РїСЂРёСЃС‚С‹РєСѓР№С‚РµСЃСЊ Рє С‚РѕСЂРіРѕРІРѕР№ СЃС‚Р°РЅС†РёРё, Рё СЏ РѕС‚РґР°Рј РІР°Рј РІР°С€Рµ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ." ), 7 );
         step_up( $event['id'] );
       }
       break;
@@ -1587,8 +1587,8 @@ function quest_ring_event( $event ) {
                                   WHERE w.object_id = 9460 AND s.place_type = 3 AND s.place_id = ob.id AND
                                         ob.object_id = 3001 AND ob.planet_id = {$event['arg8']} AND s.user_id = ".$event['user_id'], 'id' );
       if( $stantion ) {
-        send_msg( 4, $event['user_id'], t( "Мы вам предлагали сделать как лучше, но вы решили поступить по своему, мы будем мстить!" ), 7 );
-        send_msg( 1, $event['user_id'], t( "Спасибо за поиски кольца, вы оказали неоценимую услугу нашему королю, прошу не афишируйте факт потери кольца, это плохо скажется на репутации." ), 7 );
+        send_msg( 4, $event['user_id'], t( "РњС‹ РІР°Рј РїСЂРµРґР»Р°РіР°Р»Рё СЃРґРµР»Р°С‚СЊ РєР°Рє Р»СѓС‡С€Рµ, РЅРѕ РІС‹ СЂРµС€РёР»Рё РїРѕСЃС‚СѓРїРёС‚СЊ РїРѕ СЃРІРѕРµРјСѓ, РјС‹ Р±СѓРґРµРј РјСЃС‚РёС‚СЊ!" ), 7 );
+        send_msg( 1, $event['user_id'], t( "РЎРїР°СЃРёР±Рѕ Р·Р° РїРѕРёСЃРєРё РєРѕР»СЊС†Р°, РІС‹ РѕРєР°Р·Р°Р»Рё РЅРµРѕС†РµРЅРёРјСѓСЋ СѓСЃР»СѓРіСѓ РЅР°С€РµРјСѓ РєРѕСЂРѕР»СЋ, РїСЂРѕС€Сѓ РЅРµ Р°С„РёС€РёСЂСѓР№С‚Рµ С„Р°РєС‚ РїРѕС‚РµСЂРё РєРѕР»СЊС†Р°, СЌС‚Рѕ РїР»РѕС…Рѕ СЃРєР°Р¶РµС‚СЃСЏ РЅР° СЂРµРїСѓС‚Р°С†РёРё." ), 7 );
         sub_warehouse_item( 2, $stantion, 9460, 1 );
 
         db_query( "UPDATE users u SET u.pirate_status = u.pirate_status + 1, u.money = u.money + {$event['arg0']} WHERE u.id = {$event['user_id']}" );
@@ -1606,7 +1606,7 @@ function quest_ring_event( $event ) {
                                  WHERE s.place_type IN ( 0, 1 ) AND s.place_id = {$event['arg6']} AND s.user_id = {$event['user_id']}", 'cnt' );
  
        if( $power < mt_rand( 10, 100 ) ) {
-          send_msg( 4, $event['user_id'], t( "Мы тут подумали и решили, что не будем платить вам денег, просто выгрузите кольцо и улетайте, если вы попытаетесь взлететь с кольцом, то флот на орбите откроет огонь." ), 7 );
+          send_msg( 4, $event['user_id'], t( "РњС‹ С‚СѓС‚ РїРѕРґСѓРјР°Р»Рё Рё СЂРµС€РёР»Рё, С‡С‚Рѕ РЅРµ Р±СѓРґРµРј РїР»Р°С‚РёС‚СЊ РІР°Рј РґРµРЅРµРі, РїСЂРѕСЃС‚Рѕ РІС‹РіСЂСѓР·РёС‚Рµ РєРѕР»СЊС†Рѕ Рё СѓР»РµС‚Р°Р№С‚Рµ, РµСЃР»Рё РІС‹ РїРѕРїС‹С‚Р°РµС‚РµСЃСЊ РІР·Р»РµС‚РµС‚СЊ СЃ РєРѕР»СЊС†РѕРј, С‚Рѕ С„Р»РѕС‚ РЅР° РѕСЂР±РёС‚Рµ РѕС‚РєСЂРѕРµС‚ РѕРіРѕРЅСЊ." ), 7 );
           step_up( $event['id'] );
 
           db_query( "INSERT INTO fleets ( user_id, place_type,         place_id, arg1, arg2, guard, abordage )
@@ -1622,7 +1622,7 @@ function quest_ring_event( $event ) {
             $rnd = mt_rand( 0, count( $pirates ) - 1 );
 
             db_query( "INSERT INTO ships (        object_id,        place_id, place_type, user_id,              name, arg1, arg2, fleet_id,           shield, inwar, guard, abordage ) VALUES
-                                         ( {$pirates[$rnd]},{$event['arg6']},          0,       4, '".t('Пираты')."', null, null, $fleet_id, {$shield[$rnd]},     0,     0,        0 )" );
+                                         ( {$pirates[$rnd]},{$event['arg6']},          0,       4, '".t('РџРёСЂР°С‚С‹')."', null, null, $fleet_id, {$shield[$rnd]},     0,     0,        0 )" );
             $ship_id = mysql_insert_id();
             if( $missile[$rnd] > 0 ) {
               add_warehouse_item( 2, $ship_id, $missile[$rnd], 4 );
@@ -1631,7 +1631,7 @@ function quest_ring_event( $event ) {
 
           update_fleet( $fleet_id );
         } else {
-          send_msg( 4, $event['user_id'], t( "Забирайте ваши деньги и проваливайте, пока мы не передумали и не разнесли вас на атомы. Надеюсь у вас хватит ума не рассказывать куда вы дели кольцо." ), 7 );
+          send_msg( 4, $event['user_id'], t( "Р—Р°Р±РёСЂР°Р№С‚Рµ РІР°С€Рё РґРµРЅСЊРіРё Рё РїСЂРѕРІР°Р»РёРІР°Р№С‚Рµ, РїРѕРєР° РјС‹ РЅРµ РїРµСЂРµРґСѓРјР°Р»Рё Рё РЅРµ СЂР°Р·РЅРµСЃР»Рё РІР°СЃ РЅР° Р°С‚РѕРјС‹. РќР°РґРµСЋСЃСЊ Сѓ РІР°СЃ С…РІР°С‚РёС‚ СѓРјР° РЅРµ СЂР°СЃСЃРєР°Р·С‹РІР°С‚СЊ РєСѓРґР° РІС‹ РґРµР»Рё РєРѕР»СЊС†Рѕ." ), 7 );
 
           $ring = db_fetch_val( "SELECT s.id
                                    FROM ships s
@@ -1655,7 +1655,7 @@ function quest_ring_event( $event ) {
       if( $land == 0 && $ring == 0 ) {
         $pacific = db_fetch_val( "SELECT count(*) cnt FROM fleets WHERE guard = 0 AND id = {$event['arg9']}", 'cnt' );
         if( $pacific ) {
-          send_msg( 4, $event['user_id'], t( "А вы оказались очень смелым, но глупым. Прощайте, не могу сказать, что был рад знакомству." ), 7 );
+          send_msg( 4, $event['user_id'], t( "Рђ РІС‹ РѕРєР°Р·Р°Р»РёСЃСЊ РѕС‡РµРЅСЊ СЃРјРµР»С‹Рј, РЅРѕ РіР»СѓРїС‹Рј. РџСЂРѕС‰Р°Р№С‚Рµ, РЅРµ РјРѕРіСѓ СЃРєР°Р·Р°С‚СЊ, С‡С‚Рѕ Р±С‹Р» СЂР°Рґ Р·РЅР°РєРѕРјСЃС‚РІСѓ." ), 7 );
 
           db_query( "UPDATE fleets SET guard = 1 WHERE id = {$event['arg9']}" );
           db_query( "UPDATE ships SET guard = 1 WHERE fleet_id = {$event['arg9']}" );
@@ -1670,8 +1670,8 @@ function quest_ring_event( $event ) {
 
           db_query( "UPDATE users u SET u.pirate_status = u.pirate_status + 1 WHERE u.id = {$event['user_id']}" );
 
-          send_msg( 4, $event['user_id'], t( "Как вы посмели уничтожить наш флот! Вы же понимаете, что просто так это вам с рук не сойдет, мы будем мстить!" ), 7 );
-          send_msg( 1, $event['user_id'], t( "Вы немного задерживаетесь, с кольцом все в порядке? Отправляйтесь в систему %s к планете %s на торговой станции вас встретят представители короля и вручат вознаграждение.", array( $names['sname'], $names['pname'] ) ), 7 );
+          send_msg( 4, $event['user_id'], t( "РљР°Рє РІС‹ РїРѕСЃРјРµР»Рё СѓРЅРёС‡С‚РѕР¶РёС‚СЊ РЅР°С€ С„Р»РѕС‚! Р’С‹ Р¶Рµ РїРѕРЅРёРјР°РµС‚Рµ, С‡С‚Рѕ РїСЂРѕСЃС‚Рѕ С‚Р°Рє СЌС‚Рѕ РІР°Рј СЃ СЂСѓРє РЅРµ СЃРѕР№РґРµС‚, РјС‹ Р±СѓРґРµРј РјСЃС‚РёС‚СЊ!" ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’С‹ РЅРµРјРЅРѕРіРѕ Р·Р°РґРµСЂР¶РёРІР°РµС‚РµСЃСЊ, СЃ РєРѕР»СЊС†РѕРј РІСЃРµ РІ РїРѕСЂСЏРґРєРµ? РћС‚РїСЂР°РІР»СЏР№С‚РµСЃСЊ РІ СЃРёСЃС‚РµРјСѓ %s Рє РїР»Р°РЅРµС‚Рµ %s РЅР° С‚РѕСЂРіРѕРІРѕР№ СЃС‚Р°РЅС†РёРё РІР°СЃ РІСЃС‚СЂРµС‚СЏС‚ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»Рё РєРѕСЂРѕР»СЏ Рё РІСЂСѓС‡Р°С‚ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ.", array( $names['sname'], $names['pname'] ) ), 7 );
 
           db_query( "UPDATE users_quests SET arg6 = 0 WHERE id=".$event['id'] );
   
@@ -1685,7 +1685,7 @@ function quest_ring_event( $event ) {
           db_query( "DELETE FROM ships WHERE fleet_id = {$event['arg9']}" );
         }
 
-        send_msg( 4, $event['user_id'], t( "Ну вот и правильно, к чему этот излишний героизм. Позор лучший способ скрыть темные делишки, вы же никому не расскажете, что сбежали испугавшись пиратов." ), 7 );
+        send_msg( 4, $event['user_id'], t( "РќСѓ РІРѕС‚ Рё РїСЂР°РІРёР»СЊРЅРѕ, Рє С‡РµРјСѓ СЌС‚РѕС‚ РёР·Р»РёС€РЅРёР№ РіРµСЂРѕРёР·Рј. РџРѕР·РѕСЂ Р»СѓС‡С€РёР№ СЃРїРѕСЃРѕР± СЃРєСЂС‹С‚СЊ С‚РµРјРЅС‹Рµ РґРµР»РёС€РєРё, РІС‹ Р¶Рµ РЅРёРєРѕРјСѓ РЅРµ СЂР°СЃСЃРєР°Р¶РµС‚Рµ, С‡С‚Рѕ СЃР±РµР¶Р°Р»Рё РёСЃРїСѓРіР°РІС€РёСЃСЊ РїРёСЂР°С‚РѕРІ." ), 7 );
         step_up( $event['id'] );
       }
 
@@ -1697,7 +1697,7 @@ function quest_find_event( $event ) {
   switch( $event['status'] ) {
 
     case 2:
-      send_msg( 1, $event['user_id'], t( "Вам необходимо обнаружить планету принадлежащую '%s' Достаточно, что бы орбитальная или планетарная оборона имела принадлежность к пилоту '%s'.", array( $event['arg0'], $event['arg0'] ) ), 7 );
+      send_msg( 1, $event['user_id'], t( "Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РѕР±РЅР°СЂСѓР¶РёС‚СЊ РїР»Р°РЅРµС‚Сѓ РїСЂРёРЅР°РґР»РµР¶Р°С‰СѓСЋ '%s' Р”РѕСЃС‚Р°С‚РѕС‡РЅРѕ, С‡С‚Рѕ Р±С‹ РѕСЂР±РёС‚Р°Р»СЊРЅР°СЏ РёР»Рё РїР»Р°РЅРµС‚Р°СЂРЅР°СЏ РѕР±РѕСЂРѕРЅР° РёРјРµР»Р° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ Рє РїРёР»РѕС‚Сѓ '%s'.", array( $event['arg0'], $event['arg0'] ) ), 7 );
       step_up( $event['id'] );
       break;
   }
@@ -1722,8 +1722,8 @@ function quest_duel_event( $event ) {
     $status = db_fetch_val( "SELECT status FROM users_quests WHERE type = 34 AND arg4 = {$quest['event_id']}", 'status' );
 
     if( $status == 3 ) {
-      send_msg( 1, $quest['user_id'], t( "Вы предложили дуэль и не явились на нее. В знак призрения коммандиры ваших кораблей подали в отставку в полном составе. В течении 6-х часов вы не сможете отдать приказ своим кораблям." ), 7 );
-      send_msg( 1, $quest['to_user'], t( "Ваш соперник по дуэли не явился, вы можете забрать свой флот, вы считаетесь победителем и получаете вознаграждение %d конфедерат.", array( $price ) ), 7 );
+      send_msg( 1, $quest['user_id'], t( "Р’С‹ РїСЂРµРґР»РѕР¶РёР»Рё РґСѓСЌР»СЊ Рё РЅРµ СЏРІРёР»РёСЃСЊ РЅР° РЅРµРµ. Р’ Р·РЅР°Рє РїСЂРёР·СЂРµРЅРёСЏ РєРѕРјРјР°РЅРґРёСЂС‹ РІР°С€РёС… РєРѕСЂР°Р±Р»РµР№ РїРѕРґР°Р»Рё РІ РѕС‚СЃС‚Р°РІРєСѓ РІ РїРѕР»РЅРѕРј СЃРѕСЃС‚Р°РІРµ. Р’ С‚РµС‡РµРЅРёРё 6-С… С‡Р°СЃРѕРІ РІС‹ РЅРµ СЃРјРѕР¶РµС‚Рµ РѕС‚РґР°С‚СЊ РїСЂРёРєР°Р· СЃРІРѕРёРј РєРѕСЂР°Р±Р»СЏРј." ), 7 );
+      send_msg( 1, $quest['to_user'], t( "Р’Р°С€ СЃРѕРїРµСЂРЅРёРє РїРѕ РґСѓСЌР»Рё РЅРµ СЏРІРёР»СЃСЏ, РІС‹ РјРѕР¶РµС‚Рµ Р·Р°Р±СЂР°С‚СЊ СЃРІРѕР№ С„Р»РѕС‚, РІС‹ СЃС‡РёС‚Р°РµС‚РµСЃСЊ РїРѕР±РµРґРёС‚РµР»РµРј Рё РїРѕР»СѓС‡Р°РµС‚Рµ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ %d РєРѕРЅС„РµРґРµСЂР°С‚.", array( $price ) ), 7 );
 
       db_query( "UPDATE users u SET u.donate = u.donate + $price, u.credits = u.credits + $price WHERE u.id = {$quest['to_user']}" );
       db_query( "UPDATE users u SET u.block = 1 WHERE u.id = {$quest['user_id']}" );
@@ -1734,8 +1734,8 @@ function quest_duel_event( $event ) {
     $status = db_fetch_val( "SELECT status FROM users_quests WHERE id = {$quest['event_id']}", 'status' );
 
     if( $status == 3 ) {
-      send_msg( 1, $quest['user_id'], t( "Ваш соперник по дуэли не явился, вы можете забрать свой флот, вы считаетесь победителем и получаете вознаграждение %d конфедерат.", array( $price ) ), 7 );
-      send_msg( 1, $quest['to_user'], t( "Вы не явились на дуэль. В знак призрения коммандиры ваших кораблей подали в отставку в полном составе. В течении 6-х часов вы не сможете отдать приказ своим кораблям." ), 7 );
+      send_msg( 1, $quest['user_id'], t( "Р’Р°С€ СЃРѕРїРµСЂРЅРёРє РїРѕ РґСѓСЌР»Рё РЅРµ СЏРІРёР»СЃСЏ, РІС‹ РјРѕР¶РµС‚Рµ Р·Р°Р±СЂР°С‚СЊ СЃРІРѕР№ С„Р»РѕС‚, РІС‹ СЃС‡РёС‚Р°РµС‚РµСЃСЊ РїРѕР±РµРґРёС‚РµР»РµРј Рё РїРѕР»СѓС‡Р°РµС‚Рµ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ %d РєРѕРЅС„РµРґРµСЂР°С‚.", array( $price ) ), 7 );
+      send_msg( 1, $quest['to_user'], t( "Р’С‹ РЅРµ СЏРІРёР»РёСЃСЊ РЅР° РґСѓСЌР»СЊ. Р’ Р·РЅР°Рє РїСЂРёР·СЂРµРЅРёСЏ РєРѕРјРјР°РЅРґРёСЂС‹ РІР°С€РёС… РєРѕСЂР°Р±Р»РµР№ РїРѕРґР°Р»Рё РІ РѕС‚СЃС‚Р°РІРєСѓ РІ РїРѕР»РЅРѕРј СЃРѕСЃС‚Р°РІРµ. Р’ С‚РµС‡РµРЅРёРё 6-С… С‡Р°СЃРѕРІ РІС‹ РЅРµ СЃРјРѕР¶РµС‚Рµ РѕС‚РґР°С‚СЊ РїСЂРёРєР°Р· СЃРІРѕРёРј РєРѕСЂР°Р±Р»СЏРј." ), 7 );
 
       db_query( "UPDATE users u SET u.donate = u.donate + $price, u.credits = u.credits + $price WHERE u.id = {$quest['user_id']}" );
       db_query( "UPDATE users u SET u.block = 1 WHERE u.id = {$quest['to_user']}" );
@@ -1752,7 +1752,7 @@ debug_it( $quest );
   switch( $event['status'] ) {
 
     case 4:
-      send_msg( 1, $event['user_id'], t( "Соберите флот, и отправляйтесь на нем в точку гиперпространства %d:%d там ваш флот проверят на допуск и переместят в точку дуэли. На это у вас есть %d часов. В случае отказа от дуэли командиры ваших кораблей обещали подать в отставку, вы не сможете управлять кораблями в течении 6-ти часов.", array( $event['arg5'], $event['arg6'], $quest['timer'] ) ), 7 );
+      send_msg( 1, $event['user_id'], t( "РЎРѕР±РµСЂРёС‚Рµ С„Р»РѕС‚, Рё РѕС‚РїСЂР°РІР»СЏР№С‚РµСЃСЊ РЅР° РЅРµРј РІ С‚РѕС‡РєСѓ РіРёРїРµСЂРїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° %d:%d С‚Р°Рј РІР°С€ С„Р»РѕС‚ РїСЂРѕРІРµСЂСЏС‚ РЅР° РґРѕРїСѓСЃРє Рё РїРµСЂРµРјРµСЃС‚СЏС‚ РІ С‚РѕС‡РєСѓ РґСѓСЌР»Рё. РќР° СЌС‚Рѕ Сѓ РІР°СЃ РµСЃС‚СЊ %d С‡Р°СЃРѕРІ. Р’ СЃР»СѓС‡Р°Рµ РѕС‚РєР°Р·Р° РѕС‚ РґСѓСЌР»Рё РєРѕРјР°РЅРґРёСЂС‹ РІР°С€РёС… РєРѕСЂР°Р±Р»РµР№ РѕР±РµС‰Р°Р»Рё РїРѕРґР°С‚СЊ РІ РѕС‚СЃС‚Р°РІРєСѓ, РІС‹ РЅРµ СЃРјРѕР¶РµС‚Рµ СѓРїСЂР°РІР»СЏС‚СЊ РєРѕСЂР°Р±Р»СЏРјРё РІ С‚РµС‡РµРЅРёРё 6-С‚Рё С‡Р°СЃРѕРІ.", array( $event['arg5'], $event['arg6'], $quest['timer'] ) ), 7 );
       step_up( $event['id'] );
       break;
 
@@ -1799,13 +1799,13 @@ debug_it( $quest );
       if( isset( $ship['place_type'] ) && $ship['place_type'] == 8 && $ship['arg1'] == $event['arg5'] && $ship['arg2'] == $event['arg6'] ) {
 
         if( $power > $event['arg2'] ) {
-          send_msg( 1, $event['user_id'], t( "Ваш флот сформирован неправильно. Сила флота %s больше оговоренной %s.", array( $power, $event['arg2'] ) ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’Р°С€ С„Р»РѕС‚ СЃС„РѕСЂРјРёСЂРѕРІР°РЅ РЅРµРїСЂР°РІРёР»СЊРЅРѕ. РЎРёР»Р° С„Р»РѕС‚Р° %s Р±РѕР»СЊС€Рµ РѕРіРѕРІРѕСЂРµРЅРЅРѕР№ %s.", array( $power, $event['arg2'] ) ), 7 );
           $back = true;
         } elseif( $shield > $event['arg3'] ) {
-          send_msg( 1, $event['user_id'], t( "Ваш флот сформирован неправильно. Защита флота %s больше оговоренной. %s", array( $shield, $event['arg3'] ) ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’Р°С€ С„Р»РѕС‚ СЃС„РѕСЂРјРёСЂРѕРІР°РЅ РЅРµРїСЂР°РІРёР»СЊРЅРѕ. Р—Р°С‰РёС‚Р° С„Р»РѕС‚Р° %s Р±РѕР»СЊС€Рµ РѕРіРѕРІРѕСЂРµРЅРЅРѕР№. %s", array( $shield, $event['arg3'] ) ), 7 );
           $back = true;
         } else {
-          send_msg( 1, $event['user_id'], t( "Ваш флот прошел проверку и допущен к дуэли, дождитесь вашего оппонента." ), 7 );
+          send_msg( 1, $event['user_id'], t( "Р’Р°С€ С„Р»РѕС‚ РїСЂРѕС€РµР» РїСЂРѕРІРµСЂРєСѓ Рё РґРѕРїСѓС‰РµРЅ Рє РґСѓСЌР»Рё, РґРѕР¶РґРёС‚РµСЃСЊ РІР°С€РµРіРѕ РѕРїРїРѕРЅРµРЅС‚Р°." ), 7 );
           $back = false;
         }
 
@@ -1846,14 +1846,14 @@ debug_it( $quest );
         $ships[$users[1]['id']] = array( 'place_type' => $users[1]['place_type'], 'place_id' => $users[1]['place_id'] );
 
         if( mt_rand( 1, 100 ) > 50 ) {
-          send_msg( 1, $quest['user_id'], t( "Согласно жребию вы начинаете бой." ), 7 );
-          send_msg( 1, $quest['to_user'], t( "Согласно жребию вы принимаете бой." ), 7 );
+          send_msg( 1, $quest['user_id'], t( "РЎРѕРіР»Р°СЃРЅРѕ Р¶СЂРµР±РёСЋ РІС‹ РЅР°С‡РёРЅР°РµС‚Рµ Р±РѕР№." ), 7 );
+          send_msg( 1, $quest['to_user'], t( "РЎРѕРіР»Р°СЃРЅРѕ Р¶СЂРµР±РёСЋ РІС‹ РїСЂРёРЅРёРјР°РµС‚Рµ Р±РѕР№." ), 7 );
 
           StartWar( ( $ships[$quest['user_id']]['place_type'] == 2 ? 0 : 1 ), $ships[$quest['user_id']]['place_id'],
                     ( $ships[$quest['to_user']]['place_type'] == 2 ? 0 : 1 ), $ships[$quest['to_user']]['place_id'] );
         } else {
-          send_msg( 1, $quest['to_user'], t( "Согласно жребию вы начинаете бой." ), 7 );
-          send_msg( 1, $quest['user_id'], t( "Согласно жребию вы принимаете бой." ), 7 );
+          send_msg( 1, $quest['to_user'], t( "РЎРѕРіР»Р°СЃРЅРѕ Р¶СЂРµР±РёСЋ РІС‹ РЅР°С‡РёРЅР°РµС‚Рµ Р±РѕР№." ), 7 );
+          send_msg( 1, $quest['user_id'], t( "РЎРѕРіР»Р°СЃРЅРѕ Р¶СЂРµР±РёСЋ РІС‹ РїСЂРёРЅРёРјР°РµС‚Рµ Р±РѕР№." ), 7 );
 
           StartWar( ( $ships[$quest['to_user']]['place_type'] == 2 ? 0 : 1 ), $ships[$quest['to_user']]['place_id'],
                     ( $ships[$quest['user_id']]['place_type'] == 2 ? 0 : 1 ), $ships[$quest['user_id']]['place_id'] );
@@ -1879,13 +1879,13 @@ debug_it( $quest );
         $price = floor( $quest['summ'] / 2 );
 
         if( $winner == $quest['user_id'] ) {
-          send_msg( 1, $quest['user_id'], t( "Вы выйграли дуэль и по праву получаете %d конфедерат.", array( $price ) ), 7 );
-          send_msg( 1, $quest['to_user'], t( "Вы проиграли дуэль." ), 7 );
+          send_msg( 1, $quest['user_id'], t( "Р’С‹ РІС‹Р№РіСЂР°Р»Рё РґСѓСЌР»СЊ Рё РїРѕ РїСЂР°РІСѓ РїРѕР»СѓС‡Р°РµС‚Рµ %d РєРѕРЅС„РµРґРµСЂР°С‚.", array( $price ) ), 7 );
+          send_msg( 1, $quest['to_user'], t( "Р’С‹ РїСЂРѕРёРіСЂР°Р»Рё РґСѓСЌР»СЊ." ), 7 );
 
           db_query( "UPDATE users u SET u.donate = u.donate + $price, u.credits = u.credits + $price WHERE u.id = {$event['user_id']}" );
         } else {
-          send_msg( 1, $quest['to_user'], t( "Вы выйграли дуэль и по праву получаете %d конфедерат.", array( $price ) ), 7 );
-          send_msg( 1, $quest['user_id'], t( "Вы проиграли дуэль." ), 7 );
+          send_msg( 1, $quest['to_user'], t( "Р’С‹ РІС‹Р№РіСЂР°Р»Рё РґСѓСЌР»СЊ Рё РїРѕ РїСЂР°РІСѓ РїРѕР»СѓС‡Р°РµС‚Рµ %d РєРѕРЅС„РµРґРµСЂР°С‚.", array( $price ) ), 7 );
+          send_msg( 1, $quest['user_id'], t( "Р’С‹ РїСЂРѕРёРіСЂР°Р»Рё РґСѓСЌР»СЊ." ), 7 );
 
           db_query( "UPDATE users u SET u.donate = u.donate + $price, u.credits = u.credits + $price WHERE u.id = {$quest['to_user']}" );
         }
@@ -1898,8 +1898,8 @@ debug_it( $quest );
 
         step_up( $event['id'] );
       } elseif( $double == 1 && $test == 0 ) {
-        send_msg( 1, $quest['user_id'], t( "Дуэль закончилась взаимным уничтожением, победитель не определен." ), 7 );
-        send_msg( 1, $quest['to_user'], t( "Дуэль закончилась взаимным уничтожением, победитель не определен." ), 7 );
+        send_msg( 1, $quest['user_id'], t( "Р”СѓСЌР»СЊ Р·Р°РєРѕРЅС‡РёР»Р°СЃСЊ РІР·Р°РёРјРЅС‹Рј СѓРЅРёС‡С‚РѕР¶РµРЅРёРµРј, РїРѕР±РµРґРёС‚РµР»СЊ РЅРµ РѕРїСЂРµРґРµР»РµРЅ." ), 7 );
+        send_msg( 1, $quest['to_user'], t( "Р”СѓСЌР»СЊ Р·Р°РєРѕРЅС‡РёР»Р°СЃСЊ РІР·Р°РёРјРЅС‹Рј СѓРЅРёС‡С‚РѕР¶РµРЅРёРµРј, РїРѕР±РµРґРёС‚РµР»СЊ РЅРµ РѕРїСЂРµРґРµР»РµРЅ." ), 7 );
 
         if( $event['type'] == 33 ) {
           db_query( "UPDATE users_quests SET status = status - 1 WHERE type = 34 AND arg4 = {$event['id']}" );

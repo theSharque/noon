@@ -22,9 +22,9 @@
         break;
     }
     $free_silo = get_warehouse();
-    $out = "dg_h=".t( 'Склад %d, свободно %d', array( $silo['silo'], $free_silo ) );
-    $out .= "&col0=".t( 'Ресурс' );
-    $out .= "&col1=".t( 'Доступно' );
+    $out = "dg_h=".t( 'РЎРєР»Р°Рґ %d, СЃРІРѕР±РѕРґРЅРѕ %d', array( $silo['silo'], $free_silo ) );
+    $out .= "&col0=".t( 'Р РµСЃСѓСЂСЃ' );
+    $out .= "&col1=".t( 'Р”РѕСЃС‚СѓРїРЅРѕ' );
 
     if( $rf == 0 ) {
       $items = db_fetch_array( "SELECT o.id, o.name, w.object_cnt, o.class
@@ -40,7 +40,7 @@
     
       $i=1;
       $out .= "&cols=2&rows=".(count( $items ) + 1);
-      $out .= "&l0color=0x606060&l0c0=".t('Энергия')."&l0c1=".$energy_av;
+      $out .= "&l0color=0x606060&l0c0=".t('Р­РЅРµСЂРіРёСЏ')."&l0c1=".$energy_av;
       foreach( $items as $item ) {
         switch( $item['class'] ) {
           case 1:

@@ -1,0 +1,1391 @@
+02:20:33	1052 : Column 'gen_date' in where clause is ambiguous
+02:20:33	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 58
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT id
+                              FROM users_quests uq
+                        INNER JOIN quest_types qt ON qt.type = uq.type
+                                  WHERE qt.cnt > 0
+                                    AND user_id IS NULL
+                                    AND UNIX_TIMESTAMP( DATE_ADD( gen_date, INTERVAL 3 DAY ) ) < UNIX_TIMESTAMP( NOW() )
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/cleaner.inc
+            [line] => 58
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT id
+                              FROM users_quests uq
+                        INNER JOIN quest_types qt ON qt.type = uq.type
+                                  WHERE qt.cnt > 0
+                                    AND user_id IS NULL
+                                    AND UNIX_TIMESTAMP( DATE_ADD( gen_date, INTERVAL 3 DAY ) ) < UNIX_TIMESTAMP( NOW() )
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/optimize.inc
+            [line] => 19
+            [function] => free_quest
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [function] => optimize
+            [args] => Array
+                (
+                )
+
+        )
+
+    [4] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 23
+            [function] => call_user_func
+            [args] => Array
+                (
+                    [0] => optimize
+                )
+
+        )
+
+)
+
+02:20:33	1227 : Access denied; you need (at least one of) the RELOAD privilege(s) for this operation
+02:20:33	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/optimize.inc
+            [line] => 97
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => FLUSH QUERY CACHE
+                )
+
+        )
+
+    [1] => Array
+        (
+            [function] => optimize
+            [args] => Array
+                (
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 23
+            [function] => call_user_func
+            [args] => Array
+                (
+                    [0] => optimize
+                )
+
+        )
+
+)
+
+02:20:33	1054 : Unknown column 'u.pirate_status' in 'field list'
+02:20:33	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 95
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE d.place_id, p.star_id, s.name sname, p.name, u.id uid, u.login, u.pirate_status,
+ROUND(
+  ( SELECT count(*) FROM planets_buildings pb WHERE pb.shield > 0 AND pb.planet_id = d.place_id ) * 2 +
+  ( SELECT count(*) FROM orbits_buildings ob WHERE ob.shield > 0 AND ob.planet_id = d.place_id ) +
+  ( SELECT count(*) FROM ships s WHERE s.place_type = 0 AND s.place_id = d.place_id AND s.shield > 0 ) / 2 
+) psh,
+ua.lastlogin - DATE_SUB( NOW(), INTERVAL 7 DAY ) last_way
+                            FROM defence d
+                      INNER JOIN users_active ua ON ua.id = d.user_id
+                      INNER JOIN users u ON u.id = ua.id
+                      INNER JOIN planets p ON p.id = d.place_id
+                      INNER JOIN stars s ON s.id = p.star_id
+                       LEFT JOIN war_places wp ON place = concat( 'orb.', d.place_id )
+                           WHERE wp.id IS NULL AND d.place_type IN( 0, 1 ) AND d.status > 0 AND p.type != 1
+                        ORDER BY u.pirate_status + rand() * 3 DESC
+                           LIMIT 0, 1
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/gen_pirate.inc
+            [line] => 20
+            [function] => db_fetch_row
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE d.place_id, p.star_id, s.name sname, p.name, u.id uid, u.login, u.pirate_status,
+ROUND(
+  ( SELECT count(*) FROM planets_buildings pb WHERE pb.shield > 0 AND pb.planet_id = d.place_id ) * 2 +
+  ( SELECT count(*) FROM orbits_buildings ob WHERE ob.shield > 0 AND ob.planet_id = d.place_id ) +
+  ( SELECT count(*) FROM ships s WHERE s.place_type = 0 AND s.place_id = d.place_id AND s.shield > 0 ) / 2 
+) psh,
+ua.lastlogin - DATE_SUB( NOW(), INTERVAL 7 DAY ) last_way
+                            FROM defence d
+                      INNER JOIN users_active ua ON ua.id = d.user_id
+                      INNER JOIN users u ON u.id = ua.id
+                      INNER JOIN planets p ON p.id = d.place_id
+                      INNER JOIN stars s ON s.id = p.star_id
+                       LEFT JOIN war_places wp ON place = concat( 'orb.', d.place_id )
+                           WHERE wp.id IS NULL AND d.place_type IN( 0, 1 ) AND d.status > 0 AND p.type != 1
+                        ORDER BY u.pirate_status + rand() * 3 DESC
+                           LIMIT 0, 1
+                )
+
+        )
+
+    [2] => Array
+        (
+            [function] => gen_pirate
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 23
+            [function] => call_user_func
+            [args] => Array
+                (
+                    [0] => gen_pirate
+                )
+
+        )
+
+)
+
+02:20:33	1064 : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' 7,   null,    'abandon', 104,  27,  NULL,     0,      0,     0    )' at line 2
+02:20:33	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/genship.inc
+            [line] => 33
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => INSERT INTO ships (object_id, place_id, place_type, user_id, name,      arg1, arg2, fleet_id, shield, inwar, guard) VALUES
+                                 (9290,     , 7,   null,    'abandon', 104,  27,  NULL,     0,      0,     0    )
+                )
+
+        )
+
+    [1] => Array
+        (
+            [function] => gen_ship
+            [args] => Array
+                (
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 23
+            [function] => call_user_func
+            [args] => Array
+                (
+                    [0] => gen_ship
+                )
+
+        )
+
+)
+
+02:20:33	1064 : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' , 0, 0, 0, 31 )' at line 2
+02:20:33	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/history.inc
+            [line] => 22
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => INSERT INTO history_log ( credits, credits_all, confederates, confederates_all, users, users_all, online, stars )
+                  VALUES ( '', '', , , 0, 0, 0, 31 )
+                )
+
+        )
+
+    [1] => Array
+        (
+            [function] => make_log
+            [args] => Array
+                (
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 23
+            [function] => call_user_func
+            [args] => Array
+                (
+                    [0] => make_log
+                )
+
+        )
+
+)
+
+02:20:33	0
+02:20:33	Все подарки раздал
+
+Дед Мороз.
+02:21:00	1054 : Unknown column 'id' in 'field list'
+02:21:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 58
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/market_events.inc
+            [line] => 14
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 811
+            [function] => market_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+02:21:00	1054 : Unknown column 'place_step' in 'field list'
+02:21:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 58
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/war_events.inc
+            [line] => 84
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 837
+            [function] => war_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:22:00	1054 : Unknown column 'id' in 'field list'
+05:22:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 58
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/market_events.inc
+            [line] => 14
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 811
+            [function] => market_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:22:00	1054 : Unknown column 'place_step' in 'field list'
+05:22:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 58
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/war_events.inc
+            [line] => 84
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 837
+            [function] => war_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:23:00	1054 : Unknown column 'id' in 'field list'
+05:23:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 58
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/market_events.inc
+            [line] => 14
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 811
+            [function] => market_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:23:00	1054 : Unknown column 'place_step' in 'field list'
+05:23:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 58
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/war_events.inc
+            [line] => 84
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 837
+            [function] => war_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:24:00	1054 : Unknown column 'id' in 'field list'
+05:24:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 58
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/market_events.inc
+            [line] => 14
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 811
+            [function] => market_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:24:00	1054 : Unknown column 'place_step' in 'field list'
+05:24:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 58
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/war_events.inc
+            [line] => 84
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 837
+            [function] => war_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:25:00	1054 : Unknown column 'id' in 'field list'
+05:25:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 62
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/market_events.inc
+            [line] => 14
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 811
+            [function] => market_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:25:00	1054 : Unknown column 'place_step' in 'field list'
+05:25:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 62
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/war_events.inc
+            [line] => 84
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 837
+            [function] => war_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:26:00	1054 : Unknown column 'id' in 'field list'
+05:26:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 62
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/market_events.inc
+            [line] => 14
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 811
+            [function] => market_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:26:00	1054 : Unknown column 'place_step' in 'field list'
+05:26:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 62
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/war_events.inc
+            [line] => 84
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 837
+            [function] => war_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:27:00	1054 : Unknown column 'id' in 'field list'
+05:27:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 62
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/market_events.inc
+            [line] => 14
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 811
+            [function] => market_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:27:00	1054 : Unknown column 'place_step' in 'field list'
+05:27:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 62
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/war_events.inc
+            [line] => 84
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 837
+            [function] => war_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:28:00	1054 : Unknown column 'id' in 'field list'
+05:28:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 62
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/market_events.inc
+            [line] => 14
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT SQL_NO_CACHE id, user_id, summ, DATE_ADD( bay_date, INTERVAL 12 DAY ) event_time FROM market_events WHERE bay_date <= DATE_SUB( NOW(), INTERVAL 14 DAY ) LIMIT 0,500
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 811
+            [function] => market_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+
+05:28:00	1054 : Unknown column 'place_step' in 'field list'
+05:28:00	Array
+(
+    [0] => Array
+        (
+            [file] => /var/www/noon/include/db.inc
+            [line] => 62
+            [function] => db_query
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [1] => Array
+        (
+            [file] => /var/www/noon/include/war_events.inc
+            [line] => 84
+            [function] => db_fetch_array
+            [args] => Array
+                (
+                    [0] => SELECT we.id, we.place_hash, we.place_step, a.bcnt, we.fire_time, we.move_id,
+  we.a_user_id, we.a_object_id, we.a_type, we.a_last_id, we.a_step, IF( we.a_corsar = 0, ua.login, 'corsar' ) aname, uaa.char_status a_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.die_time) a_die_time,
+  we.d_user_id, we.d_object_id, we.d_type, we.d_last_id, we.d_step, IF( we.d_corsar = 0, ud.login, 'corsar' ) dname, uda.char_status d_status, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ud.die_time) d_die_time
+                                 FROM war_events we
+                            LEFT JOIN users ua ON ua.id = we.a_user_id
+                            LEFT JOIN users_active uaa ON uaa.id = ua.id
+                            LEFT JOIN users ud ON ud.id = we.d_user_id
+                            LEFT JOIN users_active uda ON uda.id = ud.id
+                           INNER JOIN ( SELECT MIN( id ) aid, b.bcnt
+                                          FROM war_events w2
+                                    INNER JOIN ( SELECT min( place_step ) bps, place_hash bph, COUNT( * ) bcnt
+                                                   FROM war_events
+                                                  WHERE a_last_id != -1 OR d_last_id != -1
+                                               GROUP BY place_hash
+                                               ) b ON w2.place_step = bps AND w2.place_hash = bph
+                                         WHERE ( a_last_id != -1 OR d_last_id != -1 ) AND w2.fire_time <= NOW()
+                                      GROUP BY w2.place_step, w2.place_hash
+                                      ) a ON a.aid = we.id
+                             ORDER BY we.fire_time, we.id
+                                LIMIT 0, 300
+                )
+
+        )
+
+    [2] => Array
+        (
+            [file] => /var/www/noon/include/misc.inc
+            [line] => 837
+            [function] => war_event_all
+            [args] => Array
+                (
+                )
+
+        )
+
+    [3] => Array
+        (
+            [file] => /var/www/noon/include/cron.inc
+            [line] => 13
+            [function] => do_events
+            [args] => Array
+                (
+                )
+
+        )
+
+)
+

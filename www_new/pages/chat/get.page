@@ -28,7 +28,7 @@
       $me = $me['id'];
 
       $login = preg_replace( array( '/\'/i', '/</i', '/>/i' ), array( '"', '"', '"' ), $login ); 
-      $login = preg_replace( '/([^a-zA-Z0-9‡-ˇ¿-ﬂ∏®])/e', '"%".dechex(ord("$1"))', $login ); 
+      $login = preg_replace( '/([^a-zA-Z0-9–∞-—è–ê-–Ø—ë–Å])/e', '"%".dechex(ord("$1"))', $login ); 
       $login = preg_replace( '/%5c/i', '', $login ); 
 
       $lim = 200;
@@ -190,42 +190,42 @@
           $pr = '';
           if( $line['char_status'] < 0 ) {
             $color = '#FFFF00';
-            $pr  = ' ('.$premium.'Í)';
+            $pr  = ' ('.$premium.'–∫—Ä)';
           }
           if( $line['char_status'] < -100 ) {
             $color = '#FFAA00';
-            $pr  = ' ('.$premium.'Í)';
+            $pr  = ' ('.$premium.'–∫—Ä)';
           }
           if( $line['char_status'] < -1000 ) {
             $color = '#FF6600';
-            $pr  = ' ('.$premium.'Í)';
+            $pr  = ' ('.$premium.'–∫—Ä)';
           }
           if( $line['char_status'] < -10000 ) {
             $color = '#FF0000';
-            $pr  = ' ('.$premium.'Í)';
+            $pr  = ' ('.$premium.'–∫—Ä)';
           }
           if( $line['char_status'] > 0 ) {
             $color = '#CCFFCC';
             if( $premium ) {
-              $pr  = ' ('.$premium.'Í)';
+              $pr  = ' ('.$premium.'–∫—Ä)';
             }
           }
           if( $line['char_status'] > 100 ) {
             $color = '#88FF88';
             if( $premium ) {
-              $pr  = ' ('.$premium.'Í)';
+              $pr  = ' ('.$premium.'–∫—Ä)';
             }
           }
           if( $line['char_status'] > 1000 ) {
             $color = '#44FF44';
             if( $premium ) {
-              $pr  = ' ('.$premium.'Í)';
+              $pr  = ' ('.$premium.'–∫—Ä)';
             }
           }
           if( $line['char_status'] > 10000 ) {
             $color = '#00FF00';
             if( $premium ) {
-              $pr  = ' ('.$premium.'Í)';
+              $pr  = ' ('.$premium.'–∫—Ä)';
             }
           }
 

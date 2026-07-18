@@ -8,7 +8,7 @@
   }
 
   $desc = db_fetch_val( "SELECT count(*) abandons FROM ships s WHERE s.user_id is NULL", 'abandons' );
-  $out = 'err=0&desc=Потерянных кораблей '.$desc;
+  $out = 'err=0&desc=РџРѕС‚РµСЂСЏРЅРЅС‹С… РєРѕСЂР°Р±Р»РµР№ '.$desc;
 
   $questStar = array();
   $questPoint = array();

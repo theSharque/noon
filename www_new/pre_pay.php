@@ -26,14 +26,14 @@
 
       foreach( $parsed as $item ) {
         if( $item['type'] == 'complete' && isset( $item['attributes']['AMOUNT'] ) ) {
-          $preopt[ $item['attributes']['ALIAS'] ] = array( $item['attributes']['AMOUNT'], mb_convert_encoding( $item['attributes']['CURRENCYNAME'], 'CP1251', 'UTF-8' ), mb_convert_encoding( $item['value'], 'CP1251', 'UTF-8' ) );
+          $preopt[ $item['attributes']['ALIAS'] ] = array( $item['attributes']['AMOUNT'], $item['attributes']['CURRENCYNAME'], $item['value'] );
 
           if( strlen( $item['attributes']['AMOUNT'] ) > $tab1 ) {
             $tab1 = strlen( $item['attributes']['AMOUNT'] );
           }
           
-          if( strlen( mb_convert_encoding( $item['attributes']['CURRENCYNAME'], 'CP1251', 'UTF-8' ) ) > $tab2 ) {
-            $tab2 = strlen( mb_convert_encoding( $item['attributes']['CURRENCYNAME'], 'CP1251', 'UTF-8' ) );
+          if( strlen( $item['attributes']['CURRENCYNAME'] ) > $tab2 ) {
+            $tab2 = strlen( $item['attributes']['CURRENCYNAME'] );
           }
         }
       }
@@ -72,24 +72,24 @@ select.table-select option {
 <br><br><br><br><br><br><br>
 <table align=center width=1000 border=0>
 <form method="post">
-<tr><td colspan=2 align=center>Спасибо за поддержку проекта</td></tr>
-<tr><td><label for="amount">Введите сумму в конфедератах</label></td>
+<tr><td colspan=2 align=center>РЎРїР°СЃРёР±Рѕ Р·Р° РїРѕРґРґРµСЂР¶РєСѓ РїСЂРѕРµРєС‚Р°</td></tr>
+<tr><td><label for="amount">Р’РІРµРґРёС‚Рµ СЃСѓРјРјСѓ РІ РєРѕРЅС„РµРґРµСЂР°С‚Р°С…</label></td>
 <td><input type='text' name='amount' value='<?php echo $amount; ?>'>
-<input type='submit' value='Расчитать'></td></tr>
+<input type='submit' value='Р Р°СЃС‡РёС‚Р°С‚СЊ'></td></tr>
 </form>
 <?php if( isset( $options ) && is_array( $options ) && count( $options ) ) { ?>
-  <form name="payment" target="_blank" action="https://www.interkassa.com/lib/payment.php" method="post" enctype="application/x-www-form-urlencoded" accept-charset="cp1251">
+  <form name="payment" target="_blank" action="https://www.interkassa.com/lib/payment.php" method="post" enctype="application/x-www-form-urlencoded" accept-charset="utf-8">
   <input type="hidden" name="ik_shop_id" value="0F1495D5-FF97-A645-149C-E02C00C224BF">
   <input type="hidden" name="ik_payment_amount" value="<?php echo $amount; ?>">
   <input type="hidden" name="ik_payment_id" value="<?php echo $log_id; ?>">
   <input type="hidden" name="ik_baggage_fields" value="<?php echo $user->uid; ?>">
-  <input type="hidden" name="ik_payment_desc" value="Покупка <?php echo $amount; ?> конфедерат для <?php echo $user->login ?>">
+  <input type="hidden" name="ik_payment_desc" value="РџРѕРєСѓРїРєР° <?php echo $amount; ?> РєРѕРЅС„РµРґРµСЂР°С‚ РґР»СЏ <?php echo $user->login ?>">
 
-  <tr><td><label for="ik_paysystem_alias">Выберите валюту и тип платежа</label></td>
+  <tr><td><label for="ik_paysystem_alias">Р’С‹Р±РµСЂРёС‚Рµ РІР°Р»СЋС‚Сѓ Рё С‚РёРї РїР»Р°С‚РµР¶Р°</label></td>
   <td><select name="ik_paysystem_alias" class="table-select">
   <?php foreach( $options as $key => $item ) { echo "<option value='$key'>$item</option>"; } ?>
   </select>
-  <input type="submit" name="process" value="Оплатить"></td></tr>
+  <input type="submit" name="process" value="РћРїР»Р°С‚РёС‚СЊ"></td></tr>
   </form>
 </table>
 <?php } ?>

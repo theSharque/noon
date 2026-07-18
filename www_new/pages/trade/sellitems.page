@@ -110,17 +110,17 @@
             db_query( "UPDATE users SET money = money + '$summ' WHERE id = ".$user->uid );
             db_query( "INSERT INTO trade_log ( bayer_id, seller_id, object_id, object_cnt, log_sum ) VALUES ( {$bayer['user_id']}, {$user->uid}, $oid, $ocnt, '$summ' )" );
 
-            send_msg( $user->uid, $bayer['user_id'], "¬‡Ï ÔÓ‰‡ÎË {$test['name']} ‚ ÍÓÎË˜ÂÒÚ‚Â $ocnt Ì‡ Ó·˘Û˛ ÒÛÏÏÛ $summ.", 16 );
+            send_msg( $user->uid, $bayer['user_id'], "–í–∞–º –ø—Ä–æ–¥–∞–ª–∏ {$test['name']} –≤ –∫–æ–ª–∏—á–µ—Å—Ç–≤–µ $ocnt –Ω–∞ –æ–±—â—É—é —Å—É–º–º—É $summ.", 16 );
 
             if( $back > 0 ) {
-              send_msg( 1, $user->uid, "¬˚ ÔÓ‰‡ÎË {$test['name']} ‚ ÍÓÎË˜ÂÒÚ‚Â $ocnt Ì‡ Ó·˘Û˛ ÒÛÏÏÛ $summ. ◊ÂÂÁ 12 ÒÛÚÓÍ ‚‡Ï ‚ÂÌÛÚ $back", 16 );
+              send_msg( 1, $user->uid, "–í—ã –ø—Ä–æ–¥–∞–ª–∏ {$test['name']} –≤ –∫–æ–ª–∏—á–µ—Å—Ç–≤–µ $ocnt –Ω–∞ –æ–±—â—É—é —Å—É–º–º—É $summ. –ß–µ—Ä–µ–∑ 12 —Å—É—Ç–æ–∫ –≤–∞–º –≤–µ—Ä–Ω—É—Ç $back", 16 );
             } else {
-              send_msg( 1, $user->uid, "¬˚ ÔÓ‰‡ÎË {$test['name']} ‚ ÍÓÎË˜ÂÒÚ‚Â $ocnt Ì‡ Ó·˘Û˛ ÒÛÏÏÛ $summ.", 16 );
+              send_msg( 1, $user->uid, "–í—ã –ø—Ä–æ–¥–∞–ª–∏ {$test['name']} –≤ –∫–æ–ª–∏—á–µ—Å—Ç–≤–µ $ocnt –Ω–∞ –æ–±—â—É—é —Å—É–º–º—É $summ.", 16 );
             }
 
             $out = "err=0";
           } else {
-            send_msg( 1, $user->uid, "ÕÂ Û‰‡ÂÚÒˇ ÔÓ‰‡Ú¸ {$test['name']} ÌÂÚ ÏÂÒÚ‡ Ì‡ ÒÍÎ‡‰Â", 16 );
+            send_msg( 1, $user->uid, "–ù–µ —É–¥–∞–µ—Ç—Å—è –ø—Ä–æ–¥–∞—Ç—å {$test['name']} –Ω–µ—Ç –º–µ—Å—Ç–∞ –Ω–∞ —Å–∫–ª–∞–¥–µ", 16 );
             $out = "err=5";
           }
         } else {

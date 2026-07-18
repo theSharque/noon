@@ -84,16 +84,16 @@
 
             db_query( "INSERT INTO trade_log ( bayer_id, seller_id, object_id, object_cnt, log_sum ) VALUES ( {$user->uid}, {$seller['user_id']}, $oid, $ocnt, '$summ' )" );
 
-            send_msg( $user->uid, $seller['user_id'], "” ‚‡Ò ÍÛÔËÎË {$test['name']} ‚ ÍÓÎË˜ÂÒÚ‚Â $ocnt Ì‡ Ó·˘Û˛ ÒÛÏÏÛ $summ.", 16 );
+            send_msg( $user->uid, $seller['user_id'], "–£ –≤–∞—Å –∫—É–ø–∏–ª–∏ {$test['name']} –≤ –∫–æ–ª–∏—á–µ—Å—Ç–≤–µ $ocnt –Ω–∞ –æ–±—â—É—é —Å—É–º–º—É $summ.", 16 );
             if( $back > 0 ) {
-              send_msg( 1, $user->uid, "¬˚ ÍÛÔËÎË {$test['name']} ‚ ÍÓÎË˜ÂÒÚ‚Â $ocnt Ì‡ Ó·˘Û˛ ÒÛÏÏÛ $summ. ◊ÂÂÁ 12 ÒÛÚÓÍ ‚‡Ï ‚ÂÌÛÚ $back", 16 );
+              send_msg( 1, $user->uid, "–í—ã –∫—É–ø–∏–ª–∏ {$test['name']} –≤ –∫–æ–ª–∏—á–µ—Å—Ç–≤–µ $ocnt –Ω–∞ –æ–±—â—É—é —Å—É–º–º—É $summ. –ß–µ—Ä–µ–∑ 12 —Å—É—Ç–æ–∫ –≤–∞–º –≤–µ—Ä–Ω—É—Ç $back", 16 );
             } else {
-              send_msg( 1, $user->uid, "¬˚ ÍÛÔËÎË {$test['name']} ‚ ÍÓÎË˜ÂÒÚ‚Â $ocnt Ì‡ Ó·˘Û˛ ÒÛÏÏÛ $summ.", 16 );
+              send_msg( 1, $user->uid, "–í—ã –∫—É–ø–∏–ª–∏ {$test['name']} –≤ –∫–æ–ª–∏—á–µ—Å—Ç–≤–µ $ocnt –Ω–∞ –æ–±—â—É—é —Å—É–º–º—É $summ.", 16 );
             }
 
             $out = "err=0";
           } else {
-            send_msg( 1, $user->uid, "ÕÂ Û‰‡ÎÓÒ¸ ÍÛÔËÚ¸ {$test['name']}, ÌÂ‰ÓÒÚ‡ÚÓ˜ÌÓ ÒÂ‰ÒÚ‚ ËÎË ÏÂÒÚ‡ Ì‡ ÍÓ‡·ÎÂ", 16 );
+            send_msg( 1, $user->uid, "–ù–µ —É–¥–∞–ª–æ—Å—å –∫—É–ø–∏—Ç—å {$test['name']}, –Ω–µ–¥–æ—Å—Ç–∞—Ç–æ—á–Ω–æ —Å—Ä–µ–¥—Å—Ç–≤ –∏–ª–∏ –º–µ—Å—Ç–∞ –Ω–∞ –∫–æ—Ä–∞–±–ª–µ", 16 );
             $out = "err=4";
           }
 

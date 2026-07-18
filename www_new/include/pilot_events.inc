@@ -90,20 +90,20 @@ function pilot_event_all() {
         if( !$ret ) {
           if( $event['isfleet'] ) {
             $name = db_fetch_val( "SELECT name FROM fleets WHERE id = {$event['ship_id']}", 'name' );
-            send_msg( 1, $event['user_id'], t( "Не могу выполнить команду %s. Пилот флота %s", array( $command, $name ) ), 2, $event['event_time'] );
+            send_msg( 1, $event['user_id'], t( "РќРµ РјРѕРіСѓ РІС‹РїРѕР»РЅРёС‚СЊ РєРѕРјР°РЅРґСѓ %s. РџРёР»РѕС‚ С„Р»РѕС‚Р° %s", array( $command, $name ) ), 2, $event['event_time'] );
           } else {
             $name = db_fetch_val( "SELECT name FROM ships WHERE id = {$event['ship_id']}", 'name' );
-            send_msg( 1, $event['user_id'], t( "Не могу выполнить команду %s. Пилот корабля %s", array( $command, $name ) ), 2, $event['event_time'] );
+            send_msg( 1, $event['user_id'], t( "РќРµ РјРѕРіСѓ РІС‹РїРѕР»РЅРёС‚СЊ РєРѕРјР°РЅРґСѓ %s. РџРёР»РѕС‚ РєРѕСЂР°Р±Р»СЏ %s", array( $command, $name ) ), 2, $event['event_time'] );
           }
 
           db_query( "UPDATE pilot_events SET event_time = DATE_ADD( NOW(), INTERVAL 60 SECOND ) WHERE id = {$event['id']}" );
         } else {
           if( $event['isfleet'] ) {
             $name = db_fetch_val( "SELECT name FROM fleets WHERE id = {$event['ship_id']}", 'name' );
-            send_msg( 1, $event['user_id'], t( "Успешно выполнил %s. Пилот флота %s", array( $command, $name ) ), 2, $event['event_time'] );
+            send_msg( 1, $event['user_id'], t( "РЈСЃРїРµС€РЅРѕ РІС‹РїРѕР»РЅРёР» %s. РџРёР»РѕС‚ С„Р»РѕС‚Р° %s", array( $command, $name ) ), 2, $event['event_time'] );
           } else {
             $name = db_fetch_val( "SELECT name FROM ships WHERE id = {$event['ship_id']}", 'name' );
-            send_msg( 1, $event['user_id'], t( "Успешно выполнил %s. Пилот корабля %s", array( $command, $name ) ), 2, $event['event_time'] );
+            send_msg( 1, $event['user_id'], t( "РЈСЃРїРµС€РЅРѕ РІС‹РїРѕР»РЅРёР» %s. РџРёР»РѕС‚ РєРѕСЂР°Р±Р»СЏ %s", array( $command, $name ) ), 2, $event['event_time'] );
           }
 
           db_query( "UPDATE pilot_events SET step = step + 1, event_time = DATE_ADD( NOW(), INTERVAL 3 SECOND ) WHERE id = {$event['id']}" );

@@ -17,7 +17,7 @@
         echo 'YES';
       } else {
         db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Prerequest ERROR summ=$summ conf=$conf' )" );
-        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'Ошибка покупки конфедератов, номер транзакции $tid. Если ошибка повторится, обратитесь к администрации.' )" );
+        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'РћС€РёР±РєР° РїРѕРєСѓРїРєРё РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, РЅРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё $tid. Р•СЃР»Рё РѕС€РёР±РєР° РїРѕРІС‚РѕСЂРёС‚СЃСЏ, РѕР±СЂР°С‚РёС‚РµСЃСЊ Рє Р°РґРјРёРЅРёСЃС‚СЂР°С†РёРё.' )" );
         echo 'NO';
       }
     }
@@ -48,18 +48,18 @@
         db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Request confirmed $conf summ $summ WMZ from ".$_POST['LMI_PAYER_PURSE']." ".$_POST['LMI_PAYER_WM']."' )" );
         db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'DBG: ".serialize( $_POST )."' )" );
         db_query( "UPDATE users SET credits = credits + $conf WHERE id = $user_id" );
-        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'На ваш игровой счет зачислено $conf конфедератов, номер транзакции $tid.' )" );
+        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'РќР° РІР°С€ РёРіСЂРѕРІРѕР№ СЃС‡РµС‚ Р·Р°С‡РёСЃР»РµРЅРѕ $conf РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, РЅРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё $tid.' )" );
         echo 'YES';
       } elseif( $wall == 'R314296320350' && $summ == $conf * 30 / 10 && $test_md5 == $hash ) {
         db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Request confirmed $conf summ $summ WMR from ".$_POST['LMI_PAYER_PURSE']." ".$_POST['LMI_PAYER_WM']."' )" );
         db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'DBG: ".serialize( $_POST )."' )" );
         db_query( "UPDATE users SET credits = credits + $conf WHERE id = $user_id" );
-        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'На ваш игровой счет зачислено $conf конфедератов, номер транзакции $tid.' )" );
+        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'РќР° РІР°С€ РёРіСЂРѕРІРѕР№ СЃС‡РµС‚ Р·Р°С‡РёСЃР»РµРЅРѕ $conf РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, РЅРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё $tid.' )" );
         echo 'YES';
       } else {
         db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'Request ERROR $conf summ $summ WMR from ".$_POST['LMI_PAYER_PURSE']." ".$_POST['LMI_PAYER_WM']."' )" );
         db_query( "INSERT INTO pay_log (trade_id, user_id, mess) VALUES ( $tid, $user_id, 'DBG: ".serialize( $_POST )."' )" );
-        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'Ошибка покупки конфедератов, номер транзакции $tid. Если ошибка повторится, обратитесь к администрации.' )" );
+        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $user_id, 1, 'РћС€РёР±РєР° РїРѕРєСѓРїРєРё РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, РЅРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё $tid. Р•СЃР»Рё РѕС€РёР±РєР° РїРѕРІС‚РѕСЂРёС‚СЃСЏ, РѕР±СЂР°С‚РёС‚РµСЃСЊ Рє Р°РґРјРёРЅРёСЃС‚СЂР°С†РёРё.' )" );
       }
     }
   }

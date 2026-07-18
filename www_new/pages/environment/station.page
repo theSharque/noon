@@ -49,7 +49,7 @@
                           ORDER BY t.class, t.name" );
 
     $out = "rows=".count( $all );
-    $out .= "&cols=8&col0=Наименование&col1=1кол.&col2=прод.&col3=2кол.&col4=покуп.&col5=мин.&col6=сред.&col7=макс.";
+    $out .= "&cols=8&col0=РќР°РёРјРµРЅРѕРІР°РЅРёРµ&col1=1РєРѕР».&col2=РїСЂРѕРґ.&col3=2РєРѕР».&col4=РїРѕРєСѓРї.&col5=РјРёРЅ.&col6=СЃСЂРµРґ.&col7=РјР°РєСЃ.";
     $l = 0;
 
     if( is_array( $all ) && count( $all ) ) {

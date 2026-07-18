@@ -379,58 +379,58 @@ function authorization() {
       gen_report( $id );
 
       if( $user->level < 26 ) {
-        db_query( "INSERT INTO chat ( user_id, to_user, text ) VALUES ( 7, $id, '".t( 'Если у вас есть вопросы, вы всегда можете задать их в чате. Не стесняйтесь, любой пилот был на вашем месте и поможет вам.' )."' )" );
+        db_query( "INSERT INTO chat ( user_id, to_user, text ) VALUES ( 7, $id, '".t( 'Р•СЃР»Рё Сѓ РІР°СЃ РµСЃС‚СЊ РІРѕРїСЂРѕСЃС‹, РІС‹ РІСЃРµРіРґР° РјРѕР¶РµС‚Рµ Р·Р°РґР°С‚СЊ РёС… РІ С‡Р°С‚Рµ. РќРµ СЃС‚РµСЃРЅСЏР№С‚РµСЃСЊ, Р»СЋР±РѕР№ РїРёР»РѕС‚ Р±С‹Р» РЅР° РІР°С€РµРј РјРµСЃС‚Рµ Рё РїРѕРјРѕР¶РµС‚ РІР°Рј.' )."' )" );
       }
 
       if( $id > 16 ) {
         switch( $row['titul'] % 11 ) {
           case 0:
-            db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Пилот %s в эфире.</font>', array( $login ) )."' )" );
+            db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">РџРёР»РѕС‚ %s РІ СЌС„РёСЂРµ.</font>', array( $login ) )."' )" );
             break;
           case 1:
             if( $row['titul'] < 12 ) {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">%s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">%s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             } else {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">%s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">%s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             }
             break;
           case 2:
           case 3:
           case 4:
             if( $row['titul'] < 12 ) {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Его милость %s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ РјРёР»РѕСЃС‚СЊ %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             } else {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Ее милость %s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•Рµ РјРёР»РѕСЃС‚СЊ %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             }
             break;
           case 5:
             if( $row['titul'] < 12 ) {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Его сиятельство %s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ СЃРёСЏС‚РµР»СЊСЃС‚РІРѕ %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             } else {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Ее сиятельство %s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•Рµ СЃРёСЏС‚РµР»СЊСЃС‚РІРѕ %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             }
             break;
           case 6:
           case 7:
           case 8:
             if( $row['titul'] < 12 ) {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Его светлость %s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ СЃРІРµС‚Р»РѕСЃС‚СЊ %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             } else {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Ее светлость %s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•Рµ СЃРІРµС‚Р»РѕСЃС‚СЊ %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             }
             break;
           case 9:
             if( $row['titul'] < 12 ) {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Его высочество %s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ РІС‹СЃРѕС‡РµСЃС‚РІРѕ %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             } else {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Ее высочество %s %s в эфире.</font>', array( $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•Рµ РІС‹СЃРѕС‡РµСЃС‚РІРѕ %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['tname'], $login ) )."' )" );
             }
             break;
           case 10:
             if( $row['titul'] < 12 ) {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Его королевское величество, повелитель планеты %s, %s %s в эфире.</font>', array( $row['pname'], $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ РєРѕСЂРѕР»РµРІСЃРєРѕРµ РІРµР»РёС‡РµСЃС‚РІРѕ, РїРѕРІРµР»РёС‚РµР»СЊ РїР»Р°РЅРµС‚С‹ %s, %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['pname'], $row['tname'], $login ) )."' )" );
             } else {
-              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Ее королевское величество, повелительница планеты %s, %s %s в эфире.</font>', array( $row['pname'], $row['tname'], $login ) )."' )" );
+              db_query( "INSERT INTO chat ( user_id, text ) VALUES ( $id, '".t( '<font color=\"#CCCCCC\">Р•Рµ РєРѕСЂРѕР»РµРІСЃРєРѕРµ РІРµР»РёС‡РµСЃС‚РІРѕ, РїРѕРІРµР»РёС‚РµР»СЊРЅРёС†Р° РїР»Р°РЅРµС‚С‹ %s, %s %s РІ СЌС„РёСЂРµ.</font>', array( $row['pname'], $row['tname'], $login ) )."' )" );
             }
             break;
         }
@@ -447,7 +447,7 @@ function authorization() {
       $clons = get_clons( $id );
 
       if( $clons ) {
-        db_query( "INSERT INTO chat ( user_id, text ) VALUES ( 7, '".t( '<font color=\"#CCCCCC\">Есть подозрение, что %s на самом деле еще и %s.</font>', array( $login, $clons ) )."' )" );
+        db_query( "INSERT INTO chat ( user_id, text ) VALUES ( 7, '".t( '<font color=\"#CCCCCC\">Р•СЃС‚СЊ РїРѕРґРѕР·СЂРµРЅРёРµ, С‡С‚Рѕ %s РЅР° СЃР°РјРѕРј РґРµР»Рµ РµС‰Рµ Рё %s.</font>', array( $login, $clons ) )."' )" );
       }
 
       return true;

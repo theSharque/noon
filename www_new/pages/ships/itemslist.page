@@ -22,7 +22,7 @@
     }
 
     $out = "err=0&cnt=".( count( $items ) + 1 );
-    $out .="&n0=Доступно&c0=".number_format( $cargo, 0, '.', ' ' )."&m0=&t0=0x333333";
+    $out .="&n0=Р”РѕСЃС‚СѓРїРЅРѕ&c0=".number_format( $cargo, 0, '.', ' ' )."&m0=&t0=0x333333";
     $l=1;
     foreach( $items as $item ) {
       $out .="&n$l=".$item['name']."&c$l=".number_format( $item['object_cnt'], 0, '.', ' ' )."&m$l=".$item['mass'];

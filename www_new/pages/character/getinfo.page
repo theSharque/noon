@@ -30,13 +30,13 @@
     $limit = get_ship_limit( $result['id'] );
 
     $out = "err=0&star=".$result['sname'].' - '.$result['pname'];
-    $out .= "&aliance=".( $result['aname'] ? $result['aname'] : 'нет' );
-    $out .= "&titul=".( $result['tname'] ? $result['tname'] : 'нет' );
+    $out .= "&aliance=".( $result['aname'] ? $result['aname'] : 'РЅРµС‚' );
+    $out .= "&titul=".( $result['tname'] ? $result['tname'] : 'РЅРµС‚' );
 
     if( $limit < 0 ) {
-      $out .= "&ships=".t( '%d лимит <font color="#FF0000">%d</font>', array( $result['sh_cnt'], $limit + $result['sh_cnt'] ) );
+      $out .= "&ships=".t( '%d Р»РёРјРёС‚ <font color="#FF0000">%d</font>', array( $result['sh_cnt'], $limit + $result['sh_cnt'] ) );
     } else {
-      $out .= "&ships=".t( '%d лимит %d', array( $result['sh_cnt'], $limit + $result['sh_cnt'] ) );
+      $out .= "&ships=".t( '%d Р»РёРјРёС‚ %d', array( $result['sh_cnt'], $limit + $result['sh_cnt'] ) );
     }
 
     $out .= "&power=".$result['power'];
@@ -72,15 +72,15 @@
     $out .= "&level=".$lev_dic[ strlen( abs( $result['char_level'] ) ) * $correct ].'('.$result['char_level'].') ';
 
     if( $result['foe'] ) {
-      $out .= "&relation=".t( 'Враг' );
+      $out .= "&relation=".t( 'Р’СЂР°Рі' );
     } elseif ( $result['friend'] ) {
-      $out .= "&relation=".t( 'Друг' );
+      $out .= "&relation=".t( 'Р”СЂСѓРі' );
     } else {
-      $out .= "&relation=".t( 'Нейтрален' );
+      $out .= "&relation=".t( 'РќРµР№С‚СЂР°Р»РµРЅ' );
     }
 
     if( $result['ignore_user'] ) {
-      $out .= t( " <font color=\"#FF0000\">в игноре</font>" );
+      $out .= t( " <font color=\"#FF0000\">РІ РёРіРЅРѕСЂРµ</font>" );
       $out .= "&ignore=1";
     } else {
       $out .= "&ignore=0";
@@ -89,7 +89,7 @@
     $clons = get_clons( $result['id'] );
 
     if( $clons ) {
-      $out .= "&clons=".t( "Есть подозрение, что %s на самом деле еще и %s.", array( $login, $clons ) );
+      $out .= "&clons=".t( "Р•СЃС‚СЊ РїРѕРґРѕР·СЂРµРЅРёРµ, С‡С‚Рѕ %s РЅР° СЃР°РјРѕРј РґРµР»Рµ РµС‰Рµ Рё %s.", array( $login, $clons ) );
     } else {
       $out .= "&clons=";
     }

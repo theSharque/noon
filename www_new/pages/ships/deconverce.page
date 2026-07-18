@@ -15,7 +15,7 @@
     if( isset( $_GET['gname'] ) ) {
       $group = $_GET['gname'];
       db_safe( $group );
-      $group = ereg_replace( "[^[a-zA-Z0-9à-ÿÀ-ß¸¨ `~!@#$^&*()_+-=\"]+", "", $group );
+      $group = ereg_replace( "[^[a-zA-Z0-9Ð°-ÑÐ-Ð¯Ñ‘Ð `~!@#$^&*()_+-=\"]+", "", $group );
     } else {
       $group = '';
     }
@@ -46,14 +46,14 @@
               $place = db_fetch_row( "SELECT place_id, place_type, arg1, arg2 FROM ships WHERE id = ".$ware_item['place_id'] );
               if( $place['arg1'] == 0 && $place['arg2'] == 0 ) {
                 db_query( "INSERT INTO fleets ( name,                   `group`,  user_id,      place_type,             place_id,             arg1, arg2 ) 
-                                       VALUES ( 'Ôëîò {$type['code']}', '$group', {$user->uid}, {$place['place_type']}, {$place['place_id']}, null, null )" );
+                                       VALUES ( 'Ð¤Ð»Ð¾Ñ‚ {$type['code']}', '$group', {$user->uid}, {$place['place_type']}, {$place['place_id']}, null, null )" );
               } else {
                 db_query( "INSERT INTO fleets ( name,                   `group`,  user_id,      place_type,             place_id,             arg1,               arg2 ) 
-                                       VALUES ( 'Ôëîò {$type['code']}', '$group', {$user->uid}, {$place['place_type']}, {$place['place_id']}, '{$place['arg1']}', '{$place['arg2']}' )" );
+                                       VALUES ( 'Ð¤Ð»Ð¾Ñ‚ {$type['code']}', '$group', {$user->uid}, {$place['place_type']}, {$place['place_id']}, '{$place['arg1']}', '{$place['arg2']}' )" );
               }
             } else {
               db_query( "INSERT INTO fleets ( name             ,      `group`,  user_id,      place_type,                 place_id ) 
-                                     VALUES ( 'Ôëîò {$type['code']}', '$group', {$user->uid}, {$ware_item['place_type']}, {$ware_item['place_id']} )" );
+                                     VALUES ( 'Ð¤Ð»Ð¾Ñ‚ {$type['code']}', '$group', {$user->uid}, {$ware_item['place_type']}, {$ware_item['place_id']} )" );
             }
 
             $fleet_id = mysql_insert_id();

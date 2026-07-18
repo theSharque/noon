@@ -45,9 +45,9 @@
   $out .= "&conf=".number_format( $user->credits, 0, '', ' ' );;
 
   if( $user->insur == 0 ) {
-    $out .= "&insur=".t( "<font color='#FF0000'>Отсутствует</font>" );
+    $out .= "&insur=".t( "<font color='#FF0000'>РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚</font>" );
   } else {
-    $out .= "&insur=".t( "Есть %d", array( $user->insur ) );
+    $out .= "&insur=".t( "Р•СЃС‚СЊ %d", array( $user->insur ) );
   }
 
   $result = db_fetch_row( "SELECT count(*) cnt FROM robots WHERE user_id = ".$user->uid );

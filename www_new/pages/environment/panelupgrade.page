@@ -16,7 +16,7 @@
         $result = db_fetch_row( "SELECT o.name, b.desc FROM objects o, buildings b WHERE o.id = b.id AND o.id = ".$info->building );
   
         $out  = "title=".$result['name'];
-        $out .= "&level=Уровень ".$info->level;
+        $out .= "&level=РЈСЂРѕРІРµРЅСЊ ".$info->level;
 
         switch( $info->building ) {
           case 3003:
@@ -27,15 +27,15 @@
             break;
 
           case 3007:
-            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
-              "Количество\t\t\t".($info->level * 10)." %2B 10";
+            $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
+              "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level * 10)." %2B 10";
             break;
           case 3008:
-            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(50 + 50 * get_book_level( 21 ))."\n".
-              "Количество\t\t\t".($info->level)." %2B 1";
+            $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".(50 + 50 * get_book_level( 21 ))."\n".
+              "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level)." %2B 1";
             break;
           case 3009:
-            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 24 )))." %2B 1";
+            $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 24 )))." %2B 1";
             break;
 
           default:
@@ -44,7 +44,7 @@
         }
   
         $build_time = time_to_str( round( get_build_time( $info->building ) / 2 ) );
-        $out .= "&header=Длительность $build_time";
+        $out .= "&header=Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ $build_time";
 
         $res = db_fetch_array( "SELECT o.id, o.name, ROUND( os.res_cnt / 4 * ".$info->level." ) res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
                                   FROM objects_sub os
@@ -71,9 +71,9 @@
           }
         }
 
-        $out .= "&col0=Ресурс";
-        $out .= "&col1=Требуется";
-        $out .= "&col2=Доступно";
+        $out .= "&col0=Р РµСЃСѓСЂСЃ";
+        $out .= "&col1=РўСЂРµР±СѓРµС‚СЃСЏ";
+        $out .= "&col2=Р”РѕСЃС‚СѓРїРЅРѕ";
         $out .= "&cols=3&rows=".count( $items );
   
         $i=0;
@@ -93,13 +93,13 @@
                           VALUES ( {$user->uid}, ".($y*30+$x).", $last )
          ON DUPLICATE KEY UPDATE up = $last" );
 */
-          $out .= "&btLabel=Усовершенствовать до уровня ".($info->level + 1)."&upgOnClick=page.php?id=274%26l=$last%26x=$x";
+          $out .= "&btLabel=РЈСЃРѕРІРµСЂС€РµРЅСЃС‚РІРѕРІР°С‚СЊ РґРѕ СѓСЂРѕРІРЅСЏ ".($info->level + 1)."&upgOnClick=page.php?id=274%26l=$last%26x=$x";
         }
       } else {
         $result = db_fetch_row( "SELECT o.name, b.desc FROM objects o, buildings b WHERE o.id = b.id AND o.id = ".$info->building );
   
         $out  = "title=".$result['name'];
-        $out .= "&level=Уровень ".$info->level;
+        $out .= "&level=РЈСЂРѕРІРµРЅСЊ ".$info->level;
 
         switch( $info->building ) {
           case 3003:
@@ -109,15 +109,15 @@
             $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( 200000 + ( $info->level * 100000 ) )."</font>";
             break;
           case 3007:
-            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
-              "Количество\t\t\t".($info->level * 10)." %2B 10";
+            $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
+              "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level * 10)." %2B 10";
             break;
           case 3008:
-            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(50 + 50 * get_book_level( 21 ))."\n".
-              "Количество\t\t\t".($info->level)." %2B 1";
+            $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".(50 + 50 * get_book_level( 21 ))."\n".
+              "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level)." %2B 1";
             break;
           case 3009:
-            $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 24 )))." %2B 1";
+            $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 24 )))." %2B 1";
             break;
 
           default:
@@ -126,7 +126,7 @@
         }
       }
     } else {
-      $out  = "title=Открытый космос";
+      $out  = "title=РћС‚РєСЂС‹С‚С‹Р№ РєРѕСЃРјРѕСЃ";
     }
     printOut( $out );
   }
@@ -167,7 +167,7 @@
             $out  = "title=".$result['name'];
           }
 
-          $out .= "&level=Уровень ".$info->level;
+          $out .= "&level=РЈСЂРѕРІРµРЅСЊ ".$info->level;
   
           switch( $info->building ) {
             case 34:
@@ -183,15 +183,15 @@
               $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( $info->level )."</font> %2B 1";
               break;
             case 28:
-              $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
-                "Количество\t\t\t".($info->level * 10)." %2B 10";
+              $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
+                "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level * 10)." %2B 10";
               break;
             case 29:
-              $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(75 + 75 * get_book_level( 21 ))."\n".
-                "Количество\t\t\t".($info->level)." %2B 1";
+              $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".(75 + 75 * get_book_level( 21 ))."\n".
+                "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level)." %2B 1";
               break;
             case 30:
-              $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 23 )))." %2B 1";
+              $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 23 )))." %2B 1";
               break;
   
             default:
@@ -200,7 +200,7 @@
           }
   
           $build_time = time_to_str( round( get_build_time( $info->building ) / 2 ) );
-          $out .= "&header=Длительность $build_time";
+          $out .= "&header=Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ $build_time";
   
           if( !$iq ) {
             $items = db_fetch_array( "SELECT o.id, o.name, ROUND( os.res_cnt / 4 * ".$info->level." ) res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
@@ -218,9 +218,9 @@
                                     ORDER BY o.name" );
           }
 
-          $out .= "&col0=Ресурс";
-          $out .= "&col1=Требуется";
-          $out .= "&col2=Доступно";
+          $out .= "&col0=Р РµСЃСѓСЂСЃ";
+          $out .= "&col1=РўСЂРµР±СѓРµС‚СЃСЏ";
+          $out .= "&col2=Р”РѕСЃС‚СѓРїРЅРѕ";
           $out .= "&cols=3&rows=".count( $items );
     
           $i=0;
@@ -240,17 +240,17 @@
                             VALUES ( {$user->uid}, ".($y*30+$x).", $last )
            ON DUPLICATE KEY UPDATE up = $last" );
 */
-            $out .= "&btLabel=Усовершенствовать до уровня ".($info->level + 1)."&upgOnClick=page.php?id=274%26l=$last%26x=$x%26y=$y";
+            $out .= "&btLabel=РЈСЃРѕРІРµСЂС€РµРЅСЃС‚РІРѕРІР°С‚СЊ РґРѕ СѓСЂРѕРІРЅСЏ ".($info->level + 1)."&upgOnClick=page.php?id=274%26l=$last%26x=$x%26y=$y";
           }
         } else {
           $result = db_fetch_row( "SELECT o.name, b.desc FROM objects o, buildings b WHERE o.id = b.id AND o.id = ".$info->building );
     
           $out  = "title=".$result['name'];
-          $out .= "&level=Уровень ".$info->level;
+          $out .= "&level=РЈСЂРѕРІРµРЅСЊ ".$info->level;
           if( $info->level >= 10 ) {
-            $out .= "&desc=Дальнейшее улучшение невозможно.";
+            $out .= "&desc=Р”Р°Р»СЊРЅРµР№С€РµРµ СѓР»СѓС‡С€РµРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ.";
           } elseif( $info->level == 0 ) {
-            $out .= "&desc=Улучшение невозможно.";
+            $out .= "&desc=РЈР»СѓС‡С€РµРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ.";
           } else {
             switch( $info->building ) {
               case 34:
@@ -267,15 +267,15 @@
                 $out .= '&desc='.$result['desc']."<font color=\"#00FF00\">".( $info->level )."</font> %2B 1";
                 break;
               case 28:
-                $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
-                  "Количество\t\t\t".($info->level * 10)." %2B 10";
+                $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".(5 + 5 * get_book_level( 22 ))."\n".
+                  "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level * 10)." %2B 10";
                 break;
               case 29:
-              $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".(75 + 75 * get_book_level( 21 ))."\n".
-                "Количество\t\t\t".($info->level)." %2B 1";
+              $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".(75 + 75 * get_book_level( 21 ))."\n".
+                "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level)." %2B 1";
                 break;
               case 30:
-                $out .= '&desc='.$result['desc']."Сила выстрела\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 23 )))." %2B 1";
+                $out .= '&desc='.$result['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t\t".($info->level + intval( $info->level / 4 * get_book_level( 23 )))." %2B 1";
                 break;
   
               default:
@@ -293,16 +293,16 @@
     
               switch( $found[ $y ]{ $x } ) {
                 case '0' :
-                  $out  = 'title=<b><font color="#00FFFF">Исследовать средний слой</font></b>';
-                  $out .= "&level=Исследованна поверхность";
+                  $out  = 'title=<b><font color="#00FFFF">РСЃСЃР»РµРґРѕРІР°С‚СЊ СЃСЂРµРґРЅРёР№ СЃР»РѕР№</font></b>';
+                  $out .= "&level=РСЃСЃР»РµРґРѕРІР°РЅРЅР° РїРѕРІРµСЂС…РЅРѕСЃС‚СЊ";
                   break;
                 case '1' :
-                  $out  = 'title=<b><font color="#00FFFF">Исследовать глубинный слой</font></b>';
-                  $out .= "&level=Исследован средний слой";
+                  $out  = 'title=<b><font color="#00FFFF">РСЃСЃР»РµРґРѕРІР°С‚СЊ РіР»СѓР±РёРЅРЅС‹Р№ СЃР»РѕР№</font></b>';
+                  $out .= "&level=РСЃСЃР»РµРґРѕРІР°РЅ СЃСЂРµРґРЅРёР№ СЃР»РѕР№";
                   break;
                 case '2' :
-                  $out  = 'title=<b><font color="#FFFF00">Все слои исследованны</font></b>';
-                  $out .= "&level=Исследован глубинный слой";
+                  $out  = 'title=<b><font color="#FFFF00">Р’СЃРµ СЃР»РѕРё РёСЃСЃР»РµРґРѕРІР°РЅРЅС‹</font></b>';
+                  $out .= "&level=РСЃСЃР»РµРґРѕРІР°РЅ РіР»СѓР±РёРЅРЅС‹Р№ СЃР»РѕР№";
                   break;
               }
     
@@ -315,36 +315,36 @@
                  ON DUPLICATE KEY UPDATE last = $last" );
 */
                   $build_time = time_to_str( get_build_time( 2000 ) );
-                  $out .= "&header=Длительность $build_time";
-                  $out .= "&btLabel=Начать исследование&upgOnClick=page.php?id=25%26l=$last%26x=$x%26y=$y%26bid=2000";
-                  $out .= "&col0=Ресурс";
-                  $out .= "&col1=Требуется";
-                  $out .= "&col2=Доступно";
+                  $out .= "&header=Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ $build_time";
+                  $out .= "&btLabel=РќР°С‡Р°С‚СЊ РёСЃСЃР»РµРґРѕРІР°РЅРёРµ&upgOnClick=page.php?id=25%26l=$last%26x=$x%26y=$y%26bid=2000";
+                  $out .= "&col0=Р РµСЃСѓСЂСЃ";
+                  $out .= "&col1=РўСЂРµР±СѓРµС‚СЃСЏ";
+                  $out .= "&col2=Р”РѕСЃС‚СѓРїРЅРѕ";
                   $out .= "&cols=3&rows=1";
-                  $out .= '&l0c0=Геологический зонд&l0c1=1&l0c2='.$result['cnt'];
+                  $out .= '&l0c0=Р“РµРѕР»РѕРіРёС‡РµСЃРєРёР№ Р·РѕРЅРґ&l0c1=1&l0c2='.$result['cnt'];
                   break;
               }
             } else {
-              $out  = "title=Необходим геологический зонд";
+              $out  = "title=РќРµРѕР±С…РѕРґРёРј РіРµРѕР»РѕРіРёС‡РµСЃРєРёР№ Р·РѕРЅРґ";
             }
-            $out .= "&desc=\tПоверхность планеты содержит большое количество полезных ископаемых которые можно добывать в карьере, шахте или на буровой вышке. Для доступа в недра планеты необходимо исследовать участок с помощью зонда или геологического спутника.";
+            $out .= "&desc=\tРџРѕРІРµСЂС…РЅРѕСЃС‚СЊ РїР»Р°РЅРµС‚С‹ СЃРѕРґРµСЂР¶РёС‚ Р±РѕР»СЊС€РѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»РµР·РЅС‹С… РёСЃРєРѕРїР°РµРјС‹С… РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ РґРѕР±С‹РІР°С‚СЊ РІ РєР°СЂСЊРµСЂРµ, С€Р°С…С‚Рµ РёР»Рё РЅР° Р±СѓСЂРѕРІРѕР№ РІС‹С€РєРµ. Р”Р»СЏ РґРѕСЃС‚СѓРїР° РІ РЅРµРґСЂР° РїР»Р°РЅРµС‚С‹ РЅРµРѕР±С…РѕРґРёРјРѕ РёСЃСЃР»РµРґРѕРІР°С‚СЊ СѓС‡Р°СЃС‚РѕРє СЃ РїРѕРјРѕС‰СЊСЋ Р·РѕРЅРґР° РёР»Рё РіРµРѕР»РѕРіРёС‡РµСЃРєРѕРіРѕ СЃРїСѓС‚РЅРёРєР°.";
             break;
           case 1:
             $obj = db_fetch_row( "SELECT o.id, o.name FROM planet_events pe, objects o WHERE pe.id = {$info->busy_id} AND pe.object_id = o.id" );
             if( $obj['id'] == 2000 ) {
               if( $found[ $y ]{$x} == 0 ) {
-                $out = "title=Разрабатывается средний слой";
+                $out = "title=Р Р°Р·СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ СЃСЂРµРґРЅРёР№ СЃР»РѕР№";
               } else {
-                $out = "title=Разрабатывается глубинный слой";
+                $out = "title=Р Р°Р·СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ РіР»СѓР±РёРЅРЅС‹Р№ СЃР»РѕР№";
               }
             } else {
-              $out = "title=Строится {$obj['name']}";
+              $out = "title=РЎС‚СЂРѕРёС‚СЃСЏ {$obj['name']}";
             }
             break;
         }
       }
     } else {
-      $out  = "title=Управление заблокированно";
+      $out  = "title=РЈРїСЂР°РІР»РµРЅРёРµ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅРЅРѕ";
     }
     printOut( $out );
   }

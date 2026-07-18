@@ -15,16 +15,16 @@
     if( strlen( $line ) >= $x ) {
       $info = get_orbit_info( $x );
       if( $line{$x} == '0' || $line{$x} == 'B' ) {
-        $out = 'info=<b><font color="#FFFF00">'.t('Открытый космос').'</font></b>';
+        $out = 'info=<b><font color="#FFFF00">'.t('РћС‚РєСЂС‹С‚С‹Р№ РєРѕСЃРјРѕСЃ').'</font></b>';
       } else {
-        $out = 'info=<b><font color="#00FFFF">'.t( '%s %d уровня', array( $orb_decode[ $line{$x} ], $info->level ) ).'</font></b>';
+        $out = 'info=<b><font color="#00FFFF">'.t( '%s %d СѓСЂРѕРІРЅСЏ', array( $orb_decode[ $line{$x} ], $info->level ) ).'</font></b>';
       }
 
       if( $line{$x} == '0' ) {
         if( $user->owner ) {
-          $out .= "&desc=\t".t('Орбитальная точка стояния. В данном месте на орбите можно построить любое доступное сооружение.');
+          $out .= "&desc=\t".t('РћСЂР±РёС‚Р°Р»СЊРЅР°СЏ С‚РѕС‡РєР° СЃС‚РѕСЏРЅРёСЏ. Р’ РґР°РЅРЅРѕРј РјРµСЃС‚Рµ РЅР° РѕСЂР±РёС‚Рµ РјРѕР¶РЅРѕ РїРѕСЃС‚СЂРѕРёС‚СЊ Р»СЋР±РѕРµ РґРѕСЃС‚СѓРїРЅРѕРµ СЃРѕРѕСЂСѓР¶РµРЅРёРµ.');
         } else {
-          $out .= "&desc=\t".t('Орбитальная точка стояния.');
+          $out .= "&desc=\t".t('РћСЂР±РёС‚Р°Р»СЊРЅР°СЏ С‚РѕС‡РєР° СЃС‚РѕСЏРЅРёСЏ.');
         }
       } else {
         $desc = db_fetch_row( "SELECT b.desc FROM buildings b WHERE b.place_type = 0 AND map_char = '{$line{$x}}'" );
@@ -39,17 +39,17 @@
             break;
     
           case 'V':
-            $out .= '&desc='.$desc['desc']."Сила выстрела\t\t".( 5 + 5 * get_book_level( 22 ) )."\n".
-              "Количество\t\t\t".($info->level * 10);
+            $out .= '&desc='.$desc['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t".( 5 + 5 * get_book_level( 22 ) )."\n".
+              "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level * 10);
             break;
 
           case 'X':
-            $out .= '&desc='.$desc['desc']."Сила выстрела\t\t".( 50 + 50 * get_book_level( 21 ) )."\n".
-              "Количество\t\t\t".($info->level);
+            $out .= '&desc='.$desc['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t".( 50 + 50 * get_book_level( 21 ) )."\n".
+              "РљРѕР»РёС‡РµСЃС‚РІРѕ\t\t\t".($info->level);
             break;
 
           case 'Y':
-            $out .= '&desc='.$desc['desc']."Сила выстрела\t\t".($info->level + intval( $info->level / 4 * get_book_level( 24 )));
+            $out .= '&desc='.$desc['desc']."РЎРёР»Р° РІС‹СЃС‚СЂРµР»Р°\t\t".($info->level + intval( $info->level / 4 * get_book_level( 24 )));
             break;
     
           default:
@@ -86,8 +86,8 @@
         }
       }
     } else {
-      $out = 'info=<b><font color="#FFFF00">Открытый космос</font></b>';
-      $out .= "&desc=\tВ этой точке невозможно строительство, слишком низкая гравитация.";
+      $out = 'info=<b><font color="#FFFF00">РћС‚РєСЂС‹С‚С‹Р№ РєРѕСЃРјРѕСЃ</font></b>';
+      $out .= "&desc=\tР’ СЌС‚РѕР№ С‚РѕС‡РєРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ СЃС‚СЂРѕРёС‚РµР»СЊСЃС‚РІРѕ, СЃР»РёС€РєРѕРј РЅРёР·РєР°СЏ РіСЂР°РІРёС‚Р°С†РёСЏ.";
     }
     printOut( $out );
   }

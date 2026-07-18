@@ -19,14 +19,14 @@
     foreach( $parsed as $item ) {
       if( $item['type'] == 'complete' && isset( $item['attributes']['AMOUNT'] ) ) {
 
-        $preopt[ $item['attributes']['ALIAS'] ] = array( $item['attributes']['AMOUNT'], mb_convert_encoding( $item['attributes']['CURRENCYNAME'], 'CP1251', 'UTF-8' ), mb_convert_encoding( $item['value'], 'CP1251', 'UTF-8' ) );
+        $preopt[ $item['attributes']['ALIAS'] ] = array( $item['attributes']['AMOUNT'], $item['attributes']['CURRENCYNAME'], $item['value'] );
 
         if( strlen( $item['attributes']['AMOUNT'] ) > $tab1 ) {
           $tab1 = strlen( $item['attributes']['AMOUNT'] );
         }
         
-        if( strlen( mb_convert_encoding( $item['attributes']['CURRENCYNAME'], 'CP1251', 'UTF-8' ) ) > $tab2 ) {
-          $tab2 = strlen( mb_convert_encoding( $item['attributes']['CURRENCYNAME'], 'CP1251', 'UTF-8' ) );
+        if( strlen( $item['attributes']['CURRENCYNAME'] ) > $tab2 ) {
+          $tab2 = strlen( $item['attributes']['CURRENCYNAME'] );
         }
       }
     }

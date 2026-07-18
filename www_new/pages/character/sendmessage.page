@@ -5,9 +5,8 @@
 
   $text = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode( $text ));
   $text = html_entity_decode( $text, null, 'UTF-8' );;
-  $text = mb_convert_encoding( $text, "Windows-1251", "UTF-8" );
   $text = preg_replace( array( '/\'/i', '/</i', '/>/i' ), array( '"', '"', '"' ), $text ); 
-  $text = preg_replace( '/([^a-zA-Z0-9а-яА-ЯёЁ])/e', '"%".str_pad(dechex(ord("$1")),2,"0",STR_PAD_LEFT)', $text ); 
+  $text = preg_replace( '/([^a-zA-Z0-9Р°-СЏРђ-РЇС‘РЃ])/e', '"%".str_pad(dechex(ord("$1")),2,"0",STR_PAD_LEFT)', $text ); 
   $text = preg_replace( '/%5c/i', '', $text ); 
 
   db_safe( $to );
@@ -18,7 +17,7 @@
   $toid = db_fetch_val( "SELECT id FROM users WHERE status = 1 AND login = '$to'", 'id' );
 
   send_msg( $user->uid, $toid, $text, 20 );
-  send_msg( $user->uid, $user->uid, t( 'Отправлено %s <br>%s', array( $to, $text ) ), 20 );
+  send_msg( $user->uid, $user->uid, t( 'РћС‚РїСЂР°РІР»РµРЅРѕ %s <br>%s', array( $to, $text ) ), 20 );
 
   $out = 'err=0';
   printOut( $out );

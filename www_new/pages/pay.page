@@ -1,8 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
-<title>Полдень 21 века</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>РџРѕР»РґРµРЅСЊ 21 РІРµРєР°</title>
 <link href="main.css" rel="stylesheet" type="text/css" />
 </head>
 <body background="images/bg.jpg">
@@ -29,7 +29,7 @@ var google_conversion_value = 0;
 <script language='JavaScript'>
   function recalc() {
     if( Math.round( document.getElementById("s_conf").value ) != document.getElementById("s_conf").value ) {
-      alert( "Допускаются только целое количество конфедератов!" );
+      alert( "Р”РѕРїСѓСЃРєР°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ С†РµР»РѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ!" );
       return;
     }
 
@@ -39,7 +39,7 @@ var google_conversion_value = 0;
 
     if( v_cur == 1 ) {
       document.getElementById("CONFCNT").value = v_confederates;
-      document.getElementById("LMI_PAYMENT_DESC").value = "Покупка "+v_confederates+" конфедератов";
+      document.getElementById("LMI_PAYMENT_DESC").value = "РџРѕРєСѓРїРєР° "+v_confederates+" РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ";
       document.getElementById("LMI_PAYMENT_AMOUNT").value = v_confederates / 10;
       document.getElementById("summ").innerHTML = v_confederates / 10;
       document.getElementById("LMI_PAYEE_PURSE").value = "Z116590410267";
@@ -47,7 +47,7 @@ var google_conversion_value = 0;
     }
     if( v_cur == 2 ) {
       document.getElementById("CONFCNT").value = v_confederates;
-      document.getElementById("LMI_PAYMENT_DESC").value = "Покупка "+v_confederates+" конфедератов";
+      document.getElementById("LMI_PAYMENT_DESC").value = "РџРѕРєСѓРїРєР° "+v_confederates+" РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ";
       document.getElementById("LMI_PAYMENT_AMOUNT").value = v_confederates * 30 / 10;
       document.getElementById("summ").innerHTML = v_confederates * 30 / 10;
       document.getElementById("LMI_PAYEE_PURSE").value = "R314296320350";
@@ -74,32 +74,32 @@ var google_conversion_value = 0;
     <td id="bgh">
 
 <table bgcolor=#000033 align=center>
-<tr><td colspan=3 align=center><h2>Покупка конфедератов</h2></td></tr>
+<tr><td colspan=3 align=center><h2>РџРѕРєСѓРїРєР° РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ</h2></td></tr>
 <tr>
-  <td>Количество покупаемых конфедератов:</td>
+  <td>РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРєСѓРїР°РµРјС‹С… РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ:</td>
   <td colspan=2><input type=text id=s_conf value=0 OnChange=recalc(); autofocus OnKeyUp=recalc();></td>
 </tr>
 <tr>
-  <td>Валюта расчета</td>
+  <td>Р’Р°Р»СЋС‚Р° СЂР°СЃС‡РµС‚Р°</td>
   <td colspan=2><select id=s_cur OnChange=recalc(); OnKeyUp=recalc();>
-    <option value=1>Заплатить в WMZ</option>
-    <option value=2>Заплатить в WMR</option>
+    <option value=1>Р—Р°РїР»Р°С‚РёС‚СЊ РІ WMZ</option>
+    <option value=2>Р—Р°РїР»Р°С‚РёС‚СЊ РІ WMR</option>
     </select>
   </td>
 </tr>
 <tr>
-  <td>Итоговая сумма в валюте расчета:</td>
+  <td>РС‚РѕРіРѕРІР°СЏ СЃСѓРјРјР° РІ РІР°Р»СЋС‚Рµ СЂР°СЃС‡РµС‚Р°:</td>
   <td id="summ">0</td>
   <td id="w_name"></td>
 </tr>
 <!--
-<tr><td colspan=3 align=center><input name=rules id=rules type="checkbox" OnChange=recalc();>Я ознакомлен и согласен с <a href=page.php?id=62731 target=\"_blank\">условиями оплаты</a></td></tr>
+<tr><td colspan=3 align=center><input name=rules id=rules type="checkbox" OnChange=recalc();>РЇ РѕР·РЅР°РєРѕРјР»РµРЅ Рё СЃРѕРіР»Р°СЃРµРЅ СЃ <a href=page.php?id=62731 target=\"_blank\">СѓСЃР»РѕРІРёСЏРјРё РѕРїР»Р°С‚С‹</a></td></tr>
 -->
 <tr>
   <td colspan=3 align=center>
     <form id=pay name=pay method="POST" action="https://merchant.webmoney.ru/lmi/payment.asp" target="_blank">
     <input type="hidden" id="LMI_PAYMENT_AMOUNT" name="LMI_PAYMENT_AMOUNT" value="0">
-    <input type="hidden" id="LMI_PAYMENT_DESC" name="LMI_PAYMENT_DESC" value="Покупка конфедератов">
+    <input type="hidden" id="LMI_PAYMENT_DESC" name="LMI_PAYMENT_DESC" value="РџРѕРєСѓРїРєР° РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ">
     <input type="hidden" name="LMI_PAYMENT_NO" value="<?php
 
   global $user;

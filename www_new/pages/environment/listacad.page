@@ -14,8 +14,8 @@
     $info = get_planet_info( $x, $y );
     $mult = db_fetch_val( "SELECT multiply FROM academy WHERE id = $rf", 'multiply' );
 
-    $out .= '&dg_h='.t( 'Коэфициент действия %d%%25 за уровень', array( $mult ) );
-    $out .= "&btLabel=".t('Сохранить')."&hide=1&btOnClick=page.php?id=287%26x=$x%26y=$y%26rf=$rf";
+    $out .= '&dg_h='.t( 'РљРѕСЌС„РёС†РёРµРЅС‚ РґРµР№СЃС‚РІРёСЏ %d%%25 Р·Р° СѓСЂРѕРІРµРЅСЊ', array( $mult ) );
+    $out .= "&btLabel=".t('РЎРѕС…СЂР°РЅРёС‚СЊ')."&hide=1&btOnClick=page.php?id=287%26x=$x%26y=$y%26rf=$rf";
 
     printOut( $out );
   } else {

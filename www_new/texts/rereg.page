@@ -8,20 +8,20 @@ $err = isset( $_GET['err'] ) ? $_GET['err'] : 0;
 
 switch( $err ) {
   case 1:
-    $main_content = "<h4>Пароли не совпадают</h4>";
+    $main_content = "<h4>РџР°СЂРѕР»Рё РЅРµ СЃРѕРІРїР°РґР°СЋС‚</h4>";
     break;
   case 2:
-    $main_content = "<h4>Ознакомьтесь с правилами</h4>";
+    $main_content = "<h4>РћР·РЅР°РєРѕРјСЊС‚РµСЃСЊ СЃ РїСЂР°РІРёР»Р°РјРё</h4>";
     break;
   case 3:
-    $main_content = "<h4>Ознакомьтесь с соглашением</h4>";
+    $main_content = "<h4>РћР·РЅР°РєРѕРјСЊС‚РµСЃСЊ СЃ СЃРѕРіР»Р°С€РµРЅРёРµРј</h4>";
     break;
   case 4:
-    $main_content = "<h4>Контрольный текст неверен</h4>";
+    $main_content = "<h4>РљРѕРЅС‚СЂРѕР»СЊРЅС‹Р№ С‚РµРєСЃС‚ РЅРµРІРµСЂРµРЅ</h4>";
     break;
 
   default:
-    $main_content = "<h4>Заполните новые регистрационные данные</h4>";
+    $main_content = "<h4>Р—Р°РїРѕР»РЅРёС‚Рµ РЅРѕРІС‹Рµ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹Рµ РґР°РЅРЅС‹Рµ</h4>";
     break;
 }
 
@@ -32,12 +32,12 @@ db_safe( $str );
 $main_content .= "<form action=\"restore_act.php\" method=POST>
 <input name='str' type=hidden value='$str'>
 <table align=center>
-<tr><td align=right>Пароль</td><td><input type=password name='pass1'></td>
-<td align=right>Повторите пароль</td><td><input type=password name='pass2'></td></tr>
+<tr><td align=right>РџР°СЂРѕР»СЊ</td><td><input type=password name='pass1'></td>
+<td align=right>РџРѕРІС‚РѕСЂРёС‚Рµ РїР°СЂРѕР»СЊ</td><td><input type=password name='pass2'></td></tr>
 <tr><td></td><td align=right><img src=\"/kcaptcha/?".session_name()."=".session_id()."\"></td>
-<td align=right>Введите текст слева:</td><td><input type=\"text\" name=\"keystring\"></td></tr>
-<tr><td colspan=4 align=center><input name=rules type=\"checkbox\">Я ознакомлен и согласен с <a href=index.php?pid=rules target=\"_blank\">правилами</a></td></tr>
-<tr><td colspan=4 align=center><input name=license type=\"checkbox\">Я ознакомлен и согласен с <a href=index.php?pid=license target=\"_blank\">соглашением</a></td></tr>
-<tr><td colspan=4 align=center><input type=\"submit\" value=\"Изменить пароль\"></td></tr>
+<td align=right>Р’РІРµРґРёС‚Рµ С‚РµРєСЃС‚ СЃР»РµРІР°:</td><td><input type=\"text\" name=\"keystring\"></td></tr>
+<tr><td colspan=4 align=center><input name=rules type=\"checkbox\">РЇ РѕР·РЅР°РєРѕРјР»РµРЅ Рё СЃРѕРіР»Р°СЃРµРЅ СЃ <a href=index.php?pid=rules target=\"_blank\">РїСЂР°РІРёР»Р°РјРё</a></td></tr>
+<tr><td colspan=4 align=center><input name=license type=\"checkbox\">РЇ РѕР·РЅР°РєРѕРјР»РµРЅ Рё СЃРѕРіР»Р°СЃРµРЅ СЃ <a href=index.php?pid=license target=\"_blank\">СЃРѕРіР»Р°С€РµРЅРёРµРј</a></td></tr>
+<tr><td colspan=4 align=center><input type=\"submit\" value=\"РР·РјРµРЅРёС‚СЊ РїР°СЂРѕР»СЊ\"></td></tr>
 </table>
 </form>";

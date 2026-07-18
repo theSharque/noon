@@ -44,11 +44,11 @@
     for( $i = 0; $i < $as_count; $i++ ) {
       $rad += ( 360 / $as_count ) + mt_rand( 0, 6 ) - 3;
       db_query( "INSERT INTO planets ( type, name,       star_id,            planet_pos,  rad,                     orb,                         cycles  )
-                              VALUES ( 5,    'Àñòåðîèä', $star_id, $planet_pos, $rad, ".($planet_pos * 30 + 30).", 10000   )" );
+                              VALUES ( 5,    'ÐÑÑ‚ÐµÑ€Ð¾Ð¸Ð´', $star_id, $planet_pos, $rad, ".($planet_pos * 30 + 30).", 10000   )" );
 
       $aster_id = mysql_insert_id();
 
-      $name = "Àñòåð.$aster_id";
+      $name = "ÐÑÑ‚ÐµÑ€.$aster_id";
       db_query( "UPDATE planets SET name = '$name' WHERE id = $aster_id" );
 
       $mat = $levmap{ mt_rand( 0, strlen( $levmap ) - 1 ) };

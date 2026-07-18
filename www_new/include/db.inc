@@ -4,9 +4,18 @@ function db_init() {
   static $dblink;
 
   if( $dblink === null ) {
-    $dblink = mysql_connect( ':/run/mysqld/mysqld.sock', 'noon', 'gjhnhtnm' ) or die("Could not connect: " . mysql_error());
-    mysql_select_db( 'noon' ) or die ('Can\'t use noon : ' . mysql_error());
-    mysql_query( "SET character_set_client = cp1251, character_set_connection = cp1251, character_set_results = cp1251" );
+    $host = getenv('NOON_DB_HOST');
+    $user = getenv('NOON_DB_USER');
+    $pass = getenv('NOON_DB_PASSWORD');
+    $db   = getenv('NOON_DB_NAME');
+
+    if( !$host || !$user || !$pass || !$db ) {
+      die('Database env not configured (NOON_DB_HOST, NOON_DB_USER, NOON_DB_PASSWORD, NOON_DB_NAME)');
+    }
+
+    $dblink = mysql_connect( $host, $user, $pass ) or die("Could not connect: " . mysql_error());
+    mysql_select_db( $db ) or die ('Can\'t use noon : ' . mysql_error());
+    mysql_query( "SET NAMES utf8" );
   }
 
   return $dblink;

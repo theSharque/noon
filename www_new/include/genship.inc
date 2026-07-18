@@ -27,7 +27,7 @@ function gen_ship() {
       $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
     } while ( $len < 25 );
 
-    user_report( $ship, 1, 120, t( "Астрономы зафиксировали странный корабль <font color=\"#00FF00\">в системе %s корабль</font> в рабочем состоянии, но не отвечает на опознавательные запросы.", array( $star ) ) );
+    user_report( $ship, 1, 120, t( "РђСЃС‚СЂРѕРЅРѕРјС‹ Р·Р°С„РёРєСЃРёСЂРѕРІР°Р»Рё СЃС‚СЂР°РЅРЅС‹Р№ РєРѕСЂР°Р±Р»СЊ <font color=\"#00FF00\">РІ СЃРёСЃС‚РµРјРµ %s РєРѕСЂР°Р±Р»СЊ</font> РІ СЂР°Р±РѕС‡РµРј СЃРѕСЃС‚РѕСЏРЅРёРё, РЅРѕ РЅРµ РѕС‚РІРµС‡Р°РµС‚ РЅР° РѕРїРѕР·РЅР°РІР°С‚РµР»СЊРЅС‹Рµ Р·Р°РїСЂРѕСЃС‹.", array( $star ) ) );
 
     db_query( "INSERT INTO ships (object_id, place_id, place_type, user_id, name,      arg1, arg2, fleet_id, shield, inwar, guard) VALUES
                                  ($type,     $ship, 7,   null,    'abandon', $xr,  $yr,  NULL,     0,      0,     0    )" );

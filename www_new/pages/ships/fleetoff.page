@@ -26,10 +26,10 @@
         if( isset( $test['id'] ) && is_numeric( $test['id'] ) && $cnt > 1 && $nfid == null ) {
           if( $test['place_type'] == 7 || $test['place_type'] == 8 ) {
             db_query( "INSERT INTO fleets ( name,                   `group`,            user_id,      place_type,             place_id,           arg1,          arg2 ) 
-                                   VALUES ( 'Ôëîò {$test['name']}', '{$test['group']}', {$user->uid}, {$test['place_type']}, {$test['place_id']}, {$test['arg1']}, {$test['arg2']} )" );
+                                   VALUES ( 'Ð¤Ð»Ð¾Ñ‚ {$test['name']}', '{$test['group']}', {$user->uid}, {$test['place_type']}, {$test['place_id']}, {$test['arg1']}, {$test['arg2']} )" );
           } else {
             db_query( "INSERT INTO fleets ( name,                   `group`,            user_id,      place_type,             place_id ) 
-                                   VALUES ( 'Ôëîò {$test['name']}', '{$test['group']}', {$user->uid}, {$test['place_type']}, {$test['place_id']} )" );
+                                   VALUES ( 'Ð¤Ð»Ð¾Ñ‚ {$test['name']}', '{$test['group']}', {$user->uid}, {$test['place_type']}, {$test['place_id']} )" );
           }
 
           $nfid = mysql_insert_id();

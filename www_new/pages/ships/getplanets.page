@@ -106,12 +106,12 @@
                                       FROM ships s
                                 INNER JOIN ship_types st ON st.object_id = s.object_id
                                      WHERE ( st.cloak < $radar ) AND s.user_id IS NULL AND s.place_type = 7 AND s.place_id = ".$place['place_id'], 'cnt' );
-          $out .= "&ftxt=В системе обнаружено $fcnt не планетарных, потеряных $abandons";
+          $out .= "&ftxt=Р’ СЃРёСЃС‚РµРјРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ $fcnt РЅРµ РїР»Р°РЅРµС‚Р°СЂРЅС‹С…, РїРѕС‚РµСЂСЏРЅС‹С… $abandons";
         } else {
-          $out .= "&ftxt=Радар отсутствует";
+          $out .= "&ftxt=Р Р°РґР°СЂ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚";
         }
       } else {
-        $out .= "&ftxt=В системе обнаружено $fcnt не планетарных объектов";
+        $out .= "&ftxt=Р’ СЃРёСЃС‚РµРјРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ $fcnt РЅРµ РїР»Р°РЅРµС‚Р°СЂРЅС‹С… РѕР±СЉРµРєС‚РѕРІ";
       }
 
       $out .= "&fcnt=$fcnt";
@@ -226,12 +226,12 @@
                                       FROM ships s
                                 INNER JOIN ship_types st ON st.object_id = s.object_id
                                      WHERE ( st.cloak < $radar ) AND s.user_id IS NULL AND s.place_type = 7 AND s.place_id = ".$planet->place_id, 'cnt' );
-          $out .= "&ftxt=В системе обнаружено $fcnt не планетарных, потеряных $abandons";
+          $out .= "&ftxt=Р’ СЃРёСЃС‚РµРјРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ $fcnt РЅРµ РїР»Р°РЅРµС‚Р°СЂРЅС‹С…, РїРѕС‚РµСЂСЏРЅС‹С… $abandons";
         } else {
-          $out .= "&ftxt=Радар отсутствует";
+          $out .= "&ftxt=Р Р°РґР°СЂ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚";
         }
       } else {
-        $out .= "&ftxt=В системе обнаружено $fcnt не планетарных объектов";
+        $out .= "&ftxt=Р’ СЃРёСЃС‚РµРјРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ $fcnt РЅРµ РїР»Р°РЅРµС‚Р°СЂРЅС‹С… РѕР±СЉРµРєС‚РѕРІ";
       }
       $out .= "&fcnt=$fcnt";
       foreach( $ships as $item ) {

@@ -12,52 +12,52 @@
 
     switch( $row['titul'] % 11 ) {
       case 0:
-        db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Пилот %s покинул эфир.</font>', array( $user->login ) )."' )" );
+        db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">РџРёР»РѕС‚ %s РїРѕРєРёРЅСѓР» СЌС„РёСЂ.</font>', array( $user->login ) )."' )" );
         break;
       case 1:
         if( $row['titul'] < 12 ) {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">%s %s покинул эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">%s %s РїРѕРєРёРЅСѓР» СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         } else {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">%s %s покинула эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">%s %s РїРѕРєРёРЅСѓР»Р° СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         }
         break;
       case 2:
       case 3:
       case 4:
         if( $row['titul'] < 12 ) {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Его милость %s %s покинул эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ РјРёР»РѕСЃС‚СЊ %s %s РїРѕРєРёРЅСѓР» СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         } else {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Ее милость %s %s покинула эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•Рµ РјРёР»РѕСЃС‚СЊ %s %s РїРѕРєРёРЅСѓР»Р° СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         }
         break;
       case 5:
         if( $row['titul'] < 12 ) {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Его сиятельство %s %s покинул эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ СЃРёСЏС‚РµР»СЊСЃС‚РІРѕ %s %s РїРѕРєРёРЅСѓР» СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         } else {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Ее сиятельство %s %s покинула эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•Рµ СЃРёСЏС‚РµР»СЊСЃС‚РІРѕ %s %s РїРѕРєРёРЅСѓР»Р° СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         }
         break;
       case 6:
       case 7:
       case 8:
         if( $row['titul'] < 12 ) {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Его светлость %s %s покинул эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ СЃРІРµС‚Р»РѕСЃС‚СЊ %s %s РїРѕРєРёРЅСѓР» СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         } else {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Ее светлость %s %s покинула эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•Рµ СЃРІРµС‚Р»РѕСЃС‚СЊ %s %s РїРѕРєРёРЅСѓР»Р° СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         }
         break;
       case 9:
         if( $row['titul'] < 12 ) {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Его высочество %s %s покинул эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ РІС‹СЃРѕС‡РµСЃС‚РІРѕ %s %s РїРѕРєРёРЅСѓР» СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         } else {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Ее высочество %s %s покинула эфир.</font>', array( $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•Рµ РІС‹СЃРѕС‡РµСЃС‚РІРѕ %s %s РїРѕРєРёРЅСѓР»Р° СЌС„РёСЂ.</font>', array( $row['tname'], $user->login, ) )."' )" );
         }
         break;
       case 10:
         if( $row['titul'] < 12 ) {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Его королевское величество, повелитель планеты %s, %s %s покинул эфир.</font>', array( $row['pname'], $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•РіРѕ РєРѕСЂРѕР»РµРІСЃРєРѕРµ РІРµР»РёС‡РµСЃС‚РІРѕ, РїРѕРІРµР»РёС‚РµР»СЊ РїР»Р°РЅРµС‚С‹ %s, %s %s РїРѕРєРёРЅСѓР» СЌС„РёСЂ.</font>', array( $row['pname'], $row['tname'], $user->login, ) )."' )" );
         } else {
-          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Ее королевское величество, повелительница планеты %s, %s %s покинула эфир.</font>', array( $row['pname'], $row['tname'], $user->login, ) )."' )" );
+          db_query( "INSERT INTO chat ( user_id, text ) VALUES ( {$user->uid}, '".t( '<font color=\"#CCCCCC\">Р•Рµ РєРѕСЂРѕР»РµРІСЃРєРѕРµ РІРµР»РёС‡РµСЃС‚РІРѕ, РїРѕРІРµР»РёС‚РµР»СЊРЅРёС†Р° РїР»Р°РЅРµС‚С‹ %s, %s %s РїРѕРєРёРЅСѓР»Р° СЌС„РёСЂ.</font>', array( $row['pname'], $row['tname'], $user->login, ) )."' )" );
         }
         break;
     }

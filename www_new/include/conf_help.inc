@@ -24,12 +24,12 @@
         case 0:
         case 1:
           db_query( "INSERT INTO fleets (                    name, user_id,           place_type,           place_id, arg1, arg2, guard )
-                                 VALUES ( '".t('Конфедерация')."',       5, {$war['place_type']}, {$war['place_id']}, null, null, 2     )" );
+                                 VALUES ( '".t('РљРѕРЅС„РµРґРµСЂР°С†РёСЏ')."',       5, {$war['place_type']}, {$war['place_id']}, null, null, 2     )" );
           $fleet_id = mysql_insert_id();
       
           for( $i=0; $i < $war['count'] / 4; $i++ ) {
             db_query( "INSERT INTO ships (object_id,           place_id,           place_type, user_id, name, arg1, arg2,  fleet_id, shield, inwar, guard) VALUES
-                                         (     9485, {$war['place_id']}, {$war['place_type']},       5, 'ГП', null, null, $fleet_id,  25000,     0,     2)" );
+                                         (     9485, {$war['place_id']}, {$war['place_type']},       5, 'Р“Рџ', null, null, $fleet_id,  25000,     0,     2)" );
 
             $ship_id = mysql_insert_id();
             add_warehouse_item( 2, $ship_id, 9217, 32 );
@@ -41,12 +41,12 @@
         case 7:
         case 8:
           db_query( "INSERT INTO fleets (                    name, user_id,           place_type,           place_id,           arg1,           arg2, guard )
-                                 VALUES ( '".t('Конфедерация')."',       5, {$war['place_type']}, {$war['place_id']}, {$war['arg1']}, {$war['arg1']}, 2     )" );
+                                 VALUES ( '".t('РљРѕРЅС„РµРґРµСЂР°С†РёСЏ')."',       5, {$war['place_type']}, {$war['place_id']}, {$war['arg1']}, {$war['arg1']}, 2     )" );
           $fleet_id = mysql_insert_id();
       
           for( $i=0; $i < $war['count'] / 4; $i++ ) {
             db_query( "INSERT INTO ships (object_id,           place_id,           place_type, user_id, name,           arg1,           arg2,  fleet_id, shield, inwar, guard) VALUES
-                                         (     9485, {$war['place_id']}, {$war['place_type']},       5, 'ГП', {$war['arg1']}, {$war['arg2']}, $fleet_id,  25000,     0,     2)" );
+                                         (     9485, {$war['place_id']}, {$war['place_type']},       5, 'Р“Рџ', {$war['arg1']}, {$war['arg2']}, $fleet_id,  25000,     0,     2)" );
 
             $ship_id = mysql_insert_id();
             add_warehouse_item( 2, $ship_id, 9217, 32 );

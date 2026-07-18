@@ -12,7 +12,7 @@
 
     $id = $_POST['order_id'];
     $login = $_POST['gamer_id'];
-    $login = mb_convert_encoding( $login, 'Windows-1251', 'UTF-8' );
+    
 
 //    $login = $_POST['gamer_id'] == 'sharque' ? $_POST['gamer_id'] : "";
     $sum = $_POST['sum'];
@@ -27,7 +27,7 @@
       if( $uid > 0 && $sum > 0 ) {
         db_query( "UPDATE users SET credits = credits + $sum, donate = donate + $sum WHERE id = $uid" );
         db_query( "INSERT INTO pay_log ( user_id, type, mess ) VALUES ( $uid, 1, 'Success pay WSD of $sum ID:$id' )" );
-        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $uid, 1, 'Íà âàø èãðîâîé ñ÷åò çà÷èñëåíî $sum êîíôåäåðàòîâ, íîìåð òðàíçàêöèè $id.' )" );
+        db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $uid, 1, 'ÐÐ° Ð²Ð°Ñˆ Ð¸Ð³Ñ€Ð¾Ð²Ð¾Ð¹ ÑÑ‡ÐµÑ‚ Ð·Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¾ $sum ÐºÐ¾Ð½Ñ„ÐµÐ´ÐµÑ€Ð°Ñ‚Ð¾Ð², Ð½Ð¾Ð¼ÐµÑ€ Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¸ $id.' )" );
 
         $ret = array( 'result' => true, 'error' => 'Pay ok' );
       } else {

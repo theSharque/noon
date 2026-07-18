@@ -33,6 +33,6 @@ function return_money( $event ) {
 
   if( $summ > 0 ) {
     db_query( "UPDATE users SET money = money + '$summ' WHERE id = ".$event['user_id'] );
-    send_msg( 1, $event['user_id'], t( "Вы успешно осуществили биржевую операцию на сумму %s, учитывая ваш уровень маклера биржа выплачивает вам вознаграждение %s.", array( $event['summ'], $summ ) ), 2, $event['event_time'] );
+    send_msg( 1, $event['user_id'], t( "Р’С‹ СѓСЃРїРµС€РЅРѕ РѕСЃСѓС‰РµСЃС‚РІРёР»Рё Р±РёСЂР¶РµРІСѓСЋ РѕРїРµСЂР°С†РёСЋ РЅР° СЃСѓРјРјСѓ %s, СѓС‡РёС‚С‹РІР°СЏ РІР°С€ СѓСЂРѕРІРµРЅСЊ РјР°РєР»РµСЂР° Р±РёСЂР¶Р° РІС‹РїР»Р°С‡РёРІР°РµС‚ РІР°Рј РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ %s.", array( $event['summ'], $summ ) ), 2, $event['event_time'] );
   }
 }

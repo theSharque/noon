@@ -29,7 +29,7 @@
 
   $l=0;
   foreach( $result as $item ) {
-    $out.= "&id$l=".$item['id']."&n$l=".$item['name']." (минимум ".$item['t1name'].' или '.$item['t2name'].')';
+    $out.= "&id$l=".$item['id']."&n$l=".$item['name']." (РјРёРЅРёРјСѓРј ".$item['t1name'].' РёР»Рё '.$item['t2name'].')';
 
     if( $item['titul'] < $user->titul ) {
       $out.= "&c$l=0x330000&en$l=0";

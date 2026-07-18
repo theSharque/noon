@@ -5,7 +5,7 @@
   print <<<EOL
 <HTML>
 <HEAD>
-<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <TITLE>topmenu</TITLE>
 </HEAD>
 <BODY bgcolor=#000000 TOPMARGIN=0 LEFTMARGIN=0 MARGINHEIGHT=0 MARGINWIDTH=0>

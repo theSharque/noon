@@ -4,7 +4,7 @@ global $user;
 global $usd;
 
 function bootup() {
-  setlocale(LC_ALL, "ru_RU.CP1251");
+  setlocale(LC_ALL, "ru_RU.UTF-8");
 
   $usd = 30;
 

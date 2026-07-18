@@ -33,7 +33,7 @@
                           LEFT JOIN interupt_msg im ON im.ship_id = s.id AND im.type = 0
                               WHERE s.inwar = 0 AND s.fleet_id IS NULL AND s.user_id = {$user->uid} AND s.id = ".$ships[ 0 ] );
 
-      $pre_fleet_name = '‘ÎÓÚ '.$base['name'];
+      $pre_fleet_name = '–§–ª–æ—Ç '.$base['name'];
       $fleet_name = null;
     } else {
       $base = db_fetch_row( "SELECT f.name, f.group, f.place_id, f.place_type, f.arg1, f.arg2, f.agrav, f.planet, f.hyper, f.planet_cnt, f.hyper_cnt,

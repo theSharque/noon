@@ -25,7 +25,7 @@
         if( $result['own'] == $user->uid && $result['user_id'] == $result['id'] ) {
           db_query( "UPDATE users SET aliance = {$result['aid']} WHERE id = $uid" );
           db_query( "DELETE FROM aliance_in WHERE user_id = $uid" );
-          send_msg( 1, $result['user_id'], "Вас приняли в альянс {$result['name']}.", 20 );
+          send_msg( 1, $result['user_id'], "Р’Р°СЃ РїСЂРёРЅСЏР»Рё РІ Р°Р»СЊСЏРЅСЃ {$result['name']}.", 20 );
           $out = "err=0";
         }
         break;
@@ -33,14 +33,14 @@
       case 2: // Deligate
         if( $result['own'] == $user->uid && $result['id'] != $result['own'] && $result['aliance'] == $result['aid'] ) {
           db_query( "UPDATE aliance SET own = $uid WHERE id = ".$result['aid'] );
-          send_msg( 1, $result['user_id'], "Вы назначены призедентом альянса {$result['name']}.", 20 );
+          send_msg( 1, $result['user_id'], "Р’С‹ РЅР°Р·РЅР°С‡РµРЅС‹ РїСЂРёР·РµРґРµРЅС‚РѕРј Р°Р»СЊСЏРЅСЃР° {$result['name']}.", 20 );
         }
         break;
 
       case 4: // Decline
         if( $result['own'] == $user->uid && $result['user_id'] == $result['id'] ) {
           db_query( "DELETE FROM aliance_in WHERE aliance = {$result['aid']} AND user_id = $uid" );
-          send_msg( 1, $result['user_id'], "Вам отказано в принятии в альянс {$result['name']}.", 20 );
+          send_msg( 1, $result['user_id'], "Р’Р°Рј РѕС‚РєР°Р·Р°РЅРѕ РІ РїСЂРёРЅСЏС‚РёРё РІ Р°Р»СЊСЏРЅСЃ {$result['name']}.", 20 );
           $out = "err=0";
         }
         break;
@@ -54,7 +54,7 @@
           db_query( "UPDATE ships SET interupt = 1 WHERE interupt IN( 7, 8 ) AND user_id = $uid" );
           db_query( "UPDATE fleets SET interupt = 1 WHERE interupt IN( 7, 8 ) AND user_id = $uid" );
 
-          send_msg( 1, $result['user_id'], "Вас выгнали из альянса {$result['name']}.", 20 );
+          send_msg( 1, $result['user_id'], "Р’Р°СЃ РІС‹РіРЅР°Р»Рё РёР· Р°Р»СЊСЏРЅСЃР° {$result['name']}.", 20 );
         }
         break;
     }

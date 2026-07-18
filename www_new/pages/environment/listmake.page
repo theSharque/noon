@@ -32,9 +32,9 @@
     $av_energy = get_energy();
     if( $av_energy >= 0 ) {
       $cnt = db_fetch_val( 'SELECT IFNULL( object_cnt, 0 ) cnt FROM warehouse WHERE place_type = '.$user->place_type.' AND place_id = '.$user->place_id.' AND object_id = '.$oid, 'cnt' );
-      $out = "dg_h=".t( 'Цикл %s в наличии %d', array( time_to_str( get_make_time( $oid ) ), intval( $cnt ) ) );
+      $out = "dg_h=".t( 'Р¦РёРєР» %s РІ РЅР°Р»РёС‡РёРё %d', array( time_to_str( get_make_time( $oid ) ), intval( $cnt ) ) );
     } else {
-      $out = "dg_h=<b><font color=\"#FF0000\">".t('Недостаточно энергии')."</font>";
+      $out = "dg_h=<b><font color=\"#FF0000\">".t('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЌРЅРµСЂРіРёРё')."</font>";
     }
   
     $out .= "&nsMin=1&nsStep=1&nsVal={$info->cyc}&nsMax=".($info->level);
@@ -46,9 +46,9 @@
                                WHERE os.object_id=$oid AND o.class IN( 1, 2 )
                             ORDER BY o.class, o.name" );
 
-    $out .= "&col0=".t('Ресурс');
-    $out .= "&col1=".t('Требуется');
-    $out .= "&col2=".t('Доступно');
+    $out .= "&col0=".t('Р РµСЃСѓСЂСЃ');
+    $out .= "&col1=".t('РўСЂРµР±СѓРµС‚СЃСЏ');
+    $out .= "&col2=".t('Р”РѕСЃС‚СѓРїРЅРѕ');
   
     $i=0;
     $CanBuild = ( $av_energy >= 0 );
@@ -66,7 +66,7 @@
     }
 
     if( $CanBuild ) {
-      $out .= "&btLabel=".t('Начать производство')."&btOnClick=page.php?id=276%26oid=$oid%26l=$last%26x=$x%26y=$y%26count=";
+      $out .= "&btLabel=".t('РќР°С‡Р°С‚СЊ РїСЂРѕРёР·РІРѕРґСЃС‚РІРѕ')."&btOnClick=page.php?id=276%26oid=$oid%26l=$last%26x=$x%26y=$y%26count=";
 
       $result = db_fetch_row( "SELECT count(*) cnt FROM robots WHERE user_id = {$user->uid} AND status = 0" );
       if( $result['cnt'] > 0 ) {

@@ -22,13 +22,13 @@
         $uid = db_fetch_val( "SELECT id FROM users WHERE status = 1 AND login = '$user_name'", 'id' );
         if( isset( $uid ) && is_numeric( $uid ) ) {
           db_query( "UPDATE 2pay_log SET user_id = $uid, full_output = 'Login:$user_name checked!' WHERE id = $log_id" );
-          echo '<?xml version="1.0" encoding="windows-1251"?>
+          echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <result>0</result>
 </response>';
         } else {
           db_query( "UPDATE 2pay_log SET full_output = 'Account is disabled or not present.' WHERE id = $log_id" );
-          echo '<?xml version="1.0" encoding="windows-1251"?>
+          echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <result>7</result>
   <comment>Account is disabled or not present.</comment>
@@ -36,7 +36,7 @@
         }
       } else {
         db_query( "UPDATE 2pay_log SET full_output = 'MD5 check summ not correct. ".md5( $command.$user_name.$pass )." vs ".$md5."' WHERE id = $log_id" );
-        echo '<?xml version="1.0" encoding="windows-1251"?>
+        echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <result>7</result>
   <comment>MD5 check summ not correct.</comment>
@@ -60,7 +60,7 @@
       if( isset( $used['id'] ) && is_numeric( $used['id'] ) ) {
         $vals = unserialize( $used['output'] );
           db_query( "UPDATE 2pay_log SET 2pay_id = '$id', full_output = 'Used found.' WHERE id = $log_id" );
-          echo '<?xml version="1.0" encoding="windows-1251"?>
+          echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <id>'.$vals['id'].'</id>
   <id_shop>'.$vals['log_id'].'</id_shop>
@@ -82,19 +82,19 @@
 
             if( intval( $cnt / 100 ) * 100 == $cnt ) {
               db_query( "UPDATE users SET credits = credits + ".( $sum * 2 )." WHERE id = $uid" );
-              db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $uid, 1, 'Сумма каждого 100-го платежа увеличивается в двое, на ваш игровой счет зачислено ".( $sum * 2 )." конфедератов, номер транзакции $id.' )" );
+              db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $uid, 1, 'РЎСѓРјРјР° РєР°Р¶РґРѕРіРѕ 100-РіРѕ РїР»Р°С‚РµР¶Р° СѓРІРµР»РёС‡РёРІР°РµС‚СЃСЏ РІ РґРІРѕРµ, РЅР° РІР°С€ РёРіСЂРѕРІРѕР№ СЃС‡РµС‚ Р·Р°С‡РёСЃР»РµРЅРѕ ".( $sum * 2 )." РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, РЅРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё $id.' )" );
             } else {
               db_query( "UPDATE users SET credits = credits + $sum WHERE id = $uid" );
-              db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $uid, 1, 'На ваш игровой счет зачислено $sum конфедератов, номер транзакции $id.' )" );
+              db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $uid, 1, 'РќР° РІР°С€ РёРіСЂРѕРІРѕР№ СЃС‡РµС‚ Р·Р°С‡РёСЃР»РµРЅРѕ $sum РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, РЅРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё $id.' )" );
             }
             db_query( "UPDATE users SET credits = credits + ".intval($sum/10)." WHERE id = $pid" );
-            db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $pid, 1, 'На ваш игровой счет зачислено ".intval($sum/10)." конфедератов, это процент от зачисления одного из ваших рефералов.' )" );
+            db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text) VALUES ( NOW(), 20, $pid, 1, 'РќР° РІР°С€ РёРіСЂРѕРІРѕР№ СЃС‡РµС‚ Р·Р°С‡РёСЃР»РµРЅРѕ ".intval($sum/10)." РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, СЌС‚Рѕ РїСЂРѕС†РµРЅС‚ РѕС‚ Р·Р°С‡РёСЃР»РµРЅРёСЏ РѕРґРЅРѕРіРѕ РёР· РІР°С€РёС… СЂРµС„РµСЂР°Р»РѕРІ.' )" );
 
             switch( strtolower( $bonus ) ) {
               case 'qiwi' :
                 db_query( "UPDATE users SET credits = credits + 10 WHERE id = $uid" );
                 db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text)
-                           VALUES ( NOW(), 20, $uid, 1, 'В качестве бонуса от платежной системы QIWI вы получаете дополнительно 10 конфедерат на ваш счет.' )" );
+                           VALUES ( NOW(), 20, $uid, 1, 'Р’ РєР°С‡РµСЃС‚РІРµ Р±РѕРЅСѓСЃР° РѕС‚ РїР»Р°С‚РµР¶РЅРѕР№ СЃРёСЃС‚РµРјС‹ QIWI РІС‹ РїРѕР»СѓС‡Р°РµС‚Рµ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ 10 РєРѕРЅС„РµРґРµСЂР°С‚ РЅР° РІР°С€ СЃС‡РµС‚.' )" );
                 break;
 
               case 'kupi' :
@@ -103,7 +103,7 @@
                 $home = db_fetch_row( "SELECT id FROM planets WHERE user_id = ".$uid );
                 add_warehouse_item( 0, $home['id'], $win, 1 );
                 db_query( "INSERT INTO users_messages (msg_date, type,to_user,from_user,text)
-                           VALUES ( NOW(), 20, $uid, 1, 'В качестве бонуса от платежной системы купи.ру вы получаете имплантант. Устройство находится на вашей торговой станции.' )" );
+                           VALUES ( NOW(), 20, $uid, 1, 'Р’ РєР°С‡РµСЃС‚РІРµ Р±РѕРЅСѓСЃР° РѕС‚ РїР»Р°С‚РµР¶РЅРѕР№ СЃРёСЃС‚РµРјС‹ РєСѓРїРё.СЂСѓ РІС‹ РїРѕР»СѓС‡Р°РµС‚Рµ РёРјРїР»Р°РЅС‚Р°РЅС‚. РЈСЃС‚СЂРѕР№СЃС‚РІРѕ РЅР°С…РѕРґРёС‚СЃСЏ РЅР° РІР°С€РµР№ С‚РѕСЂРіРѕРІРѕР№ СЃС‚Р°РЅС†РёРё.' )" );
                 break;
 
               default:
@@ -112,7 +112,7 @@
             }
 
             db_query( "UPDATE 2pay_log SET user_id = $uid, 2pay_id = '$id', full_output = 'Pay ok. Login:$user_name, sum:$sum' WHERE id = $log_id" );
-            echo '<?xml version="1.0" encoding="windows-1251"?>
+            echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <id>'.$id.'</id>
   <id_shop>'.$log_id.'</id_shop>
@@ -121,7 +121,7 @@
 </response>';
           } else {
             db_query( "UPDATE 2pay_log SET user_id = $uid, 2pay_id = '$id', full_output = 'MD5 check summ not correct. ".md5( $command.$user_name.$pass )." vs ".$md5."' WHERE id = $log_id" );
-            echo '<?xml version="1.0" encoding="windows-1251"?>
+            echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <id>'.$id.'</id>
   <id_shop>'.$log_id.'</id_shop>
@@ -132,7 +132,7 @@
           }
         } else {
           db_query( "UPDATE 2pay_log SET 2pay_id = '$id', full_output = 'User ID not found or DB unreachable.' WHERE id = $log_id" );
-          echo '<?xml version="1.0" encoding="windows-1251"?>
+          echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <id>'.$id.'</id>
   <id_shop>'.$log_id.'</id_shop>
@@ -154,23 +154,23 @@
         if( isset( $tran['id'] ) && is_numeric( $tran['id'] ) ) {
           $vals = unserialize( $tran['output'] );
           db_query( "UPDATE users SET credits = credits - ".$vals['sum']." WHERE id = ".$tran['user_id'] );
-          db_query( "INSERT INTO users_messages (msg_date,type,to_user,from_user,text) VALUES ( NOW(), 20, ".$tran['user_id'].", 1, 'Вы отменили перевод денег, с вашего счета снято ".$vals['sum']." конфедератов, номер транзакции $id.' )" );
+          db_query( "INSERT INTO users_messages (msg_date,type,to_user,from_user,text) VALUES ( NOW(), 20, ".$tran['user_id'].", 1, 'Р’С‹ РѕС‚РјРµРЅРёР»Рё РїРµСЂРµРІРѕРґ РґРµРЅРµРі, СЃ РІР°С€РµРіРѕ СЃС‡РµС‚Р° СЃРЅСЏС‚Рѕ ".$vals['sum']." РєРѕРЅС„РµРґРµСЂР°С‚РѕРІ, РЅРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё $id.' )" );
           db_query( "DELETE FROM 2pay_pays WHERE 2pay_id = '$id'" );
           db_query( "UPDATE 2pay_log SET 2pay_id = '$id', full_output = 'Canceled transaction' WHERE id = $log_id" );
-          echo '<?xml version="1.0" encoding="windows-1251"?>
+          echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <result>0</result>
 </response>';
         } else {
           db_query( "UPDATE 2pay_log SET 2pay_id = '$id', full_output = 'Cancel impossible' WHERE id = $log_id" );
-          echo '<?xml version="1.0" encoding="windows-1251"?>
+          echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <result>2</result>
   <comment>Payment with given ID does not exists.</comment>
 </response>';
         }
       } else {
-        echo '<?xml version="1.0" encoding="windows-1251"?>
+        echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <result>7</result>
   <comment>MD5 check summ not correct.</comment>
@@ -181,7 +181,7 @@
 //////////////////////////// ERROR ! ///////////////////////////////
     default:
     db_query( "UPDATE 2pay_log SET full_output = 'Command not understand.' WHERE id = $log_id" );
-    echo '<?xml version="1.0" encoding="windows-1251"?>
+    echo '<?xml version="1.0" encoding="utf-8"?>
 <response>
   <result>7</result>
   <comment>Command not understand.</comment>

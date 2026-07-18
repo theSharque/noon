@@ -8,7 +8,7 @@
 
     $text = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode( $text ));
     $text = html_entity_decode( $text, null, 'UTF-8' );;
-    $stext = $text = mb_convert_encoding( $text, "Windows-1251", "UTF-8" );
+    $stext = $text;
 
     if( strpos( $text, '(' ) == 0 && strpos( $text, ')' ) >= 2 ) {
       $to_user = substr( $text, strpos( $text, '(' ) + 1, strpos( $text, ')' ) - 1 );
@@ -17,7 +17,7 @@
     }
 
     $text = preg_replace( array( "/\t/i", '/\'/i', '/</i', '/>/i' ), array( ' ', '"', '"', '"' ), $text ); 
-    $text = preg_replace( '/([^a-zA-Z0-9à-ÿÀ-ß¸¨])/e', '"%".dechex(ord("$1"))', $text ); 
+    $text = preg_replace( '/([^a-zA-Z0-9Ð°-ÑÐ-Ð¯Ñ‘Ð])/e', '"%".dechex(ord("$1"))', $text ); 
     $text = preg_replace( '/%5c/i', '', $text ); 
 
     db_safe( $text );
@@ -42,7 +42,7 @@
         if( isset( $to ) ) {
           $ignore = db_fetch_val( "SELECT count(*) cnt FROM chat_ignore WHERE user_id = $to AND ignore_user = $uid", 'cnt' );
           if( $ignore ) {
-            db_query( "INSERT INTO chat ( user_id, to_user, text ) VALUES ( $to, $uid, '".t( 'Âû íàõîäèòåñü â èãíîðå, âîçìîæíî ïîçæå ÿ ïðî÷òó âàøå ñîîáùåíèå.' )."' )" );
+            db_query( "INSERT INTO chat ( user_id, to_user, text ) VALUES ( $to, $uid, '".t( 'Ð’Ñ‹ Ð½Ð°Ñ…Ð¾Ð´Ð¸Ñ‚ÐµÑÑŒ Ð² Ð¸Ð³Ð½Ð¾Ñ€Ðµ, Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ Ð¿Ð¾Ð·Ð¶Ðµ Ñ Ð¿Ñ€Ð¾Ñ‡Ñ‚Ñƒ Ð²Ð°ÑˆÐµ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ.' )."' )" );
           }
 
           if( $to == 8 ) {
@@ -75,7 +75,7 @@
           }
         } else {
           db_query( "INSERT INTO chat (user_id, text) VALUES ( $uid, '$text' )" );
-          preg_match_all( "/[a-zA-Zà-ÿÀ-ß¸¨]+/i", $stext, $words );
+          preg_match_all( "/[a-zA-ZÐ°-ÑÐ-Ð¯Ñ‘Ð]+/i", $stext, $words );
           foreach( $words[0] as $item ) {
             if( strlen( $item ) > 2 ) {
               $fid[ "'".strtolower( $item )."'" ] = 1;
@@ -103,7 +103,7 @@
     printOut( "err=0" );
   } else {
     if( $user->mute == 1 ) {
-      db_query( "INSERT INTO chat (user_id, to_user, text) VALUES ( 7, {$user->uid}, '".t( 'Âû íàêàçàíû äî %s è íå èìååòå ïðàâà ãîëîñà.', array( $user->mute_date ) )."' )" );
+      db_query( "INSERT INTO chat (user_id, to_user, text) VALUES ( 7, {$user->uid}, '".t( 'Ð’Ñ‹ Ð½Ð°ÐºÐ°Ð·Ð°Ð½Ñ‹ Ð´Ð¾ %s Ð¸ Ð½Ðµ Ð¸Ð¼ÐµÐµÑ‚Ðµ Ð¿Ñ€Ð°Ð²Ð° Ð³Ð¾Ð»Ð¾ÑÐ°.', array( $user->mute_date ) )."' )" );
     }
     printOut( "err=1" );
   }

@@ -94,7 +94,7 @@
 
         case 1: // land
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -121,7 +121,7 @@
 
         case 2: // flyout
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -148,7 +148,7 @@
 
         case 3: // undock
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -295,13 +295,13 @@
 
             db_safe( $new_name );
             $new_name = decode_in( $new_name );
-            $new_name = preg_replace( "/[^a-zA-Z0-9а-яА-ЯёЁ ,.`~!@#$\^\*()_\+\-\=\"]/", "", $new_name );
+            $new_name = preg_replace( "/[^a-zA-Z0-9Р°-СЏРђ-РЇС‘РЃ ,.`~!@#$\^\*()_\+\-\=\"]/", "", $new_name );
 
             if( isset( $_GET['gname'] ) ) {
               $new_grp = $_GET['gname'];
               db_safe( $new_grp );
               $new_grp = decode_in( $new_grp );
-              $new_grp = preg_replace( "/[^a-zA-Z0-9а-яА-ЯёЁ ,.`~!@#$\^\*()_\+\-\=\"]/", "", $new_grp );
+              $new_grp = preg_replace( "/[^a-zA-Z0-9Р°-СЏРђ-РЇС‘РЃ ,.`~!@#$\^\*()_\+\-\=\"]/", "", $new_grp );
 
               db_query( "UPDATE $table SET name = '$new_name', `group` = '$new_grp' WHERE id = $shid" );
               switch( $plt ) {
@@ -472,7 +472,7 @@
 
         case 22: // Start all mines
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -519,9 +519,9 @@
                     break;
                 }
               }
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} запущена добыча материалов на ".count($mines)." объектах.", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} Р·Р°РїСѓС‰РµРЅР° РґРѕР±С‹С‡Р° РјР°С‚РµСЂРёР°Р»РѕРІ РЅР° ".count($mines)." РѕР±СЉРµРєС‚Р°С….", 4 );
             } else {
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} невозможно запустить добычу. Энергии $energy_av, места на складе $warehouse", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} РЅРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РґРѕР±С‹С‡Сѓ. Р­РЅРµСЂРіРёРё $energy_av, РјРµСЃС‚Р° РЅР° СЃРєР»Р°РґРµ $warehouse", 4 );
             }
           }
 
@@ -533,7 +533,7 @@
                               INNER JOIN users u ON u.id = qu.user_id
                                    WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
             if( $qid ) {
-              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              send_msg( 1, $user->uid, t( "РќР° РїР»Р°РЅРµС‚Рµ РЅР°С…РѕРґРёС‚СЃСЏ РёСЃРїРѕР»РЅРёС‚РµР»СЊ" ), 16 );
               break;
             }
 
@@ -582,16 +582,16 @@
                     break;
                 }
               }
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущена добыча материалов на ".count($mines)." объектах.", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} Р·Р°РїСѓС‰РµРЅР° РґРѕР±С‹С‡Р° РјР°С‚РµСЂРёР°Р»РѕРІ РЅР° ".count($mines)." РѕР±СЉРµРєС‚Р°С….", 4 );
             } else {
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить добычу. Энергии $energy_av, места на складе $warehouse", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} РЅРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РґРѕР±С‹С‡Сѓ. Р­РЅРµСЂРіРёРё $energy_av, РјРµСЃС‚Р° РЅР° СЃРєР»Р°РґРµ $warehouse", 4 );
             }
           }
           break;
 
         case 23: // Start all dispence
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -603,7 +603,7 @@
                               INNER JOIN users u ON u.id = qu.user_id
                                    WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
             if( $qid ) {
-              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              send_msg( 1, $user->uid, t( "РќР° РїР»Р°РЅРµС‚Рµ РЅР°С…РѕРґРёС‚СЃСЏ РёСЃРїРѕР»РЅРёС‚РµР»СЊ" ), 16 );
               break;
             }
 
@@ -645,22 +645,22 @@
                       $id = mysql_insert_id();
                       db_query(  "INSERT INTO planets_disp ( event_id, res_id, res_cnt, level )
                                                     VALUES ( $id, $rid, $count, {$item['level']} )" );
-                      send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} запущена переработка {$res_data['name']}({$res_data['cnt']}) длительностью $total_time секунд.", 4 );
+                      send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} Р·Р°РїСѓС‰РµРЅР° РїРµСЂРµСЂР°Р±РѕС‚РєР° {$res_data['name']}({$res_data['cnt']}) РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊСЋ $total_time СЃРµРєСѓРЅРґ.", 4 );
                     }
                   }
                 }
               } else {
-                send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} нет свободных нанодиспенсеров.", 4 );
+                send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} РЅРµС‚ СЃРІРѕР±РѕРґРЅС‹С… РЅР°РЅРѕРґРёСЃРїРµРЅСЃРµСЂРѕРІ.", 4 );
               }
             } else {
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} невозможно запустить переработку. Энергии $energy_av, места на складе $warehouse", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} РЅРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РїРµСЂРµСЂР°Р±РѕС‚РєСѓ. Р­РЅРµСЂРіРёРё $energy_av, РјРµСЃС‚Р° РЅР° СЃРєР»Р°РґРµ $warehouse", 4 );
             }
           }
           break;
 
         case 24: // Start dispence minerals
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -672,7 +672,7 @@
                               INNER JOIN users u ON u.id = qu.user_id
                                    WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
             if( $qid ) {
-              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              send_msg( 1, $user->uid, t( "РќР° РїР»Р°РЅРµС‚Рµ РЅР°С…РѕРґРёС‚СЃСЏ РёСЃРїРѕР»РЅРёС‚РµР»СЊ" ), 16 );
               break;
             }
 
@@ -714,22 +714,22 @@
                       $id = mysql_insert_id();
                       db_query(  "INSERT INTO planets_disp ( event_id, res_id, res_cnt, level )
                                                     VALUES ( $id, $rid, $count, {$item['level']} )" );
-                      send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущена переработка {$res_data['name']}({$res_data['cnt']}) длительностью $total_time секунд.", 4 );
+                      send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} Р·Р°РїСѓС‰РµРЅР° РїРµСЂРµСЂР°Р±РѕС‚РєР° {$res_data['name']}({$res_data['cnt']}) РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊСЋ $total_time СЃРµРєСѓРЅРґ.", 4 );
                     }
                   }
                 }
               } else {
-                send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} нет свободных нанодиспенсеров.", 4 );
+                send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} РЅРµС‚ СЃРІРѕР±РѕРґРЅС‹С… РЅР°РЅРѕРґРёСЃРїРµРЅСЃРµСЂРѕРІ.", 4 );
               }
             } else {
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить переработку. Энергии $energy_av, места на складе $warehouse", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} РЅРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РїРµСЂРµСЂР°Р±РѕС‚РєСѓ. Р­РЅРµСЂРіРёРё $energy_av, РјРµСЃС‚Р° РЅР° СЃРєР»Р°РґРµ $warehouse", 4 );
             }
           }
           break;
 
         case 25: // Rob the ship
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -761,11 +761,11 @@
               switch( $item['event_type'] ) {
                 case 4 :
                   $mass = db_fetch_val( "SELECT o.mass FROM ships s, ship_types st, objects o WHERE st.object_id = s.object_id AND st.conserv_id = o.id AND s.id = ".$item['ship_id'], 'mass' );
-                  send_msg( 1, $user->uid, "Перехвачен объект общей массой $mass. Ориентировочное время прибытия ".$item['event_time'], 4 );
+                  send_msg( 1, $user->uid, "РџРµСЂРµС…РІР°С‡РµРЅ РѕР±СЉРµРєС‚ РѕР±С‰РµР№ РјР°СЃСЃРѕР№ $mass. РћСЂРёРµРЅС‚РёСЂРѕРІРѕС‡РЅРѕРµ РІСЂРµРјСЏ РїСЂРёР±С‹С‚РёСЏ ".$item['event_time'], 4 );
                   break;
                 case 104 :
                   $mass = db_fetch_val( "SELECT SUM( o.mass ) mass FROM ships s, ship_types st, objects o WHERE st.object_id = s.object_id AND st.conserv_id = o.id AND s.fleet_id = ".$item['ship_id'], 'mass' );
-                  send_msg( 1, $user->uid, "Перехвачен объект общей массой $mass. Ориентировочное время прибытия ".$item['event_time'], 4 );
+                  send_msg( 1, $user->uid, "РџРµСЂРµС…РІР°С‡РµРЅ РѕР±СЉРµРєС‚ РѕР±С‰РµР№ РјР°СЃСЃРѕР№ $mass. РћСЂРёРµРЅС‚РёСЂРѕРІРѕС‡РЅРѕРµ РІСЂРµРјСЏ РїСЂРёР±С‹С‚РёСЏ ".$item['event_time'], 4 );
                   break;
               }
             }
@@ -918,7 +918,7 @@
 
         case 30: // Deconserve all
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1043,7 +1043,7 @@
 
         case 34: // Start all factorys
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1055,7 +1055,7 @@
                               INNER JOIN users u ON u.id = qu.user_id
                                    WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
             if( $qid ) {
-              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              send_msg( 1, $user->uid, t( "РќР° РїР»Р°РЅРµС‚Рµ РЅР°С…РѕРґРёС‚СЃСЏ РёСЃРїРѕР»РЅРёС‚РµР»СЊ" ), 16 );
               break;
             }
 
@@ -1121,22 +1121,22 @@
                                                     VALUES ( 5, $x, $y, $planet_id, 33, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
                       $id = mysql_insert_id();
                       db_query( "INSERT INTO planets_make ( event_id, object_id, cycle ) VALUES ( $id, $def, {$factory['level']} )" );
-                      send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущено изготовление $def_name ({$factory['level']}) каждый цикл длительностью $total_time секунд.", 4 );
+                      send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} Р·Р°РїСѓС‰РµРЅРѕ РёР·РіРѕС‚РѕРІР»РµРЅРёРµ $def_name ({$factory['level']}) РєР°Р¶РґС‹Р№ С†РёРєР» РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊСЋ $total_time СЃРµРєСѓРЅРґ.", 4 );
                     }
                   }
                 }
               } else {
-                send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} нет свободных заводов.", 4 );
+                send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} РЅРµС‚ СЃРІРѕР±РѕРґРЅС‹С… Р·Р°РІРѕРґРѕРІ.", 4 );
               }
             } else {
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить заводы. Энергии $energy_av, места на складе $warehouse", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} РЅРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ Р·Р°РІРѕРґС‹. Р­РЅРµСЂРіРёРё $energy_av, РјРµСЃС‚Р° РЅР° СЃРєР»Р°РґРµ $warehouse", 4 );
             }
           }
           break;
 
         case 35: // Start all sintez
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1148,7 +1148,7 @@
                               INNER JOIN users u ON u.id = qu.user_id
                                    WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
             if( $qid ) {
-              send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+              send_msg( 1, $user->uid, t( "РќР° РїР»Р°РЅРµС‚Рµ РЅР°С…РѕРґРёС‚СЃСЏ РёСЃРїРѕР»РЅРёС‚РµР»СЊ" ), 16 );
               break;
             }
 
@@ -1208,18 +1208,18 @@
                   $id = mysql_insert_id();
                   db_query( "INSERT INTO orbits_make ( event_id, object_id, cycle ) VALUES ( $id, $def, $level )" );
 
-                  send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущено преобразование $def_name", 4 );
+                  send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} Р·Р°РїСѓС‰РµРЅРѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ $def_name", 4 );
                 }
               }
             } else {
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить преобразование. Энергии $energy_av, места на складе $warehouse", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} РЅРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ. Р­РЅРµСЂРіРёРё $energy_av, РјРµСЃС‚Р° РЅР° СЃРєР»Р°РґРµ $warehouse", 4 );
             }
           }
           break;
 
         case 36: // Start all assemble
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1232,7 +1232,7 @@
                                 INNER JOIN users u ON u.id = qu.user_id
                                      WHERE u.place_id = $planet_id AND u.place_type = 1 AND qu.type IN( 28, 29 )", 'id' );
               if( $qid ) {
-                send_msg( 1, $user->uid, t( "На планете находится исполнитель" ), 16 );
+                send_msg( 1, $user->uid, t( "РќР° РїР»Р°РЅРµС‚Рµ РЅР°С…РѕРґРёС‚СЃСЏ РёСЃРїРѕР»РЅРёС‚РµР»СЊ" ), 16 );
                 break;
               }
 
@@ -1297,15 +1297,15 @@
                                                       VALUES ( 5, $x, $y, $planet_id, 39, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
                         $id = mysql_insert_id();
                         db_query( "INSERT INTO planets_make ( event_id, object_id, cycle ) VALUES ( $id, $def, {$factory['level']} )" );
-                        send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} запущено изготовление $def_name ({$factory['level']}) каждый цикл длительностью $total_time секунд.", 4 );
+                        send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} Р·Р°РїСѓС‰РµРЅРѕ РёР·РіРѕС‚РѕРІР»РµРЅРёРµ $def_name ({$factory['level']}) РєР°Р¶РґС‹Р№ С†РёРєР» РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊСЋ $total_time СЃРµРєСѓРЅРґ.", 4 );
                       }
                     }
                   }
                 } else {
-                  send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} нет свободных сборочных цехов.", 4 );
+                  send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} РЅРµС‚ СЃРІРѕР±РѕРґРЅС‹С… СЃР±РѕСЂРѕС‡РЅС‹С… С†РµС…РѕРІ.", 4 );
                 }
               } else {
-                send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} невозможно запустить сборочные цеха. Энергии $energy_av, места на складе $warehouse", 4 );
+                send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} РЅРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ СЃР±РѕСЂРѕС‡РЅС‹Рµ С†РµС…Р°. Р­РЅРµСЂРіРёРё $energy_av, РјРµСЃС‚Р° РЅР° СЃРєР»Р°РґРµ $warehouse", 4 );
               }
             } else {
               $planet_id = $test['place_id'];
@@ -1371,15 +1371,15 @@
                         $id = mysql_insert_id();
                         db_query( "INSERT INTO orbits_make ( event_id, object_id, cycle ) VALUES ( $id, $def, {$factory['level']} )" );
   
-                        send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} запущено изготовление $def_name ({$factory['level']}) каждый цикл длительностью $total_time секунд.", 4 );
+                        send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} Р·Р°РїСѓС‰РµРЅРѕ РёР·РіРѕС‚РѕРІР»РµРЅРёРµ $def_name ({$factory['level']}) РєР°Р¶РґС‹Р№ С†РёРєР» РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊСЋ $total_time СЃРµРєСѓРЅРґ.", 4 );
                       }
                     }
                   }
                 } else {
-                  send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} нет свободных сборочных цехов.", 4 );
+                  send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} РЅРµС‚ СЃРІРѕР±РѕРґРЅС‹С… СЃР±РѕСЂРѕС‡РЅС‹С… С†РµС…РѕРІ.", 4 );
                 }
               } else {
-                send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} невозможно запустить сборочные цеха. Энергии $energy_av, места на складе $warehouse", 4 );
+                send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} РЅРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ СЃР±РѕСЂРѕС‡РЅС‹Рµ С†РµС…Р°. Р­РЅРµСЂРіРёРё $energy_av, РјРµСЃС‚Р° РЅР° СЃРєР»Р°РґРµ $warehouse", 4 );
               }
             }
           }
@@ -1387,7 +1387,7 @@
 
         case 37: // Spy planet
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1401,7 +1401,7 @@
 
         case 38: // Open hyper gate
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1472,7 +1472,7 @@
 
         case 39: // Undock all
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1557,7 +1557,7 @@
 
         case 40: // Saboteur
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1577,7 +1577,7 @@
 
         case 43: // Stop all mines
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1599,7 +1599,7 @@
                            FROM orbits_mines om, orbit_events oe
                           WHERE om.event_id = oe.id AND oe.event_type = 2 AND oe.planet_id = ".$planet_id );
 
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} остановлена добыча материалов.", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} РѕСЃС‚Р°РЅРѕРІР»РµРЅР° РґРѕР±С‹С‡Р° РјР°С‚РµСЂРёР°Р»РѕРІ.", 4 );
             }
           }
 
@@ -1621,14 +1621,14 @@
                            FROM planets_mines pm, planet_events pe
                           WHERE pm.event_id = pe.id AND pe.event_type = 2 AND pe.planet_id = ".$planet_id );
 
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на планете {$planet['pname']} остановлена добыча материалов на всей планете.", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РїР»Р°РЅРµС‚Рµ {$planet['pname']} РѕСЃС‚Р°РЅРѕРІР»РµРЅР° РґРѕР±С‹С‡Р° РјР°С‚РµСЂРёР°Р»РѕРІ РЅР° РІСЃРµР№ РїР»Р°РЅРµС‚Рµ.", 4 );
             }
           }
           break;
 
         case 44: // Harvest
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1697,7 +1697,7 @@
                                   WHERE s1.id = $shid AND s1.user_id IS NULL AND s2.user_id = {$user->uid}" );
 
           if( isset( $rob['u2'] ) && is_numeric( $rob['u2'] ) ) {
-            db_query( "INSERT INTO chat (user_id, to_user, text) VALUES ( $uid, null, 'Найден корабль {$rob['name']} в системе {$rob['sname']} с координатами {$rob['arg1']}:{$rob['arg2']}' )" );
+            db_query( "INSERT INTO chat (user_id, to_user, text) VALUES ( $uid, null, 'РќР°Р№РґРµРЅ РєРѕСЂР°Р±Р»СЊ {$rob['name']} РІ СЃРёСЃС‚РµРјРµ {$rob['sname']} СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё {$rob['arg1']}:{$rob['arg2']}' )" );
           }
           break;
 
@@ -1779,7 +1779,7 @@
 
         case 48: // Stop sintez
           if( $limit < 0 ) {
-            send_msg( 1, $user->uid, t( "Превышен лимит управления" ), 16 );
+            send_msg( 1, $user->uid, t( "РџСЂРµРІС‹С€РµРЅ Р»РёРјРёС‚ СѓРїСЂР°РІР»РµРЅРёСЏ" ), 16 );
             break;
           }
 
@@ -1811,7 +1811,7 @@
                            FROM orbits_make om, orbit_events oe
                           WHERE om.event_id = oe.id AND oe.event_type = 8 AND oe.planet_id = ".$planet_id );
 
-              send_msg( 1, $user->uid, "В системе {$planet['sname']} на орбите {$planet['pname']} остановлены термоядерные преобразователи.", 4 );
+              send_msg( 1, $user->uid, "Р’ СЃРёСЃС‚РµРјРµ {$planet['sname']} РЅР° РѕСЂР±РёС‚Рµ {$planet['pname']} РѕСЃС‚Р°РЅРѕРІР»РµРЅС‹ С‚РµСЂРјРѕСЏРґРµСЂРЅС‹Рµ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚РµР»Рё.", 4 );
             }
           }
           break;

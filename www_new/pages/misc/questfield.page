@@ -28,7 +28,7 @@
           break;
 
         case 3: // planet
-          $out = 'err='.$ret['err'].'&pid='.$ret['pid'].'&sname=Система '.substr( $ret['sname'], 0, strpos( $ret['sname'], '(' ) - 1 );
+          $out = 'err='.$ret['err'].'&pid='.$ret['pid'].'&sname=РЎРёСЃС‚РµРјР° '.substr( $ret['sname'], 0, strpos( $ret['sname'], '(' ) - 1 );
           break;
 
         case 8: // planet

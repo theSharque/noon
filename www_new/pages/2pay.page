@@ -1,6 +1,6 @@
 <?php
 
-  $user_name = mb_convert_encoding( $user->login, 'Windows-1251', 'UTF-8' );
+  $user_name = $user->login;
   
 print<<<EOF
 <html>
@@ -25,7 +25,7 @@ print<<<EOF
 
 <iframe style="border:0px;" id="paystation" src="https://secure.xsolla.com/paystation/?projectid=4032&id_theme=6&local=ru&email={$user->email}&v1=$user_name" width="90%" height="460"></iframe>
 
-<br>Если у Вас возникли проблемы с оплатой, воспользуйтесь <a href="http://2pay.ru/oplata/?id=4032&email={$user->email}&v1=$user_name&amount=1" target="_blank">прямой ссылкой на оплату</a>
+<br>Р•СЃР»Рё Сѓ Р’Р°СЃ РІРѕР·РЅРёРєР»Рё РїСЂРѕР±Р»РµРјС‹ СЃ РѕРїР»Р°С‚РѕР№, РІРѕСЃРїРѕР»СЊР·СѓР№С‚РµСЃСЊ <a href="http://2pay.ru/oplata/?id=4032&email={$user->email}&v1=$user_name&amount=1" target="_blank">РїСЂСЏРјРѕР№ СЃСЃС‹Р»РєРѕР№ РЅР° РѕРїР»Р°С‚Сѓ</a>
 </center>
 </body>
 </html>

@@ -13,7 +13,7 @@
       db_safe( $x );
       db_safe( $bid );
     
-      $out = "dg_h=".t( "Длительность %s", array( time_to_str( get_build_time( $bid ) ) ) );
+      $out = "dg_h=".t( "Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ %s", array( time_to_str( get_build_time( $bid ) ) ) );
     
       $res = db_fetch_array( "SELECT o.id, o.name, os.res_cnt
                                 FROM objects_sub os
@@ -52,9 +52,9 @@
     
       $energy_nd = db_fetch_row( "SELECT b.energy FROM buildings b WHERE b.id = $bid" );
     
-      $out .= "&col0=".t( 'Ресурс' );
-      $out .= "&col1=".t( 'Требуется' );
-      $out .= "&col2=".t( 'Доступно' );
+      $out .= "&col0=".t( 'Р РµСЃСѓСЂСЃ' );
+      $out .= "&col1=".t( 'РўСЂРµР±СѓРµС‚СЃСЏ' );
+      $out .= "&col2=".t( 'Р”РѕСЃС‚СѓРїРЅРѕ' );
     
       $i=0;
       $CanBuild = true;
@@ -62,9 +62,9 @@
       if( $energy_nd['energy'] < 0 ) {
         $out .= "&cols=3&rows=".(count( $items ) + 1);
         if( $energy_av + $energy_nd['energy'] >= 0 ) {
-          $out .= "&l0c0=".t( 'Энергия' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
+          $out .= "&l0c0=".t( 'Р­РЅРµСЂРіРёСЏ' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
         } else {
-          $out .= "&l0color=0xFF0000&l0c0=".t( 'Энергия' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
+          $out .= "&l0color=0xFF0000&l0c0=".t( 'Р­РЅРµСЂРіРёСЏ' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
           $CanBuild = false;
         }
         $i++;
@@ -83,7 +83,7 @@
       }
   
       if( $CanBuild ) {
-        $out .= "&btLabel=".t( 'Начать строительство' )."&btOnClick=page.php?id=25%26bid=$bid%26x=$x%26l=$last";
+        $out .= "&btLabel=".t( 'РќР°С‡Р°С‚СЊ СЃС‚СЂРѕРёС‚РµР»СЊСЃС‚РІРѕ' )."&btOnClick=page.php?id=25%26bid=$bid%26x=$x%26l=$last";
       }
   
       printOut( $out );
@@ -109,7 +109,7 @@
     
       db_safe( $bid );
     
-      $out = "dg_h=".t( 'Длительность %s', array( time_to_str( get_build_time( $bid ) ) ) );
+      $out = "dg_h=".t( 'Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ %s', array( time_to_str( get_build_time( $bid ) ) ) );
     
       if( !$bq ) {
         $items = db_fetch_array( "SELECT o.name, os.res_cnt, IFNULL( w.object_cnt, 0 ) object_cnt
@@ -131,9 +131,9 @@
     
       $energy_nd = db_fetch_row( "SELECT b.energy FROM buildings b WHERE b.id = $bid" );
     
-      $out .= "&col0=".t( 'Ресурс' );
-      $out .= "&col1=".t( 'Требуется' );
-      $out .= "&col2=".t( 'Доступно' );
+      $out .= "&col0=".t( 'Р РµСЃСѓСЂСЃ' );
+      $out .= "&col1=".t( 'РўСЂРµР±СѓРµС‚СЃСЏ' );
+      $out .= "&col2=".t( 'Р”РѕСЃС‚СѓРїРЅРѕ' );
     
       $i=0;
       $CanBuild = true;
@@ -141,9 +141,9 @@
       if( $energy_nd['energy'] < 0 ) {
         $out .= "&cols=3&rows=".(count( $items ) + 1);
         if( $energy_av + $energy_nd['energy'] >= 0 ) {
-          $out .= "&l0c0=".t( 'Энергия' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
+          $out .= "&l0c0=".t( 'Р­РЅРµСЂРіРёСЏ' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
         } else {
-          $out .= "&l0color=0xFF0000&l0c0=".t( 'Энергия' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
+          $out .= "&l0color=0xFF0000&l0c0=".t( 'Р­РЅРµСЂРіРёСЏ' )."&l0c1=".( $energy_nd['energy'] * -1 )."&l0c2=".$energy_av;
           $CanBuild = false;
         }
         $i++;
@@ -162,7 +162,7 @@
       }
   
       if( $CanBuild ) {
-        $out .= "&btLabel=".t( 'Начать строительство' )."&btOnClick=page.php?id=25%26bid=$bid%26l=$last%26x=$x%26y=$y";
+        $out .= "&btLabel=".t( 'РќР°С‡Р°С‚СЊ СЃС‚СЂРѕРёС‚РµР»СЊСЃС‚РІРѕ' )."&btOnClick=page.php?id=25%26bid=$bid%26l=$last%26x=$x%26y=$y";
       }
   
       printOut( $out );

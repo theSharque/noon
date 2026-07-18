@@ -1,0 +1,2 @@
+* * * * * * php -f /var/www/noon/include/cron.inc
+0 0 3 * * * php -f /var/www/noon/include/calc_stars.inc

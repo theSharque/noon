@@ -3,7 +3,7 @@
   require_once( "./include/boot.inc" );
   bootup();
 
-  $title = 'Платеж удался - Полдень 21 века';
+  $title = 'РџР»Р°С‚РµР¶ СѓРґР°Р»СЃСЏ - РџРѕР»РґРµРЅСЊ 21 РІРµРєР°';
   $sape_link = false;
-  $main_content = "<h2>Платеж завершен успешно.</h2><br><a href='javascript:top.window.close()'>Вы можете закрыть это окно браузера.</a>";
+  $main_content = "<h2>РџР»Р°С‚РµР¶ Р·Р°РІРµСЂС€РµРЅ СѓСЃРїРµС€РЅРѕ.</h2><br><a href='javascript:top.window.close()'>Р’С‹ РјРѕР¶РµС‚Рµ Р·Р°РєСЂС‹С‚СЊ СЌС‚Рѕ РѕРєРЅРѕ Р±СЂР°СѓР·РµСЂР°.</a>";
   include "./templates/big.inc";

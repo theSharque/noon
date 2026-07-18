@@ -83,7 +83,7 @@
           if( $from['err'] == 0 && $to['err'] == 0 && $from['ptype'] != 1 && $to['ptype'] != 1 && $from['pid'] != $to['pid'] ) {
             $out = 'err=0';
           } else {
-            $out = 'err=16&errtext=Планета не может быть родной планетой';
+            $out = 'err=16&errtext=РџР»Р°РЅРµС‚Р° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂРѕРґРЅРѕР№ РїР»Р°РЅРµС‚РѕР№';
           }
           break;
 
@@ -93,17 +93,17 @@
           $planet = quest_field( $user, $result['type1'], $v1 );
 
           if( !isset( $star['sid'] ) ) {
-            $out = 'err='.$qt.'&errtext=Система с таким именем не найдена.';
+            $out = 'err='.$qt.'&errtext=РЎРёСЃС‚РµРјР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ РЅР°Р№РґРµРЅР°.';
             break;
           }
 
           if( !isset( $planet['pid'] ) ) {
-            $out = 'err='.$qt.'&errtext=Планета с таким именем не найдена.';
+            $out = 'err='.$qt.'&errtext=РџР»Р°РЅРµС‚Р° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ РЅР°Р№РґРµРЅР°.';
             break;
           }
 
           if( $planet['sid'] != $star['sid'] ) {
-            $out = 'err='.$qt.'&errtext=Планета находится в другой системе, вам необходимо точно указать координаты.';
+            $out = 'err='.$qt.'&errtext=РџР»Р°РЅРµС‚Р° РЅР°С…РѕРґРёС‚СЃСЏ РІ РґСЂСѓРіРѕР№ СЃРёСЃС‚РµРјРµ, РІР°Рј РЅРµРѕР±С…РѕРґРёРјРѕ С‚РѕС‡РЅРѕ СѓРєР°Р·Р°С‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹.';
             break;
           }
 
@@ -115,12 +115,12 @@
             }
 
             if( $control == 0 ) {
-              $out = 'err='.$qt.'&errtext=Обороны не обнаружено';
+              $out = 'err='.$qt.'&errtext=РћР±РѕСЂРѕРЅС‹ РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ';
             } else {
               $out = 'err=0';
             }
           } else {
-            $out = 'err='.$qt.'&errtext=Неверно выбрана планета';
+            $out = 'err='.$qt.'&errtext=РќРµРІРµСЂРЅРѕ РІС‹Р±СЂР°РЅР° РїР»Р°РЅРµС‚Р°';
           }
           break;
 
@@ -136,7 +136,7 @@
 
           $target = quest_field( $user, $result['type0'], $v0 );
           if( $target['err'] != 0 ) {
-            $out = "err=$qt&errtext=Неверно выбрана планета";
+            $out = "err=$qt&errtext=РќРµРІРµСЂРЅРѕ РІС‹Р±СЂР°РЅР° РїР»Р°РЅРµС‚Р°";
             break;
           }
 
@@ -145,7 +145,7 @@
                             INNER JOIN users_quests uq ON uq.id = u2.event_id
                                  WHERE uq.status > 0 AND u2.type IN ( 19, 20, 21, 22, 23, 24, 25, 26, 27 ) AND u2.arg0 = ".$target['pid'], 'cnt' );
           if( $cnt > 0 ) {
-            $out = "err=$qt&errtext=На эту планету уже назначено задание";
+            $out = "err=$qt&errtext=РќР° СЌС‚Сѓ РїР»Р°РЅРµС‚Сѓ СѓР¶Рµ РЅР°Р·РЅР°С‡РµРЅРѕ Р·Р°РґР°РЅРёРµ";
             break;
           }
 
@@ -155,13 +155,13 @@
 
             $size = strlen( trim( $content[0] ) ) * count( $content );
           } else {
-            $out = "err=$qt&errtext=Неверно выбрана планета";
+            $out = "err=$qt&errtext=РќРµРІРµСЂРЅРѕ РІС‹Р±СЂР°РЅР° РїР»Р°РЅРµС‚Р°";
             break;
           }
 
           $closed = db_fetch_val( "SELECT status FROM defence WHERE user_id = {$user->uid} AND place_type = 1 AND place_id = ".$target['pid'], 'status' );
           if( $closed != 1 ) {
-            $out = "err=$qt&errtext=Планета должна находится под вашим контролем в статусе \"Можно только мне\"";
+            $out = "err=$qt&errtext=РџР»Р°РЅРµС‚Р° РґРѕР»Р¶РЅР° РЅР°С…РѕРґРёС‚СЃСЏ РїРѕРґ РІР°С€РёРј РєРѕРЅС‚СЂРѕР»РµРј РІ СЃС‚Р°С‚СѓСЃРµ \"РњРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РјРЅРµ\"";
             break;
           }
 
@@ -179,12 +179,12 @@
           $cnt = quest_field( $user, $result['type2'], $v2 );
           $busy = db_fetch_val( "SELECT count(*) cnt FROM planets_buildings WHERE planet_id = ".$target['pid'], 'cnt' );
           if( $cnt['err'] != 0 ) {
-            $out = "err=$qt&errtext=Неправильное количество построек.\nСвободной поверхности ".( $size - $busy ).$bld_text;
+            $out = "err=$qt&errtext=РќРµРїСЂР°РІРёР»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕСЃС‚СЂРѕРµРє.\nРЎРІРѕР±РѕРґРЅРѕР№ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё ".( $size - $busy ).$bld_text;
             break;
           }
 
           if( $size - $busy < $v2 ) {
-            $out = "err=$qt&errtext=Недостаточно свободной поверхности.\nСвободной поверхности ".( $size - $busy ).$bld_text;
+            $out = "err=$qt&errtext=РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЃРІРѕР±РѕРґРЅРѕР№ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё.\nРЎРІРѕР±РѕРґРЅРѕР№ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё ".( $size - $busy ).$bld_text;
             break;
           }
 
@@ -192,7 +192,7 @@
           $energy_nd = db_fetch_val( "SELECT b.energy FROM buildings b WHERE b.id = ".$result['arg3'], 'energy' );
 
           if( $energy_av + $energy_nd * $v2 < 0 ) {
-            $out = "err=$qt&errtext=Недостаточно энергии, необходимо еще ".abs( $energy_av + $energy_nd * $v2 );
+            $out = "err=$qt&errtext=РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЌРЅРµСЂРіРёРё, РЅРµРѕР±С…РѕРґРёРјРѕ РµС‰Рµ ".abs( $energy_av + $energy_nd * $v2 );
             break;
           }
 
@@ -205,25 +205,25 @@
           if( count( $res ) != 0 ) {
             $out = "err=$qt&errtext=";
             foreach( $res as $item ) {
-              $out .= 'Недостаточно '.$item['name'].' необходимо еще '.$item['cnt']."\n";
+              $out .= 'РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ '.$item['name'].' РЅРµРѕР±С…РѕРґРёРјРѕ РµС‰Рµ '.$item['cnt']."\n";
             }
             break;
           }
 
-          $out = "err=0&errtext=Свободной поверхности ".( $size - $busy ).$bld_text;
+          $out = "err=0&errtext=РЎРІРѕР±РѕРґРЅРѕР№ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё ".( $size - $busy ).$bld_text;
           break;
 
         case 28: // Upgrade all +1
 
           $target = quest_field( $user, $result['type0'], $v0 );
           if( $target['err'] != 0 ) {
-            $out = "err=$qt&errtext=Неверно выбрана планета";
+            $out = "err=$qt&errtext=РќРµРІРµСЂРЅРѕ РІС‹Р±СЂР°РЅР° РїР»Р°РЅРµС‚Р°";
             break;
           }
 
           $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT top FROM planets_maps WHERE id = {$target['pid']}", 'top' ) ) ) );
           if( !$content ) {
-            $out = "err=$qt&errtext=Неверно выбрана планета";
+            $out = "err=$qt&errtext=РќРµРІРµСЂРЅРѕ РІС‹Р±СЂР°РЅР° РїР»Р°РЅРµС‚Р°";
             break;
           }
 
@@ -233,19 +233,19 @@
                                  WHERE uq.status > 0 AND u2.type IN ( 28, 29 ) AND u2.arg0 = ".$target['pid'], 'cnt' );
 
           if( $cnt > 0 ) {
-            $out = "err=$qt&errtext=На эту планету уже назначено задание";
+            $out = "err=$qt&errtext=РќР° СЌС‚Сѓ РїР»Р°РЅРµС‚Сѓ СѓР¶Рµ РЅР°Р·РЅР°С‡РµРЅРѕ Р·Р°РґР°РЅРёРµ";
             break;
           }
 
           $closed = db_fetch_val( "SELECT status FROM defence WHERE user_id = {$user->uid} AND place_type = 1 AND place_id = ".$target['pid'], 'status' );
           if( $closed != 1 ) {
-            $out = "err=$qt&errtext=Планета должна находится под вашим контролем в статусе \"Можно только мне\"";
+            $out = "err=$qt&errtext=РџР»Р°РЅРµС‚Р° РґРѕР»Р¶РЅР° РЅР°С…РѕРґРёС‚СЃСЏ РїРѕРґ РІР°С€РёРј РєРѕРЅС‚СЂРѕР»РµРј РІ СЃС‚Р°С‚СѓСЃРµ \"РњРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РјРЅРµ\"";
             break;
           }
 
           $tcnt = db_fetch_val( "SELECT COUNT(*) cnt FROM planets_buildings pb WHERE pb.planet_id = {$target['pid']} AND pb.level < 10", 'cnt' );
           if( $tcnt == 0 ) {
-            $out = "err=$qt&errtext=На планете нет построек для улучшения.";
+            $out = "err=$qt&errtext=РќР° РїР»Р°РЅРµС‚Рµ РЅРµС‚ РїРѕСЃС‚СЂРѕРµРє РґР»СЏ СѓР»СѓС‡С€РµРЅРёСЏ.";
             break;
           }
 
@@ -261,7 +261,7 @@
           $err = '';
           foreach( $res as $item ) {
             if( $item['cnt'] > 0 ) {
-              $err .= 'Недостаточно '.$item['name'].' необходимо еще '.$item['cnt']."\n";
+              $err .= 'РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ '.$item['name'].' РЅРµРѕР±С…РѕРґРёРјРѕ РµС‰Рµ '.$item['cnt']."\n";
             }
           }
 
@@ -279,24 +279,24 @@
           if( $err ) {
             $out = "err=$qt&errtext=";
             $out .= $err;
-            $out .= "\nСтроений на поверхности ".$tcnt.$bld_text;
+            $out .= "\nРЎС‚СЂРѕРµРЅРёР№ РЅР° РїРѕРІРµСЂС…РЅРѕСЃС‚Рё ".$tcnt.$bld_text;
             break;
           }
 
-          $out = "err=0&errtext=Строений на поверхности ".$tcnt.$bld_text;
+          $out = "err=0&errtext=РЎС‚СЂРѕРµРЅРёР№ РЅР° РїРѕРІРµСЂС…РЅРѕСЃС‚Рё ".$tcnt.$bld_text;
           break;
 
         case 29: // Upgrade all 10
 
           $target = quest_field( $user, $result['type0'], $v0 );
           if( $target['err'] != 0 ) {
-            $out = "err=$qt&errtext=Неверно выбрана планета";
+            $out = "err=$qt&errtext=РќРµРІРµСЂРЅРѕ РІС‹Р±СЂР°РЅР° РїР»Р°РЅРµС‚Р°";
             break;
           }
 
           $content = array_map( 'trim', explode( "\n", trim( db_fetch_val( "SELECT top FROM planets_maps WHERE id = {$target['pid']}", 'top' ) ) ) );
           if( !$content ) {
-            $out = "err=$qt&errtext=Неверно выбрана планета";
+            $out = "err=$qt&errtext=РќРµРІРµСЂРЅРѕ РІС‹Р±СЂР°РЅР° РїР»Р°РЅРµС‚Р°";
             break;
           }
 
@@ -306,19 +306,19 @@
                                  WHERE uq.status > 0 AND u2.type IN ( 28, 29 ) AND u2.arg0 = ".$target['pid'], 'cnt' );
 
           if( $cnt > 0 ) {
-            $out = "err=$qt&errtext=На эту планету уже назначено задание";
+            $out = "err=$qt&errtext=РќР° СЌС‚Сѓ РїР»Р°РЅРµС‚Сѓ СѓР¶Рµ РЅР°Р·РЅР°С‡РµРЅРѕ Р·Р°РґР°РЅРёРµ";
             break;
           }
 
           $closed = db_fetch_val( "SELECT status FROM defence WHERE user_id = {$user->uid} AND place_type = 1 AND place_id = ".$target['pid'], 'status' );
           if( $closed != 1 ) {
-            $out = "err=$qt&errtext=Планета должна находится под вашим контролем в статусе \"Можно только мне\"";
+            $out = "err=$qt&errtext=РџР»Р°РЅРµС‚Р° РґРѕР»Р¶РЅР° РЅР°С…РѕРґРёС‚СЃСЏ РїРѕРґ РІР°С€РёРј РєРѕРЅС‚СЂРѕР»РµРј РІ СЃС‚Р°С‚СѓСЃРµ \"РњРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РјРЅРµ\"";
             break;
           }
 
           $tcnt = db_fetch_val( "SELECT COUNT(*) cnt FROM planets_buildings pb WHERE pb.planet_id = {$target['pid']} AND pb.level < 10", 'cnt' );
           if( $tcnt == 0 ) {
-            $out = "err=$qt&errtext=На планете нет построек для улучшения.";
+            $out = "err=$qt&errtext=РќР° РїР»Р°РЅРµС‚Рµ РЅРµС‚ РїРѕСЃС‚СЂРѕРµРє РґР»СЏ СѓР»СѓС‡С€РµРЅРёСЏ.";
             break;
           }
 
@@ -347,7 +347,7 @@
           $err = '';
           foreach( $res as $item ) {
             if( $item['ncnt'] > $item['cnt'] ) {
-              $err .= 'Недостаточно '.$item['name'].' необходимо еще '.( $item['ncnt'] - $item['cnt'] )."\n";
+              $err .= 'РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ '.$item['name'].' РЅРµРѕР±С…РѕРґРёРјРѕ РµС‰Рµ '.( $item['ncnt'] - $item['cnt'] )."\n";
             }
           }
 
@@ -364,11 +364,11 @@
 
           if( $err ) {
             $out = "err=$qt&errtext=$err";
-            $out .= "\nСтроений на поверхности ".$tcnt.$bld_text;
+            $out .= "\nРЎС‚СЂРѕРµРЅРёР№ РЅР° РїРѕРІРµСЂС…РЅРѕСЃС‚Рё ".$tcnt.$bld_text;
             break;
           }
 
-          $out = "err=0&errtext=Строений на поверхности ".$tcnt.$bld_text;
+          $out = "err=0&errtext=РЎС‚СЂРѕРµРЅРёР№ РЅР° РїРѕРІРµСЂС…РЅРѕСЃС‚Рё ".$tcnt.$bld_text;
           break;
 
         case 31: // Find colony
@@ -383,27 +383,27 @@
           $victim = quest_field( $user, $result['type0'], $v0 );
 
           if( $conf == 0 ) {
-            $out = "err=$qt&errtext=Вызвать на дуэль можно только за конфедераты.";
+            $out = "err=$qt&errtext=Р’С‹Р·РІР°С‚СЊ РЅР° РґСѓСЌР»СЊ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ Р·Р° РєРѕРЅС„РµРґРµСЂР°С‚С‹.";
             break;
           }
 
           if( floor( $price / 2 ) == 0 ) {
-            $out = "err=$qt&errtext=Не достаточная сумма.";
+            $out = "err=$qt&errtext=РќРµ РґРѕСЃС‚Р°С‚РѕС‡РЅР°СЏ СЃСѓРјРјР°.";
             break;
           }
 
           if( $long < 2 ) {
-            $out = "err=$qt&errtext=Время на сборы не может быть менее 2-х часов.";
+            $out = "err=$qt&errtext=Р’СЂРµРјСЏ РЅР° СЃР±РѕСЂС‹ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅРµРµ 2-С… С‡Р°СЃРѕРІ.";
             break;
           }
 
           if( $v1 < 1 ) {
-            $out = "err=$qt&errtext=Увеличте силу флота.";
+            $out = "err=$qt&errtext=РЈРІРµР»РёС‡С‚Рµ СЃРёР»Сѓ С„Р»РѕС‚Р°.";
             break;
           }
 
           if( $v2 < 1 ) {
-            $out = "err=$qt&errtext=Увеличте защиту флота.";
+            $out = "err=$qt&errtext=РЈРІРµР»РёС‡С‚Рµ Р·Р°С‰РёС‚Сѓ С„Р»РѕС‚Р°.";
             break;
           }
 
@@ -413,7 +413,7 @@
           }
 
           if( $victim['active'] == false ) {
-            $out = "err=$qt&errtext=Оппонент должен присутствовать в эфире!";
+            $out = "err=$qt&errtext=РћРїРїРѕРЅРµРЅС‚ РґРѕР»Р¶РµРЅ РїСЂРёСЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ РІ СЌС„РёСЂРµ!";
             break;
           }
 
@@ -423,12 +423,12 @@
                                   WHERE s.shield > 0 AND s.user_id = ".$user->uid );
 
           if( $test['power'] < $v1 ) {
-            $out = "err=$qt&errtext=У вас недостаточно кораблей что бы составить флот указанной силы.";
+            $out = "err=$qt&errtext=РЈ РІР°СЃ РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєРѕСЂР°Р±Р»РµР№ С‡С‚Рѕ Р±С‹ СЃРѕСЃС‚Р°РІРёС‚СЊ С„Р»РѕС‚ СѓРєР°Р·Р°РЅРЅРѕР№ СЃРёР»С‹.";
             break;
           }
 
           if( $test['shield'] < $v2 ) {
-            $out = "err=$qt&errtext=У вас недостаточно кораблей что бы составить флот указанной защиты.";
+            $out = "err=$qt&errtext=РЈ РІР°СЃ РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєРѕСЂР°Р±Р»РµР№ С‡С‚Рѕ Р±С‹ СЃРѕСЃС‚Р°РІРёС‚СЊ С„Р»РѕС‚ СѓРєР°Р·Р°РЅРЅРѕР№ Р·Р°С‰РёС‚С‹.";
             break;
           }
 
@@ -438,16 +438,16 @@
                                   WHERE s.shield > 0 AND s.user_id = ".$victim['uid'] );
 
           if( $test['power'] < $v1 ) {
-            $out = "err=$qt&errtext=У оппонента недостаточно кораблей что бы составить флот указанной силы.";
+            $out = "err=$qt&errtext=РЈ РѕРїРїРѕРЅРµРЅС‚Р° РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєРѕСЂР°Р±Р»РµР№ С‡С‚Рѕ Р±С‹ СЃРѕСЃС‚Р°РІРёС‚СЊ С„Р»РѕС‚ СѓРєР°Р·Р°РЅРЅРѕР№ СЃРёР»С‹.";
             break;
           }
 
           if( $test['shield'] < $v2 ) {
-            $out = "err=$qt&errtext=У оппонента недостаточно кораблей что бы составить флот указанной защиты.";
+            $out = "err=$qt&errtext=РЈ РѕРїРїРѕРЅРµРЅС‚Р° РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєРѕСЂР°Р±Р»РµР№ С‡С‚Рѕ Р±С‹ СЃРѕСЃС‚Р°РІРёС‚СЊ С„Р»РѕС‚ СѓРєР°Р·Р°РЅРЅРѕР№ Р·Р°С‰РёС‚С‹.";
             break;
           }
 
-          $out = "err=0&errtext=Победитель получит ".floor( $price / 2 )." конфедерат.\nДо окончания дуэли для вас и вашего оппонента квесты будут не доступны.\nНаказание за неявку на дуэль - невозможность управлять кораблями в течении 6-ти часов.";
+          $out = "err=0&errtext=РџРѕР±РµРґРёС‚РµР»СЊ РїРѕР»СѓС‡РёС‚ ".floor( $price / 2 )." РєРѕРЅС„РµРґРµСЂР°С‚.\nР”Рѕ РѕРєРѕРЅС‡Р°РЅРёСЏ РґСѓСЌР»Рё РґР»СЏ РІР°СЃ Рё РІР°С€РµРіРѕ РѕРїРїРѕРЅРµРЅС‚Р° РєРІРµСЃС‚С‹ Р±СѓРґСѓС‚ РЅРµ РґРѕСЃС‚СѓРїРЅС‹.\nРќР°РєР°Р·Р°РЅРёРµ Р·Р° РЅРµСЏРІРєСѓ РЅР° РґСѓСЌР»СЊ - РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СѓРїСЂР°РІР»СЏС‚СЊ РєРѕСЂР°Р±Р»СЏРјРё РІ С‚РµС‡РµРЅРёРё 6-С‚Рё С‡Р°СЃРѕРІ.";
           break;
 
         default:
@@ -456,7 +456,7 @@
       }
     } else {
       if( !$result['id'] ) {
-        $out = 'err=2&errtext=Не тот титул';
+        $out = 'err=2&errtext=РќРµ С‚РѕС‚ С‚РёС‚СѓР»';
       }
 
       if( $ptest['err'] ) {

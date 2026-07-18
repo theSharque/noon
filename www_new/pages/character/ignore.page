@@ -13,10 +13,10 @@
   db_safe( $ign );
 
   if( $ign == 1 ) {
-    db_query( "INSERT INTO chat (user_id, text) VALUES ( 7, '".t( "Óâàæàåìûé %s, âû çàíåñåíû â èãíîð ëèñò ïèëîòà %s", array( $login, $user->login ) )."' )" );
+    db_query( "INSERT INTO chat (user_id, text) VALUES ( 7, '".t( "Ð£Ð²Ð°Ð¶Ð°ÐµÐ¼Ñ‹Ð¹ %s, Ð²Ñ‹ Ð·Ð°Ð½ÐµÑÐµÐ½Ñ‹ Ð² Ð¸Ð³Ð½Ð¾Ñ€ Ð»Ð¸ÑÑ‚ Ð¿Ð¸Ð»Ð¾Ñ‚Ð° %s", array( $login, $user->login ) )."' )" );
     db_query( "INSERT IGNORE INTO chat_ignore ( user_id, ignore_user ) VALUES ( {$user->uid}, $fid )" );
   } else {
-    db_query( "INSERT INTO chat (user_id, text) VALUES ( 7, '".t( "Óâàæàåìûé %s, âàñ óäàëèëè èç èãíîð ëèñòà ïèëîòà %s", array( $login, $user->login ) )."' )" );
+    db_query( "INSERT INTO chat (user_id, text) VALUES ( 7, '".t( "Ð£Ð²Ð°Ð¶Ð°ÐµÐ¼Ñ‹Ð¹ %s, Ð²Ð°Ñ ÑƒÐ´Ð°Ð»Ð¸Ð»Ð¸ Ð¸Ð· Ð¸Ð³Ð½Ð¾Ñ€ Ð»Ð¸ÑÑ‚Ð° Ð¿Ð¸Ð»Ð¾Ñ‚Ð° %s", array( $login, $user->login ) )."' )" );
     db_query( "DELETE FROM chat_ignore WHERE user_id = {$user->uid} AND ignore_user = $fid" );
   }
 

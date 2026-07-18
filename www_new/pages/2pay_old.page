@@ -1,6 +1,6 @@
 <?php
 
-  $user_name = mb_convert_encoding( $user->login, 'Windows-1251', 'UTF-8' );
+  $user_name = $user->login;
   
 print<<<EOF
 <html>
@@ -36,11 +36,11 @@ print<<<EOF
     addEvent(window, 'load', function () { _2payLoadGadget(); });
 </script>
 <noscript>
-У вас отключен Javascript. Пожалуйста, включите его настройках браузера.
-Подробнее о том, как включить Javascript в вашем браузере можно найти в <a href="http://www.google.com/#hl=en&source=hp&q=%D0%BA%D0%B0%D0%BA+%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B8%D1%82%D1%8C+java+script&aq=0&aqi=g2&aql=&oq=+%D0%BA%D0%B0%D0%BA+%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B8%D1%82%D1%8C+&gs_rfai=&fp=f0c6eccb169f9f02">google.</a>
-Ссылка для оплаты на сайте: http://2pay.ru/oplata/?id=4032
+РЈ РІР°СЃ РѕС‚РєР»СЋС‡РµРЅ Javascript. РџРѕР¶Р°Р»СѓР№СЃС‚Р°, РІРєР»СЋС‡РёС‚Рµ РµРіРѕ РЅР°СЃС‚СЂРѕР№РєР°С… Р±СЂР°СѓР·РµСЂР°.
+РџРѕРґСЂРѕР±РЅРµРµ Рѕ С‚РѕРј, РєР°Рє РІРєР»СЋС‡РёС‚СЊ Javascript РІ РІР°С€РµРј Р±СЂР°СѓР·РµСЂРµ РјРѕР¶РЅРѕ РЅР°Р№С‚Рё РІ <a href="http://www.google.com/#hl=en&source=hp&q=%D0%BA%D0%B0%D0%BA+%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B8%D1%82%D1%8C+java+script&aq=0&aqi=g2&aql=&oq=+%D0%BA%D0%B0%D0%BA+%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B8%D1%82%D1%8C+&gs_rfai=&fp=f0c6eccb169f9f02">google.</a>
+РЎСЃС‹Р»РєР° РґР»СЏ РѕРїР»Р°С‚С‹ РЅР° СЃР°Р№С‚Рµ: http://2pay.ru/oplata/?id=4032
 </noscript>
-<center><h4>Если у Вас возникли проблемы с оплатой, воспользуйтесь <a href="http://2pay.ru/oplata/?id=4032&email={$user->email}&v1=$user_name&amount=1" target="_blank">прямой ссылкой на оплату</a></h4></center>
+<center><h4>Р•СЃР»Рё Сѓ Р’Р°СЃ РІРѕР·РЅРёРєР»Рё РїСЂРѕР±Р»РµРјС‹ СЃ РѕРїР»Р°С‚РѕР№, РІРѕСЃРїРѕР»СЊР·СѓР№С‚РµСЃСЊ <a href="http://2pay.ru/oplata/?id=4032&email={$user->email}&v1=$user_name&amount=1" target="_blank">РїСЂСЏРјРѕР№ СЃСЃС‹Р»РєРѕР№ РЅР° РѕРїР»Р°С‚Сѓ</a></h4></center>
 </body>
 </html>
 EOF;

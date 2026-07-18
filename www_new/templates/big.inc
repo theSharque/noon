@@ -12,9 +12,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
-<meta name="Description" content="Космическая стратегия. Полдень 21 века. Это online стратегия в реальном времени.">
-<meta name="Keywords" content="Космическая стратегия, Полдень 21 века, online стратегия в реальном времени, браузерная игра, стратегии, игры онлайн, космические игры, космические стратегии">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="Description" content="РљРѕСЃРјРёС‡РµСЃРєР°СЏ СЃС‚СЂР°С‚РµРіРёСЏ. РџРѕР»РґРµРЅСЊ 21 РІРµРєР°. Р­С‚Рѕ online СЃС‚СЂР°С‚РµРіРёСЏ РІ СЂРµР°Р»СЊРЅРѕРј РІСЂРµРјРµРЅРё.">
+<meta name="Keywords" content="РљРѕСЃРјРёС‡РµСЃРєР°СЏ СЃС‚СЂР°С‚РµРіРёСЏ, РџРѕР»РґРµРЅСЊ 21 РІРµРєР°, online СЃС‚СЂР°С‚РµРіРёСЏ РІ СЂРµР°Р»СЊРЅРѕРј РІСЂРµРјРµРЅРё, Р±СЂР°СѓР·РµСЂРЅР°СЏ РёРіСЂР°, СЃС‚СЂР°С‚РµРіРёРё, РёРіСЂС‹ РѕРЅР»Р°Р№РЅ, РєРѕСЃРјРёС‡РµСЃРєРёРµ РёРіСЂС‹, РєРѕСЃРјРёС‡РµСЃРєРёРµ СЃС‚СЂР°С‚РµРіРёРё">
     <title><?php echo $title; ?></title>
     <link href="styles/main.css" rel="stylesheet" type="text/css">
 
@@ -52,19 +52,19 @@
                             <div style="position:relative;">
                                 <img src="images/statspanelbg.png" border="0" width="419" height="219">
                                 <div id="statscontainer">
-<h3>Статистика:</h3><br>
+<h3>РЎС‚Р°С‚РёСЃС‚РёРєР°:</h3><br>
 <table id="statstable" width="285" border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td align="left">Звезд в галактике</td>
+    <td align="left">Р—РІРµР·Рґ РІ РіР°Р»Р°РєС‚РёРєРµ</td>
     <td align="right"><?php echo $stars ?></td></tr>
   <tr>
-    <td align="left">Планет в галактике</td>
+    <td align="left">РџР»Р°РЅРµС‚ РІ РіР°Р»Р°РєС‚РёРєРµ</td>
     <td align="right"><?php echo $planets ?></td></tr>
   <tr>
-    <td align="left">Космических кораблей</td>
+    <td align="left">РљРѕСЃРјРёС‡РµСЃРєРёС… РєРѕСЂР°Р±Р»РµР№</td>
     <td align="right"><?php echo $ships ?></td></tr>
   <tr>
-    <td align="left">Проведенных сражений</td>
+    <td align="left">РџСЂРѕРІРµРґРµРЅРЅС‹С… СЃСЂР°Р¶РµРЅРёР№</td>
     <td align="right"><?php echo $wars ?></td>
   </tr>
   <tr>
@@ -89,9 +89,9 @@
 <?php
 /*
   if( $_SERVER['SERVER_PORT'] == 80 ) {
-    echo "<p class='versiontext'><a href='https://21noon.com{$_SERVER['REQUEST_URI']}'>Перейти на SSL версию</a></p>";
+    echo "<p class='versiontext'><a href='https://21noon.com{$_SERVER['REQUEST_URI']}'>РџРµСЂРµР№С‚Рё РЅР° SSL РІРµСЂСЃРёСЋ</a></p>";
   } else {
-    echo "<p class='versiontext'><a href='http://21noon.com{$_SERVER['REQUEST_URI']}'>Перейти на HTTP версию</a></p>";
+    echo "<p class='versiontext'><a href='http://21noon.com{$_SERVER['REQUEST_URI']}'>РџРµСЂРµР№С‚Рё РЅР° HTTP РІРµСЂСЃРёСЋ</a></p>";
   }
 */
 ?>
@@ -114,14 +114,14 @@
 <input type="hidden" name="vk_id" id="vk_id" value="">
 <table class="logintable" width="257" border="0" cellspacing="0" cellpadding="0">
     <tr>
-        <td class="logintablecontainer" align="left"><h3>Вход</h3></td>
-        <td align="right" valign="bottom"><a href="index.php?pid=repair">Забыли пароль?</a></td>
+        <td class="logintablecontainer" align="left"><h3>Р’С…РѕРґ</h3></td>
+        <td align="right" valign="bottom"><a href="index.php?pid=repair">Р—Р°Р±С‹Р»Рё РїР°СЂРѕР»СЊ?</a></td>
     </tr>
    <tr><td colspan="2"><img src="images/dot.gif" border="0" width="1" height="20"></td></tr>
  
     <tr>
-        <td align="left">Игрок</td>
-        <td align="right"><input type="text" name="login" class="logintextfield" placeholder="Игрок" /></td>
+        <td align="left">РРіСЂРѕРє</td>
+        <td align="right"><input type="text" name="login" class="logintextfield" placeholder="РРіСЂРѕРє" /></td>
     </tr>
 
 <? if( !isset( $_GET['relid'] ) && !isset( $_SESSION['relid'] ) && !isset( $_COOKIE["ca_prx"] ) && !isset( $_GET['prx'] ) && !isset( $_COOKIE["so_source"] ) ) { ?>
@@ -148,8 +148,8 @@
 
     <tr><td colspan="2"><img src="images/dot.gif" border="0" width="1" height="10"></td></tr>
     <tr>
-        <td align="left">Пароль</td>
-        <td align="right"><input type="password" name="pass" class="logintextfield" placeholder="Пароль" /></td>
+        <td align="left">РџР°СЂРѕР»СЊ</td>
+        <td align="right"><input type="password" name="pass" class="logintextfield" placeholder="РџР°СЂРѕР»СЊ" /></td>
     </tr>
     <tr><td colspan="2"><img src="images/dot.gif" border="0" width="1" height="15"></td></tr>
     <tr>
@@ -159,7 +159,7 @@
     <tr><td colspan="2" bgcolor="#89b5ff"><img src="images/dot.gif" border="0" width="1" height="1"></td></tr>
     <tr><td colspan="2"><img src="images/dot.gif" border="0" width="1" height="20"></td></tr>
     <tr>
-        <td align="left" colspan="2">Регистрация</td>
+        <td align="left" colspan="2">Р РµРіРёСЃС‚СЂР°С†РёСЏ</td>
     </tr>
     <tr><td colspan="2"><img src="images/dot.gif" border="0" width="1" height="10"></td></tr>
     <tr>
@@ -197,9 +197,9 @@
 <?php
 /*
   if( $_SERVER['SERVER_PORT'] == 80 ) {
-    echo "<p class='versiontext'><a href='https://21noon.com{$_SERVER['REQUEST_URI']}'>Перейти на SSL версию</a></p>";
+    echo "<p class='versiontext'><a href='https://21noon.com{$_SERVER['REQUEST_URI']}'>РџРµСЂРµР№С‚Рё РЅР° SSL РІРµСЂСЃРёСЋ</a></p>";
   } else {
-    echo "<p class='versiontext'><a href='http://21noon.com{$_SERVER['REQUEST_URI']}'>Перейти на HTTP версию</a></p>";
+    echo "<p class='versiontext'><a href='http://21noon.com{$_SERVER['REQUEST_URI']}'>РџРµСЂРµР№С‚Рё РЅР° HTTP РІРµСЂСЃРёСЋ</a></p>";
   }
 */
 ?>
@@ -207,7 +207,7 @@
 <?php
   }
 ?>
-                        <td width="454" align="right" valign="top"><a href="index.php"><img src="images/21noonlogo.png" border="0" width="454" height="271" alt="Полдень 21 века"></a></td>
+                        <td width="454" align="right" valign="top"><a href="index.php"><img src="images/21noonlogo.png" border="0" width="454" height="271" alt="РџРѕР»РґРµРЅСЊ 21 РІРµРєР°"></a></td>
                     </tr>
                 </table>
 <?php
@@ -313,7 +313,7 @@
 <table class="footertable" width="860" border="0" cellspacing="0" cellpadding="0">
     <tr>
         <td class="footertabletextcontainer" align="center">
-            <a href="index.php?pid=rules">Правила игры</a> | <a href="index.php?pid=billing">Условия оплаты</a> | <a href="index.php?pid=license">Пользовательское соглашение</a> | <a href="index.php?pid=contacts">Контакты</a>
+            <a href="index.php?pid=rules">РџСЂР°РІРёР»Р° РёРіСЂС‹</a> | <a href="index.php?pid=billing">РЈСЃР»РѕРІРёСЏ РѕРїР»Р°С‚С‹</a> | <a href="index.php?pid=license">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРµ СЃРѕРіР»Р°С€РµРЅРёРµ</a> | <a href="index.php?pid=contacts">РљРѕРЅС‚Р°РєС‚С‹</a>
         </td>
     </tr>
 
@@ -331,7 +331,7 @@
 </noscript>
 <!-- end of Top100 code -->
             </td>
-            <td class="footertabletextcontainer" align="center">Все права защищены, любое использование материала без согласия владельцев преследуется по закону.<br>The noon &copy; 2010-2014</td>
+            <td class="footertabletextcontainer" align="center">Р’СЃРµ РїСЂР°РІР° Р·Р°С‰РёС‰РµРЅС‹, Р»СЋР±РѕРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РјР°С‚РµСЂРёР°Р»Р° Р±РµР· СЃРѕРіР»Р°СЃРёСЏ РІР»Р°РґРµР»СЊС†РµРІ РїСЂРµСЃР»РµРґСѓРµС‚СЃСЏ РїРѕ Р·Р°РєРѕРЅСѓ.<br>The noon &copy; 2010-2014</td>
             <td align=right>
 <!--Openstat-->
 <span id="openstat2295085"></span>

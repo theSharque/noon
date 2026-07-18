@@ -1,0 +1,26 @@
+<?php
+
+  include( './pages/misc/aliance.dic' );
+
+  global $user;
+
+  $result = db_fetch_array( "SELECT a.id, a.name, a.level, a.own
+                               FROM aliance a
+                           ORDER BY a.name" );
+
+  $out = "cnt=".count( $result );
+  $l=0;
+  foreach( $result as $item ) {
+    $out.= "&id$l=".$item['id']."&n$l=".$item['name']."&l$l=".$item['level'].' ('.$levels[$item['level']].')'."&o$l=".$item['own'];
+    if( $item['own'] == $user->uid ) {
+      $out.= "&c$l=0x003300";
+    } else {
+      $out.= "&c$l=0x000033";
+    }
+
+    $l++;
+  }
+
+  $out .= '&ua='.$user->aliance;
+
+  printOut( $out );

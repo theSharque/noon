@@ -1,0 +1,244 @@
+<?php
+
+  $top_a = db_fetch_array( "SELECT h.user_id id, h.login, h.top_a cnt
+                              FROM halloffame h
+                             WHERE h.top_a > 0
+                          ORDER BY h.top_a DESC" );
+
+  $top_p = db_fetch_array( "SELECT h.user_id id, h.login, h.top_p cnt
+                              FROM halloffame h
+                             WHERE h.top_p > 0
+                          ORDER BY h.top_p DESC" );
+
+  $top_m = db_fetch_array( "SELECT h.user_id id, h.login, h.top_m cnt
+                              FROM halloffame h
+                             WHERE h.top_m > 0
+                          ORDER BY h.top_m DESC" );
+
+  $top_f = db_fetch_array( "SELECT h.user_id id, h.login, h.top_f cnt
+                              FROM halloffame h
+                             WHERE h.top_f > 0
+                          ORDER BY h.top_f DESC" );
+
+  $top_t = db_fetch_array( "SELECT h.user_id id, h.login, h.top_t cnt
+                              FROM halloffame h
+                             WHERE h.top_t > 0
+                          ORDER BY h.top_t DESC" );
+
+  $top_q = db_fetch_array( "SELECT h.user_id id, h.login, h.top_q cnt
+                              FROM halloffame h
+                             WHERE h.top_q > 0
+                          ORDER BY h.top_q DESC" );
+
+  $top_r = db_fetch_array( "SELECT h.user_id id, h.login, h.top_r cnt
+                              FROM halloffame h
+                             WHERE h.top_r > 0
+                          ORDER BY h.top_r DESC" );
+
+  $top_s = db_fetch_array( "SELECT h.user_id id, h.login, h.top_s cnt
+                              FROM halloffame h
+                             WHERE h.top_s > 0
+                          ORDER BY h.top_s DESC" );
+
+  $out = 'err=0&at=';
+  $l = 1;
+  $me = -1;
+
+  foreach( $top_a as $item ) {
+    if( $user->uid == $item['id'] && $l < 10 ) {
+      $me = $l - 1;
+    }
+
+    if( $me > -1 || $l < 10 ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+    }
+
+    if( $me == -1 && $user->uid == $item['id'] ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+      $me = 9;
+      break;
+    }
+    $l++;
+
+    if( $me > -1 && $l > 10 ) {
+      break;
+    }
+  }
+  $out .= '&atm='.$me;
+
+  $out .= '&pt=';
+  $l = 1;
+  $me = -1;
+  foreach( $top_p as $item ) {
+    if( $user->uid == $item['id'] && $l < 10 ) {
+      $me = $l - 1;
+    }
+
+    if( $me > -1 || $l < 10 ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+    }
+
+    if( $me == -1 && $user->uid == $item['id'] ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+      $me = 9;
+      break;
+    }
+    $l++;
+
+    if( $me > -1 && $l > 10 ) {
+      break;
+    }
+  }
+  $out .= '&ptm='.$me;
+
+  $out .= '&mt=';
+  $l = 1;
+  $me = -1;
+  foreach( $top_m as $item ) {
+    if( $user->uid == $item['id'] && $l < 10 ) {
+      $me = $l - 1;
+    }
+
+    if( $me > -1 || $l < 10 ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+    }
+
+    if( $me == -1 && $user->uid == $item['id'] ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+      $me = 9;
+      break;
+    }
+    $l++;
+
+    if( $me > -1 && $l > 10 ) {
+      break;
+    }
+  }
+  $out .= '&mtm='.$me;
+
+  $out .= '&ft=';
+  $l = 1;
+  $me = -1;
+  foreach( $top_f as $item ) {
+    if( $user->uid == $item['id'] && $l < 10 ) {
+      $me = $l - 1;
+    }
+
+    if( $me > -1 || $l < 10 ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+    }
+
+    if( $me == -1 && $user->uid == $item['id'] ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+      $me = 9;
+      break;
+    }
+    $l++;
+
+    if( $me > -1 && $l > 10 ) {
+      break;
+    }
+  }
+  $out .= '&ftm='.$me;
+
+  $out .= '&tt=';
+  $l = 1;
+  $me = -1;
+  foreach( $top_t as $item ) {
+    if( $user->uid == $item['id'] && $l < 10 ) {
+      $me = $l - 1;
+    }
+
+    if( $me > -1 || $l < 10 ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+    }
+
+    if( $me == -1 && $user->uid == $item['id'] ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+      $me = 9;
+      break;
+    }
+    $l++;
+
+    if( $me > -1 && $l > 10 ) {
+      break;
+    }
+  }
+  $out .= '&ttm='.$me;
+
+  $out .= '&qt=';
+  $l = 1;
+  $me = -1;
+  foreach( $top_q as $item ) {
+    if( $user->uid == $item['id'] && $l < 10 ) {
+      $me = $l - 1;
+    }
+
+    if( $me > -1 || $l < 10 ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+    }
+
+    if( $me == -1 && $user->uid == $item['id'] ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+      $me = 9;
+      break;
+    }
+    $l++;
+
+    if( $me > -1 && $l > 10 ) {
+      break;
+    }
+  }
+  $out .= '&qtm='.$me;
+
+  $out .= '&rt=';
+  $l = 1;
+  $me = -1;
+  foreach( $top_r as $item ) {
+    if( $user->uid == $item['id'] && $l < 10 ) {
+      $me = $l - 1;
+    }
+
+    if( $me > -1 || $l < 10 ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+    }
+
+    if( $me == -1 && $user->uid == $item['id'] ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+      $me = 9;
+      break;
+    }
+    $l++;
+
+    if( $me > -1 && $l > 10 ) {
+      break;
+    }
+  }
+  $out .= '&rtm='.$me;
+
+  $out .= '&st=';
+  $l = 1;
+  $me = -1;
+  foreach( $top_s as $item ) {
+    if( $user->uid == $item['id'] && $l < 10 ) {
+      $me = $l - 1;
+    }
+
+    if( $me > -1 || $l < 10 ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+    }
+
+    if( $me == -1 && $user->uid == $item['id'] ) {
+      $out .= $l.'.'.$item['login'].':'.number_format( $item['cnt'], 0, '', ' ' ).'|';
+      $me = 9;
+      break;
+    }
+    $l++;
+
+    if( $me > -1 && $l > 10 ) {
+      break;
+    }
+  }
+  $out .= '&stm='.$me;
+
+  printOut( $out );

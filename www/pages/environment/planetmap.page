@@ -1,0 +1,163 @@
+<?php
+
+  include( './pages/environment/planets.dic' );
+
+  global $user;
+  if( $user->place_type == 1 ) {
+    $planet_id = $user->place_id;
+
+    $pos = db_fetch_row( "SELECT last_pos FROM planets_active WHERE id=$planet_id" );
+
+    $maps = db_fetch_row( "SELECT bld, top, mdl, btm, fnd FROM planets_maps WHERE id = $planet_id" );
+
+    $content = array_map( 'trim', explode( "\n", trim( $maps['top'] ) ) );
+
+    if( isset( $maps['top'] ) && $content ) {
+
+      $buildings = array_map( 'trim', explode( "\n", trim( $maps['bld'] ) ) );
+      $middle = array_map( 'trim', explode( "\n", trim( $maps['mdl'] ) ) );
+      $bottom = array_map( 'trim', explode( "\n", trim( $maps['btm'] ) ) );
+      $found = array_map( 'trim', explode( "\n", trim( $maps['fnd'] ) ) );
+
+      $out = 'num='.count( $content );
+
+      if( isset( $_GET['ml'] ) && is_numeric( $_GET['ml'] ) ) {
+        $ml = $_GET['ml'];
+        db_safe( $ml );
+        $class = db_fetch_val( "SELECT class FROM objects WHERE id = $ml", 'class' );
+        switch( $class ) {
+          case 1:
+            $materials = db_fetch_array( "SELECT object_id FROM objects_sub WHERE res_id = $ml" );
+            foreach( $materials as $item ) {
+              $hlmat[ $item['object_id'] ] = 1;
+            }
+            break;
+          case 5:
+            $hlmat[ $ml ] = 1;
+            break;
+          default:
+            break;
+        }
+
+        $icnt = count( $found );
+        for( $i=0; $i < $icnt; $i++ ) {
+          $out .= '&hl'.$i.'=';
+          $tcnt = strlen( trim( $found[ $i ] ) );
+
+          for( $t=0; $t < $tcnt; $t++ ) {
+            switch( $found[ $i ]{ $t } ) {
+
+              case '0' :
+                $out .= '0';
+                break;
+
+              case '1' :
+                if( isset( $hlmat[ $mdl_data[ $middle[ $i ]{ $t } ][ 2 ] ] ) ) {
+                  $out .= '1';
+                } else {
+                  $out .= '0';
+                }
+                break;
+
+              case '2' :
+                if( isset( $hlmat[ $mdl_data[ $middle[ $i ]{ $t } ][ 2 ] ] ) ) {
+                  $out .= '1';
+                } else {
+                  if( isset( $hlmat[ $btm_data[ $bottom[ $i ]{ $t } ][ 2 ] ] ) ) {
+                    $out .= '2';
+                  } else {
+                    $out .= '0';
+                  }
+                }
+                break;
+            }
+          }
+        }
+      }
+
+      $l = 0;
+      if( isset( $_GET['full'] ) && $_GET['full'] == 'true' ) {
+        foreach( $content as $value ) {
+          $out .= '&gl'.$l.'='.trim( $value );
+          $l++;
+        }
+      }
+
+      $l = 0;
+      foreach( $buildings as $value ) {
+        $out .= '&bl'.$l.'='.trim( $value );
+        $l++;
+      }
+
+      $l = 0;
+      mt_srand( $planet_id );
+      foreach( $buildings as $value ) {
+        $tcnt = strlen( trim( $value ) );
+
+        $out .= '&tr'.$l.'=';
+        for( $t=0; $t < $tcnt; $t++ ) {
+          if( $content[ $l ]{ $t } != '0' && mt_rand( 0, 10 ) == 0 ) {
+            $out .= mt_rand( 0, 5 );
+          } else {
+            $out .= '0';
+          }
+        }
+
+        $l++;
+      }
+
+      $iq = false;
+      if( $user->iq ) {
+        if( $user->qt == 28 ) {
+          $iq = true;
+          $map = db_fetch_row( "SELECT u2.arg9 FROM u2u_quests u2 WHERE u2.event_id = ".$user->iq );
+          $umap = explode( "\n", $map['arg9'] );
+        }
+      }
+
+      $levels = db_fetch_array( "SELECT pb.x, pb.y, pb.level
+                                   FROM planets_buildings pb
+                                  WHERE planet_id = $planet_id AND level BETWEEN 1 AND 9" );
+
+      if( !$iq ) {
+        foreach( $levels as $lev ) {
+          $out .= '&v'.$lev['x'].'x'.$lev['y'].'='.$lev['level'];
+        }
+      } else {
+        foreach( $levels as $lev ) {
+          $map_lev = $lev['level'] + 9 - $umap[ $lev['y'] ]{ $lev['x'] };
+
+          if( $map_lev < 10 ) {
+            $out .= '&v'.$lev['x'].'x'.$lev['y'].'='.$map_lev;
+          }
+        }
+      }
+
+      $timers = db_fetch_array( "SELECT e.x, e.y, UNIX_TIMESTAMP(e.event_time) - UNIX_TIMESTAMP( NOW() ) + 1 remain,
+                                        e.event_type, e.timer,
+                                        CASE e.event_type WHEN 1 THEN 0 WHEN 2 THEN p.cycle-1 WHEN 5 THEN m.cycle-1 ELSE 0 END cycle
+                                   FROM planet_events e LEFT JOIN planets_mines p ON e.id = p.event_id
+                                                        LEFT JOIN planets_make m ON e.id = m.event_id
+                                  WHERE e.planet_id = $planet_id" );
+
+      foreach( $timers as $timer ) {
+        $out .= '&t'.$timer['x'].'x'.$timer['y'].'='.$timer['remain'];
+        $out .= '&c'.$timer['x'].'x'.$timer['y'].'='.$timer['event_type'];
+        $out .= '&l'.$timer['x'].'x'.$timer['y'].'='.$timer['timer'];
+        $out .= '&s'.$timer['x'].'x'.$timer['y'].'='.$timer['cycle'];
+      }
+
+      if( $pos['last_pos'] ) {
+        $last = explode( ':', $pos['last_pos'] );
+        $out .= '&lastx='.$last[0];
+        $out .= '&lasty='.$last[1];
+      } else {
+        $out .= '&lastx=0&lasty=0';
+      }
+      printOut( $out );
+    } else {
+      printOut( "err=2 $planet_id" );
+    }
+  } else {
+    printOut( "err=1" );
+  }

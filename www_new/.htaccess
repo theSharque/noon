@@ -1,6 +1,0 @@
-DirectoryIndex index.php
-Options -indexes
-
-<FilesMatch "\.(page|inc|bld|fnd|btm|mdl|lin|top|dic|log)$">
-  deny from all
-</FilesMatch>

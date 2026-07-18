@@ -5,6 +5,6 @@ RUN docker-php-ext-install mysql mbstring shmop \
 
 WORKDIR /var/www/noon
 
-COPY www_new/ /var/www/noon/
+COPY www/ /var/www/noon/
 RUN mkdir -p /var/www/noon/locks \
  && chown -R www-data:www-data /var/www/noon

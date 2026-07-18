@@ -1,0 +1,61 @@
+<?php
+
+  global $user;
+
+  $friend = db_fetch_array( "SELECT u.login, fr1.user_id fr1, fr2.user_id fr2
+                               FROM users u
+                          LEFT JOIN friend fr1 ON fr1.friend_id = u.id AND fr1.user_id = {$user->uid}
+                          LEFT JOIN friend fr2 ON fr2.user_id = u.id AND fr2.friend_id = {$user->uid}
+                              WHERE fr1.friend_id IS NOT NULL OR fr2.user_id IS NOT NULL" );
+
+  $foe = db_fetch_array( "SELECT u.login, fo1.user_id fo1, fo2.user_id fo2
+                            FROM users u
+                       LEFT JOIN foe fo1 ON fo1.foe_id = u.id AND fo1.user_id = {$user->uid}
+                       LEFT JOIN foe fo2 ON fo2.user_id = u.id AND fo2.foe_id = {$user->uid}
+                           WHERE fo1.foe_id IS NOT NULL OR fo2.user_id IS NOT NULL" );
+
+  $ignore = db_fetch_array( "SELECT u.login, ci1.user_id ci1, ci2.user_id ci2
+                               FROM users u
+                          LEFT JOIN chat_ignore ci1 ON ci1.ignore_user = u.id AND ci1.user_id = {$user->uid}
+                          LEFT JOIN chat_ignore ci2 ON ci2.user_id = u.id AND ci2.ignore_user = {$user->uid}
+                              WHERE ci1.ignore_user IS NOT NULL OR ci2.user_id IS NOT NULL" );
+
+  $out = 'err=0';
+
+  $l=0;
+  $out .= '&frcnt='.count( $friend );
+  foreach( $friend as $item ) {
+    $out .= "&fr$l=".$item['login'];
+    if( $item['fr1'] && $item['fr2'] ) {
+      $out .= "&frc$l=0x006600";
+    } elseif( $item['fr1'] ) {
+      $out .= "&frc$l=0x003300";
+    }
+    $l++;
+  }
+
+  $l=0;
+  $out .= '&focnt='.count( $foe );
+  foreach( $foe as $item ) {
+    $out .= "&fo$l=".$item['login'];
+    if( $item['fo1'] && $item['fo2'] ) {
+      $out .= "&foc$l=0x660000";
+    } elseif( $item['fo1'] ) {
+      $out .= "&foc$l=0x330000";
+    }
+    $l++;
+  }
+
+  $l=0;
+  $out .= '&cicnt='.count( $ignore );
+  foreach( $ignore as $item ) {
+    $out .= "&ci$l=".$item['login'];
+    if( $item['ci1'] && $item['ci2'] ) {
+      $out .= "&cic$l=0x660066";
+    } elseif( $item['ci1'] ) {
+      $out .= "&cic$l=0x330033";
+    }
+    $l++;
+  }
+
+  printOut( $out );

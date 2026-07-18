@@ -1,0 +1,55 @@
+<?php
+
+  global $user;
+
+  if( isset( $_GET['rf'] ) && is_numeric( $_GET['rf'] ) && $user->owner ) {
+    $rf = $_GET['rf'];
+    db_safe( $rf );
+
+    $def = db_fetch_row( "SELECT planet_user, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(planet_time) planet_time,
+                                 orbit_user, UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(orbit_time) orbit_time
+                           FROM planets
+                          WHERE id = ".$user->place_id );
+
+    $defender = true;
+    if( $user->place_type == 0 || $user->place_type == 1 ) {
+      if( $user->place_type == 0 ) {
+        if( $def['orbit_user'] != '' && $def['orbit_user'] != $user->uid ) {
+          if( $def['orbit_time'] < 259200 ) {
+            $defender = false;
+          }
+        }
+      }
+
+      if( $user->place_type == 1 ) {
+        if( $def['planet_user'] != '' && $def['planet_user'] != $user->uid ) {
+          if( $def['planet_time'] < 259200 ) {
+            $defender = false;
+          }
+        }
+      }
+
+      if( $defender ) {
+        if( $user->place_type == 0 ) {
+          db_query( "UPDATE planets SET orbit_user = {$user->uid} WHERE id = {$user->place_id}" );
+        } else {
+          db_query( "UPDATE planets SET planet_user = {$user->uid} WHERE id = {$user->place_id}" );
+        }
+
+        $lvl = get_book_level( 20, $user->uid );
+        db_query( "UPDATE planets_buildings
+                      SET shield = level * 1000 + (level * 250 * $lvl)
+                    WHERE planet_id = {$user->place_id} AND shield > 0" );
+
+        db_query( "INSERT INTO defence ( status,      user_id,          place_id,          place_type )
+                        VALUES         (    $rf, {$user->uid}, {$user->place_id}, {$user->place_type} )
+       ON DUPLICATE KEY UPDATE status = $rf, user_id = {$user->uid}" );
+      }
+
+      $out = 'err=0';
+    } else {
+      $out = 'err=1';
+    }
+
+    printOut( $out );
+  }

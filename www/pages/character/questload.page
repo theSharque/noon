@@ -1,0 +1,65 @@
+<?php
+
+  global $user;
+
+  $quests = db_fetch_array( "SELECT uc.id, uc.type, qt.name, uc.arg0, uc.arg1, uc.arg2, uc.arg3, uc.arg4, uc.arg5, uc.arg6, uc.arg7, uc.arg8, uc.arg9, uc.user_id, u2.user_id owner
+                               FROM users_quests uc
+                          LEFT JOIN quest_types qt ON qt.type = uc.type
+                          LEFT JOIN u2u_quests u2 ON u2.event_id = uc.id
+                          LEFT JOIN foe fe ON fe.user_id = u2.user_id AND fe.foe_id = {$user->uid}
+                          LEFT JOIN friend fr ON fr.user_id = u2.user_id AND fr.friend_id = {$user->uid}
+                              WHERE ( uc.user_id is null OR uc.user_id = {$user->uid} ) AND uc.status > 0
+                                    AND (
+                                      u2.visibility IS NULL OR u2.visibility = 0 OR
+                                      u2.user_id = {$user->uid} OR
+                                      ( u2.visibility = 1 AND fe.user_id IS NULL ) OR
+                                      ( u2.visibility = 2 AND fr.user_id IS NOT NULL ) OR
+                                      ( u2.visibility = 3 AND u2.to_user = {$user->aliance} ) OR
+                                      ( u2.visibility = 4 AND u2.to_user = {$user->uid} )
+                                    )
+                           ORDER BY uc.type, uc.id" );
+
+  $srch = array( '%arg0', '%arg1', '%arg2', '%arg3', '%arg4', '%arg5', '%arg6', '%arg7', '%arg8', '%arg9' );
+
+  $decline = db_fetch_val( "SELECT UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(decline_time) decline FROM users WHERE id = ".$user->uid, 'decline' );
+
+  if( count( $quests ) ) {
+    $l = 0;
+    $out = 'err=0&cnt='.count( $quests );
+    $bt = 1;
+    $p = 0;
+    $qt = 0;
+    foreach( $quests as $line ) {
+      if( $line['user_id'] == $user->uid ) {
+        $bt = 0;
+        $p=$l;
+        $qt = $line['type'];
+      }
+
+      $rep = array( $line['arg0'], $line['arg1'], $line['arg2'], $line['arg3'], $line['arg4'], $line['arg5'], $line['arg6'], $line['arg7'], $line['arg8'], $line['arg9'] );
+      $out .= "&id$l=".$line['id']."&n$l=".str_replace( $srch, $rep, $line['name'] );
+
+      if( $line['owner'] == $user->uid ) {
+        $out .= "&m$l=1";
+      } else {
+        $out .= "&m$l=0";
+      }
+
+      $l++;
+    }
+    if( $bt == 0 ) {
+      $out .= "&p=$p";
+    }
+  } else {
+    $out = 'err=1';
+  }
+
+  if( $qt == 12 || $qt == 13 || $qt == 14 || $qt == 33 || $qt == 34 ) {
+    $out .= '&hidetype=1';
+  }
+
+  if( $decline < 5*60 ) {
+    $out .= '&decline=1';
+  }
+
+  printOut( $out );

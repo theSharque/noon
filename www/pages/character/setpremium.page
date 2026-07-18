@@ -1,0 +1,32 @@
+<?php
+
+  global $user;
+
+  $login = $_GET['login'];
+  db_safe( $login );
+
+  $login = decode_in( $login );
+
+  $fid = db_fetch_val( "SELECT id FROM users WHERE login = '$login'" );
+
+  $premium = $_GET['premium'];
+  db_safe( $premium );
+
+  if( $fid == $user->uid ) {
+    $out = 'err=2';
+  } else {
+    if( is_numeric( $premium ) && $premium > 0 && $user->money >= $premium ) {
+      db_query( "UPDATE users SET money = money - $premium WHERE id = ".$user->uid );
+
+      db_query( "INSERT INTO users_premium ( user_id,    premium )
+                                    VALUES (    $fid, '$premium' )
+               ON DUPLICATE KEY UPDATE premium = premium + '$premium'" );
+
+      $out = 'err=0';
+    } else {
+      $out = 'err=1';
+    }
+  }
+
+  printOut( $out );
+  

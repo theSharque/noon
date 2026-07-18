@@ -1,0 +1,9 @@
+<HTML>
+<HEAD>
+<TITLE>Chat</TITLE>
+</HEAD>
+<FRAMESET id="chat" rows="*,25" border=0 frameborder=no framespacing=0>
+  <FRAME src="page.php?id=91" name=read scrolling=no noresize>
+  <FRAME src="page.php?id=92" name=write scrolling=no noresize>
+</FRAMESET>
+</HTML>

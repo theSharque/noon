@@ -1,0 +1,33 @@
+<?php
+
+  global $user;
+
+  if( $user->place_type == 0 && isset( $_GET['x'] ) ) {
+    $x = $_GET['x'];
+    db_safe( $x );
+    $info = get_orbit_info( $x );
+
+    if( !$info->bid ) {
+      printOut( "err=3" );
+      return;
+    }
+
+    levelUp( 31, $user->uid );
+
+    switch( $user->real_type ) {
+      case 2:
+        db_query( "UPDATE ships SET place_id = ".$info->bid.", place_type = 3 WHERE id = ".$user->real_id );
+        printOut( "err=0&go=refresh" );
+        break;
+      case 6:
+        db_query( "UPDATE ships SET place_id = ".$info->bid.", place_type = 3 WHERE fleet_id = ".$user->real_id );
+        db_query( "UPDATE fleets SET place_id = ".$info->bid.", place_type = 3 WHERE id = ".$user->real_id );
+        printOut( "err=0&go=refresh" );
+        break;
+      default:
+        printOut( "err=2" );
+        break;
+    }
+  } else {
+    printOut( "err=1" );
+  }

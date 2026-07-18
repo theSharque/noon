@@ -1,0 +1,62 @@
+<?php
+
+  global $user;
+
+  if( $user->place_type == 0 && isset( $_GET['x'] ) && isset( $_GET['oid'] ) && $user->owner ) {
+    $planet_id = $user->place_id;
+
+    $x = $_GET['x'];
+    $y = 0;
+    $oid = $_GET['oid'];
+    $cycle = abs( $_GET['count'] );
+
+    db_safe( $x );
+    db_safe( $oid );
+    db_safe( $cycle );
+
+    if( !$cycle ) {
+      $cycle = 1;
+    }
+
+    $info = get_orbit_info( $x );
+    if( $cycle > $info->level ) {
+      $cycle = $info->level;
+    }
+
+    $last = $_GET['l'];
+    db_safe( $last );
+
+    $items = db_fetch_row( "SELECT w.object_id, IFNULL( w.object_cnt, 0 ) object_cnt
+                              FROM sintez s
+                        INNER JOIN warehouse w ON w.place_id = {$user->place_id} AND w.place_type = {$user->place_type} AND s.res_id = w.object_id
+                             WHERE s.object_id = $oid" );
+
+    $can_build = ( get_energy() >= 0 && $items['object_cnt'] >= 1000);
+
+    if( $can_build && $info->busy == 0 && $info->building == 3010 && $info->level >= $cycle ) {
+      sub_warehouse_item( 0, $planet_id, $items['object_id'], 1000 );
+  
+      $total_time = get_sintez_time( $oid );
+      db_query( "INSERT INTO orbit_events ( event_type, x,  planet_id, object_id,                                     event_time,       timer,      user_id )
+                                   VALUES ( 8,         $x, $planet_id,      3010, DATE_ADD( NOW(), INTERVAL $total_time SECOND ), $total_time, {$user->uid} )" );
+      $id = mysql_insert_id();
+      if( isset( $_GET['robot'] ) && is_numeric( $_GET['robot'] ) && $_GET['robot'] == 1 ) {
+        $rob = db_fetch_row( "SELECT id FROM robots r WHERE r.status = 0 AND r.user_id = ".$user->uid." AND
+                              r.usedtime = (SELECT MIN(usedtime) mintime FROM robots WHERE status = 0 AND user_id = ".$user->uid.")" );
+
+        $build = db_fetch_row( "SELECT id FROM orbits_buildings WHERE x = $x AND planet_id = $planet_id AND object_id = 3010" );
+
+        db_query( "UPDATE robots SET status = 1, build_id = ".$build['id'].", build_type = 0 WHERE id = ".$rob['id'] );
+        $cycle = -1;
+      }
+
+      db_query( "UPDATE orbits_buildings SET last_id = $oid WHERE x = $x AND planet_id = $planet_id AND object_id = 3010" );
+      db_query( "INSERT INTO orbits_make ( event_id, object_id, cycle ) VALUES ( $id, $oid, $cycle )" );
+
+      printOut( "err=0" );
+      return;
+    }
+    printOut( "err=2" );
+  } else {
+    printOut( "err=1" );
+  }

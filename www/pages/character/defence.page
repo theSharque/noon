@@ -1,0 +1,24 @@
+<?php
+
+  global $user;
+
+  $oid = $_GET['oid'];
+  db_safe( $oid );
+  $oid = substr( $oid, 1 );
+
+  if( is_numeric( $oid ) ) {
+    $defval = db_fetch_val( "SELECT count(*) cnt FROM defence d WHERE d.place_type = 3 AND d.place_id = $oid", 'cnt' );
+    $defoth = db_fetch_val( "SELECT user_id FROM defence WHERE place_type IN ( 0, 3 ) AND user_id != {$user->uid} AND place_id = $oid LIMIT 0,1", 'user_id' );
+
+    if( $user->credits >= 5 && !$defval && !$defoth ) {
+      db_query( "UPDATE users SET credits = credits - 5 WHERE id = ".$user->uid );
+      db_query( "INSERT INTO defence (place_id, place_type, user_id, status) VALUES ( $oid, 3, {$user->uid}, 1 )" );
+
+      db_query( "INSERT INTO bay_log (user_id, log_text, summ, conf) VALUES ( {$user->uid}, 'Bay defence of $oid for 5 credits', 5, 1 )" );
+      $out = 'err=0';
+    } else {
+      $out = 'err=1';
+    }
+  }
+
+  printOut( $out );

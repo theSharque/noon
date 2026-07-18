@@ -1,0 +1,57 @@
+<?php
+
+  include( './pages/misc/aliance.dic' );
+
+  global $user;
+
+  if( isset( $_GET['uid'] ) && is_numeric( $_GET['uid'] ) && isset( $_GET['aid'] ) && is_numeric( $_GET['aid'] )) {
+    $uid = $_GET['uid'];
+    db_safe( $uid );
+
+    $aid = $_GET['aid'];
+    db_safe( $aid );
+
+    $result = db_fetch_row( "SELECT u.id, u.aliance, ai.user_id, a.id aid, a.own, a.level
+                               FROM users u
+                          LEFT JOIN aliance_in ai ON ai.user_id = u.id AND ai.aliance = $aid
+                          LEFT JOIN aliance a ON a.id = u.aliance OR a.id = ai.aliance
+                              WHERE u.id = $uid AND a.id = $aid" );
+
+    $out = 'err=0';
+
+    if( $result['own'] == $user->uid && $result['user_id'] == $result['id'] ) {
+      $cnt = db_fetch_val( "SELECT count(*) cnt FROM users WHERE aliance = ".$result['aid'], 'cnt' );
+      if( $cnt < $levels[$result['level']] ) {
+        $out .= '&bu1=1';
+      } else {
+        $out .= '&bu1=0';
+      }
+    } else {
+      $out .= '&bu1=0';
+    }
+
+    if( $result['own'] == $user->uid && $result['user_id'] == $result['id'] ) {
+      $out .= '&bu4=1';
+    } else {
+      $out .= '&bu4=0';
+    }
+
+    if( $result['own'] == $user->uid && $result['id'] != $result['own'] && $result['aliance'] == $result['aid'] ) {
+      $out .= '&bu2=1';
+      $out .= '&bu5=1';
+    } else {
+      $out .= '&bu2=0';
+      $out .= '&bu5=0';
+    }
+
+    if( $result['id'] != $user->uid && $result['id'] > 0 ) {
+      $out .= '&bu3=1';
+    } else {
+      $out .= '&bu3=0';
+    }
+
+  } else {
+    $out = 'err=1';
+  }
+
+  printOut( $out );

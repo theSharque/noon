@@ -11,7 +11,7 @@ RUN docker-php-ext-install mysql mbstring shmop \
 
 WORKDIR /var/www/noon
 
-COPY www_new/ /var/www/noon/
+COPY www/ /var/www/noon/
 COPY docker/cron/crontab /etc/noon.crontab
 COPY docker/cron/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh \

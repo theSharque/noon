@@ -6,5 +6,4 @@
 www/debug
 www/locks/*
 !www/locks/.gitkeep
-www/*.fla
 old_data

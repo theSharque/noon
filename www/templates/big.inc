@@ -181,7 +181,7 @@
                         <td><a href="index.php?pid=about"><img id="Menu02" onmouseover="menuOver('Menu02');" onmouseout="menuOut('Menu02');" src="images/menu02off.png" border="0" width="123" height="46"></a></td>
                         <td><a href="index.php?pid=gallery"><img id="Menu05" onmouseover="menuOver('Menu05');" onmouseout="menuOut('Menu05');" src="images/menu05off.png" border="0" width="123" height="46"></a></td>
                         <td><a href="index.php?pid=enc"><img id="Menu03" onmouseover="menuOver('Menu03');" onmouseout="menuOut('Menu03');" src="images/menu03off.png" border="0" width="123" height="46"></a></td>
-                        <td><a href="/info/index.php"><img id="Menu06" onmouseover="menuOver('Menu06');" onmouseout="menuOut('Menu06');" src="images/menu06off.png" border="0" width="123" height="46"></a></td>
+                        <td><img src="images/dot.gif" border="0" width="123" height="46"></td>
                         <td><img src="images/menublank.png" border="0" width="139" height="46"></td>
                         <td><img src="images/dot.gif" border="0" width="4" height="57"></td>
                     </tr>
@@ -207,17 +207,12 @@
                     imgMenu05off.src = "images/menu05off.png";
                     var imgMenu05on = new Image();
                     imgMenu05on.src = "images/menu05on.png";
-                    var imgMenu06off = new Image();
-                    imgMenu06off.src = "images/menu06off.png";
-                    var imgMenu06on = new Image();
-                    imgMenu06on.src = "images/menu06on.png";
 
                     var idMenu01 = document.getElementById("Menu01");
                     var idMenu02 = document.getElementById("Menu02");
                     var idMenu03 = document.getElementById("Menu03");
 //                    var idMenu04 = document.getElementById("Menu04");
                     var idMenu05 = document.getElementById("Menu05");
-                    var idMenu06 = document.getElementById("Menu06");
 
     function menuOver(id) {
         eval('id'+id+'.src = img'+id+'on.src;');

@@ -30,6 +30,7 @@ docker compose up -d --build
 - Выпилены SAPE, аналитика и счётчики (Metrika, GA, Rambler, Openstat, LiveInternet, UpToLike)
 - Выпилены CPA/партнёрки (luxup, 7offers, CityAds, WASD, inetrek)
 - Почищен сайт: лишние меню/VK-вход, битые картинки галереи
+- Удалён phpBB-форум (`www/info/`)
 
 ## В планах
 

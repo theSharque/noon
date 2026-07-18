@@ -1,7 +1,5 @@
--- Generated from backup/noon.sql.gz by db/extract_from_dump.sh
 SET NAMES utf8;
 SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';
--- V1 baseline schema from 2012 dump
 CREATE TABLE IF NOT EXISTS `2pay_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `pay_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -63,7 +61,6 @@ CREATE TABLE IF NOT EXISTS `bot_in` (
   `weight` int(11) NOT NULL DEFAULT '0',
   `out_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`word`,`out_id`),
-  KEY `by_word` (`word`),
   KEY `by_out_id` (`out_id`),
   KEY `weight` (`weight`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -101,8 +98,8 @@ CREATE TABLE IF NOT EXISTS `chat` (
   `text` varchar(1400) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
-  KEY `to_user` (`to_user`),
-  KEY `from_to` (`to_user`,`user_id`)
+  KEY `from_to` (`to_user`,`user_id`),
+  KEY `by_msgtime` (`msgtime`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `cron` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -121,8 +118,7 @@ CREATE TABLE IF NOT EXISTS `defence` (
   `user_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `place_and_type` (`place_id`,`place_type`),
-  KEY `by_user` (`user_id`),
-  KEY `by_place` (`place_id`)
+  KEY `by_user` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `enciclopedia` (
   `object_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -237,7 +233,6 @@ CREATE TABLE IF NOT EXISTS `objects_sub` (
   `res_cnt` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `fuse` (`object_id`,`res_id`),
-  KEY `by_object` (`object_id`),
   KEY `by_res` (`res_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `orbit_events` (
@@ -253,7 +248,7 @@ CREATE TABLE IF NOT EXISTS `orbit_events` (
   UNIQUE KEY `by_planet_coord` (`planet_id`,`x`),
   KEY `by_time` (`event_time`),
   KEY `event4group` (`event_type`,`x`),
-  KEY `by_planet` (`planet_id`)
+  KEY `by_user_time` (`user_id`,`event_time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `orbits_buildings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -266,8 +261,7 @@ CREATE TABLE IF NOT EXISTS `orbits_buildings` (
   `last_cyc` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `by_planet_x` (`planet_id`,`x`),
-  KEY `by_object` (`object_id`),
-  KEY `by_planet` (`planet_id`)
+  KEY `by_object` (`object_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `orbits_make` (
   `event_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -309,8 +303,8 @@ CREATE TABLE IF NOT EXISTS `planet_events` (
   UNIQUE KEY `by_planet_coord` (`planet_id`,`x`,`y`),
   KEY `by_time` (`event_time`),
   KEY `event4group` (`event_type`,`x`,`y`),
-  KEY `by_planet` (`planet_id`),
-  KEY `by_coord` (`x`,`y`)
+  KEY `by_coord` (`x`,`y`),
+  KEY `by_user_time` (`user_id`,`event_time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `planet_types` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -336,7 +330,8 @@ CREATE TABLE IF NOT EXISTS `planets` (
   `last_build` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `by_star` (`star_id`),
-  KEY `by_user` (`user_id`)
+  KEY `by_user` (`user_id`),
+  KEY `by_name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `planets_buildings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -350,7 +345,6 @@ CREATE TABLE IF NOT EXISTS `planets_buildings` (
   `last_cyc` int(10) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `by_x_y` (`planet_id`,`x`,`y`),
-  KEY `by_planet` (`planet_id`),
   KEY `by_planets_objects` (`planet_id`,`object_id`),
   KEY `for_upgrade` (`planet_id`,`level`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -464,9 +458,8 @@ CREATE TABLE IF NOT EXISTS `ships` (
   KEY `by_inwar` (`inwar`),
   KEY `by_guard` (`guard`),
   KEY `by_object` (`object_id`),
-  KEY `by_place_type` (`place_type`),
   KEY `interup` (`interupt`),
-  KEY `by_coords` (`arg1`,`arg2`,`place_type`),
+  KEY `by_place_coords` (`place_type`,`place_id`,`arg1`,`arg2`),
   KEY `by_place_user` (`place_id`,`user_id`,`place_type`),
   KEY `group` (`user_id`,`group`),
   KEY `by_place` (`place_id`,`place_type`)
@@ -475,7 +468,8 @@ CREATE TABLE IF NOT EXISTS `sintez` (
   `res_id` int(10) unsigned NOT NULL,
   `object_id` int(10) unsigned NOT NULL,
   `object_cnt` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`res_id`)
+  PRIMARY KEY (`res_id`),
+  KEY `by_object` (`object_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `space_events` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -492,7 +486,6 @@ CREATE TABLE IF NOT EXISTS `space_events` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `by_ship_type` (`ship_id`,`event_type`),
   KEY `by_time` (`event_time`),
-  KEY `by_ship` (`ship_id`),
   KEY `by_user` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `star_pos` (
@@ -524,7 +517,7 @@ CREATE TABLE IF NOT EXISTS `trade_in` (
   PRIMARY KEY (`id`),
   KEY `by_object` (`object_id`),
   KEY `by_ob` (`ob_id`),
-  KEY `by_price` (`price`),
+  KEY `by_ob_object` (`ob_id`,`object_id`),
   KEY `by_count` (`object_cnt`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `trade_log` (
@@ -546,7 +539,7 @@ CREATE TABLE IF NOT EXISTS `trade_out` (
   PRIMARY KEY (`id`),
   KEY `by_object` (`object_id`),
   KEY `by_ob` (`ob_id`),
-  KEY `by_price` (`price`),
+  KEY `by_ob_object` (`ob_id`,`object_id`),
   KEY `by_count` (`object_cnt`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `tutorials` (
@@ -622,8 +615,8 @@ CREATE TABLE IF NOT EXISTS `users_messages` (
   `text` longtext NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `by_user_id` (`to_user`,`id`),
-  KEY `by_user` (`to_user`),
-  KEY `by_date` (`msg_date`)
+  KEY `by_date` (`msg_date`),
+  KEY `by_from_date` (`from_user`,`msg_date`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `users_msg_settings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -632,8 +625,7 @@ CREATE TABLE IF NOT EXISTS `users_msg_settings` (
   `chat` tinyint(1) DEFAULT NULL,
   `mail` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `by_user_type` (`user_id`,`type`),
-  KEY `user_id` (`user_id`)
+  UNIQUE KEY `by_user_type` (`user_id`,`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `users_premium` (
   `user_id` int(10) unsigned NOT NULL,
@@ -689,7 +681,9 @@ CREATE TABLE IF NOT EXISTS `war_events` (
   `a_premium` float(12,2) NOT NULL DEFAULT '0.00',
   `d_premium` float(12,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`id`),
-  KEY `fire_time` (`fire_time`)
+  KEY `fire_time` (`fire_time`),
+  KEY `by_a` (`a_type`,`a_object_id`),
+  KEY `by_d` (`d_type`,`d_object_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `war_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -723,3 +717,414 @@ CREATE TABLE IF NOT EXISTS `warehouse` (
   KEY `by_count` (`object_cnt`),
   KEY `i_rev_place` (`place_id`,`place_type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `aliance` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL,
+  `description` longtext NOT NULL,
+  `book_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `level` int(10) unsigned NOT NULL DEFAULT '0',
+  `multiply` int(10) unsigned NOT NULL DEFAULT '1',
+  `own` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `by_name` (`name`),
+  KEY `by_own` (`own`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `aliance_in` (
+  `aliance` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`aliance`, `user_id`),
+  KEY `by_user` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `market` (
+  `object_id` int(10) unsigned NOT NULL,
+  `buy_cnt` int(10) unsigned NOT NULL DEFAULT '0',
+  `sell_cnt` int(10) unsigned NOT NULL DEFAULT '0',
+  `avg_price` float(12,2) NOT NULL DEFAULT '0.00',
+  `day_buy` int(10) unsigned NOT NULL DEFAULT '0',
+  `day_sell` int(10) unsigned NOT NULL DEFAULT '0',
+  `min_count` int(10) unsigned NOT NULL DEFAULT '100',
+  PRIMARY KEY (`object_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `market_events` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `summ` float(12,2) NOT NULL DEFAULT '0.00',
+  `bay_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `by_user` (`user_id`),
+  KEY `by_bay_date` (`bay_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `tituls` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL DEFAULT '',
+  `object_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `by_object` (`object_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `medals_type` (
+  `object_id` int(10) unsigned NOT NULL,
+  `book_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `level` int(10) unsigned NOT NULL DEFAULT '0',
+  `img` varchar(64) NOT NULL DEFAULT '',
+  `status` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`object_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `users_medal` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `object_id` int(10) unsigned NOT NULL,
+  `user_desc` longtext NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `by_user` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `planets_maps` (
+  `id` int(10) unsigned NOT NULL,
+  `top` longtext NOT NULL,
+  `mdl` longtext NOT NULL,
+  `btm` longtext NOT NULL,
+  `fnd` longtext NOT NULL,
+  `bld` longtext NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `orbits_map` (
+  `id` int(10) unsigned NOT NULL,
+  `lin` longtext NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `planets_active` (
+  `id` int(10) unsigned NOT NULL,
+  `last_pos` varchar(45) DEFAULT NULL,
+  `last_orb` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `ships_war` LIKE `ships`;
+
+CREATE TABLE IF NOT EXISTS `war_places` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `place` varchar(64) NOT NULL,
+  `fleet_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `date_start` datetime DEFAULT NULL,
+  `sent` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `by_place` (`place`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `war_test` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `u2u_quests` (
+  `event_id` int(11) NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `to_user` int(10) unsigned NOT NULL DEFAULT '0',
+  `type` int(11) NOT NULL DEFAULT '0',
+  `summ` float(12,2) NOT NULL DEFAULT '0.00',
+  `currency` int(11) NOT NULL DEFAULT '0',
+  `time_long` int(11) NOT NULL DEFAULT '0',
+  `visibility` int(11) NOT NULL DEFAULT '0',
+  `public_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `date_start` datetime DEFAULT NULL,
+  `arg0` varchar(128) DEFAULT NULL,
+  `arg1` varchar(128) DEFAULT NULL,
+  `arg2` varchar(128) DEFAULT NULL,
+  `arg3` varchar(128) DEFAULT NULL,
+  `arg4` varchar(128) DEFAULT NULL,
+  `arg5` varchar(128) DEFAULT NULL,
+  `arg6` varchar(128) DEFAULT NULL,
+  `arg7` varchar(128) DEFAULT NULL,
+  `arg8` varchar(128) DEFAULT NULL,
+  `arg9` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`event_id`),
+  KEY `by_user` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `u2u_types` (
+  `id` int(11) NOT NULL,
+  `name` varchar(120) NOT NULL,
+  `status` int(11) NOT NULL DEFAULT '0',
+  `titul` int(10) unsigned NOT NULL DEFAULT '0',
+  `type0` int(11) NOT NULL DEFAULT '0',
+  `type1` int(11) NOT NULL DEFAULT '0',
+  `type2` int(11) NOT NULL DEFAULT '0',
+  `type3` int(11) NOT NULL DEFAULT '0',
+  `type4` int(11) NOT NULL DEFAULT '0',
+  `type5` int(11) NOT NULL DEFAULT '0',
+  `type6` int(11) NOT NULL DEFAULT '0',
+  `type7` int(11) NOT NULL DEFAULT '0',
+  `type8` int(11) NOT NULL DEFAULT '0',
+  `type9` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `users_report` (
+  `user_id` int(10) unsigned NOT NULL,
+  `msg_date` datetime NOT NULL,
+  `type` int(10) unsigned NOT NULL DEFAULT '0',
+  `message` longtext NOT NULL,
+  KEY `by_user_date` (`user_id`, `msg_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `promo` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `text` longtext NOT NULL,
+  `time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `interval` int(10) unsigned NOT NULL DEFAULT '60',
+  PRIMARY KEY (`id`),
+  KEY `by_time` (`time`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `warequest` (
+  `place_id` int(10) unsigned NOT NULL,
+  `place_type` int(10) unsigned NOT NULL,
+  `object_id` int(10) unsigned NOT NULL,
+  `object_cnt` int(10) unsigned NOT NULL DEFAULT '0',
+  `quest_id` int(11) NOT NULL,
+  KEY `by_quest` (`quest_id`),
+  KEY `by_place` (`place_id`, `place_type`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `messages` (
+  `hash` varchar(64) NOT NULL,
+  `ru` longtext NOT NULL,
+  PRIMARY KEY (`hash`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `halloffame` (
+  `user_id` int(10) unsigned NOT NULL,
+  `login` varchar(45) NOT NULL,
+  `top_a` bigint(16) NOT NULL DEFAULT '0',
+  `top_p` bigint(16) NOT NULL DEFAULT '0',
+  `top_m` bigint(16) NOT NULL DEFAULT '0',
+  `top_f` bigint(16) NOT NULL DEFAULT '0',
+  `top_t` bigint(16) NOT NULL DEFAULT '0',
+  `top_q` bigint(16) NOT NULL DEFAULT '0',
+  `top_r` bigint(16) NOT NULL DEFAULT '0',
+  `top_s` bigint(16) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `hot_way` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `id_from` int(10) unsigned NOT NULL,
+  `from_arg1` int(11) DEFAULT NULL,
+  `from_arg2` int(11) DEFAULT NULL,
+  `id_to` int(10) unsigned NOT NULL,
+  `to_arg1` int(11) DEFAULT NULL,
+  `to_arg2` int(11) DEFAULT NULL,
+  `event_time` datetime NOT NULL,
+  `len` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `by_user` (`user_id`),
+  KEY `by_time` (`event_time`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `trash` (
+  `place_id` int(10) unsigned NOT NULL,
+  `place_type` int(10) unsigned NOT NULL,
+  `object_id` int(10) unsigned NOT NULL,
+  `object_cnt` int(10) unsigned NOT NULL DEFAULT '0',
+  `arg1` int(11) DEFAULT NULL,
+  `arg2` int(11) DEFAULT NULL,
+  `lost_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY `by_place_object` (`place_type`, `place_id`, `object_id`, `arg1`, `arg2`),
+  KEY `by_lost_date` (`lost_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `drones` (
+  `ship_id` int(10) unsigned NOT NULL,
+  `from_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`ship_id`),
+  KEY `by_from` (`from_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `chat_ignore` (
+  `user_id` int(10) unsigned NOT NULL,
+  `ignore_user` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`user_id`, `ignore_user`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `academy` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `book_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `multiply` int(10) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `academy_build` (
+  `build_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `type` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`build_id`),
+  KEY `by_user` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `bot_analyze` (
+  `user_id` int(10) unsigned NOT NULL,
+  `clone_id` int(10) unsigned NOT NULL,
+  `size` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`user_id`, `clone_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `full_log` (
+  `uid` int(10) unsigned NOT NULL,
+  `line` longtext NOT NULL,
+  `log_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY `by_uid` (`uid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `hyper_hint` (
+  `user_id` int(10) unsigned NOT NULL,
+  `aliance` int(10) unsigned NOT NULL DEFAULT '0',
+  `type` int(10) unsigned NOT NULL DEFAULT '0',
+  `text` longtext NOT NULL,
+  `x` int(11) NOT NULL DEFAULT '0',
+  `y` int(11) NOT NULL DEFAULT '0',
+  KEY `by_user` (`user_id`),
+  KEY `by_aliance` (`aliance`),
+  KEY `by_coords` (`x`, `y`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `interupt_msg` (
+  `type` int(10) unsigned NOT NULL,
+  `ship_id` int(10) unsigned NOT NULL,
+  `message` longtext NOT NULL,
+  KEY `by_ship` (`type`, `ship_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `pilot_events` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `ship_id` int(10) unsigned NOT NULL,
+  `isfleet` int(10) unsigned NOT NULL DEFAULT '0',
+  `programm` longtext NOT NULL,
+  `step` int(10) unsigned NOT NULL DEFAULT '0',
+  `user_id` int(10) unsigned NOT NULL,
+  `event_time` datetime NOT NULL,
+  `status` int(10) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `by_status_time` (`status`, `event_time`),
+  KEY `by_user` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `city_ads` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `order_id` int(10) unsigned NOT NULL,
+  `ca_prx` varchar(64) NOT NULL DEFAULT '',
+  `ca_click_id` varchar(64) NOT NULL DEFAULT '',
+  `data` longtext NOT NULL,
+  `log_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `by_log_date` (`log_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+ALTER TABLE `users`
+  ADD COLUMN `ref_link` varchar(255) NOT NULL DEFAULT 'none',
+  ADD COLUMN `ent_link` varchar(512) NOT NULL DEFAULT 'none',
+  ADD COLUMN `meta_in` varchar(64) DEFAULT NULL,
+  ADD COLUMN `relid` varchar(64) DEFAULT NULL,
+  ADD COLUMN `repid` varchar(64) DEFAULT NULL,
+  ADD COLUMN `rebid` varchar(64) DEFAULT NULL,
+  ADD COLUMN `ca_prx` int(11) NOT NULL DEFAULT '0',
+  ADD COLUMN `ca_ref` varchar(255) NOT NULL DEFAULT '',
+  ADD COLUMN `ca_aip` varchar(255) NOT NULL DEFAULT '',
+  ADD COLUMN `ca_click_id` varchar(255) NOT NULL DEFAULT '',
+  ADD COLUMN `so_source` varchar(255) NOT NULL DEFAULT '',
+  ADD COLUMN `so_tid` varchar(255) NOT NULL DEFAULT '',
+  ADD COLUMN `wasd_id` varchar(64) NOT NULL DEFAULT '',
+  ADD COLUMN `full_log` tinyint(1) NOT NULL DEFAULT '0',
+  ADD COLUMN `titul` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `block` int(11) NOT NULL DEFAULT '0',
+  ADD COLUMN `block_date` datetime DEFAULT NULL,
+  ADD COLUMN `donate` float(12,2) NOT NULL DEFAULT '0.00',
+  ADD COLUMN `aliance` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `mute` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  ADD COLUMN `show_planet` int(11) NOT NULL DEFAULT '1',
+  ADD COLUMN `gid` varchar(255) NOT NULL DEFAULT '',
+  ADD COLUMN `vk_id` varchar(32) DEFAULT NULL,
+  ADD COLUMN `ord` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `pirate_status` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD KEY `by_aliance` (`aliance`),
+  ADD KEY `by_vk_id` (`vk_id`);
+
+ALTER TABLE `users_active`
+  ADD COLUMN `abandon` bigint(16) NOT NULL DEFAULT '0',
+  ADD COLUMN `pirate` bigint(16) NOT NULL DEFAULT '0',
+  ADD COLUMN `mine` bigint(16) NOT NULL DEFAULT '0',
+  ADD COLUMN `quest` bigint(16) NOT NULL DEFAULT '0',
+  ADD COLUMN `trade` bigint(16) NOT NULL DEFAULT '0',
+  ADD COLUMN `ships` bigint(16) NOT NULL DEFAULT '0',
+  ADD COLUMN `die_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00';
+
+ALTER TABLE `history_log`
+  ADD COLUMN `credits_all` float(12,2) NOT NULL DEFAULT '0.00' AFTER `credits`,
+  ADD COLUMN `confederates_all` int(11) NOT NULL DEFAULT '0' AFTER `confederates`,
+  ADD COLUMN `users_all` int(11) NOT NULL DEFAULT '0' AFTER `users`,
+  ADD COLUMN `online` int(11) NOT NULL DEFAULT '0' AFTER `users_all`;
+
+ALTER TABLE `users_messages`
+  ADD COLUMN `hash` varchar(64) NOT NULL DEFAULT '' AFTER `from_user`,
+  ADD KEY `by_user_hash` (`to_user`, `hash`);
+
+ALTER TABLE `objects`
+  ADD COLUMN `minprice` float(12,2) NOT NULL DEFAULT '0.00' AFTER `myprice`,
+  ADD COLUMN `soldable` tinyint(1) NOT NULL DEFAULT '0';
+
+ALTER TABLE `buildings`
+  ADD COLUMN `pic` varchar(64) NOT NULL DEFAULT '';
+
+ALTER TABLE `ship_types`
+  ADD COLUMN `w_sum` int(10) unsigned NOT NULL DEFAULT '0' AFTER `w_count`,
+  ADD COLUMN `pic` varchar(64) NOT NULL DEFAULT '',
+  ADD COLUMN `harvest` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `hot` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `titul` int(10) unsigned NOT NULL DEFAULT '0';
+
+ALTER TABLE `ships`
+  ADD COLUMN `fire` tinyint(1) NOT NULL DEFAULT '0',
+  ADD COLUMN `new` tinyint(1) NOT NULL DEFAULT '0',
+  ADD COLUMN `order_id` int(10) unsigned NOT NULL DEFAULT '0';
+
+ALTER TABLE `fleets`
+  ADD COLUMN `corsar` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `harvest` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `hot` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `titul` int(10) unsigned NOT NULL DEFAULT '0';
+
+ALTER TABLE `pay_log`
+  ADD COLUMN `trade_id` int(10) unsigned DEFAULT NULL,
+  ADD COLUMN `type` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD KEY `by_trade_id` (`trade_id`);
+
+ALTER TABLE `quest_types`
+  ADD COLUMN `gen_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00';
+
+ALTER TABLE `users_quests`
+  ADD COLUMN `gen_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00';
+
+ALTER TABLE `planets`
+  ADD COLUMN `occuped` int(11) NOT NULL DEFAULT '0';
+
+ALTER TABLE `war_events`
+  ADD COLUMN `place_hash` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `place_step` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `a_step` int(11) NOT NULL DEFAULT '0',
+  ADD COLUMN `d_step` int(11) NOT NULL DEFAULT '0',
+  ADD KEY `by_hash_step` (`place_hash`, `place_step`);
+
+ALTER TABLE `war_online`
+  ADD COLUMN `place_hash` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `side` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD COLUMN `power` int(10) unsigned NOT NULL DEFAULT '0',
+  ADD KEY `place_hash_move` (`place_hash`, `move_id`);

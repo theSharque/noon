@@ -620,7 +620,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `insur` int(10) unsigned NOT NULL DEFAULT '0',
   `last_ip` varchar(120) DEFAULT NULL,
   `volume_sound` int(11) NOT NULL DEFAULT '50',
-  `volume_music` int(11) NOT NULL DEFAULT '15',
+  `volume_music` int(11) NOT NULL DEFAULT '0',
   `register_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `decline_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `fid` varchar(16) NOT NULL DEFAULT '0',

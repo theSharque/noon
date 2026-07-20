@@ -13,8 +13,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Статус | Кол-во |
 |--------|--------|
-| redesign (cosmic UI) | shell + booklist + about |
-| stub | 5 — place, ships, ware, trade, misc |
+| redesign (cosmic UI) | shell + booklist + about + misc |
+| stub | 4 — place, ships, ware, trade |
 | todo | transitions, tutorial |
 
 ---
@@ -26,7 +26,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 - Токены/utilities: `frontend/src/app.css`
 - UI kit: `frontend/src/lib/ui/` (ScifiPanel, ScifiButton, ScifiTabs, ProgressBar, StatRow)
 - Shell: `App.svelte`, `TopMenu.svelte`, `Chat.svelte` — glass/cyan, без sprite-кнопок
-- `Booklist.svelte` / `About.svelte` — CSS grid, без absolute 1000×500 и PNG-скинов; RPC без изменений
+- `Booklist.svelte` / `About.svelte` / `Misc.svelte` — CSS grid, без absolute 1000×500 и PNG-скинов; RPC без изменений
 - Pixel-perfect purge (booklist / about / topmenu / fonts): **done** 2026-07-20
 
 ### Pixel-perfect purge list
@@ -62,7 +62,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `ships.jpg` | `/ships` | **stub** | |
 | `warehouse.jpg` | `/ware` | **stub** | |
 | `trade.jpg` | `/trade` | **stub** | Следующий кандидат на cosmic (concept-2) |
-| `misc.jpg` | `/misc` | **stub** | |
+| `misc.jpg` | `/misc` → `Misc.svelte` | **redesign** | 7 вкладок + atlas SVG; SWF ещё в www |
 
 ---
 

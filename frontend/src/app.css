@@ -389,11 +389,19 @@ body {
   color: var(--text-main);
 }
 
-.html-rich :global(a) {
+.html-rich a {
   color: var(--neon-cyan);
 }
 
-.html-rich :global(font) {
+.html-rich a:visited {
+  color: var(--neon-cyan-dim);
+}
+
+.html-rich a:hover {
+  color: #b8f7ff;
+}
+
+.html-rich font {
   font-size: inherit;
 }
 

@@ -1,6 +1,7 @@
 import Stub from '../routes/Stub.svelte';
 import Booklist from '../routes/Booklist.svelte';
 import About from '../routes/About.svelte';
+import Misc from '../routes/Misc.svelte';
 
 export const routes = {
   '/character': Booklist,
@@ -8,7 +9,7 @@ export const routes = {
   '/ships': Stub,
   '/ware': Stub,
   '/trade': Stub,
-  '/misc': Stub,
+  '/misc': Misc,
   '/mail': Booklist,
   '/about': About,
 };

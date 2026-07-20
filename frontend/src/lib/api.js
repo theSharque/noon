@@ -10,9 +10,22 @@ export function parseVars(text) {
   text.replace(/&eof=1$/, '').split('&').forEach((pair) => {
     const i = pair.indexOf('=');
     if (i < 0) return;
-    out[pair.slice(0, i)] = pair.slice(i + 1);
+    const key = pair.slice(0, i);
+    const raw = pair.slice(i + 1);
+    out[key] = decodeLoadVar(raw);
   });
   return out;
+}
+
+function decodeLoadVar(value) {
+  const withSpaces = String(value).replace(/\+/g, ' ');
+  try {
+    return decodeURIComponent(withSpaces);
+  } catch {
+    return withSpaces.replace(/%([0-9A-Fa-f]{2})/g, (_, hex) =>
+      String.fromCharCode(parseInt(hex, 16)),
+    );
+  }
 }
 
 export function parseChatPoll(text) {
@@ -433,4 +446,260 @@ function parseRelationList(text) {
 export async function listRelations() {
   const res = await fetch('/page.php?id=151', { credentials: 'same-origin' });
   return parseRelationList(await res.text());
+}
+
+function parseEncList(data) {
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+    bgColor: 'c',
+  });
+  return { ...data, items };
+}
+
+export async function listEncyclopedia() {
+  return parseEncList(await fetchPage(61));
+}
+
+export async function getEncyclopediaDesc(oid) {
+  return fetchPage(62, `oid=${encodeURIComponent(oid)}`);
+}
+
+function parseAlianceList(data) {
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+    level: 'l',
+    own: 'o',
+    bgColor: 'c',
+  });
+  return {
+    ...data,
+    items,
+    ua: parseInt(data.ua || '0', 10),
+  };
+}
+
+export async function listAliances() {
+  return parseAlianceList(await fetchPage(68));
+}
+
+export async function getAlianceInfo(aid) {
+  return fetchPage(681, `aid=${encodeURIComponent(aid)}`);
+}
+
+export async function alianceOrder(ord, aid, extra = '') {
+  let params = `ord=${ord}&aid=${encodeURIComponent(aid)}`;
+  if (extra) params += extra.startsWith('&') ? extra : `&${extra}`;
+  return fetchPage(682, params);
+}
+
+function parseAlianceUsers(data) {
+  if (String(data.err) === '1') return { ...data, items: [] };
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+    bgColor: 'c',
+  });
+  return { ...data, items };
+}
+
+export async function listAlianceUsers(aid) {
+  return parseAlianceUsers(await fetchPage(69, `aid=${encodeURIComponent(aid)}`));
+}
+
+export async function getAlianceUserInfo(aid, uid) {
+  return fetchPage(691, `aid=${encodeURIComponent(aid)}&uid=${encodeURIComponent(uid)}`);
+}
+
+export async function alianceUserOrder(ord, uid) {
+  return fetchPage(692, `ord=${encodeURIComponent(ord)}&uid=${encodeURIComponent(uid)}`);
+}
+
+function parseRobotsList(data) {
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    usedTime: 'ut',
+    place: 'pn',
+    object: 'on',
+    coords: 'xy',
+    bgColor: 'c',
+  });
+  return { ...data, items };
+}
+
+export async function listRobots() {
+  return parseRobotsList(await fetchPage(64));
+}
+
+export async function getMiscSettings() {
+  const data = await fetchPage(66);
+  if (String(data.err) !== '0') return { ...data, items: [] };
+  const items = parseIndexedList(data, 'cnt', {
+    type: 't',
+    desc: 'd',
+    chat: 'c',
+    mail: 'm',
+  });
+  return {
+    ...data,
+    items,
+    mv: parseInt(data.mv || '0', 10),
+    sv: parseInt(data.sv || '0', 10),
+  };
+}
+
+export async function saveMiscSettings(payload) {
+  const parts = [`cnt=${payload.cnt}`, `mv=${payload.mv}`, `sv=${payload.sv}`];
+  for (let i = 0; i < payload.cnt; i++) {
+    const row = payload.items[i];
+    parts.push(`t${i}=${row.type}`);
+    parts.push(`c${i}=${row.chat ? 'true' : 'false'}`);
+    parts.push(`m${i}=${row.mail ? 'true' : 'false'}`);
+  }
+  return fetchPage(67, parts.join('&'));
+}
+
+export async function saveMusicVolume(mv) {
+  return fetchPage(67, `mv=${encodeURIComponent(mv)}`);
+}
+
+export function killUserAccount() {
+  window.location.href = '/page.php?id=674';
+}
+
+function parseHireList(data) {
+  if (String(data.err) !== '0') return { ...data, items: [] };
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+    bgColor: 'c',
+    enabled: 'en',
+  });
+  return {
+    ...data,
+    items,
+    cred: data.cred || '',
+    conf: data.conf || '',
+  };
+}
+
+export async function listHireQuests() {
+  return parseHireList(await fetchPage(642));
+}
+
+export async function loadHireQuest(qt) {
+  return fetchPage(644, `qt=${encodeURIComponent(qt)}`);
+}
+
+export async function validateHireField(fi, ft, fv) {
+  return fetchPage(
+    641,
+    `fi=${encodeURIComponent(fi)}&ft=${encodeURIComponent(ft)}&fv=${encodeURIComponent(fv)}`,
+  );
+}
+
+export async function validateHireQuest(params) {
+  return fetchPage(645, params);
+}
+
+export async function addHireQuest(params) {
+  return fetchPage(643, params);
+}
+
+function parseTopTable(raw, meKey) {
+  const rows = [];
+  const lines = String(raw || '').split('|').filter(Boolean);
+  for (let i = 0; i < lines.length; i++) {
+    const idx = lines[i].indexOf(':');
+    if (idx < 0) continue;
+    rows.push({
+      name: lines[i].slice(0, idx),
+      value: lines[i].slice(idx + 1),
+      me: parseInt(meKey, 10) === i,
+    });
+  }
+  return rows;
+}
+
+export async function loadTops() {
+  const data = await fetchPage(671);
+  if (String(data.err) !== '0') {
+    return {
+      ...data,
+      tables: [],
+    };
+  }
+  const defs = [
+    { id: 'a', title: 'Абандоны', key: 'at', me: 'atm' },
+    { id: 'p', title: 'Пираты', key: 'pt', me: 'ptm' },
+    { id: 'm', title: 'Добыча', key: 'mt', me: 'mtm' },
+    { id: 'f', title: 'Флот', key: 'ft', me: 'ftm' },
+    { id: 't', title: 'Уровень', key: 'tt', me: 'ttm' },
+    { id: 'q', title: 'Задания', key: 'qt', me: 'qtm' },
+    { id: 'r', title: 'Торговля', key: 'rt', me: 'rtm' },
+    { id: 's', title: 'Корабли', key: 'st', me: 'stm' },
+  ];
+  const tables = defs.map((d) => ({
+    ...d,
+    rows: parseTopTable(data[d.key], data[d.me]),
+  }));
+  return { ...data, tables };
+}
+
+function parseStarMap(data) {
+  if (String(data.err) !== '0') return { ...data, stars: [], yellow: [] };
+  const cnt = parseInt(data.cnt || '0', 10);
+  const stars = [];
+  for (let i = 0; i < cnt; i++) {
+    if (data[`st${i}`] === undefined) continue;
+    stars.push({
+      type: data[`st${i}`],
+      x: parseInt(data[`sx${i}`] || '0', 10),
+      y: parseInt(data[`sy${i}`] || '0', 10),
+      friend: data[`fr${i}`] === '1',
+      foe: data[`fo${i}`] === '1',
+      aliance: data[`as${i}`] === '1',
+    });
+  }
+  const ycnt = parseInt(data.ycnt || '0', 10);
+  const yellow = [];
+  for (let i = 0; i < ycnt; i++) {
+    yellow.push({
+      x: parseInt(data[`ysx${i}`] || '0', 10),
+      y: parseInt(data[`ysy${i}`] || '0', 10),
+    });
+  }
+  return {
+    ...data,
+    stars,
+    yellow,
+    shx: parseInt(data.shx || '0', 10),
+    shy: parseInt(data.shy || '0', 10),
+    hstx: data.hstx !== undefined ? parseInt(data.hstx, 10) : null,
+    hsty: data.hsty !== undefined ? parseInt(data.hsty, 10) : null,
+    quest: data.quest === 'true',
+    qsx: data.qsx !== undefined ? parseInt(data.qsx, 10) : null,
+    qsy: data.qsy !== undefined ? parseInt(data.qsy, 10) : null,
+    desc: data.desc || '',
+  };
+}
+
+export async function loadStarMap() {
+  return parseStarMap(await fetchPage(371));
+}
+
+export async function getStarCoord(mx, my) {
+  return fetchPage(372, `mx=${encodeURIComponent(mx)}&my=${encodeURIComponent(my)}`);
+}
+
+export async function saveStarHint(x, y, text, type, vis) {
+  return fetchPage(
+    673,
+    `x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}&text=${encodeURIComponent(text)}&type=${encodeURIComponent(type)}&vis=${vis ? 1 : 0}`,
+  );
+}
+
+export async function clearStarHint(x, y) {
+  return fetchPage(673, `x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}&clear=1`);
 }

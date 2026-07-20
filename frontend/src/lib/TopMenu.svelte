@@ -141,7 +141,7 @@
 
   function onExitClick() {
     playClick();
-    window.location.href = 'page.php?id=7';
+    window.location.href = '/page.php?id=7';
   }
 
   onMount(() => {
@@ -177,7 +177,7 @@
     {/each}
     <a
       class="nav-btn btn-exit exit"
-      href="page.php?id=7"
+      href="/page.php?id=7"
       title="Выход"
       on:mouseenter={playHover}
       on:mousedown={onExitClick}

@@ -11,11 +11,15 @@
 
 <div class="stub">
   <div class="stub-head">
+    {#if meta.pageId}
+      <p class="page-id">page {meta.pageId} -&gt;</p>
+    {/if}
     <h1>{meta.title}</h1>
-    <p>{meta.hint}</p>
+    <p class="hint">{meta.hint}</p>
     <p class="route">{$location}</p>
   </div>
   <div class="stub-preview">
+    <h2>{meta.title}</h2>
     <img src={meta.gallery} alt={meta.title} />
     <p class="note">Экран будет портирован по эталону из галереи.</p>
   </div>
@@ -35,6 +39,13 @@
     margin-bottom: 12px;
   }
 
+  .page-id {
+    margin: 0 0 6px;
+    font: 11px/1.3 Verdana, Arial, sans-serif;
+    color: #6a8a9a;
+    text-transform: lowercase;
+  }
+
   h1 {
     margin: 0 0 8px;
     font: bold 18px/1.2 Verdana, Arial, sans-serif;
@@ -43,15 +54,24 @@
     letter-spacing: 1px;
   }
 
-  p {
+  h2 {
+    margin: 0 0 10px;
+    font: bold 16px/1.2 Verdana, Arial, sans-serif;
+    color: #7fd4ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .hint {
     margin: 4px 0;
     font: 12px/1.4 Verdana, Arial, sans-serif;
     color: #aaa;
   }
 
   .route {
+    margin: 8px 0 0;
     color: #555;
-    font-size: 10px;
+    font: 10px/1.3 Verdana, Arial, sans-serif;
   }
 
   .stub-preview {
@@ -70,6 +90,7 @@
   .note {
     margin-top: 10px;
     color: #666;
+    font: 12px/1.4 Verdana, Arial, sans-serif;
     font-style: italic;
   }
 </style>

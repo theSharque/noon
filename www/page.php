@@ -47,15 +47,21 @@
         exit;
 
       case 1:
-//        do_events();
-//        authorization();
-        $sp = isset( $_GET["sp"] ) ? $_GET["sp"] : '';
-        if( isset( $_GET['msgto'] ) && $_GET['msgto'] ) {
-          render_page( 'booklist', "sn={$user->login}&uid={$user->uid}&sp=$sp&msgto=".decode_in( $_GET['msgto'] ), "100%" );
-        } else {
-          render_page( 'booklist', "sn={$user->login}&uid={$user->uid}&sp=$sp", "100%" );
+        $boot = '/character';
+        $boot_params = array();
+        if( isset( $_GET['sp'] ) && $_GET['sp'] !== '' ) {
+          $boot_params['sp'] = $_GET['sp'];
         }
-        show_tutorial( 1 );
+        if( isset( $_GET['msgto'] ) && $_GET['msgto'] ) {
+          $boot_params['msgto'] = decode_in( $_GET['msgto'] );
+        }
+        if( isset( $_GET['tab'] ) && $_GET['tab'] ) {
+          $boot_params['tab'] = $_GET['tab'];
+        }
+        if( count( $boot_params ) ) {
+          $boot .= '?' . http_build_query( $boot_params );
+        }
+        noon_render_spa( $boot );
         break;
       case 11:
         include './pages/character/questload.page';
@@ -144,8 +150,7 @@
       case 18:
         $login = urldecode( isset( $_GET['login'] ) ? $_GET['login'] : '' );
         $login = decode_in( $login );
-        $noon_boot = '/about?login=' . rawurlencode( $login );
-        include './pages/shell.page';
+        noon_render_spa( '/about?login=' . rawurlencode( $login ) );
         break;
       case 181:
         include './pages/character/medalinfo.page';
@@ -173,8 +178,7 @@
         break;
 
       case 2:
-        include './pages/environment/place.page';
-        show_tutorial( 2 );
+        noon_render_spa( '/place' );
         break;
       case 21:
 //        do_events( false );
@@ -359,8 +363,7 @@
         break;
 
       case 3:
-//        do_events();
-//        authorization();
+        $boot = '/ships';
         $vars = '';
         if( $user->fid != '0' ) {
           $vars = $user->fid;
@@ -370,8 +373,10 @@
             case 6 : $vars = 'F'.$user->real_id;break;
           };
         }
-        render_page( 'ships', "ls=$vars", "100%" );
-        show_tutorial( 3 );
+        if( $vars !== '' ) {
+          $boot .= '?ls=' . rawurlencode( $vars );
+        }
+        noon_render_spa( $boot );
         break;
       case 31:
 //        do_events();
@@ -491,12 +496,11 @@
         break;
 
       case 4:
-//        do_events();
-//        authorization();
-        $vars = isset( $_GET['shid'] ) ? $_GET['shid'] : '';
-        db_safe( $vars );
-        render_page( 'warehouse', "shid=$vars", '100%' );
-        show_tutorial( 4 );
+        $boot = '/ware';
+        if( isset( $_GET['shid'] ) && $_GET['shid'] !== '' ) {
+          $boot .= '?shid=' . rawurlencode( $_GET['shid'] );
+        }
+        noon_render_spa( $boot );
         break;
       case 41:
 //        do_events();
@@ -537,10 +541,7 @@
         break;
 
       case 5:
-//        do_events();
-//        authorization();
-        render_page( 'trade', "sn={$user->login}&uid={$user->uid}", '100%' );
-        show_tutorial( 5 );
+        noon_render_spa( '/trade' );
         break;
       case 51:
         include './pages/trade/shipslist.page';
@@ -608,16 +609,13 @@
         break;
 
       case 6:
-//        do_events();
-//        authorization();
-
-        $itm = isset( $_GET['itm'] ) ?  $_GET['itm'] : 0;
-        if( levelUp( 6, $user->uid ) ) {
-          render_page( 'misc', 'itm='.urldecode( $itm ), '100%' );
-        } else {
-          render_page( 'misc', 'itm='.urldecode( $itm ), '100%' );
+        $boot = '/misc';
+        $itm = isset( $_GET['itm'] ) ? $_GET['itm'] : 0;
+        if( $itm ) {
+          $boot .= '?itm=' . rawurlencode( urldecode( $itm ) );
         }
-        show_tutorial( 6 );
+        levelUp( 6, $user->uid );
+        noon_render_spa( $boot );
         break;
       case 61:
         include './pages/misc/itemslist.page';

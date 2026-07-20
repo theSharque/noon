@@ -14,9 +14,9 @@
                                   fe.user_id foe, fr.user_id friend, ua.lastlogin, ci.ignore_user, u.register_date
                              FROM users u
                        INNER JOIN users_active ua ON ua.id = u.id
-                       INNER JOIN planets p ON u.id = p.user_id
-                       INNER JOIN stars s ON p.star_id = s.id
-                       INNER JOIN tituls t ON t.id = u.titul
+                        LEFT JOIN planets p ON u.id = p.user_id
+                        LEFT JOIN stars s ON p.star_id = s.id
+                        LEFT JOIN tituls t ON t.id = u.titul
                         LEFT JOIN aliance a ON a.id = u.aliance
                         LEFT JOIN ships sh ON sh.user_id = u.id
                         LEFT JOIN ship_types st ON st.object_id = sh.object_id
@@ -29,7 +29,11 @@
   if( $result['id'] ) {
     $limit = get_ship_limit( $result['id'] );
 
-    $out = "err=0&star=".$result['sname'].' - '.$result['pname'];
+    if( $result['sname'] || $result['pname'] ) {
+      $out = "err=0&star=".$result['sname'].' - '.$result['pname'];
+    } else {
+      $out = "err=0&star=".t( 'нет' );
+    }
     $out .= "&aliance=".( $result['aname'] ? $result['aname'] : 'нет' );
     $out .= "&titul=".( $result['tname'] ? $result['tname'] : 'нет' );
 

@@ -13,9 +13,20 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | Статус | Кол-во |
 |--------|--------|
 | partial (SWF удалён) | 1 — topmenu |
-| partial (SWF ещё в www) | 4 — chat read+write, mail, about |
-| stub | 6 |
-| todo | 6+ |
+| partial (SWF ещё в www) | 5 — chat read+write, mail, about, booklist |
+| stub | 5 |
+| todo | 1+ |
+
+---
+
+## booklist — проверка (2026-07-20)
+
+- `frontend/src/routes/Booklist.svelte` — единый экран 1000×500, `/character` и `/mail` (query `tab=`, `sp=2`, `msgto=`).
+- Ассеты: `frontend/public/img/booklist/`, шрифты `99_Techno.ttf`, `133_TerminatorCyr.ttf`, звуки scratch/buzz.
+- API: `frontend/src/lib/api.js` — id 8, 11–17, 122–124, 131–134, 151 + mail 125–129.
+- Сборка: `npm run build`, деплой в `www/app/`; ассеты и RPC проверены curl (test/test).
+- SWF `www/swf/booklist.jpg` **не удалён**; `page.php?id=1` по-прежнему SWF.
+- Визуальный overlay/diff с `frames/1.png` — ожидает ручного browser-check после логина.
 
 ---
 
@@ -44,7 +55,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | SWF | AS | SPA | Статус | Компонент / заметки |
 |-----|-----|-----|--------|---------------------|
-| `booklist.jpg` | `books3.as` | `/character`, `/mail` | **partial** | `Mail.svelte` — API почты; UI не как SWF; `/character` — `Stub` |
+| `booklist.jpg` | `books3.as` | `/character`, `/mail` | **partial** | `Booklist.svelte` — pixel-perfect 1000×500, 5 вкладок, левая панель, modals, hints, SFX; API 8/11-17/122-134/151 + mail 125-129; SWF **ещё в** `www/swf/` до подтверждения; `id=1` не переключён |
 | `planet.jpg` | `planet3.as` | `/place` | **stub** | Карта планеты, постройки, панель управления |
 | `orbit.jpg` | `orbit3.as` | `/place` | **stub** | Орбита, точки стояния |
 | `station.jpg` | `station3.as` | `/place` | **stub** | Торговая станция, сделки на месте |
@@ -58,12 +69,12 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Вкладка | Элементы SWF | SPA | Статус |
 |---------|--------------|-----|--------|
-| СООБЩЕНИЯ | `dgListMsg`, `dtTextMsg`, `pSend` | `/mail` | **partial** |
-| ОБУЧЕНИЕ | `dgListLrn`, обучение/импланты | `/character` | **todo** |
-| ЗАДАНИЯ | `dgListQst`, квесты | `/character` | **todo** |
-| СТАТИСТИКА | `dgList`, владения | `/character` или `/misc` | **todo** |
-| ОТНОШЕНИЯ | друзья/враги/игнор | `/character` | **todo** |
-| Левая панель | `movLeftSide` (звезда, кредиты, статусы) | `/character` | **todo** |
+| СООБЩЕНИЯ | `dgListMsg`, `dtTextMsg`, `pSend` | `/mail`, `/character` | **partial** |
+| ОБУЧЕНИЕ | `dgListLrn`, обучение/импланты | `/character` | **partial** |
+| ЗАДАНИЯ | `dgListQst`, квесты | `/character` | **partial** |
+| СТАТИСТИКА | `dgList`, владения | `/character` | **partial** |
+| ОТНОШЕНИЯ | друзья/враги/игнор | `/character` | **partial** |
+| Левая панель | `movLeftSide` (звезда, кредиты, статусы) | `/character` | **partial** |
 
 ---
 

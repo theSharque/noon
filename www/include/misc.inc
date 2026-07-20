@@ -1873,6 +1873,12 @@ function enter_place( $shid, $isfleet ) {
   }
 }                 
 
+function noon_render_spa( $boot_path ) {
+  global $noon_boot;
+  $noon_boot = $boot_path;
+  include dirname( __FILE__ ) . '/../pages/shell.page';
+}
+
 function render_page( $filename, $vars = null, $width = 1000, $attach = "" ) {
 
   global $user;

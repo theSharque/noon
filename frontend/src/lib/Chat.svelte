@@ -261,8 +261,8 @@
   }
 
   .chat-online {
-    flex: 0 0 150px;
-    width: 150px;
+    flex: 0 0 225px;
+    width: 225px;
     overflow: auto;
     padding: 4px 8px;
     border-left: 1px solid var(--border-light);
@@ -274,10 +274,15 @@
 
   .chat-msgs :global(a),
   .chat-online :global(a) {
-    color: var(--neon-cyan-dim);
+    color: inherit;
     text-decoration: underline;
     cursor: pointer;
     font-family: inherit;
+  }
+
+  .chat-online :global(a),
+  .chat-online :global(u) {
+    text-decoration: none;
   }
 
   .chat-msgs :global(font),

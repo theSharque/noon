@@ -32,7 +32,7 @@
   --glow-soft: 0 0 12px rgba(0, 229, 255, 0.12);
   --glow-strong: 0 0 18px rgba(0, 229, 255, 0.45);
   --shell-top: 36px;
-  --shell-chat: 168px;
+  --shell-chat: 336px;
 }
 
 html,

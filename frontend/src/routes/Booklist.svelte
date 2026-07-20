@@ -275,22 +275,20 @@
     }
   }
 
-  function showWrite() {
+  function showWrite(to = '') {
     playBuzz();
-    sendTo = '';
+    sendTo = to;
     sendText = '';
     sendGlow = 'ok';
     sendCanSubmit = false;
     sendOpen = true;
+    if (to) checkSendTo();
   }
 
   function showReply() {
     if (mailLastSelected < 0) return;
     msgTo = messages[mailLastSelected]?.from || '';
-    sendTo = msgTo;
-    sendText = '';
-    checkSendTo();
-    sendOpen = true;
+    showWrite(msgTo);
   }
 
   async function checkSendTo() {
@@ -496,9 +494,7 @@
     await loadAll();
     learnTimer = setInterval(onLearnTick, 1000);
     if (msgtoQs) {
-      sendTo = msgtoQs;
-      showWrite();
-      checkSendTo();
+      showWrite(msgtoQs);
     }
   });
 
@@ -863,7 +859,7 @@
   .col-right {
     min-height: 0;
     display: grid;
-    grid-template-rows: minmax(0, 1fr) minmax(140px, 0.38fr);
+    grid-template-rows: minmax(0, 1fr) minmax(210px, 0.42fr);
     gap: 10px;
   }
 
@@ -879,6 +875,8 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .referral {
@@ -915,7 +913,7 @@
 
   .detail-body {
     flex: 1 1 auto;
-    min-height: 120px;
+    min-height: 0;
     overflow: auto;
   }
 
@@ -929,6 +927,7 @@
     flex-wrap: wrap;
     gap: 8px;
     flex: 0 0 auto;
+    flex-shrink: 0;
   }
 
   .stat-split {

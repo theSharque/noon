@@ -27,20 +27,19 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 - UI kit: `frontend/src/lib/ui/` (ScifiPanel, ScifiButton, ScifiTabs, ProgressBar, StatRow)
 - Shell: `App.svelte`, `TopMenu.svelte`, `Chat.svelte` — glass/cyan, без sprite-кнопок
 - `Booklist.svelte` / `About.svelte` — CSS grid, без absolute 1000×500 и PNG-скинов; RPC без изменений
-- Pixel-perfect PNG/fonts **ещё в** `public/img/booklist|about` и `fonts/*Techno*` — purge после приёмки
+- Pixel-perfect purge (booklist / about / topmenu / fonts): **done** 2026-07-20
 
 ### Pixel-perfect purge list
 
-После приёмки cosmic UI удалить:
+| Путь | Статус |
+|------|--------|
+| `frontend/public/img/booklist/` (кроме `sounds/`) | **удалено** |
+| `frontend/public/img/about/` (кроме `buzz.mp3`) | **удалено** |
+| `frontend/public/img/topmenu/*.png`, `plate.svg` | **удалено** (оставлены `*.wav` + `*.mp3`) |
+| `frontend/public/fonts/*Techno*`, `*Terminator*` | **удалено** |
+| `www/swf/{read,write,booklist}.jpg` | **удалено** (отдельно от SPA-purge; about.jpg ещё есть) |
 
-| Путь | Что |
-|------|-----|
-| `frontend/public/img/booklist/` (кроме `sounds/`) | PNG-скины |
-| `frontend/public/img/about/` (кроме `buzz.mp3`) | PNG-скины |
-| `frontend/public/fonts/*Techno*`, `*Terminator*` | Flash-шрифты |
-| `frontend/public/img/topmenu/*.png`, `plate.svg` | старый topmenu visual |
-
-Проверка: `rg -n "img/booklist|img/about|Techno|TerminatorCyr" frontend/src`
+Проверка: `rg -n "img/booklist|img/about|Techno|TerminatorCyr" frontend/src` — только `const IMG` для sounds.
 
 ---
 
@@ -48,8 +47,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | SWF | SPA | Статус | Заметки |
 |-----|-----|--------|---------|
-| `topmenu.jpg` | `TopMenu.svelte` | **redesign** | Cosmic nav; SFX wav сохранены |
-| `read.jpg` / `write.jpg` | `Chat.svelte` | **redesign** | Glass chat; SWF ещё в www |
+| `topmenu.jpg` | `TopMenu.svelte` | **redesign** | Cosmic nav; SFX wav; SWF удалён ранее |
+| `read.jpg` / `write.jpg` | `Chat.svelte` | **redesign** | Glass chat; SWF удалён |
 
 ---
 
@@ -57,8 +56,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | SWF | SPA | Статус | Заметки |
 |-----|-----|--------|---------|
-| `booklist.jpg` | `/character`, `/mail` → `Booklist.svelte` | **redesign** | 5 вкладок, cosmic grid; SWF ещё в www |
-| `about.jpg` | `/about` → `About.svelte` | **redesign** | Профиль/медали; SWF ещё в www |
+| `booklist.jpg` | `/character`, `/mail` → `Booklist.svelte` | **redesign** | 5 вкладок, cosmic grid; SWF удалён |
+| `about.jpg` | `/about` → `About.svelte` | **redesign** | Профиль/медали; PNG purged; SWF ещё в www |
 | `planet/orbit/station` | `/place` | **stub** | |
 | `ships.jpg` | `/ships` | **stub** | |
 | `warehouse.jpg` | `/ware` | **stub** | |
@@ -81,3 +80,5 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | Файл | Дата / коммит | Замена |
 |------|---------------|--------|
 | `topmenu.jpg` | `0b4a05d` Fix menu and chat | `frontend/src/lib/TopMenu.svelte` |
+| `read.jpg` / `write.jpg` | 2026-07-20 cosmic purge | `frontend/src/lib/Chat.svelte` |
+| `booklist.jpg` | 2026-07-20 cosmic purge | `frontend/src/routes/Booklist.svelte` |

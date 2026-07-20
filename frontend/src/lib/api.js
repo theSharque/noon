@@ -575,7 +575,12 @@ function parseHireList(data) {
     name: 'n',
     bgColor: 'c',
     enabled: 'en',
-  });
+  }).map((item) => ({
+    ...item,
+    name: String(item.name || '')
+      .replace(/\s*\(минимум\s+или\s*\)\s*$/i, '')
+      .trim(),
+  }));
   return {
     ...data,
     items,

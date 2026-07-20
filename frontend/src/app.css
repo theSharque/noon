@@ -348,6 +348,116 @@ body {
   box-shadow: 0 0 8px var(--neon-cyan-glow);
 }
 
+.scifi-select,
+select.scifi-input {
+  color-scheme: dark;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--neon-cyan) 50%),
+    linear-gradient(135deg, var(--neon-cyan) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 55%,
+    calc(100% - 9px) 55%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 28px;
+}
+
+.scifi-select option,
+select.scifi-input option {
+  background: #071018;
+  color: var(--text-main);
+}
+
+.scifi-combo {
+  position: relative;
+  width: 100%;
+}
+
+.scifi-combo.disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.scifi-combo-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  padding: 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.scifi-combo.open .scifi-combo-trigger,
+.scifi-combo-trigger:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 8px var(--neon-cyan-glow);
+  outline: none;
+}
+
+.scifi-combo-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scifi-combo-caret {
+  flex: 0 0 auto;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--neon-cyan);
+  opacity: 0.85;
+}
+
+.scifi-combo.open .scifi-combo-caret {
+  transform: rotate(180deg);
+}
+
+.scifi-combo-menu {
+  position: absolute;
+  z-index: 40;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  max-height: 280px;
+  overflow: auto;
+  background: var(--panel-bg-strong);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--glow-soft);
+  border-radius: 2px;
+}
+
+.scifi-combo-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.scifi-combo-option:hover,
+.scifi-combo-option.active {
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--neon-cyan);
+}
+
 .scifi-input.glow-ok {
   box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.25);
 }
@@ -403,6 +513,50 @@ body {
 
 .html-rich font {
   font-size: inherit;
+}
+
+.html-rich .enc-section {
+  margin: 0.75rem 0 0.25rem;
+  white-space: normal;
+}
+
+.html-rich .enc-section-title {
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+}
+
+.html-rich table.enc-table {
+  width: 100%;
+  max-width: 36rem;
+  border-collapse: collapse;
+  white-space: normal;
+  font-size: inherit;
+}
+
+.html-rich table.enc-table td {
+  padding: 0.22rem 0.55rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.12);
+  vertical-align: baseline;
+  line-height: 1.35;
+}
+
+.html-rich table.enc-table td.enc-qty {
+  width: 4.25rem;
+  text-align: right;
+  color: var(--neon-cyan-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.html-rich table.enc-table td.enc-key {
+  width: 55%;
+  color: var(--text-muted);
+  padding-left: 0;
+}
+
+.html-rich table.enc-ttx td:last-child {
+  color: var(--text-main);
 }
 
 * {

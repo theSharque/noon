@@ -200,11 +200,13 @@ body {
   overflow: auto;
   min-height: 0;
   flex: 1 1 auto;
+  padding: 2px 4px;
 }
 
 .scifi-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 4px;
   font-size: var(--font-size);
   font-family: var(--font-ui);
 }
@@ -225,19 +227,54 @@ body {
 }
 
 .scifi-table td {
-  padding: 7px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  border-bottom: 1px solid transparent;
   color: var(--text-main);
   cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.scifi-table tbody tr:hover {
+.scifi-table tbody tr:hover:not(.active-row) td {
   background-color: rgba(0, 229, 255, 0.06);
 }
 
-.scifi-table tr.active-row {
-  background-color: rgba(0, 229, 255, 0.14);
-  box-shadow: inset 2px 0 0 var(--neon-cyan);
+.scifi-table tbody tr.active-row td {
+  background: linear-gradient(180deg, rgba(90, 170, 230, 0.22) 0%, rgba(40, 110, 180, 0.12) 100%);
+  border-top: 1px solid rgba(160, 220, 255, 0.85);
+  border-bottom: 1px solid rgba(160, 220, 255, 0.85);
+  box-shadow:
+    inset 0 0 14px rgba(80, 180, 255, 0.1),
+    0 -2px 10px rgba(0, 200, 255, 0.22),
+    0 2px 10px rgba(0, 200, 255, 0.22);
+}
+
+.scifi-table tbody tr.active-row td:first-child {
+  border-left: 1px solid rgba(160, 220, 255, 0.85);
+  border-radius: 10px 0 0 10px;
+  box-shadow:
+    inset 0 0 14px rgba(80, 180, 255, 0.1),
+    -2px 0 10px rgba(0, 200, 255, 0.28),
+    0 -2px 10px rgba(0, 200, 255, 0.22),
+    0 2px 10px rgba(0, 200, 255, 0.22);
+}
+
+.scifi-table tbody tr.active-row td:last-child {
+  border-right: 1px solid rgba(160, 220, 255, 0.85);
+  border-radius: 0 10px 10px 0;
+  box-shadow:
+    inset 0 0 14px rgba(80, 180, 255, 0.1),
+    2px 0 10px rgba(0, 200, 255, 0.28),
+    0 -2px 10px rgba(0, 200, 255, 0.22),
+    0 2px 10px rgba(0, 200, 255, 0.22);
+}
+
+.scifi-table tbody tr.active-row td:first-child:last-child,
+.scifi-table tbody tr.active-row td:only-child {
+  border: 1px solid rgba(160, 220, 255, 0.85);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 14px rgba(80, 180, 255, 0.1),
+    0 0 12px rgba(0, 200, 255, 0.35);
 }
 
 .scifi-table th.num,

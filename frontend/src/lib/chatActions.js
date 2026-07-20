@@ -1,11 +1,6 @@
-import { writable } from 'svelte/store';
-
-export const playerAbout = writable(null);
+import { push } from 'svelte-spa-router';
 
 export function openPlayerAbout(login) {
-  playerAbout.set(login);
-}
-
-export function clearPlayerAbout() {
-  playerAbout.set(null);
+  if (!login) return;
+  push(`/about?login=${encodeURIComponent(login)}`);
 }

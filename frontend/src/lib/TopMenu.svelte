@@ -1,10 +1,11 @@
 <script>
   import { link, push } from 'svelte-spa-router';
   import { onMount, onDestroy } from 'svelte';
+  import { get } from 'svelte/store';
   import { pollMail } from './api.js';
-  import { clearPlayerAbout } from './chatActions.js';
+  import { mailHasUnread, mailLastId } from './mailStore.js';
 
-  export let mv = 50;
+  export let mv = 0;
   export let sv = 50;
 
   const ASSET = '/app/img/topmenu';
@@ -21,10 +22,8 @@
 
   const playlist = Array.from({ length: 9 }, (_, i) => `/music/${i + 1}.mp3`);
 
-  let mailId = 0;
   let trackIndex = Math.floor(Math.random() * 9);
   let playing = false;
-  let hasMail = false;
   let pingMs = null;
   let pingClass = '';
 
@@ -81,6 +80,7 @@
   function toggleMusic() {
     if (playing) pauseMusic();
     else {
+      if (mv <= 0) mv = 50;
       if (!player?.src) loadTrack(trackIndex);
       playMusic();
     }
@@ -105,14 +105,15 @@
 
   async function doPoll() {
     try {
-      const { data, ts } = await pollMail(mailId);
+      const { data, ts } = await pollMail(get(mailLastId));
       const sent = parseInt(data.png, 10);
       if (!isNaN(sent)) setPing(ts - sent);
       if (parseInt(data.err, 10) === 0) {
-        mailId = parseInt(data.id, 10) || mailId;
-        hasMail = true;
+        const nextId = parseInt(data.id, 10) || get(mailLastId);
+        mailLastId.set(nextId);
+        mailHasUnread.set(true);
       } else {
-        hasMail = false;
+        mailHasUnread.set(false);
       }
       if (data.mv !== undefined) {
         mv = parseInt(data.mv, 10);
@@ -129,13 +130,12 @@
   }
 
   function onNavClick() {
-    clearPlayerAbout();
     playClick();
   }
 
   function onMailClick(e) {
-    clearPlayerAbout();
     playClick();
+    mailHasUnread.set(false);
     push('/mail');
   }
 
@@ -203,7 +203,7 @@
     </button>
     <a
       id="btn-mail"
-      class:has-mail={hasMail}
+      class:has-mail={$mailHasUnread}
       href="/mail"
       use:link
       title="Почта"

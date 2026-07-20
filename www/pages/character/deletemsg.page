@@ -4,21 +4,23 @@
 
   if( isset( $_GET['cnt'] ) && is_numeric( $_GET['cnt'] ) && $_GET['cnt'] > 0 ) {
     $cnt = $_GET['cnt'];
+    $out = 'err=0';
 
     for( $i=0; $i<$cnt; $i++ ) {
       if( isset( $_GET[ "mid$i" ] ) && is_numeric( $_GET[ "mid$i" ] ) ) {
         $mid = $_GET[ "mid$i" ];
 
         db_safe( $mid );
-        $result = db_query( "DELETE FROM users_messages WHERE to_user = {$user->uid} AND id = $mid" );
-        printOut( 'err=0' );
+        db_query( "DELETE FROM users_messages WHERE to_user = {$user->uid} AND id = $mid" );
       } else {
-        printOut( 'err=1' );
+        $out = 'err=1';
+        break;
       }
     }
+    printOut( $out );
   } else {
     if( isset( $_GET['all'] ) && $_GET['all'] == 'true' ) {
-      $result = db_query( "DELETE FROM users_messages WHERE to_user = {$user->uid} AND type < 20" );
+      db_query( "DELETE FROM users_messages WHERE to_user = {$user->uid} AND type < 20" );
       printOut( 'err=0' );
     } else {
       printOut( 'err=2' );

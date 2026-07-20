@@ -142,13 +142,10 @@
         include './pages/character/queststop.page';
         break;
       case 18:
-//        do_events();
-//        authorization();
-
         $login = urldecode( isset( $_GET['login'] ) ? $_GET['login'] : '' );
         $login = decode_in( $login );
-
-        render_page( 'about', 'login='.$login, "100%" );
+        $noon_boot = '/about?login=' . rawurlencode( $login );
+        include './pages/shell.page';
         break;
       case 181:
         include './pages/character/medalinfo.page';

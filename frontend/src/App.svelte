@@ -5,12 +5,16 @@
   import Chat from './lib/Chat.svelte';
   import { routes } from './lib/router.js';
   import { getNoonConfig } from './lib/api.js';
-  import { playerAbout } from './lib/chatActions.js';
 
   const config = getNoonConfig();
 
   onMount(() => {
-    if (!$location || $location === '/') {
+    if (config.boot) {
+      push(config.boot);
+      return;
+    }
+    const hashPath = (window.location.hash.replace(/^#\/?/, '').split('?')[0] || '').trim();
+    if ((!$location || $location === '/') && !hashPath) {
       push('/character');
     }
   });
@@ -21,14 +25,7 @@
     <TopMenu mv={config.mv} sv={config.sv} />
   </header>
   <main class="shell-main">
-    {#if $playerAbout}
-      <div class="player-about-stub">
-        <h1>Профиль: {$playerAbout}</h1>
-        <p>Экран «О персонаже» будет портирован позже.</p>
-      </div>
-    {:else}
-      <Router {routes} />
-    {/if}
+    <Router {routes} />
   </main>
   <footer class="shell-chat">
     <Chat />
@@ -62,26 +59,6 @@
     min-height: 0;
     overflow: auto;
     background: #0a0a12;
-  }
-
-  .player-about-stub {
-    padding: 24px 32px;
-    color: #7fd4ff;
-    font-family: Verdana, Arial, sans-serif;
-  }
-
-  .player-about-stub h1 {
-    margin: 0 0 12px;
-    font-size: 22px;
-    color: #00d8f0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .player-about-stub p {
-    margin: 0;
-    color: #888;
-    font-size: 13px;
   }
 
   .shell-chat {

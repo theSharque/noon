@@ -22,14 +22,14 @@
           db_query( 'UPDATE users SET credits = credits - '.( $info['cprice'] * 2 ).' WHERE id = '.$user->uid );
           db_query( 'DELETE FROM users_medal WHERE id = '.$mid );
 
-          if( $info['book_id'] = 20 ) {
-            $lvl = get_book_level( 20, $uid );
+          if( $info['book_id'] == 20 ) {
+            $lvl = get_book_level( 20, $user->uid );
 
             db_query( "UPDATE planets_buildings
                           SET shield = level * 1000 + (level * 250 * $lvl)
                         WHERE planet_id IN ( SELECT place_id
                                                FROM defence
-                                              WHERE place_type = 1 AND user_id = $uid ) AND
+                                              WHERE place_type = 1 AND user_id = {$user->uid} ) AND
                               shield > 0" );
           }
         } else {
@@ -74,7 +74,7 @@
                             ( user_id, object_id, user_desc )
                      VALUES ( $uid, $mid, '$text' )" );
 
-          if( $info['book_id'] = 20 ) {
+          if( $info['book_id'] == 20 ) {
             $lvl = get_book_level( 20, $uid );
 
             db_query( "UPDATE planets_buildings
@@ -136,6 +136,9 @@
               }
               break;
           }
+          $out = 'err=0';
+        } else {
+          $out = 'err=3';
         }
         break;
 
@@ -146,3 +149,5 @@
   } else {
     $out = 'err=1';
   }
+
+  printOut( $out );

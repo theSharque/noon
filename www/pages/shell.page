@@ -11,7 +11,11 @@
   }
 
   $html = file_get_contents( $index_path );
-  $config = json_encode( array( 'mv' => $mv, 'sv' => $sv ) );
+  $config = array( 'mv' => $mv, 'sv' => $sv );
+  if( isset( $noon_boot ) && $noon_boot != '' ) {
+    $config['boot'] = $noon_boot;
+  }
+  $config = json_encode( $config );
   $boot = '<script>window.__NOON__=' . $config . ';</script>';
   $html = str_replace( '<!--noon-config-->', $boot, $html );
 

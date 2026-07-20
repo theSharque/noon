@@ -1,4 +1,6 @@
 import Stub from '../routes/Stub.svelte';
+import Mail from '../routes/Mail.svelte';
+import About from '../routes/About.svelte';
 
 export const routes = {
   '/character': Stub,
@@ -7,7 +9,8 @@ export const routes = {
   '/ware': Stub,
   '/trade': Stub,
   '/misc': Stub,
-  '/mail': Stub,
+  '/mail': Mail,
+  '/about': About,
 };
 
 export const routeMeta = {
@@ -45,6 +48,11 @@ export const routeMeta = {
     title: 'Почта',
     gallery: '/images/char.jpg',
     hint: 'Сообщения персонажа',
+  },
+  '/about': {
+    title: 'О персонаже',
+    gallery: '/images/char.jpg',
+    hint: 'Профиль игрока, медали, отношения',
   },
 };
 

@@ -12,38 +12,24 @@
     setPremium,
     setRelation,
   } from '../lib/api.js';
+  import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
+  import ScifiButton from '../lib/ui/ScifiButton.svelte';
 
   const IMG = '/app/img/about';
 
-  const statFields = [
-    { key: 'online', x: 102, y: 64, width: 146 },
-    { key: 'reg', x: 352, y: 65, width: 155 },
-    { key: 'aliance', x: 77, y: 94, width: 174 },
-    { key: 'titul', x: 308, y: 95, width: 193 },
-    { key: 'star', x: 128, y: 124, width: 377 },
-    { key: 'war', x: 219, y: 154, width: 287 },
-    { key: 'status', x: 207, y: 184, width: 299 },
-    { key: 'level', x: 175, y: 214, width: 330 },
-    { key: 'ships', x: 234, y: 244, width: 271 },
-    { key: 'power', x: 157, y: 274, width: 348 },
-    { key: 'relation', x: 206, y: 304, width: 300 },
+  const profileRows = [
+    { key: 'online', label: 'Посещение' },
+    { key: 'reg', label: 'Регистрация' },
+    { key: 'aliance', label: 'Альянс' },
+    { key: 'titul', label: 'Титул' },
+    { key: 'star', label: 'Родная звезда' },
+    { key: 'war', label: 'Военное обучение' },
+    { key: 'status', label: 'Ответственность' },
+    { key: 'level', label: 'Опыт' },
+    { key: 'ships', label: 'Кораблей во флоте' },
+    { key: 'power', label: 'Сила флота' },
+    { key: 'relation', label: 'Ваше отношение' },
   ];
-
-  const statLabels = [
-    { text: 'Посещение :', x: 14, y: 65 },
-    { text: 'Регистрация :', x: 253, y: 65 },
-    { text: 'Альянс :', x: 14, y: 95 },
-    { text: 'Титул :', x: 253, y: 95 },
-    { text: 'Родная звезда :', x: 14, y: 125 },
-    { text: 'Уровень военного обучения :', x: 14, y: 155 },
-    { text: 'Уровень ответственности :', x: 14, y: 185 },
-    { text: 'Приобретенный опыт :', x: 14, y: 215 },
-    { text: 'Количество кораблей в флоте :', x: 14, y: 245 },
-    { text: 'Общая сила флота :', x: 14, y: 275 },
-    { text: 'Ваше отношение к игроку :', x: 14, y: 305 },
-  ];
-
-  const statRows = [60, 90, 120, 150, 180, 210, 240, 270, 300];
 
   let login = '';
   let loginDraft = '';
@@ -64,7 +50,6 @@
   let showMedalBtn = false;
   let showMedalImg = false;
   let modalOpen = false;
-  let modalVisible = false;
   let modalText = '';
   let premium = '0';
   let buzzAudio;
@@ -82,12 +67,6 @@
     buzzAudio.volume = Math.max(0, Math.min(1, sv / 100));
     buzzAudio.currentTime = 0;
     buzzAudio.play().catch(() => {});
-  }
-
-  function medalBg(hex) {
-    if (!hex) return '#000033';
-    const value = String(hex).replace(/^0x/i, '#');
-    return value.length === 7 ? value : '#000033';
   }
 
   function clearMedalView() {
@@ -230,16 +209,10 @@
     modalText = '';
     modalOpen = true;
     await tick();
-    requestAnimationFrame(() => {
-      modalVisible = true;
-    });
   }
 
   function closeModal() {
-    modalVisible = false;
-    setTimeout(() => {
-      modalOpen = false;
-    }, 1000);
+    modalOpen = false;
   }
 
   async function confirmAward() {
@@ -273,566 +246,303 @@
   }
 </script>
 
-<div class="about-root">
-  <div class="about-stage">
-    <div class="panel-skin login-panel" class:ok={loginGlow === 'ok'} class:fail={loginGlow === 'fail'}></div>
-    <input
-      class="login-input"
-      type="text"
-      maxlength="40"
-      bind:value={loginDraft}
-      on:input={checkLogin}
-      on:change={checkLogin}
-    />
+<div class="about">
+  <div class="about-grid">
+    <ScifiPanel title="Профиль командира" className="profile-panel">
+      <label class="login-field">
+        Логин
+        <input
+          class="scifi-input glow-{loginGlow}"
+          type="text"
+          maxlength="40"
+          bind:value={loginDraft}
+          on:input={checkLogin}
+          on:change={checkLogin}
+        />
+      </label>
 
-    {#each statRows as y}
-      <div class="panel-skin stat-panel" style={`top:${y}px`}></div>
-    {/each}
-
-    {#each statLabels as field}
-      <div class="stat-label" style={`left:${field.x}px;top:${field.y}px`}>{field.text}</div>
-    {/each}
-
-    {#each statFields as field}
-      <div class="stat-value" style={`left:${field.x}px;top:${field.y}px;width:${field.width}px`}>
-        {@html profile[field.key] || ''}
-      </div>
-    {/each}
-
-    <div class="medals-title">ОРДЕНА И МЕДАЛИ ИГРОКА</div>
-
-    <div class="medals-grid">
-      <div class="grid-header">Наименование</div>
-      <div class="grid-body">
-        {#each medals as medal, index}
-          <button
-            type="button"
-            class="grid-row"
-            class:selected={selectedMedalIdx === index}
-            style={`background-color:${medalBg(medal.bgColor)}`}
-            on:click={() => selectMedalRow(index)}
-          >
-            {medal.name}
-          </button>
+      <div class="profile-facts html-rich">
+        {#each profileRows as row}
+          <div class="fact">
+            <span>{row.label}</span>
+            <b>{@html profile[row.key] || (profileLoaded ? '—' : '')}</b>
+          </div>
         {/each}
       </div>
-    </div>
 
-    <div class="medal-combo" class:open={comboOpen}>
-      <button type="button" class="combo-trigger" on:click={() => (comboOpen = !comboOpen)}>
-        <span>{available.length ? comboLabel : ''}</span>
-      </button>
-      {#if comboOpen && available.length}
-        <div class="combo-dropdown">
-          <button type="button" class="combo-option" on:click={() => selectAvailable('')}>Выберите медаль</button>
-          {#each available as item}
-            <button type="button" class="combo-option" on:click={() => selectAvailable(item.id)}>{item.label}</button>
-          {/each}
-        </div>
-      {/if}
-    </div>
-
-    <div class="fine-label">Штраф:</div>
-    <div class="fine-value">{medalFine}</div>
-
-    {#if showRemove}
-      <button type="button" class="flash-button btn-remove" on:click={removeMedal}>
-        <img src={`${IMG}/btn-remove.png`} alt="Снять награду" />
-      </button>
-    {/if}
-
-    {#if showMedalBtn}
-      <button type="button" class="flash-button btn-medal" on:click={openModal}>
-        <img src={`${IMG}/btn-medal.png`} alt="Наградить" />
-      </button>
-    {/if}
-
-    {#if showMedalImg}
-      <img class="medal-picture" src={`/img/medals/${medalPic}.png`} alt="" />
-    {/if}
-
-    <div class="panel-skin description-panel"></div>
-    <div class="medal-description">{@html medalText || ''}</div>
-
-    <div class="premium-label">Назначить:</div>
-    <input class="premium-input" type="text" bind:value={premium} />
-
-    <button type="button" class="flash-button btn-foe" on:click={() => doRelation('foe')}>
-      <img src={`${IMG}/btn-foe.png`} alt="Сделать врагом" />
-    </button>
-
-    <button type="button" class="flash-button btn-premium" on:click={doPremium}>
-      <img src={`${IMG}/btn-premium.png`} alt="Назначить" />
-    </button>
-
-    <button type="button" class="flash-button btn-neutral" on:click={() => doRelation('neutral')}>
-      <img src={`${IMG}/btn-neutral.png`} alt="Нейтрален" />
-    </button>
-
-    {#if profileLoaded && ignore === '1'}
-      <button type="button" class="flash-button btn-ignore" on:click={() => doIgnore('0')}>
-        <img src={`${IMG}/btn-ignore-off.png`} alt="Отменить игнор" />
-      </button>
-    {:else if profileLoaded}
-      <button type="button" class="flash-button btn-ignore" on:click={() => doIgnore('1')}>
-        <img src={`${IMG}/btn-ignore-on.png`} alt="Игнорировать" />
-      </button>
-    {/if}
-
-    <button type="button" class="flash-button btn-friend" on:click={() => doRelation('friend')}>
-      <img src={`${IMG}/btn-friend.png`} alt="Сделать другом" />
-    </button>
-
-    <button type="button" class="flash-button btn-send" on:click={doSend}>
-      <img src={`${IMG}/btn-send.png`} alt="Написать сообщение" />
-    </button>
-
-    {#if modalOpen}
-      <div class="medal-modal" class:visible={modalVisible}>
-        <img class="modal-frame" src={`${IMG}/modal-frame.png`} alt="" />
-        <textarea class="modal-text" maxlength="2000" bind:value={modalText}></textarea>
-        <button type="button" class="flash-button modal-ok" on:click={confirmAward}>
-          <img src={`${IMG}/btn-award.png`} alt="Наградить" />
-        </button>
-        <button type="button" class="flash-button modal-cancel" on:click={closeModal}>
-          <img src={`${IMG}/btn-cancel.png`} alt="Отмена" />
-        </button>
+      <div class="actions">
+        <ScifiButton variant="danger" disabled={!profileLoaded} on:click={() => doRelation('foe')}>Враг</ScifiButton>
+        <ScifiButton variant="ghost" disabled={!profileLoaded} on:click={() => doRelation('neutral')}>Нейтрален</ScifiButton>
+        <ScifiButton variant="primary" disabled={!profileLoaded} on:click={() => doRelation('friend')}>Друг</ScifiButton>
+        {#if profileLoaded && ignore === '1'}
+          <ScifiButton variant="warn" on:click={() => doIgnore('0')}>Снять игнор</ScifiButton>
+        {:else if profileLoaded}
+          <ScifiButton variant="warn" on:click={() => doIgnore('1')}>Игнорировать</ScifiButton>
+        {/if}
+        <ScifiButton variant="primary" disabled={!profileLoaded} on:click={doSend}>Написать</ScifiButton>
       </div>
-    {/if}
+
+      <div class="premium-row">
+        <label>
+          Назначить
+          <input class="scifi-input" type="text" bind:value={premium} />
+        </label>
+        <ScifiButton variant="ghost" disabled={!profileLoaded} on:click={doPremium}>Применить</ScifiButton>
+      </div>
+    </ScifiPanel>
+
+    <ScifiPanel title="Ордена и медали" className="medals-panel">
+      <div class="medals-layout">
+        <div class="table-container medals-list">
+          <table class="scifi-table">
+            <thead>
+              <tr><th>Наименование</th></tr>
+            </thead>
+            <tbody>
+              {#each medals as medal, index}
+                <tr class:active-row={selectedMedalIdx === index} on:click={() => selectMedalRow(index)}>
+                  <td>{medal.name}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="medal-side">
+          <div class="combo">
+            <button type="button" class="scifi-btn ghost combo-trigger" on:click={() => (comboOpen = !comboOpen)}>
+              {available.length ? comboLabel : 'Нет доступных наград'}
+            </button>
+            {#if comboOpen && available.length}
+              <div class="combo-dropdown">
+                <button type="button" class="combo-option" on:click={() => selectAvailable('')}>Выберите медаль</button>
+                {#each available as item}
+                  <button type="button" class="combo-option" on:click={() => selectAvailable(item.id)}>{item.label}</button>
+                {/each}
+              </div>
+            {/if}
+          </div>
+
+          <div class="fine">Штраф: <span class="num">{medalFine}</span></div>
+
+          {#if showMedalImg}
+            <img class="medal-pic" src={`/img/medals/${medalPic}.png`} alt="" />
+          {/if}
+
+          <div class="html-rich medal-text">{@html medalText || ''}</div>
+
+          <div class="actions">
+            {#if showRemove}
+              <ScifiButton variant="danger" on:click={removeMedal}>Снять</ScifiButton>
+            {/if}
+            {#if showMedalBtn}
+              <ScifiButton variant="primary" on:click={openModal}>Наградить</ScifiButton>
+            {/if}
+          </div>
+        </div>
+      </div>
+    </ScifiPanel>
   </div>
+
+  {#if modalOpen}
+    <div class="scifi-modal-backdrop">
+      <div class="scifi-panel scifi-modal">
+        <div class="panel-header">Текст награждения</div>
+        <div class="panel-content modal-form">
+          <textarea class="scifi-textarea" maxlength="2000" bind:value={modalText}></textarea>
+          <div class="actions">
+            <ScifiButton variant="primary" on:click={confirmAward}>Наградить</ScifiButton>
+            <ScifiButton variant="ghost" on:click={closeModal}>Отмена</ScifiButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
-  @font-face {
-    font-family: 'NoonTechno';
-    src: url('/app/fonts/96_Techno.ttf') format('truetype');
-  }
-
-  .about-root {
-    min-width: 1000px;
-    min-height: 500px;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background: #000;
-  }
-
-  .about-stage {
+  .about {
     position: relative;
-    width: 1000px;
-    height: 500px;
-    overflow: hidden;
-    color: #fff;
-    background: #000033;
-    font-family: 'NoonTechno', sans-serif;
+    height: 100%;
+    min-height: 420px;
   }
 
-  .panel-skin {
-    position: absolute;
-    background: url('/app/img/about/panel-skin.png') center / 100% 100% no-repeat;
-    pointer-events: none;
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 1fr) minmax(320px, 1.2fr);
+    gap: 10px;
+    height: 100%;
+    min-height: 0;
   }
 
-  .login-panel {
-    left: 10px;
-    top: 10px;
-    width: 502px;
-    height: 41px;
+  .about :global(.profile-panel),
+  .about :global(.medals-panel) {
+    min-height: 0;
+    height: 100%;
   }
 
-  .login-panel.ok {
-    filter: drop-shadow(0 0 5px #0000ff);
-    box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.4);
+  .about :global(.profile-panel .panel-content),
+  .about :global(.medals-panel .panel-content) {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
   }
 
-  .login-panel.fail {
-    filter: drop-shadow(0 0 5px #0000ff);
-    box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.4);
+  .login-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.72rem;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
   }
 
-  .login-input {
-    position: absolute;
-    left: 13px;
-    top: 13px;
-    width: 495px;
-    height: 35px;
-    box-sizing: border-box;
-    padding: 0 4px;
-    border: 0;
-    outline: 0;
-    color: #fff;
-    background: transparent;
-    font: 18px/35px 'NoonTechno', sans-serif;
-    text-align: center;
+  .profile-facts {
+    flex: 1 1 auto;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
 
-  .stat-panel {
-    left: 10px;
-    width: 502px;
-    height: 24px;
-    opacity: 0.95;
+  .fact {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding-bottom: 4px;
   }
 
-  .stat-label {
-    position: absolute;
-    height: 16px;
-    color: #ccc;
-    font: 16px/16px 'NoonTechno', sans-serif;
-    white-space: nowrap;
+  .fact span {
+    color: var(--text-muted);
   }
 
-  .stat-value {
-    position: absolute;
-    height: 16px;
-    overflow: hidden;
-    color: #fff;
-    font: 16px/16px 'NoonTechno', sans-serif;
-    white-space: nowrap;
+  .fact b {
+    font-weight: 500;
+    text-align: right;
+    font-family: var(--font-mono);
   }
 
-  .stat-value :global(font) {
-    color: inherit;
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  .medals-title {
-    position: absolute;
-    left: 533px;
-    top: 7px;
-    width: 456px;
-    height: 15px;
-    color: #ccc;
-    font: 12px/15px 'TerminatorCyr', sans-serif;
-    text-align: center;
-    white-space: nowrap;
+  .premium-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
   }
 
-  .medals-grid {
-    position: absolute;
-    left: 519px;
-    top: 25px;
-    width: 230px;
-    height: 108px;
-    box-sizing: border-box;
-    overflow: hidden;
-    border: 1px solid #0000ff;
-    background: #000033;
-    font: 12px/18px Verdana, sans-serif;
+  .premium-row label {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
   }
 
-  .grid-header {
-    height: 20px;
-    box-sizing: border-box;
-    padding: 0 5px;
-    border-bottom: 1px solid #777;
-    color: #bfbfff;
-    background: #c8c8d8;
-    font-weight: 700;
-    line-height: 20px;
+  .medals-layout {
+    display: grid;
+    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+    gap: 12px;
+    min-height: 0;
+    flex: 1 1 auto;
   }
 
-  .grid-body {
-    height: 87px;
-    overflow-y: auto;
-    scrollbar-color: #fff #000033;
-    scrollbar-width: thin;
+  .medals-list {
+    max-height: 100%;
   }
 
-  .grid-row {
-    display: block;
-    width: 100%;
-    height: 18px;
-    box-sizing: border-box;
-    padding: 0 5px;
-    overflow: hidden;
-    border: 0;
-    outline: 0;
-    color: #fff;
-    font: inherit;
-    line-height: 18px;
-    text-align: left;
-    white-space: nowrap;
-    cursor: default;
+  .medal-side {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
   }
 
-  .grid-row:hover,
-  .grid-row.selected {
-    color: #000;
-    background-color: #00aeef !important;
-  }
-
-  .medal-combo {
-    position: absolute;
-    left: 759px;
-    top: 25px;
-    z-index: 5;
-    width: 230px;
-    font: 12px/22px Verdana, sans-serif;
+  .combo {
+    position: relative;
   }
 
   .combo-trigger {
-    width: 230px;
-    height: 22px;
-    box-sizing: border-box;
-    padding: 0 28px 0 6px;
-    overflow: hidden;
-    border: 0;
-    color: #bfbfff;
-    background: url('/app/img/about/combo-up.png') center / 100% 100% no-repeat;
-    font: 700 12px/22px Verdana, sans-serif;
-    text-align: left;
-    white-space: nowrap;
-  }
-
-  .combo-trigger:hover {
-    background-image: url('/app/img/about/combo-over.png');
-  }
-
-  .medal-combo.open .combo-trigger {
-    background-image: url('/app/img/about/combo-down.png');
+    width: 100%;
   }
 
   .combo-dropdown {
-    max-height: 264px;
-    overflow-y: auto;
-    border: 1px solid #6f6f8f;
-    background: #000033;
+    position: absolute;
+    z-index: 5;
+    left: 0;
+    right: 0;
+    top: calc(100% + 4px);
+    max-height: 220px;
+    overflow: auto;
+    background: var(--panel-bg-strong);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--glow-soft);
   }
 
   .combo-option {
     display: block;
     width: 100%;
-    height: 22px;
-    padding: 0 5px;
-    overflow: hidden;
-    border: 0;
-    color: #fff;
-    background: #000033;
-    font: 12px/22px Verdana, sans-serif;
     text-align: left;
-    white-space: nowrap;
-  }
-
-  .combo-option:hover {
-    color: #000;
-    background: #00aeef;
-  }
-
-  .fine-label,
-  .fine-value {
-    position: absolute;
-    top: 59px;
-    height: 19px;
-  }
-
-  .fine-label {
-    left: 790px;
-    color: #ccc;
-    font: 16px/19px 'NoonTechno', sans-serif;
-  }
-
-  .fine-value {
-    left: 851px;
-    width: 120px;
-    color: #fff;
-    font: 12px/19px Verdana, sans-serif;
-  }
-
-  .flash-button {
-    position: absolute;
-    padding: 0;
-    overflow: visible;
+    padding: 8px 10px;
     border: 0;
-    outline: 0;
     background: transparent;
-    line-height: 0;
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
     cursor: pointer;
   }
 
-  .flash-button img {
-    display: block;
-    width: auto;
-    height: auto;
+  .combo-option:hover {
+    background: rgba(0, 229, 255, 0.1);
+    color: var(--neon-cyan);
   }
 
-  .flash-button:not(:disabled):hover {
-    filter: drop-shadow(0 0 5px #00ffff);
+  .fine {
+    font-size: 0.8rem;
+    color: var(--text-muted);
   }
 
-  .flash-button:not(:disabled):active {
-    transform: translateY(1px);
+  .fine .num {
+    font-family: var(--font-mono);
+    color: var(--accent-warn);
   }
 
-  .flash-button:disabled {
-    cursor: default;
-    filter: grayscale(0.45) brightness(0.65);
-  }
-
-  .btn-remove,
-  .btn-medal {
-    left: 755px;
-    top: 82px;
-    width: 230px;
-    height: 33px;
-  }
-
-  .btn-medal {
-    top: 83px;
-  }
-
-  .medal-picture {
-    position: absolute;
-    left: 820px;
-    top: 140px;
+  .medal-pic {
     width: 64px;
     height: 64px;
     object-fit: contain;
   }
 
-  .description-panel {
-    left: 520px;
-    top: 320px;
-    width: 472px;
-    height: 173px;
-    opacity: 0.5;
-    filter: drop-shadow(0 0 3px #0000ff);
+  .medal-text {
+    flex: 1 1 auto;
+    overflow: auto;
+    min-height: 80px;
   }
 
-  .medal-description {
-    position: absolute;
-    left: 526px;
-    top: 325px;
-    width: 456px;
-    height: 158px;
-    box-sizing: border-box;
-    padding-right: 11px;
-    overflow-y: auto;
-    color: #fff;
-    background: transparent;
-    font: 12px/16px Verdana, sans-serif;
-    scrollbar-color: #fff #000033;
-    scrollbar-width: auto;
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .medal-description::-webkit-scrollbar,
-  .grid-body::-webkit-scrollbar,
-  .combo-dropdown::-webkit-scrollbar {
-    width: 15px;
-  }
+  @media (max-width: 500px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+      overflow: auto;
+    }
 
-  .medal-description::-webkit-scrollbar-track,
-  .grid-body::-webkit-scrollbar-track,
-  .combo-dropdown::-webkit-scrollbar-track {
-    background: #000033 url('/app/img/about/scroll-track.png') center / 15px 100% no-repeat;
-  }
-
-  .medal-description::-webkit-scrollbar-thumb,
-  .grid-body::-webkit-scrollbar-thumb,
-  .combo-dropdown::-webkit-scrollbar-thumb {
-    border: 0;
-    background: #fff url('/app/img/about/scroll-thumb.png') center / 15px 100% no-repeat;
-  }
-
-  .premium-label {
-    position: absolute;
-    left: 260px;
-    top: 344px;
-    width: 140px;
-    height: 19px;
-    color: #ccc;
-    font: 16px/19px 'NoonTechno', sans-serif;
-    text-align: right;
-  }
-
-  .premium-input {
-    position: absolute;
-    left: 405px;
-    top: 344px;
-    width: 99px;
-    height: 19px;
-    box-sizing: border-box;
-    border: 0;
-    outline: 0;
-    color: #ccc;
-    background: transparent;
-    font: 12px/19px Verdana, sans-serif;
-    text-align: center;
-  }
-
-  .btn-foe {
-    left: 9px;
-    top: 367px;
-  }
-
-  .btn-premium {
-    left: 256px;
-    top: 367px;
-  }
-
-  .btn-neutral {
-    left: 10px;
-    top: 407px;
-  }
-
-  .btn-ignore {
-    left: 256px;
-    top: 407px;
-  }
-
-  .btn-friend {
-    left: 9px;
-    top: 447px;
-  }
-
-  .btn-send {
-    left: 256px;
-    top: 447px;
-  }
-
-  .medal-modal {
-    position: absolute;
-    inset: 0;
-    z-index: 20;
-    width: 1000px;
-    height: 500px;
-    opacity: 0;
-    transition: opacity 1s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .medal-modal.visible {
-    opacity: 1;
-  }
-
-  .modal-frame {
-    position: absolute;
-    inset: 0;
-    width: 1000px;
-    height: 500px;
-    pointer-events: none;
-  }
-
-  .modal-text {
-    position: absolute;
-    left: 211px;
-    top: 167px;
-    width: 577px;
-    height: 147px;
-    box-sizing: border-box;
-    padding: 4px;
-    resize: none;
-    border: 0;
-    outline: 0;
-    color: #fff;
-    background: transparent;
-    font: 12px/16px Verdana, sans-serif;
-  }
-
-  .modal-ok {
-    left: 239px;
-    top: 323px;
-  }
-
-  .modal-cancel {
-    left: 507px;
-    top: 323px;
+    .medals-layout {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

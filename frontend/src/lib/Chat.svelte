@@ -157,10 +157,11 @@
 
 <div class="chat">
   <div class="chat-read">
-    <div class="chat-tabs">
+    <div class="scifi-tabs chat-tabs">
       {#each tabs as tab}
         <button
           type="button"
+          class="tab"
           class:active={activeTab === tab.id}
           class:blink={tab.id === 'sys' && unread.sys && activeTab !== 'sys'}
           class:blink-priv={tab.id === 'priv' && unread.priv && activeTab !== 'priv'}
@@ -191,6 +192,7 @@
   </div>
   <form class="chat-write" on:submit|preventDefault={submitMessage}>
     <input
+      class="scifi-input"
       type="text"
       bind:this={inputEl}
       bind:value={draft}
@@ -200,7 +202,7 @@
       placeholder="Сообщение"
       on:keydown={onKeydown}
     />
-    <button type="submit" disabled={sending}>Отправить</button>
+    <button class="scifi-btn primary" type="submit" disabled={sending}>Отправить</button>
   </form>
 </div>
 
@@ -209,9 +211,10 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #000;
-    color: #ccc;
-    font: 11px/1.25 Verdana, Arial, sans-serif;
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: var(--font-size);
+    line-height: 1.45;
   }
 
   .chat-read {
@@ -222,41 +225,21 @@
   }
 
   .chat-tabs {
-    display: flex;
     flex: 0 0 auto;
-    gap: 2px;
-    padding: 2px 4px 0;
-    background: #0a0a0a;
-    border-bottom: 1px solid #1a3a4a;
+    padding: 6px 8px 0;
+    gap: 6px;
   }
 
-  .chat-tabs button {
-    margin: 0;
-    padding: 1px 8px 2px;
-    border: 1px solid #2a4a5a;
-    border-bottom: 0;
-    background: #111820;
-    color: #7fd4ff;
-    font: 10px/14px Verdana, Arial, sans-serif;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .chat-tabs button.active {
-    background: #000;
-    color: #fff;
-    border-color: #3a8aaa;
-    box-shadow: inset 0 1px 0 #00d8f0;
-  }
-
-  .chat-tabs button.blink,
-  .chat-tabs button.blink-priv {
+  .chat-tabs .tab.blink,
+  .chat-tabs .tab.blink-priv {
     animation: tabBlink 1s steps(2) infinite;
   }
 
   @keyframes tabBlink {
-    50% { color: #00ffff; border-color: #00ffff; }
+    50% {
+      color: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+    }
   }
 
   .chat-panes {
@@ -264,90 +247,74 @@
     min-height: 0;
     display: flex;
     overflow: hidden;
+    margin-top: 4px;
   }
 
   .chat-msgs {
     flex: 1 1 auto;
     min-width: 0;
     overflow: auto;
-    padding: 2px 6px;
-    background: #000;
+    padding: 4px 10px;
+    font-family: var(--font-ui);
+    font-size: var(--font-size);
+    line-height: 1.45;
   }
 
   .chat-online {
-    flex: 0 0 140px;
-    width: 140px;
+    flex: 0 0 150px;
+    width: 150px;
     overflow: auto;
-    padding: 2px 4px;
-    border-left: 1px solid #1a3a4a;
-    background: #050508;
-    font-size: 10px;
-    line-height: 1.3;
+    padding: 4px 8px;
+    border-left: 1px solid var(--border-light);
+    font-family: var(--font-ui);
+    font-size: var(--font-size);
+    line-height: 1.45;
+    background: rgba(0, 0, 0, 0.2);
   }
 
   .chat-msgs :global(a),
   .chat-online :global(a) {
-    color: inherit;
+    color: var(--neon-cyan-dim);
     text-decoration: underline;
     cursor: pointer;
+    font-family: inherit;
   }
 
   .chat-msgs :global(font),
-  .chat-online :global(font) {
-    font-size: inherit;
+  .chat-online :global(font),
+  .chat-msgs :global(b),
+  .chat-online :global(b),
+  .chat-msgs :global(span),
+  .chat-online :global(span) {
+    font-family: var(--font-ui) !important;
+    font-size: inherit !important;
+    line-height: inherit;
   }
 
   .empty {
-    color: #444;
+    color: var(--text-muted);
   }
 
   .chat-write {
-    flex: 0 0 25px;
-    height: 25px;
+    flex: 0 0 auto;
     display: flex;
     align-items: stretch;
-    gap: 4px;
-    padding: 0 4px 1px;
-    box-sizing: border-box;
-    border-top: 1px solid #1a3a4a;
-    background: #0a0a0a;
+    gap: 8px;
+    padding: 6px 8px 8px;
+    border-top: 1px solid var(--border-light);
   }
 
-  .chat-write input {
+  .chat-write .scifi-input {
     flex: 1 1 auto;
     min-width: 0;
-    margin: 0;
-    padding: 2px 6px;
-    border: 1px solid #2a5a6a;
-    background: #000;
-    color: #fff;
-    font: 11px/18px Verdana, Arial, sans-serif;
-    outline: none;
+    padding: 6px 10px;
+    font-family: var(--font-ui);
+    font-size: var(--font-size);
   }
 
-  .chat-write input:focus {
-    border-color: #00d8f0;
-    box-shadow: 0 0 4px rgba(0, 216, 240, 0.35);
-  }
-
-  .chat-write button {
+  .chat-write .scifi-btn {
     flex: 0 0 auto;
-    margin: 0;
-    padding: 0 10px;
-    border: 1px solid #2a6a8a;
-    background: linear-gradient(180deg, #1a3a4a 0%, #0a1a22 100%);
-    color: #7fd4ff;
-    font: 10px/18px Verdana, Arial, sans-serif;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
-
-  .chat-write button:disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-
-  .chat-write button:hover:not(:disabled) {
-    filter: brightness(1.15);
+    padding: 6px 14px;
+    font-size: var(--font-size-sm);
   }
 </style>

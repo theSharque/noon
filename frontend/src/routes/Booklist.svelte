@@ -1,5 +1,5 @@
 <script>
-  import { onDestroy, onMount, tick } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { push, querystring } from 'svelte-spa-router';
   import {
     checkMailTo,
@@ -7,7 +7,6 @@
     deleteMailAll,
     deleteQuest,
     getBookDesc,
-    getBooklistHint,
     getNoonConfig,
     getObjectInfo,
     getQuestDesc,
@@ -26,24 +25,22 @@
     stopQuest,
   } from '../lib/api.js';
   import { markMailSeen } from '../lib/mailStore.js';
+  import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
+  import ScifiButton from '../lib/ui/ScifiButton.svelte';
+  import ScifiTabs from '../lib/ui/ScifiTabs.svelte';
+  import ProgressBar from '../lib/ui/ProgressBar.svelte';
+  import StatRow from '../lib/ui/StatRow.svelte';
 
   export let initialTab = 'messages';
 
   const IMG = '/app/img/booklist';
   const TABS = ['messages', 'learn', 'quest', 'stat', 'relation'];
-  const TAB_Z = {
-    messages: { messages: 5, learn: 4, quest: 3, stat: 2, relation: 1 },
-    learn: { learn: 5, quest: 4, messages: 3, stat: 2, relation: 1 },
-    quest: { quest: 5, learn: 4, messages: 3, stat: 2, relation: 1 },
-    stat: { stat: 5, relation: 4, quest: 3, learn: 2, messages: 1 },
-    relation: { relation: 5, stat: 4, quest: 3, learn: 2, messages: 1 },
-  };
-  const TAB_BUTTONS = [
-    { id: 'messages', left: 304, width: 137, height: 25, img: '213.png', alt: 'Сообщения' },
-    { id: 'learn', left: 444, width: 123, height: 25, img: '205.png', alt: 'Обучение' },
-    { id: 'quest', left: 570, width: 108, height: 25, img: '194.png', alt: 'Задания' },
-    { id: 'stat', left: 681, width: 149, height: 25, img: '143.png', alt: 'Статистика' },
-    { id: 'relation', left: 832, width: 136, height: 25, img: '136.png', alt: 'отношения' },
+  const TAB_DEFS = [
+    { id: 'messages', label: 'Сообщения' },
+    { id: 'learn', label: 'Обучение' },
+    { id: 'quest', label: 'Задания' },
+    { id: 'stat', label: 'Статистика' },
+    { id: 'relation', label: 'Отношения' },
   ];
 
   let activeTab = initialTab;
@@ -78,25 +75,15 @@
   let relIgnore = -1;
 
   let sendOpen = false;
-  let sendAlpha = 0;
   let sendTo = '';
   let sendText = '';
   let sendGlow = 'ok';
   let sendCanSubmit = false;
 
   let renameOpen = false;
-  let renameAlpha = 0;
   let renameName = '';
 
   let sureOpen = false;
-  let sureAlpha = 0;
-
-  let hintVisible = false;
-  let hintHtml = '';
-  let hintX = 16;
-  let hintY = 4;
-  let hintTimer;
-  let hintTarget = '';
 
   let scratchAudio;
   let buzzAudio;
@@ -105,11 +92,22 @@
   $: tabFromQs = (qs.get('tab') || '').trim();
   $: msgtoQs = (qs.get('msgto') || qs.get('to') || '').trim();
 
-  function swfColor(hex) {
-    if (!hex) return '#000033';
-    const v = String(hex).replace(/^0x/i, '');
-    return v.length === 6 ? `#${v}` : '#000033';
+  function parseBar(text) {
+    const raw = String(text || '').replace(/<[^>]+>/g, '').trim();
+    const m = raw.match(/(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)/);
+    if (m) {
+      const cur = Number(m[1]);
+      const max = Number(m[2]);
+      if (max > 0) return { value: raw, percent: Math.max(0, Math.min(100, (cur / max) * 100)) };
+    }
+    const n = Number(raw.replace(/[^\d.-]/g, ''));
+    if (!Number.isNaN(n) && n >= 0 && n <= 100) return { value: raw, percent: n };
+    return { value: raw || '—', percent: 0 };
   }
+
+  $: barWr = parseBar(userInfo.c_wr);
+  $: barSt = parseBar(userInfo.c_st);
+  $: barLv = parseBar(userInfo.c_lv);
 
   function playScratch() {
     const { sv } = getNoonConfig();
@@ -126,9 +124,6 @@
     buzzAudio.currentTime = 0;
     buzzAudio.play().catch(() => {});
   }
-
-  $: tabLayer = TAB_Z[activeTab] ?? TAB_Z.messages;
-  $: topTabZ = tabLayer[activeTab];
 
   function switchTab(tab) {
     if (tab === activeTab) return;
@@ -287,9 +282,6 @@
     sendGlow = 'ok';
     sendCanSubmit = false;
     sendOpen = true;
-    requestAnimationFrame(() => {
-      sendAlpha = 1;
-    });
   }
 
   function showReply() {
@@ -299,9 +291,6 @@
     sendText = '';
     checkSendTo();
     sendOpen = true;
-    requestAnimationFrame(() => {
-      sendAlpha = 1;
-    });
   }
 
   async function checkSendTo() {
@@ -317,10 +306,7 @@
 
   function hideSend() {
     playBuzz();
-    sendAlpha = 0;
-    setTimeout(() => {
-      sendOpen = false;
-    }, 1000);
+    sendOpen = false;
   }
 
   async function submitSend() {
@@ -418,17 +404,11 @@
   function showRename() {
     renameName = '';
     renameOpen = true;
-    requestAnimationFrame(() => {
-      renameAlpha = 1;
-    });
   }
 
   function hideRename() {
     playBuzz();
-    renameAlpha = 0;
-    setTimeout(() => {
-      renameOpen = false;
-    }, 1000);
+    renameOpen = false;
   }
 
   async function submitRename() {
@@ -441,16 +421,10 @@
 
   function showSure() {
     sureOpen = true;
-    requestAnimationFrame(() => {
-      sureAlpha = 1;
-    });
   }
 
   function hideSure() {
-    sureAlpha = 0;
-    setTimeout(() => {
-      sureOpen = false;
-    }, 1000);
+    sureOpen = false;
   }
 
   async function confirmDefence() {
@@ -473,31 +447,6 @@
     else if (relIgnore >= 0) openAbout(relations.ignores[relIgnore].login);
   }
 
-  function onHintEnter(name, event) {
-    hintTarget = name;
-    clearTimeout(hintTimer);
-    const rect = event.currentTarget.getBoundingClientRect();
-    const stage = event.currentTarget.closest('.booklist-stage')?.getBoundingClientRect();
-    if (stage) {
-      const mx = rect.left - stage.left + rect.width / 2;
-      const my = rect.top - stage.top;
-      hintX = mx < 700 ? 16 : -300;
-      hintY = my < 60 ? 4 : -64;
-    }
-    hintTimer = setTimeout(async () => {
-      hintVisible = true;
-      hintHtml = '';
-      const data = await getBooklistHint(name);
-      if (String(data.err) === '0') hintHtml = data.hint || '';
-      else hintVisible = false;
-    }, 3000);
-  }
-
-  function onHintLeave() {
-    clearTimeout(hintTimer);
-    hintVisible = false;
-  }
-
   $: showQuestStart = questMeta.activeIndex < 0 && questSelected >= 0;
   $: showQuestStop =
     questMeta.hidetype !== 1 && questMeta.activeIndex >= 0 && questSelected === questMeta.activeIndex;
@@ -512,8 +461,7 @@
     if (learnMeta.bid > learnMeta.lmax) return false;
     return true;
   })();
-  $: showLearnInstall =
-    learnSelected >= 0 && !!learnItems[learnSelected]?.inst;
+  $: showLearnInstall = learnSelected >= 0 && !!learnItems[learnSelected]?.inst;
 
   $: statAuto = parseInt(statInfo.auto || '0', 10);
   $: showMine = statAuto === 1 || statAuto === 3;
@@ -527,6 +475,17 @@
   $: showMailWrite = !showMailReply;
   $: showMailDelete = mailSelected.size > 0;
   $: showMailDeleteAll = messages.length > 0;
+
+  $: detailTitle =
+    activeTab === 'messages'
+      ? 'Сообщение'
+      : activeTab === 'learn'
+        ? learnItems[learnSelected]?.name || 'Описание'
+        : activeTab === 'quest'
+          ? questItems[questSelected]?.name || 'Задание'
+          : activeTab === 'stat'
+            ? statItems[statSelected]?.name || 'Объект'
+            : 'Информация';
 
   onMount(async () => {
     scratchAudio = new Audio(`${IMG}/sounds/scratch.mp3`);
@@ -545,648 +504,525 @@
 
   onDestroy(() => {
     clearInterval(learnTimer);
-    clearTimeout(hintTimer);
   });
 </script>
 
-<div class="booklist-stage">
-  <aside class="left-panel" style="background-image: url('{IMG}/left-panel.png')">
-    <span class="techno value" style="left:127px;top:22px;width:160px">{userInfo.hstar || ''}</span>
-    <span class="techno value" style="left:134px;top:42px;width:150px">{userInfo.hplanet || ''}</span>
-    <span class="techno value" style="left:76px;top:62px;width:210px">{userInfo.sname || ''}</span>
-    <span class="techno value" style="left:85px;top:82px;width:200px">{userInfo.pname || ''}</span>
-    <span class="techno value" style="left:93px;top:102px;width:190px">{userInfo.summ || ''}</span>
-    <span class="techno value yellow" style="left:128px;top:122px;width:70px">{userInfo.conf || ''}</span>
-    <span class="techno value" style="left:84px;top:142px;width:200px">{userInfo.robots || ''}</span>
-    <span class="techno value insur" style="left:103px;top:162px;width:180px">{@html userInfo.insur || ''}</span>
-    <span class="techno value" style="left:17px;top:215px;width:270px;white-space:normal;line-height:1.3">{userInfo.referal || ''}</span>
-    <span class="techno value" style="left:103px;top:290px;width:80px">{userInfo.refcnt || ''}</span>
-    <span class="techno value" style="left:17px;top:357px;width:270px">{userInfo.c_wr || ''}</span>
-    <span class="techno value" style="left:17px;top:407px;width:270px">{userInfo.c_st || ''}</span>
-    <span class="techno value" style="left:17px;top:457px;width:270px">{userInfo.c_lv || ''}</span>
-  </aside>
+<div class="booklist">
+  <div class="tabs-row">
+    <ScifiTabs tabs={TAB_DEFS} active={activeTab} on:change={(e) => switchTab(e.detail)} />
+  </div>
 
-  <!-- messages -->
-  <section
-    class="page"
-    class:page-active={activeTab === 'messages'}
-    style="left:300px;opacity:{activeTab === 'messages' ? 1 : tabLayer.messages >= topTabZ - 1 ? 0.5 : 0};z-index:{tabLayer.messages}"
-  >
-    <div class="grid-wrap messages-grid" style="left:9px;top:40px;width:681px;height:240px">
-      <table class="dg">
-        <thead>
-          <tr>
-            <th style="width:100px">От</th>
-            <th style="width:140px">Дата сообщения</th>
-            <th style="width:432px">Текст</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each messages as msg, i}
-            <tr
-              class:selected={mailSelected.has(i)}
-              style="background:{swfColor(msg.read === 0 ? '0x000066' : '0x000033')}"
-              on:click={(e) => selectMail(i, e)}
-            >
-              <td>{msg.from}</td>
-              <td>{msg.time}</td>
-              <td>{msg.preview}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-    <div class="html-box verdana11" style="left:13px;top:288px;width:655px;height:155px">{@html mailBody}</div>
-    {#if showMailWrite}
-      <button type="button" class="action-btn" style="left:16px;top:452px" on:click={showWrite}>
-        <img src="{IMG}/buttons/220.png" width="160" height="33" alt="написать" />
-      </button>
-    {/if}
-    {#if showMailReply}
-      <button type="button" class="action-btn" style="left:16px;top:452px" on:click={showReply}>
-        <img src="{IMG}/buttons/218.png" width="160" height="33" alt="ответить" />
-      </button>
-    {/if}
-    {#if showMailDelete}
-      <button type="button" class="action-btn" style="left:256px;top:452px" on:click={removeMail}>
-        <img src="{IMG}/buttons/201.png" width="160" height="33" alt="удалить" />
-      </button>
-    {/if}
-    {#if showMailDeleteAll}
-      <button type="button" class="action-btn" style="left:426px;top:452px" on:click={removeAllMail}>
-        <img src="{IMG}/buttons/216.png" width="257" height="33" alt="удалить все" />
-      </button>
-    {/if}
-  </section>
+  <div class="layout">
+    <ScifiPanel title="Статус командира" className="col-status">
+      <StatRow icon="star" label="Родная звезда" value={userInfo.hstar || '—'} />
+      <StatRow icon="planet" label="Родная планета" value={userInfo.hplanet || '—'} />
+      <StatRow icon="star" label="Текущая звезда" value={userInfo.sname || '—'} />
+      <StatRow icon="planet" label="Текущая планета" value={userInfo.pname || '—'} />
+      <StatRow icon="credits" label="Кредиты" value={userInfo.summ || '—'} />
+      <StatRow icon="people" label="Конфедераты" value={userInfo.conf || '—'} warn />
+      <StatRow icon="robot" label="Роботы" value={userInfo.robots || '—'} />
+      <StatRow icon="shield" label="Страховка">
+        {@html userInfo.insur || '—'}
+      </StatRow>
 
-  <!-- learn -->
-  <section
-    class="page"
-    class:page-active={activeTab === 'learn'}
-    style="left:300px;opacity:{activeTab === 'learn' ? 1 : tabLayer.learn >= topTabZ - 1 ? 0.5 : 0};z-index:{tabLayer.learn}"
-  >
-    <div class="grid-wrap" style="left:14px;top:72px;width:672px;height:210px">
-      <table class="dg">
-        <thead>
-          <tr>
-            <th style="width:460px">Наименование</th>
-            <th style="width:80px">Уровень</th>
-            <th style="width:150px">Время обучения</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each learnItems as item, i}
-            <tr
-              class:selected={learnSelected === i}
-              style="background:{swfColor(item.bgColor)}"
-              on:click={() => selectLearn(i)}
-            >
-              <td>{item.name}</td>
-              <td class="num">{item.level}</td>
-              <td>{item.timeLabel}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-    <div class="html-box verdana11" style="left:16px;top:289px;width:655px;height:155px">{@html learnDesc}</div>
-    {#if showLearnStart}
-      <button type="button" class="action-btn" style="left:20px;top:452px" on:click={doStartLearn}>
-        <img src="{IMG}/buttons/208.png" width="257" height="33" alt="изучить" />
-      </button>
-    {/if}
-    {#if showLearnInstall}
-      <button type="button" class="action-btn" style="left:290px;top:452px" on:click={doStartLearn}>
-        <img src="{IMG}/buttons/209.png" width="257" height="33" alt="установить" />
-      </button>
-    {/if}
-  </section>
+      {#if userInfo.referal}
+        <div class="referral">
+          <div class="referral-label">Реферальная ссылка</div>
+          <div class="referral-link">{userInfo.referal}</div>
+          {#if userInfo.refcnt}
+            <div class="referral-meta">Приглашено: {userInfo.refcnt}</div>
+          {/if}
+        </div>
+      {/if}
 
-  <!-- quest -->
-  <section
-    class="page"
-    class:page-active={activeTab === 'quest'}
-    style="left:300px;opacity:{activeTab === 'quest' ? 1 : tabLayer.quest >= topTabZ - 1 ? 0.5 : 0};z-index:{tabLayer.quest}"
-  >
-    <div class="grid-wrap" style="left:14px;top:40px;width:672px;height:240px">
-      <table class="dg">
-        <thead>
-          <tr><th>Краткое описание</th></tr>
-        </thead>
-        <tbody>
-          {#each questItems as item, i}
-            <tr
-              class:selected={questSelected === i}
-              style="background:{swfColor(item.bgColor)}"
-              on:click={() => selectQuest(i)}
-            >
-              <td>{item.name}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-    <div class="html-box verdana11" style="left:16px;top:289px;width:655px;height:155px">{@html questDesc}</div>
-    {#if showQuestStart}
-      <button type="button" class="action-btn" style="left:12px;top:452px" on:click={() => doQuestAction('start')}>
-        <img src="{IMG}/buttons/197.png" width="200" height="33" alt="выполнить" />
-      </button>
-    {/if}
-    {#if showQuestDelete}
-      <button type="button" class="action-btn" style="left:242px;top:452px" on:click={() => doQuestAction('delete')}>
-        <img src="{IMG}/buttons/201.png" width="160" height="33" alt="удалить" />
-      </button>
-    {/if}
-    {#if showQuestStop}
-      <button type="button" class="action-btn" style="left:430px;top:452px" on:click={() => doQuestAction('stop')}>
-        <img src="{IMG}/buttons/199.png" width="257" height="33" alt="отказаться" />
-      </button>
-    {/if}
-  </section>
-
-  <!-- stat -->
-  <section
-    class="page"
-    class:page-active={activeTab === 'stat'}
-    style="left:300px;opacity:{activeTab === 'stat' ? 1 : tabLayer.stat >= topTabZ - 1 ? 0.5 : 0};z-index:{tabLayer.stat}"
-  >
-    <div class="grid-wrap" style="left:8px;top:38px;width:242px;height:450px">
-      <table class="dg">
-        <thead><tr><th>Объекты владения</th></tr></thead>
-        <tbody>
-          {#each statItems as item, i}
-            <tr
-              class:selected={statSelected === i}
-              style="background:{swfColor(item.bgColor)}"
-              on:click={() => selectStat(i)}
-            >
-              <td>{item.name}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-    <span class="techno label" style="left:259px;top:42px">Наименование :</span>
-    <span class="techno label" style="left:258px;top:62px">Режим защиты :</span>
-    <span class="techno label" style="left:256px;top:83px">Всего планетарных построек :</span>
-    <span class="techno label" style="left:256px;top:103px">Всего орбитальных построек :</span>
-    <span class="techno label" style="left:256px;top:122px">Общая сила планетарных щитов :</span>
-    <span class="techno label" style="left:256px;top:142px">Общая сила планетарной атаки :</span>
-    <span class="techno label" style="left:256px;top:162px">Кораблей на планете :</span>
-    <span class="techno label" style="left:256px;top:182px">Склад на планете :</span>
-    <span class="techno label" style="left:256px;top:202px">Общая сила орбитальных щитов :</span>
-    <span class="techno label" style="left:256px;top:222px">Общая сила орбитальной атаки :</span>
-    <span class="techno label" style="left:256px;top:242px">Кораблей на орбите :</span>
-    <span class="techno label" style="left:256px;top:262px">Склад на орбите :</span>
-    <span class="techno label" style="left:256px;top:282px">Защита конфедерации стоимость 5 конфедерат</span>
-    <div class="techno value" style="left:372px;top:42px;width:300px">{statItems[statSelected]?.name || ''}</div>
-    <div class="techno value" style="left:376px;top:62px;width:300px">{@html statInfo.defType || ''}</div>
-    <div class="techno value" style="left:469px;top:83px;width:200px">{statInfo.pbcnt ?? ''}</div>
-    <div class="techno value" style="left:471px;top:103px;width:200px">{statInfo.obcnt ?? ''}</div>
-    <div class="techno value" style="left:489px;top:122px;width:180px">{statInfo.pshld ?? ''}</div>
-    <div class="techno value" style="left:483px;top:142px;width:190px">{statInfo.patck ?? ''}</div>
-    <div class="techno value" style="left:411px;top:162px;width:260px">{statInfo.pship ?? ''}</div>
-    <div class="techno value" style="left:389px;top:182px;width:280px">{statInfo.pware || ''}</div>
-    <div class="techno value" style="left:489px;top:202px;width:180px">{statInfo.oshld ?? ''}</div>
-    <div class="techno value" style="left:482px;top:222px;width:190px">{statInfo.oatck ?? ''}</div>
-    <div class="techno value" style="left:403px;top:242px;width:270px">{statInfo.oship ?? ''}</div>
-    <div class="techno value" style="left:381px;top:262px;width:290px">{statInfo.oware || ''}</div>
-    <div class="techno value" style="left:591px;top:282px;width:90px">{@html statInfo.defence || ''}</div>
-    <div class="techno value stat-note" style="left:257px;top:347px;width:420px">{@html statInfo.tren || ''}</div>
-    {#if showDefence}
-      <button type="button" class="action-btn" style="left:254px;top:306px" on:click={showSure}>
-        <img src="{IMG}/buttons/175.png" width="160" height="33" alt="защита" />
-      </button>
-    {/if}
-    {#if showRenameBtn}
-      <button type="button" class="action-btn" style="left:431px;top:306px" on:click={showRename}>
-        <img src="{IMG}/buttons/169.png" width="257" height="33" alt="переименовать" />
-      </button>
-    {/if}
-    {#if showMine}
-      <button type="button" class="action-btn" style="left:257px;top:370px" on:click={() => statOrder(2)}>
-        <img src="{IMG}/buttons/153.png" width="200" height="33" alt="старт добычи" />
-      </button>
-    {/if}
-    {#if showStop}
-      <button type="button" class="action-btn" style="left:486px;top:370px" on:click={() => statOrder(6)}>
-        <img src="{IMG}/buttons/182.png" width="200" height="33" alt="стоп добычи" />
-      </button>
-    {/if}
-    {#if showDispAll}
-      <button type="button" class="action-btn" style="left:257px;top:411px" on:click={() => statOrder(3)}>
-        <img src="{IMG}/buttons/167.png" width="257" height="33" alt="переработать все" />
-      </button>
-    {/if}
-    {#if showDisp}
-      <button type="button" class="action-btn" style="left:257px;top:451px" on:click={() => statOrder(4)}>
-        <img src="{IMG}/buttons/165.png" width="321" height="33" alt="переработать" />
-      </button>
-    {/if}
-    {#if sureOpen}
-      <div class="sure-modal" style="left:97px;top:184px;opacity:{sureAlpha}">
-        <button type="button" class="action-btn" style="left:143px;top:72px" on:click={confirmDefence}>
-          <img src="{IMG}/buttons/188.png" width="257" height="33" alt="установить" />
-        </button>
-        <button type="button" class="action-btn" style="left:463px;top:72px" on:click={hideSure}>
-          <img src="{IMG}/buttons/190.png" width="200" height="33" alt="отмена" />
-        </button>
+      <div class="bars">
+        <ProgressBar label="Военное обучение" value={barWr.value} percent={barWr.percent} />
+        <ProgressBar label="Ответственность" value={barSt.value} percent={barSt.percent} />
+        <ProgressBar label="Опыт" value={barLv.value} percent={barLv.percent} />
       </div>
-    {/if}
-  </section>
+    </ScifiPanel>
 
-  <!-- relation -->
-  <section
-    class="page"
-    class:page-active={activeTab === 'relation'}
-    style="left:300px;opacity:{activeTab === 'relation' ? 1 : tabLayer.relation >= topTabZ - 1 ? 0.5 : 0};z-index:{tabLayer.relation}"
-  >
-    <div class="grid-wrap" style="left:9px;top:40px;width:220px;height:410px">
-      <table class="dg">
-        <thead><tr><th>Друзья</th></tr></thead>
-        <tbody>
-          {#each relations.friends as item, i}
-            <tr
-              class:selected={relFriend === i}
-              style="background:{swfColor(item.bgColor)}"
-              on:click={() => { relFriend = i; relFoe = -1; relIgnore = -1; }}
-            >
-              <td>{item.login}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-    <div class="grid-wrap" style="left:240px;top:40px;width:220px;height:410px">
-      <table class="dg">
-        <thead><tr><th>Враги</th></tr></thead>
-        <tbody>
-          {#each relations.foes as item, i}
-            <tr
-              class:selected={relFoe === i}
-              style="background:{swfColor(item.bgColor)}"
-              on:click={() => { relFoe = i; relFriend = -1; relIgnore = -1; }}
-            >
-              <td>{item.login}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-    <div class="grid-wrap" style="left:470px;top:40px;width:220px;height:410px">
-      <table class="dg">
-        <thead><tr><th>Игнорирование</th></tr></thead>
-        <tbody>
-          {#each relations.ignores as item, i}
-            <tr
-              class:selected={relIgnore === i}
-              style="background:{swfColor(item.bgColor)}"
-              on:click={() => { relIgnore = i; relFriend = -1; relFoe = -1; }}
-            >
-              <td>{item.login}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-    {#if relFriend >= 0 || relFoe >= 0 || relIgnore >= 0}
-      <button type="button" class="action-btn" style="left:220px;top:455px" on:click={relInfo}>
-        <img src="{IMG}/buttons/140.png" width="257" height="33" alt="информация" />
-      </button>
-    {/if}
-  </section>
+    <div class="col-right">
+    <ScifiPanel className="col-main">
+      <div slot="header">
+        {#if activeTab === 'messages'}Сообщения
+        {:else if activeTab === 'learn'}Обучение
+        {:else if activeTab === 'quest'}Задания
+        {:else if activeTab === 'stat'}Статистика владений
+        {:else}Отношения{/if}
+      </div>
 
-  <nav class="tab-bar" aria-label="Вкладки booklist">
-    {#each TAB_BUTTONS as tab}
-      <button
-        type="button"
-        class="tab-btn"
-        class:tab-active={activeTab === tab.id}
-        style="left:{tab.left}px;width:{tab.width}px;height:{tab.height}px"
-        on:click|stopPropagation={() => switchTab(tab.id)}
-        on:mousedown|stopPropagation
-        on:mouseenter={onHintLeave}
-      >
-        <img src="{IMG}/buttons/{tab.img}" width={tab.width} height={tab.height} alt={tab.alt} draggable="false" />
-      </button>
-    {/each}
-  </nav>
+      {#if activeTab === 'messages'}
+        <div class="table-container">
+          <table class="scifi-table">
+            <thead>
+              <tr>
+                <th>От</th>
+                <th>Дата</th>
+                <th>Текст</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each messages as msg, i}
+                <tr
+                  class:active-row={mailSelected.has(i)}
+                  class:unread={msg.read === 0}
+                  on:click={(e) => selectMail(i, e)}
+                >
+                  <td>{msg.from}</td>
+                  <td class="num">{msg.time}</td>
+                  <td>{msg.preview}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {:else if activeTab === 'learn'}
+        <div class="table-container">
+          <table class="scifi-table">
+            <thead>
+              <tr>
+                <th>Наименование</th>
+                <th class="num">Уровень</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each learnItems as item, i}
+                <tr class:active-row={learnSelected === i} on:click={() => selectLearn(i)}>
+                  <td>{item.name}</td>
+                  <td class="num">{item.level}</td>
+                  <td>{item.timeLabel}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {:else if activeTab === 'quest'}
+        <div class="table-container">
+          <table class="scifi-table">
+            <thead>
+              <tr><th>Краткое описание</th></tr>
+            </thead>
+            <tbody>
+              {#each questItems as item, i}
+                <tr class:active-row={questSelected === i} on:click={() => selectQuest(i)}>
+                  <td>{item.name}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {:else if activeTab === 'stat'}
+        <div class="stat-split">
+          <div class="table-container stat-list">
+            <table class="scifi-table">
+              <thead>
+                <tr><th>Объекты владения</th></tr>
+              </thead>
+              <tbody>
+                {#each statItems as item, i}
+                  <tr class:active-row={statSelected === i} on:click={() => selectStat(i)}>
+                    <td>{item.name}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+          <div class="stat-facts html-rich">
+            <div class="fact"><span>Наименование</span><b>{statItems[statSelected]?.name || '—'}</b></div>
+            <div class="fact"><span>Режим защиты</span><b>{@html statInfo.defType || '—'}</b></div>
+            <div class="fact"><span>Планетарные постройки</span><b>{statInfo.pbcnt ?? '—'}</b></div>
+            <div class="fact"><span>Орбитальные постройки</span><b>{statInfo.obcnt ?? '—'}</b></div>
+            <div class="fact"><span>Сила планетарных щитов</span><b>{statInfo.pshld ?? '—'}</b></div>
+            <div class="fact"><span>Сила планетарной атаки</span><b>{statInfo.patck ?? '—'}</b></div>
+            <div class="fact"><span>Кораблей на планете</span><b>{statInfo.pship ?? '—'}</b></div>
+            <div class="fact"><span>Склад на планете</span><b>{statInfo.pware || '—'}</b></div>
+            <div class="fact"><span>Сила орбитальных щитов</span><b>{statInfo.oshld ?? '—'}</b></div>
+            <div class="fact"><span>Сила орбитальной атаки</span><b>{statInfo.oatck ?? '—'}</b></div>
+            <div class="fact"><span>Кораблей на орбите</span><b>{statInfo.oship ?? '—'}</b></div>
+            <div class="fact"><span>Склад на орбите</span><b>{statInfo.oware || '—'}</b></div>
+            <div class="fact"><span>Защита конфедерации</span><b>{@html statInfo.defence || '—'}</b></div>
+            {#if statInfo.tren}
+              <div class="stat-note">{@html statInfo.tren}</div>
+            {/if}
+          </div>
+        </div>
+      {:else}
+        <div class="rel-grid">
+          <div class="table-container">
+            <table class="scifi-table">
+              <thead><tr><th>Друзья</th></tr></thead>
+              <tbody>
+                {#each relations.friends as item, i}
+                  <tr
+                    class:active-row={relFriend === i}
+                    on:click={() => {
+                      relFriend = i;
+                      relFoe = -1;
+                      relIgnore = -1;
+                    }}
+                  >
+                    <td>{item.login}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+          <div class="table-container">
+            <table class="scifi-table">
+              <thead><tr><th>Враги</th></tr></thead>
+              <tbody>
+                {#each relations.foes as item, i}
+                  <tr
+                    class:active-row={relFoe === i}
+                    on:click={() => {
+                      relFoe = i;
+                      relFriend = -1;
+                      relIgnore = -1;
+                    }}
+                  >
+                    <td>{item.login}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+          <div class="table-container">
+            <table class="scifi-table">
+              <thead><tr><th>Игнор</th></tr></thead>
+              <tbody>
+                {#each relations.ignores as item, i}
+                  <tr
+                    class:active-row={relIgnore === i}
+                    on:click={() => {
+                      relIgnore = i;
+                      relFriend = -1;
+                      relFoe = -1;
+                    }}
+                  >
+                    <td>{item.login}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {/if}
+    </ScifiPanel>
+
+    <ScifiPanel title={detailTitle} className="col-detail">
+      {#if activeTab === 'messages'}
+        <div class="html-rich detail-body">{@html mailBody || 'Выберите сообщение'}</div>
+        <div class="actions">
+          {#if showMailWrite}
+            <ScifiButton variant="primary" on:click={showWrite}>Написать</ScifiButton>
+          {/if}
+          {#if showMailReply}
+            <ScifiButton variant="primary" on:click={showReply}>Ответить</ScifiButton>
+          {/if}
+          {#if showMailDelete}
+            <ScifiButton variant="danger" on:click={removeMail}>Удалить</ScifiButton>
+          {/if}
+          {#if showMailDeleteAll}
+            <ScifiButton variant="ghost" on:click={removeAllMail}>Удалить все</ScifiButton>
+          {/if}
+        </div>
+      {:else if activeTab === 'learn'}
+        <div class="html-rich detail-body">{@html learnDesc || 'Выберите навык'}</div>
+        <div class="actions">
+          {#if showLearnStart}
+            <ScifiButton variant="primary" on:click={doStartLearn}>Изучить</ScifiButton>
+          {/if}
+          {#if showLearnInstall}
+            <ScifiButton variant="primary" on:click={doStartLearn}>Установить</ScifiButton>
+          {/if}
+        </div>
+      {:else if activeTab === 'quest'}
+        <div class="html-rich detail-body">{@html questDesc || 'Выберите задание'}</div>
+        <div class="actions">
+          {#if showQuestStart}
+            <ScifiButton variant="primary" on:click={() => doQuestAction('start')}>Выполнить</ScifiButton>
+          {/if}
+          {#if showQuestDelete}
+            <ScifiButton variant="danger" on:click={() => doQuestAction('delete')}>Удалить</ScifiButton>
+          {/if}
+          {#if showQuestStop}
+            <ScifiButton variant="warn" on:click={() => doQuestAction('stop')}>Отказаться</ScifiButton>
+          {/if}
+        </div>
+      {:else if activeTab === 'stat'}
+        <div class="detail-body muted">Управление выбранным объектом</div>
+        <div class="actions">
+          {#if showDefence}
+            <ScifiButton variant="warn" on:click={showSure}>Защита</ScifiButton>
+          {/if}
+          {#if showRenameBtn}
+            <ScifiButton variant="ghost" on:click={showRename}>Переименовать</ScifiButton>
+          {/if}
+          {#if showMine}
+            <ScifiButton variant="primary" on:click={() => statOrder(2)}>Старт добычи</ScifiButton>
+          {/if}
+          {#if showStop}
+            <ScifiButton variant="ghost" on:click={() => statOrder(6)}>Стоп добычи</ScifiButton>
+          {/if}
+          {#if showDispAll}
+            <ScifiButton variant="ghost" on:click={() => statOrder(3)}>Переработать все</ScifiButton>
+          {/if}
+          {#if showDisp}
+            <ScifiButton variant="ghost" on:click={() => statOrder(4)}>Переработать</ScifiButton>
+          {/if}
+        </div>
+      {:else}
+        <div class="detail-body muted">Выберите игрока в списках</div>
+        <div class="actions">
+          {#if relFriend >= 0 || relFoe >= 0 || relIgnore >= 0}
+            <ScifiButton variant="primary" on:click={relInfo}>Информация</ScifiButton>
+          {/if}
+        </div>
+      {/if}
+    </ScifiPanel>
+    </div>
+  </div>
 
   {#if sendOpen}
-    <div class="modal send-modal" style="opacity:{sendAlpha}">
-      <label class="send-to glow-{sendGlow}">
-        <input class="verdana12" type="text" bind:value={sendTo} on:input={checkSendTo} />
-      </label>
-      <textarea class="verdana12 send-text" bind:value={sendText}></textarea>
-      {#if sendCanSubmit}
-        <button type="button" class="action-btn modal-send" on:click={submitSend}>
-          <img src="{IMG}/buttons/230.png" width="257" height="33" alt="отправить" />
-        </button>
-      {/if}
-      <button type="button" class="action-btn modal-cancel" on:click={hideSend}>
-        <img src="{IMG}/buttons/190.png" width="200" height="33" alt="отмена" />
-      </button>
+    <div class="scifi-modal-backdrop">
+      <div class="scifi-panel scifi-modal">
+        <div class="panel-header">Новое сообщение</div>
+        <div class="panel-content modal-form">
+          <label>
+            Кому
+            <input class="scifi-input glow-{sendGlow}" type="text" bind:value={sendTo} on:input={checkSendTo} />
+          </label>
+          <label>
+            Текст
+            <textarea class="scifi-textarea" bind:value={sendText}></textarea>
+          </label>
+          <div class="actions">
+            <ScifiButton variant="primary" disabled={!sendCanSubmit} on:click={submitSend}>Отправить</ScifiButton>
+            <ScifiButton variant="ghost" on:click={hideSend}>Отмена</ScifiButton>
+          </div>
+        </div>
+      </div>
     </div>
   {/if}
 
   {#if renameOpen}
-    <div class="modal rename-modal" style="background-image:url('{IMG}/modal-rename.png');opacity:{renameAlpha}">
-      <input class="verdana12 rename-input" bind:value={renameName} />
-      <button type="button" class="action-btn rename-ok" on:click={submitRename}>
-        <img src="{IMG}/buttons/169.png" width="257" height="33" alt="переименовать" />
-      </button>
-      <button type="button" class="action-btn rename-cancel" on:click={hideRename}>
-        <img src="{IMG}/buttons/190.png" width="200" height="33" alt="отмена" />
-      </button>
+    <div class="scifi-modal-backdrop">
+      <div class="scifi-panel scifi-modal">
+        <div class="panel-header">Переименовать объект</div>
+        <div class="panel-content modal-form">
+          <input class="scifi-input" type="text" bind:value={renameName} />
+          <div class="actions">
+            <ScifiButton variant="primary" on:click={submitRename}>Сохранить</ScifiButton>
+            <ScifiButton variant="ghost" on:click={hideRename}>Отмена</ScifiButton>
+          </div>
+        </div>
+      </div>
     </div>
   {/if}
 
-  {#if hintVisible}
-    <div class="hint" style="left:{310 + hintX}px;top:{hintY}px">
-      <div class="hint-body verdana11">{@html hintHtml}</div>
+  {#if sureOpen}
+    <div class="scifi-modal-backdrop">
+      <div class="scifi-panel scifi-modal">
+        <div class="panel-header">Защита конфедерации</div>
+        <div class="panel-content modal-form">
+          <p class="muted">Установить защиту стоимостью 5 конфедерат?</p>
+          <div class="actions">
+            <ScifiButton variant="warn" on:click={confirmDefence}>Установить</ScifiButton>
+            <ScifiButton variant="ghost" on:click={hideSure}>Отмена</ScifiButton>
+          </div>
+        </div>
+      </div>
     </div>
   {/if}
 </div>
 
 <style>
-  @font-face {
-    font-family: 'NoonTechno';
-    src: url('/app/fonts/99_Techno.ttf') format('truetype');
-  }
-
-  @font-face {
-    font-family: 'TerminatorCyr';
-    src: url('/app/fonts/133_TerminatorCyr.ttf') format('truetype');
-  }
-
-  .booklist-stage {
+  .booklist {
     position: relative;
-    width: 1000px;
-    height: 500px;
-    margin: 0 auto;
-    overflow: hidden;
-    background: #000;
-    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    min-height: 420px;
   }
 
-  .left-panel {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 300px;
-    height: 500px;
-    z-index: 2;
-    background-repeat: no-repeat;
-    background-size: 300px 500px;
+  .tabs-row {
+    flex: 0 0 auto;
   }
 
-  .page {
-    position: absolute;
-    top: 0;
-    left: 300px;
-    width: 700px;
-    height: 500px;
-    background-color: #000;
-    pointer-events: none;
-    transition: opacity 1s cubic-bezier(0.33, 1, 0.68, 1);
-    background-image: url('/app/img/booklist/controls/panel-skin.png');
-    background-position: 6px 37px;
-    background-repeat: no-repeat;
-    background-size: 688px 47px;
+  .layout {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    gap: 10px;
   }
 
-  .page.page-active {
-    pointer-events: auto;
+  .col-right {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) minmax(140px, 0.38fr);
+    gap: 10px;
   }
 
-  .tab-bar {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 1000px;
-    height: 25px;
-    z-index: 50;
-    margin: 0;
-    padding: 0;
-    border: 0;
+  .booklist :global(.col-status),
+  .booklist :global(.col-main),
+  .booklist :global(.col-detail) {
+    min-height: 0;
+    height: 100%;
   }
 
-  .tab-bar .tab-btn {
-    position: absolute;
-    top: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    z-index: 51;
+  .booklist :global(.col-main .panel-content),
+  .booklist :global(.col-detail .panel-content) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .tab-bar .tab-btn img {
-    display: block;
-    pointer-events: none;
-    user-select: none;
+  .referral {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid var(--border-light);
+    background: rgba(0, 229, 255, 0.05);
   }
 
-  .techno {
-    position: absolute;
-    font: 16px/1.2 NoonTechno, Techno, sans-serif;
-    color: #ccc;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  .referral-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
   }
 
-  .techno.label {
-    text-overflow: clip;
+  .referral-link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--neon-cyan);
+    word-break: break-all;
   }
 
-  .techno.yellow {
-    color: #ff0;
+  .referral-meta {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
   }
 
-  .stat-note {
-    white-space: normal;
-    line-height: 1.25;
-    overflow: hidden;
+  .bars {
+    margin-top: 12px;
   }
 
-  .verdana11 {
-    font: 11px/1.35 Verdana, sans-serif;
-    color: #ccc;
-  }
-
-  .verdana12 {
-    font: 12px Verdana, sans-serif;
-    color: #fff;
-    background: transparent;
-    border: 0;
-    outline: none;
-  }
-
-  .value {
-    display: block;
-  }
-
-  .tab-btn,
-  .action-btn {
-    position: absolute;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-  }
-
-  .tab-btn:hover img,
-  .action-btn:hover img {
-    filter: drop-shadow(0 0 5px #f00) drop-shadow(0 0 10px #0ff);
-  }
-
-  .grid-wrap {
-    position: absolute;
+  .detail-body {
+    flex: 1 1 auto;
+    min-height: 120px;
     overflow: auto;
-    border: 1px solid #999;
-    background: #000033;
   }
 
-  .dg {
-    width: 100%;
-    border-collapse: collapse;
-    font: 12px Verdana, sans-serif;
-    color: #fff;
+  .detail-body.muted,
+  .muted {
+    color: var(--text-muted);
   }
 
-  .dg th {
-    font-weight: bold;
-    color: #bfbfff;
-    text-align: left;
-    padding: 2px 4px;
-    border-bottom: 1px solid #999;
-    background: #000033;
-    position: sticky;
-    top: 0;
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex: 0 0 auto;
   }
 
-  .dg td {
-    padding: 2px 4px;
-    border-bottom: 1px solid #333;
-    cursor: pointer;
+  .stat-split {
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+    gap: 10px;
+    min-height: 0;
+    flex: 1 1 auto;
   }
 
-  .dg tr.selected td {
-    outline: 1px solid #0ff;
+  .stat-list {
+    max-height: 100%;
   }
 
-  .dg td.num {
+  .stat-facts {
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .fact {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.8rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding-bottom: 4px;
+  }
+
+  .fact span {
+    color: var(--text-muted);
+  }
+
+  .fact b {
+    font-weight: 500;
+    font-family: var(--font-mono);
     text-align: right;
   }
 
-  .html-box {
-    position: absolute;
-    overflow: auto;
-    padding: 4px;
-    border: 1px solid #333;
-    background: rgba(0, 0, 51, 0.85);
+  .stat-note {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
   }
 
-  .modal {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 1000px;
-    height: 500px;
-    z-index: 20;
-    transition: opacity 1s cubic-bezier(0.33, 1, 0.68, 1);
-    background: rgba(0, 0, 0, 0.3);
+  .rel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    min-height: 0;
+    flex: 1 1 auto;
   }
 
-  .send-modal {
-    background: rgba(0, 0, 0, 0.3) url('/app/img/booklist/modal-send.png') 0 0 / 1000px 500px no-repeat;
+  .rel-grid .table-container {
+    max-height: 100%;
   }
 
-  .send-to {
-    position: absolute;
-    left: 118px;
-    top: 65px;
-    width: 400px;
-    height: 22px;
-    padding: 2px 4px;
-    background: url('/app/img/booklist/controls/input-skin.png') 0 0 / 198px 33px no-repeat;
+  tr.unread td {
+    color: var(--neon-cyan-dim);
   }
 
-  .glow-ok {
-    box-shadow: 0 0 5px #00f, inset 0 0 10px rgba(0, 255, 255, 0.4);
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .glow-fail {
-    box-shadow: 0 0 5px #00f, inset 0 0 10px rgba(255, 0, 0, 0.6);
+  .modal-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
   }
 
-  .send-text {
-    position: absolute;
-    left: 65px;
-    top: 98px;
-    width: 870px;
-    height: 300px;
-    resize: none;
-    padding: 4px;
-    background: rgba(0, 0, 51, 0.9);
-    border: 1px solid #333;
-  }
+  @media (max-width: 500px) {
+    .layout {
+      grid-template-columns: 1fr;
+      overflow: auto;
+    }
 
-  .modal-send {
-    left: 60px;
-    top: 408px;
-  }
+    .col-right {
+      grid-template-rows: minmax(280px, 1fr) auto;
+    }
 
-  .modal-cancel {
-    left: 686px;
-    top: 408px;
-  }
+    .rel-grid {
+      grid-template-columns: 1fr;
+    }
 
-  .rename-modal {
-    background-size: 1000px 500px;
-  }
-
-  .rename-input {
-    position: absolute;
-    left: 352px;
-    top: 244px;
-    width: 300px;
-    padding: 2px 4px;
-    background: rgba(0, 0, 51, 0.9);
-    border: 1px solid #333;
-  }
-
-  .rename-ok {
-    left: 240px;
-    top: 288px;
-  }
-
-  .rename-cancel {
-    left: 506px;
-    top: 288px;
-  }
-
-  .sure-modal {
-    position: absolute;
-    width: 506px;
-    height: 120px;
-    background: rgba(0, 0, 102, 0.95);
-    border: 1px solid #0ff;
-    transition: opacity 1s cubic-bezier(0.33, 1, 0.68, 1);
-    z-index: 6;
-  }
-
-  .hint {
-    position: absolute;
-    z-index: 30;
-    max-width: 280px;
-    padding: 8px;
-    background: rgba(0, 0, 102, 0.95);
-    border: 1px solid #0ff;
-  }
-
-  .hint-body :global(a) {
-    color: #0ff;
+    .stat-split {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

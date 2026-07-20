@@ -9,15 +9,14 @@
   export let sv = 50;
 
   const ASSET = '/app/img/topmenu';
-  const VER = '7';
 
   const navItems = [
-    { cls: 'btn-char', href: '/character', title: 'Персонаж', label: 'персонаж' },
-    { cls: 'btn-place', href: '/place', title: 'Местность', label: 'МЕСТНОСТЬ' },
-    { cls: 'btn-ship', href: '/ships', title: 'Корабли', label: 'корабли' },
-    { cls: 'btn-ware', href: '/ware', title: 'Склад', label: 'склад' },
-    { cls: 'btn-trade', href: '/trade', title: 'Торговля', label: 'торговля' },
-    { cls: 'btn-misc', href: '/misc', title: 'Прочее', label: 'прочее' },
+    { href: '/character', title: 'Персонаж', label: 'Персонаж' },
+    { href: '/place', title: 'Местность', label: 'Местность' },
+    { href: '/ships', title: 'Корабли', label: 'Корабли' },
+    { href: '/ware', title: 'Склад', label: 'Склад' },
+    { href: '/trade', title: 'Торговля', label: 'Торговля' },
+    { href: '/misc', title: 'Прочее', label: 'Прочее' },
   ];
 
   const playlist = Array.from({ length: 9 }, (_, i) => `/music/${i + 1}.mp3`);
@@ -133,7 +132,7 @@
     playClick();
   }
 
-  function onMailClick(e) {
+  function onMailClick() {
     playClick();
     mailHasUnread.set(false);
     push('/mail');
@@ -161,48 +160,46 @@
   });
 </script>
 
-<div id="bar">
-  <nav id="nav">
+<div class="bar">
+  <nav class="nav">
     {#each navItems as item}
       <a
-        class="nav-btn {item.cls}"
+        class="nav-link"
         href={item.href}
         use:link
         title={item.title}
         on:mouseenter={playHover}
         on:mousedown={onNavClick}
       >
-        <span>{item.label}</span>
+        {item.label}
       </a>
     {/each}
     <a
-      class="nav-btn btn-exit exit"
+      class="nav-link exit"
       href="/page.php?id=7"
       title="Выход"
       on:mouseenter={playHover}
       on:mousedown={onExitClick}
       on:click|preventDefault={onExitClick}
     >
-      <span>выход</span>
+      Выход
     </a>
   </nav>
 
-  <div id="tools">
-    <span id="ping" class={pingClass}>{pingMs ?? ''}</span>
-    {#if !playing}
-      <button type="button" title="Музыка" on:click={toggleMusic} on:mouseenter={playHover} on:mousedown={playClick}>
-        <img src="{ASSET}/btn_player_off.png?v={VER}" width="27" height="21" alt="play" />
-      </button>
-    {:else}
-      <button type="button" title="Пауза" on:click={toggleMusic} on:mouseenter={playHover} on:mousedown={playClick}>
-        <img src="{ASSET}/btn_player_on.png?v={VER}" width="27" height="21" alt="pause" />
-      </button>
-    {/if}
-    <button type="button" title="Следующий" on:click={nextTrack} on:mouseenter={playHover} on:mousedown={playClick}>
-      <img src="{ASSET}/btn_player_next.png?v={VER}" width="27" height="21" alt="next" />
+  <div class="tools">
+    <span class="ping {pingClass}">{pingMs ?? ''}</span>
+    <button type="button" class="tool-btn" title={playing ? 'Пауза' : 'Музыка'} on:click={toggleMusic} on:mouseenter={playHover} on:mousedown={playClick}>
+      {#if playing}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
+      {:else}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+      {/if}
+    </button>
+    <button type="button" class="tool-btn" title="Следующий" on:click={nextTrack} on:mouseenter={playHover} on:mousedown={playClick}>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M6 5v14l8.5-7L6 5zm9 0h3v14h-3z" /></svg>
     </button>
     <a
-      id="btn-mail"
+      class="tool-btn mail"
       class:has-mail={$mailHasUnread}
       href="/mail"
       use:link
@@ -211,7 +208,12 @@
       on:mouseenter={playHover}
       on:mousedown={onMailClick}
       on:click|preventDefault={onMailClick}
-    ></a>
+    >
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="M3 7l9 7 9-7" />
+      </svg>
+    </a>
   </div>
 </div>
 
@@ -220,145 +222,112 @@
 <audio bind:this={sndClick} preload="auto" src="{ASSET}/bleep.wav"></audio>
 
 <style>
-  #bar {
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    box-sizing: border-box;
-    height: 27px;
-    padding-bottom: 1px;
-    width: 100%;
-    overflow: visible;
-    background: #000;
-  }
-
-  #nav {
-    display: flex;
-    align-items: flex-end;
-    height: 25px;
-    flex: 0 0 auto;
-  }
-
-  #nav a.nav-btn {
-    --plate: url('/app/img/topmenu/plate.svg');
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    flex: 0 0 auto;
-    height: 25px;
-    overflow: visible;
-    text-decoration: none;
-    box-sizing: border-box;
-    padding: 0 10px 3px;
-    border: 0;
-    border-style: solid;
-    border-width: 3px 8px;
-    border-image-source: var(--plate);
-    border-image-slice: 3 8 3 8 fill;
-    border-image-width: 3px 8px;
-    border-image-repeat: stretch;
-    background: transparent;
-  }
-
-  #nav a.nav-btn:hover {
-    filter: brightness(1.2) drop-shadow(0 0 3px rgba(0, 240, 255, 0.65));
-  }
-
-  #nav a.btn-char  { width: 124px; }
-  #nav a.btn-place { width: 136px; }
-  #nav a.btn-ship  { width: 108px; }
-  #nav a.btn-ware  { width: 82px; }
-  #nav a.btn-trade { width: 122px; }
-  #nav a.btn-misc  { width: 96px; }
-  #nav a.btn-exit  { width: 83px; }
-
-  #nav a span {
-    display: block;
-    font: 12px/12px 'TerminatorCyr', sans-serif;
-    color: #fff;
-    pointer-events: none;
-  }
-
-  #nav a:hover span {
-    text-shadow: 0 0 5px #00ffff, 0 0 2px #00ffff;
-  }
-
-  #nav a.exit span {
-    color: #ff0000;
-  }
-
-  #nav a.exit:hover {
-    filter: brightness(1.25) drop-shadow(0 0 2px #ff6666);
-  }
-
-  #nav a.exit:hover span {
-    text-shadow: 0 0 5px #ff0000, 0 0 2px #ff6666;
-  }
-
-  #tools {
-    position: absolute;
-    right: 8px;
-    top: 1px;
-    height: 25px;
+  .bar {
     display: flex;
     align-items: center;
-    gap: 2px;
+    justify-content: space-between;
+    gap: 12px;
+    height: 100%;
+    padding: 0 12px;
+    background: rgba(6, 12, 24, 0.75);
+    border-bottom: 1px solid var(--border-light);
+    backdrop-filter: blur(8px);
   }
 
-  #tools a,
-  #tools button {
-    display: block;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    line-height: 0;
+  .nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
   }
 
-  #tools img {
-    display: block;
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 1px solid var(--border-light);
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
   }
 
-  #ping {
-    min-width: 28px;
-    font: 9px/25px Verdana, Arial, sans-serif;
-    color: #00ff00;
+  .nav-link:hover {
+    color: var(--neon-cyan);
+    border-color: var(--neon-cyan);
+    background: rgba(0, 229, 255, 0.08);
+    box-shadow: var(--glow-soft);
+  }
+
+  .nav-link.exit {
+    color: var(--accent-danger);
+    border-color: rgba(255, 59, 92, 0.4);
+  }
+
+  .nav-link.exit:hover {
+    color: #ff7a90;
+    border-color: var(--accent-danger);
+    background: rgba(255, 59, 92, 0.1);
+  }
+
+  .tools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+  }
+
+  .ping {
+    min-width: 32px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent-buy);
     text-align: right;
-    padding-right: 4px;
-    pointer-events: none;
   }
 
-  #ping.warn {
-    color: #ffff00;
+  .ping.warn {
+    color: var(--accent-warn);
   }
 
-  #ping.bad {
-    color: #ff0000;
+  .ping.bad {
+    color: var(--accent-sell);
   }
 
-  #btn-mail {
-    width: 44px;
-    height: 21px;
-    background: url('/app/img/topmenu/mail_strip.png') 0 0 no-repeat;
-    background-size: 3080px 21px;
+  .tool-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--border-light);
+    background: rgba(0, 229, 255, 0.05);
+    color: var(--neon-cyan-dim);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, box-shadow 0.2s, color 0.2s;
   }
 
-  #btn-mail.has-mail {
-    animation: mailBlink 2s steps(70) infinite;
+  .tool-btn:hover {
+    color: var(--neon-cyan);
+    box-shadow: var(--glow-soft);
+    background: rgba(0, 229, 255, 0.12);
   }
 
-  @keyframes mailBlink {
-    from { background-position: 0 0; }
-    to   { background-position: -3080px 0; }
+  .tool-btn.mail.has-mail {
+    animation: mailPulse 1.2s ease-in-out infinite;
+    color: var(--accent-warn);
+    border-color: var(--accent-warn);
   }
 
-  #btn-mail:hover {
-    filter: brightness(1.25);
-  }
-
-  #tools button:hover img {
-    filter: brightness(1.25) drop-shadow(0 0 2px #00ffff);
+  @keyframes mailPulse {
+    50% {
+      box-shadow: 0 0 12px rgba(255, 154, 60, 0.55);
+    }
   }
 </style>

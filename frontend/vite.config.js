@@ -7,11 +7,11 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/page.php': { target: 'http://127.0.0.1:8080', changeOrigin: true },
-      '/reader.php': { target: 'http://127.0.0.1:8080', changeOrigin: true },
-      '/music': { target: 'http://127.0.0.1:8080', changeOrigin: true },
-      '/images': { target: 'http://127.0.0.1:8080', changeOrigin: true },
-      '/img': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/page.php': { target: 'http://127.0.0.1:3080', changeOrigin: true },
+      '/reader.php': { target: 'http://127.0.0.1:3080', changeOrigin: true },
+      '/music': { target: 'http://127.0.0.1:3080', changeOrigin: true },
+      '/images': { target: 'http://127.0.0.1:3080', changeOrigin: true },
+      '/img': { target: 'http://127.0.0.1:3080', changeOrigin: true },
     },
   },
 });

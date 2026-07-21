@@ -206,7 +206,7 @@ body {
 .scifi-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 4px;
+  border-spacing: 0 2px;
   font-size: var(--font-size);
   font-family: var(--font-ui);
 }
@@ -214,7 +214,7 @@ body {
 .scifi-table th {
   color: var(--text-muted);
   text-align: left;
-  padding: 7px 10px;
+  padding: 5px 10px;
   border-bottom: 1px solid var(--border-active);
   font-weight: 500;
   text-transform: uppercase;
@@ -227,7 +227,7 @@ body {
 }
 
 .scifi-table td {
-  padding: 8px 12px;
+  padding: 5px 10px;
   border-bottom: 1px solid transparent;
   color: var(--text-main);
   cursor: pointer;

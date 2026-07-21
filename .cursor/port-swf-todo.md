@@ -13,8 +13,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Статус | Кол-во |
 |--------|--------|
-| redesign (cosmic UI) | shell + booklist + about + misc |
-| stub | 4 — place, ships, ware, trade |
+| redesign (cosmic UI) | shell + booklist + about + misc + ware |
+| stub | 3 — place, ships, trade |
 | todo | transitions, tutorial |
 
 ---
@@ -26,8 +26,9 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 - Токены/utilities: `frontend/src/app.css`
 - UI kit: `frontend/src/lib/ui/` (ScifiPanel, ScifiButton, ScifiTabs, ProgressBar, StatRow)
 - Shell: `App.svelte`, `TopMenu.svelte`, `Chat.svelte` — glass/cyan, без sprite-кнопок
-- `Booklist.svelte` / `About.svelte` / `Misc.svelte` — CSS grid, без absolute 1000×500 и PNG-скинов; RPC без изменений
+- `Booklist.svelte` / `About.svelte` / `Misc.svelte` / `Warehouse.svelte` — CSS grid, без absolute 1000×500 и PNG-скинов; RPC без изменений
 - Pixel-perfect purge (booklist / about / topmenu / fonts): **done** 2026-07-20
+- Routes: Booklist, About, Misc, Warehouse cosmic; stubs place/ships/trade
 
 ### Pixel-perfect purge list
 
@@ -60,7 +61,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `about.jpg` | `/about` → `About.svelte` | **redesign** | Профиль/медали; PNG purged; SWF ещё в www |
 | `planet/orbit/station` | `/place` | **stub** | |
 | `ships.jpg` | `/ships` | **stub** | |
-| `warehouse.jpg` | `/ware` | **stub** | |
+| `warehouse.jpg` | `/ware` → `Warehouse.svelte` | **redesign** | Dual-pane cargo move; RPC 41–47; SWF удалён |
 | `trade.jpg` | `/trade` | **stub** | Следующий кандидат на cosmic (concept-2) |
 | `misc.jpg` | `/misc` → `Misc.svelte` | **redesign** | 7 вкладок + atlas SVG; SWF ещё в www |
 
@@ -82,3 +83,4 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `topmenu.jpg` | `0b4a05d` Fix menu and chat | `frontend/src/lib/TopMenu.svelte` |
 | `read.jpg` / `write.jpg` | 2026-07-20 cosmic purge | `frontend/src/lib/Chat.svelte` |
 | `booklist.jpg` | 2026-07-20 cosmic purge | `frontend/src/routes/Booklist.svelte` |
+| `warehouse.jpg` | 2026-07-21 cosmic port | `frontend/src/routes/Warehouse.svelte` |

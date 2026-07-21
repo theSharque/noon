@@ -708,3 +708,142 @@ export async function saveStarHint(x, y, text, type, vis) {
 export async function clearStarHint(x, y) {
   return fetchPage(673, `x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}&clear=1`);
 }
+
+function parseWarePlaces(data) {
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') return { err, places: [], lastPlace: '' };
+  const places = [
+    { value: '*', label: 'Все' },
+    ...parseIndexedList(data, 'cnt', {
+      value: 'id',
+      label: 'name',
+    }),
+  ];
+  return {
+    err: '0',
+    places,
+    lastPlace: data.lastPlace || '',
+  };
+}
+
+export async function loadWarePlaces() {
+  return parseWarePlaces(await fetchPage(46));
+}
+
+function parseWareShips(data) {
+  const ships = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'name',
+    place: 'place',
+    cargo: 'cargo',
+    bgColor: 'c',
+  });
+  return {
+    ...data,
+    ships,
+    pos: data.pos !== undefined ? parseInt(data.pos, 10) : 0,
+  };
+}
+
+export async function loadWareShips(pl, shid = '') {
+  const params = [
+    `pl=${encodeURIComponent(pl == null ? '*' : pl)}`,
+    `shid=${encodeURIComponent(shid || '')}`,
+  ].join('&');
+  return parseWareShips(await fetchPage(41, params));
+}
+
+function parseWareItems(data) {
+  const errKey = data.err !== undefined ? 'err' : data.Err !== undefined ? 'Err' : null;
+  if (errKey && String(data[errKey]) !== '0') {
+    return { err: String(data[errKey]), items: [], free: '' };
+  }
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+    count: 'c',
+    mass: 'm',
+    bgColor: 't',
+  });
+  return {
+    err: '0',
+    items,
+    free: data.free || '',
+  };
+}
+
+function shipSelectParams(rf, shipIds) {
+  const ids = Array.isArray(shipIds) ? shipIds.filter(Boolean) : [];
+  if (ids.length <= 1) {
+    return `rf=${encodeURIComponent(rf)}&shid=${encodeURIComponent(ids[0] || '')}`;
+  }
+  const parts = [`rf=${encodeURIComponent(rf)}`, `scnt=${ids.length}`];
+  ids.forEach((id, i) => parts.push(`sh${i}=${encodeURIComponent(id)}`));
+  return parts.join('&');
+}
+
+export async function loadWareShipItems(rf, shipIds) {
+  return parseWareItems(await fetchPage(42, shipSelectParams(rf, shipIds)));
+}
+
+function parseWareSilos(data) {
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') return { err, silos: [] };
+  const silos = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    tid: 'tid',
+    name: 'name',
+    place: 'place',
+    cargo: 'cargo',
+    bgColor: 'c',
+  });
+  return { err: '0', silos };
+}
+
+export async function loadWareSilos(shipIds) {
+  const ids = Array.isArray(shipIds) ? shipIds.filter(Boolean) : [];
+  if (!ids.length) return { err: '1', silos: [] };
+  if (ids.length === 1) {
+    return parseWareSilos(await fetchPage(43, `shid=${encodeURIComponent(ids[0])}`));
+  }
+  const parts = [`scnt=${ids.length}`];
+  ids.forEach((id, i) => parts.push(`sh${i}=${encodeURIComponent(id)}`));
+  return parseWareSilos(await fetchPage(43, parts.join('&')));
+}
+
+export async function loadWareSiloItems(rf, shid, tid) {
+  return parseWareItems(
+    await fetchPage(
+      44,
+      `rf=${encodeURIComponent(rf)}&shid=${encodeURIComponent(shid)}&tid=${encodeURIComponent(tid)}`,
+    ),
+  );
+}
+
+export async function moveWareItem({ shid, plid, tid, oid, ocnt, move }) {
+  return fetchPage(
+    45,
+    [
+      `shid=${encodeURIComponent(shid)}`,
+      `plid=${encodeURIComponent(plid)}`,
+      `tid=${encodeURIComponent(tid)}`,
+      `oid=${encodeURIComponent(oid)}`,
+      `ocnt=${encodeURIComponent(ocnt)}`,
+      `move=${encodeURIComponent(move)}`,
+    ].join('&'),
+  );
+}
+
+export async function moveWareMult({ ships, plid, tid, objects, ocnt, move }) {
+  return fetchPage(
+    47,
+    [
+      `ships=${encodeURIComponent(ships)}`,
+      `plid=${encodeURIComponent(plid)}`,
+      `tid=${encodeURIComponent(tid)}`,
+      `objects=${encodeURIComponent(objects)}`,
+      `ocnt=${encodeURIComponent(ocnt)}`,
+      `move=${encodeURIComponent(move)}`,
+    ].join('&'),
+  );
+}

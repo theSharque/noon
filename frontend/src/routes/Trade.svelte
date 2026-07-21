@@ -56,7 +56,6 @@
   let bayWareIdx = -1;
   let bayMoney = '';
   let bayQty = '0';
-  let bayTitle = '';
   let baySum = '';
   let bayBtn = false;
   let bayBtnAll = false;
@@ -69,7 +68,6 @@
   let sellWareIdx = -1;
   let sellMoney = '';
   let sellQty = '0';
-  let sellTitle = '';
   let sellSum = '';
   let sellBtn = false;
   let sellBtnAll = false;
@@ -175,7 +173,6 @@
     bayBtn = false;
     bayBtnAll = false;
     bayQty = '';
-    bayTitle = '';
     baySum = '';
     bayQtyGlow = '';
     baySumGlow = '';
@@ -185,7 +182,6 @@
     sellBtn = false;
     sellBtnAll = false;
     sellQty = '';
-    sellTitle = '';
     sellSum = '';
     sellQtyGlow = '';
     sellSumGlow = '';
@@ -328,7 +324,6 @@
     playSelect();
     bayBtnAll = num(item.offerCnt) >= 1;
     bayQty = '0';
-    bayTitle = item.name || '';
     recountBay();
   }
 
@@ -345,7 +340,6 @@
     playSelect();
     sellBtnAll = num(item.shipCnt) >= 1;
     sellQty = '0';
-    sellTitle = item.name || '';
     recountSell();
   }
 
@@ -603,7 +597,6 @@
           </table>
         </div>
         <div class="action-bar">
-          <span class="item-title">{bayTitle || '—'}</span>
           <label class="qty-wrap">
             <span>Кол-во</span>
             <input
@@ -691,7 +684,6 @@
           </table>
         </div>
         <div class="action-bar">
-          <span class="item-title">{sellTitle || '—'}</span>
           <label class="qty-wrap">
             <span>Кол-во</span>
             <input
@@ -752,7 +744,6 @@
       <ScifiPanel title="Описание" className="pane">
         <div class="conf-desc">{@html confDesc}</div>
         <div class="action-bar">
-          <span class="item-title">{confIdx >= 0 ? confItems[confIdx]?.name || '—' : '—'}</span>
           <label class="qty-wrap">
             <span>Кол-во</span>
             <input
@@ -764,7 +755,7 @@
             />
           </label>
           <span class="sum">Цена: {confCreditSum || '—'}</span>
-          <span class="sum">Цена conf: {confConfSum || '—'}</span>
+          <span class="sum">Цена конфедераты: {confConfSum || '—'}</span>
           <div class="action-btns">
             {#if confBtnMoney}
               <ScifiButton variant="primary" disabled={busy} on:click={() => doConfBuy(1)}>
@@ -773,7 +764,7 @@
             {/if}
             {#if confBtnConf}
               <ScifiButton variant="ghost" disabled={busy} on:click={() => doConfBuy(2)}>
-                За conf
+                За конфедераты
               </ScifiButton>
             {/if}
           </div>
@@ -809,7 +800,7 @@
 
   .dual-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    grid-template-columns: var(--layout-side) minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
   }
 
@@ -881,12 +872,6 @@
     gap: 12px;
     padding: 10px 12px;
     border-top: 1px solid var(--border-light);
-  }
-
-  .item-title {
-    color: var(--neon-cyan);
-    font-size: 0.9rem;
-    min-width: 100px;
   }
 
   .sum {

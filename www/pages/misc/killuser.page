@@ -7,14 +7,23 @@
   if( $dat['id'] == $user->uid ) {
     $code = md5( $dat['password'].$dat['id'] );
 
-    db_query( "UPDATE users SET ssid = '1' WHERE id = ".$user->uid );
+    $proto = ( !empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ) ? 'https' : 'http';
+    $host = isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '21noon.com';
+    $link = $proto.'://'.$host.'/killme.php?act='.$code;
+
+    send_msg(
+      1,
+      $user->uid,
+      "Вы подали заявку на удаление аккаунта. Для подтверждения перейдите по ссылке:\n$link\n\nЕсли это сделали не вы — просто удалите это сообщение.",
+      16
+    );
 
     $message = "Здравствуйте {$dat['login']}.
 
 Вы подали заявку на удаление аккаунта {$dat['login']} в игре \"Полдень 21 века\" на сервере 21noon.com.
 Если это сделали вы, то для удаления вам необходимо перейти по ссылке:
 
-  http://21noon.com/killme.php?act=$code
+  $link
 
 Если письмо попало к вам случайно, то мы приносим свои извинения за действия не добропорядочных пользователей и
 просим просто удалить письмо не обращая на него внимания.
@@ -26,11 +35,13 @@
                "Content-type: text/plain; charset=\"UTF-8\"".
                "Reply-To: support@21noon.com\r\n".
                'X-Mailer: PHP/' . phpversion();
-  
+
     $subject = "=?UTF-8?B?" . base64_encode("Удаление акаунта {$dat['login']} в игре Полдень 21 века") . "?=";
 
-    mail( $dat['email'], $subject, $message, $headers );
-    header("Location: index.php");
+    @mail( $dat['email'], $subject, $message, $headers );
 
+    db_query( "UPDATE users SET ssid = '1' WHERE id = ".$user->uid );
+
+    header( "Location: index.php" );
     exit();
   }

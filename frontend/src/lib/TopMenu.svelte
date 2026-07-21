@@ -5,6 +5,7 @@
   import { get } from 'svelte/store';
   import { pollMail } from './api.js';
   import { mailHasUnread, mailLastId } from './mailStore.js';
+  import { musicVolume, soundVolume, setMusicVolumeLocal, setSoundVolumeLocal } from './audioStore.js';
 
   export let mv = 0;
   export let sv = 50;
@@ -33,6 +34,11 @@
   let sndHover;
   let sndClick;
   let pollTimer;
+  let unsubMusic;
+  let unsubSound;
+
+  $: mv = $musicVolume;
+  $: sv = $soundVolume;
 
   function sfxVolume() {
     const v = Math.max(0, Math.min(1, sv / 100));
@@ -64,12 +70,12 @@
     }
   }
 
-  function setMusicVolume(vol) {
+  function applyPlayerVolume(vol) {
     if (player) player.volume = Math.max(0, Math.min(1, vol / 100));
   }
 
   function playMusic() {
-    setMusicVolume(mv);
+    applyPlayerVolume(mv);
     player?.play().catch(() => {});
     playing = true;
   }
@@ -82,7 +88,7 @@
   function toggleMusic() {
     if (playing) pauseMusic();
     else {
-      if (mv <= 0) mv = 50;
+      if (mv <= 0) setMusicVolumeLocal(50);
       if (!player?.src) loadTrack(trackIndex);
       playMusic();
     }
@@ -124,12 +130,10 @@
         mailHasUnread.set(false);
       }
       if (data.mv !== undefined) {
-        mv = parseInt(data.mv, 10);
-        if (playing) setMusicVolume(mv);
+        setMusicVolumeLocal(parseInt(data.mv, 10));
       }
       if (data.sv !== undefined) {
-        sv = parseInt(data.sv, 10);
-        sfxVolume();
+        setSoundVolumeLocal(parseInt(data.sv, 10));
       }
     } catch (e) {
       pingMs = '!';
@@ -153,9 +157,15 @@
   }
 
   onMount(() => {
+    setMusicVolumeLocal(mv);
+    setSoundVolumeLocal(sv);
     sfxVolume();
+    unsubMusic = musicVolume.subscribe((vol) => {
+      applyPlayerVolume(vol);
+    });
+    unsubSound = soundVolume.subscribe(() => sfxVolume());
     loadTrack(trackIndex);
-    if (mv > 0) playMusic();
+    if (get(musicVolume) > 0) playMusic();
     else pauseMusic();
 
     player?.addEventListener('ended', nextTrack);
@@ -165,6 +175,8 @@
 
   onDestroy(() => {
     clearInterval(pollTimer);
+    unsubMusic?.();
+    unsubSound?.();
     player?.removeEventListener('ended', nextTrack);
   });
 </script>
@@ -173,7 +185,7 @@
   <nav class="nav">
     {#each navItems as item}
       <a
-        class="nav-link"
+        class="scifi-nav-link"
         href={item.href}
         use:link
         use:active
@@ -185,7 +197,7 @@
       </a>
     {/each}
     <a
-      class="nav-link exit"
+      class="scifi-nav-link exit"
       href="/page.php?id=7"
       title="Выход"
       on:mouseenter={playHover}
@@ -257,43 +269,16 @@
     min-width: 0;
   }
 
-  .nav-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 12px;
-    color: var(--text-muted);
-    text-decoration: none;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    border: 1px solid var(--border-light);
-    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
-    transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
-  }
-
-  .nav-link:hover,
-  .nav-link:global(.active) {
-    color: var(--neon-cyan);
-    border-color: var(--neon-cyan);
-    background: rgba(0, 229, 255, 0.08);
-    box-shadow: var(--glow-soft);
-  }
-
-  .nav-link:global(.active) {
-    background: rgba(0, 229, 255, 0.16);
-    box-shadow: var(--glow-strong);
-  }
-
-  .nav-link.exit {
+  .scifi-nav-link.exit {
     color: var(--accent-danger);
     border-color: rgba(255, 59, 92, 0.4);
   }
 
-  .nav-link.exit:hover {
+  .scifi-nav-link.exit:hover {
     color: #ff7a90;
     border-color: var(--accent-danger);
     background: rgba(255, 59, 92, 0.1);
+    box-shadow: inset 0 0 12px rgba(255, 59, 92, 0.2), 0 0 12px rgba(255, 59, 92, 0.25);
   }
 
   .balances {
@@ -347,18 +332,20 @@
     width: 28px;
     height: 28px;
     padding: 0;
-    border: 1px solid var(--border-light);
-    background: rgba(0, 229, 255, 0.05);
-    color: var(--neon-cyan-dim);
+    border: 1px solid var(--ctrl-border-color);
+    background: var(--ctrl-bg);
+    color: var(--ctrl-color);
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+    clip-path: var(--ctrl-clip);
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   }
 
   .tool-btn:hover {
-    color: var(--neon-cyan);
-    box-shadow: var(--glow-soft);
-    background: rgba(0, 229, 255, 0.12);
+    color: var(--ctrl-active-color);
+    border-color: var(--ctrl-active-border);
+    box-shadow: var(--ctrl-active-shadow);
+    background: var(--ctrl-hover-bg);
   }
 
   .tool-btn.mail.has-mail {

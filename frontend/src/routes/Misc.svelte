@@ -31,6 +31,8 @@
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
   import ScifiTabs from '../lib/ui/ScifiTabs.svelte';
   import ScifiSelect from '../lib/ui/ScifiSelect.svelte';
+  import { setMusicVolumeLocal, setSoundVolumeLocal } from '../lib/audioStore.js';
+  import { askYesNo } from '../lib/confirmStore.js';
 
   const IMG = '/app/img/booklist';
   const TAB_DEFS = [
@@ -182,13 +184,29 @@
       if (tab === 'atlas') await tick().then(centerAtlas);
       return;
     }
-    if (tab === 'enc') await loadEnc();
-    else if (tab === 'atlas') await loadAtlas();
-    else if (tab === 'aliance') await loadAliance();
-    else if (tab === 'hire') await loadHire();
-    else if (tab === 'robots') await loadRobotsTab();
-    else if (tab === 'top') await loadTopTab();
-    else if (tab === 'settings') await loadSettingsTab();
+    switch (tab) {
+      case 'enc':
+        await loadEnc();
+        break;
+      case 'atlas':
+        await loadAtlas();
+        break;
+      case 'aliance':
+        await loadAliance();
+        break;
+      case 'hire':
+        await loadHire();
+        break;
+      case 'robots':
+        await loadRobotsTab();
+        break;
+      case 'top':
+        await loadTopTab();
+        break;
+      case 'settings':
+        await loadSettingsTab();
+        break;
+    }
   }
 
   async function loadEnc(preferName = '') {
@@ -393,14 +411,26 @@
     }
     let ord = '';
     let extra = '';
-    if (kind === 'create') {
-      ord = '1';
-      extra = `&name=${encodeURIComponent(alianceName)}`;
-    } else if (kind === 'enter') ord = '2';
-    else if (kind === 'upgrade') ord = '3';
-    else if (kind === 'leave') ord = '5';
-    else if (kind === 'cancel') ord = '6';
-    if (!ord) return;
+    switch (kind) {
+      case 'create':
+        ord = '1';
+        extra = `&name=${encodeURIComponent(alianceName)}`;
+        break;
+      case 'enter':
+        ord = '2';
+        break;
+      case 'upgrade':
+        ord = '3';
+        break;
+      case 'leave':
+        ord = '5';
+        break;
+      case 'cancel':
+        ord = '6';
+        break;
+      default:
+        return;
+    }
     await alianceOrder(ord, aid || 0, extra);
     await loadAliance();
   }
@@ -410,21 +440,28 @@
     const uid = userIds[userSelected];
     const name = userNames[userSelected];
     if (!uid) return;
-    if (kind === 'mail') {
-      push(`/character?msgto=${encodeURIComponent(name)}`);
-      return;
+    switch (kind) {
+      case 'mail':
+        push(`/character?msgto=${encodeURIComponent(name)}`);
+        return;
+      case 'info':
+        push(`/about?login=${encodeURIComponent(name)}`);
+        return;
+      case 'accept':
+        await alianceUserOrder('1', uid);
+        break;
+      case 'delegate':
+        await alianceUserOrder('2', uid);
+        break;
+      case 'decline':
+        await alianceUserOrder('4', uid);
+        break;
+      case 'kick':
+        await alianceUserOrder('5', uid);
+        break;
+      default:
+        return;
     }
-    if (kind === 'info') {
-      push(`/about?login=${encodeURIComponent(name)}`);
-      return;
-    }
-    let ord = '';
-    if (kind === 'accept') ord = '1';
-    else if (kind === 'delegate') ord = '2';
-    else if (kind === 'decline') ord = '4';
-    else if (kind === 'kick') ord = '5';
-    if (!ord) return;
-    await alianceUserOrder(ord, uid);
     await loadAliance();
   }
 
@@ -461,34 +498,46 @@
   }
 
   async function onMusicChange() {
-    await saveMusicVolume(settingsMv);
-    if (typeof window !== 'undefined' && window.__NOON__) {
-      window.__NOON__.mv = settingsMv;
-    }
+    const vol = setMusicVolumeLocal(settingsMv);
+    settingsMv = vol;
+    await saveMusicVolume(vol);
+  }
+
+  function onMusicInput() {
+    setMusicVolumeLocal(settingsMv);
   }
 
   function onSoundChange() {
+    setSoundVolumeLocal(settingsSv);
     playBuzz();
-    if (typeof window !== 'undefined' && window.__NOON__) {
-      window.__NOON__.sv = settingsSv;
-    }
   }
 
   async function doSaveSettings() {
     playBuzz();
+    const mv = setMusicVolumeLocal(settingsMv);
+    const sv = setSoundVolumeLocal(settingsSv);
+    settingsMv = mv;
+    settingsSv = sv;
     await saveMiscSettings({
       cnt: settingsItems.length,
-      mv: settingsMv,
-      sv: settingsSv,
+      mv,
+      sv,
       items: settingsItems,
     });
-    if (typeof window !== 'undefined' && window.__NOON__) {
-      window.__NOON__.mv = settingsMv;
-      window.__NOON__.sv = settingsSv;
-    }
   }
 
-  function doKillUser() {
+  async function doKillUser() {
+    const ok = await askYesNo({
+      title: 'Удаление персонажа',
+      message:
+        'Удаление подтверждается через почту.\n\n' +
+        'На ваш email и во внутриигровую почту будет отправлена ссылка.\n' +
+        'Персонаж удалится только после перехода по ней.\n' +
+        'Текущая сессия будет завершена.\n\n' +
+        'Продолжить?',
+      danger: true,
+    });
+    if (!ok) return;
     playBuzz();
     killUserAccount();
   }
@@ -538,19 +587,25 @@
     let fi;
     let ft;
     let fv;
-    if (kind === 'arg') {
-      fi = i;
-      ft = hireArgs.find((a) => a.i === i)?.type;
-      fv = hireVals[i] || '';
-    } else if (kind === 'money') {
-      fi = 'm';
-      ft = hireInConf ? 5 : 4;
-      fv = hireSumm;
-    } else if (kind === 'time') {
-      fi = 't';
-      ft = 7;
-      fv = hireTime;
-    } else return;
+    switch (kind) {
+      case 'arg':
+        fi = i;
+        ft = hireArgs.find((a) => a.i === i)?.type;
+        fv = hireVals[i] || '';
+        break;
+      case 'money':
+        fi = 'm';
+        ft = hireInConf ? 5 : 4;
+        fv = hireSumm;
+        break;
+      case 'time':
+        fi = 't';
+        ft = 7;
+        fv = hireTime;
+        break;
+      default:
+        return;
+    }
 
     const data = await validateHireField(fi, ft, fv);
     const key = kind === 'arg' ? `arg${i}` : kind;
@@ -1116,11 +1171,11 @@
       <ScifiPanel title="Звук" className="col-settings-side">
         <label class="field">
           Музыка: {settingsMv}
-          <input type="range" min="0" max="100" bind:value={settingsMv} on:change={onMusicChange} />
+          <input type="range" min="0" max="100" bind:value={settingsMv} on:input={onMusicInput} on:change={onMusicChange} />
         </label>
         <label class="field">
           Звуки: {settingsSv}
-          <input type="range" min="0" max="100" bind:value={settingsSv} on:change={onSoundChange} />
+          <input type="range" min="0" max="100" bind:value={settingsSv} on:input={onSoundChange} on:change={onSoundChange} />
         </label>
         <div class="actions wrap">
           <ScifiButton variant="primary" on:click={doSaveSettings}>Сохранить</ScifiButton>
@@ -1182,7 +1237,7 @@
     flex: 1 1 auto;
     min-height: 0;
     display: grid;
-    grid-template-columns: minmax(240px, 1fr) minmax(0, 1.2fr);
+    grid-template-columns: var(--layout-side) minmax(0, 1.2fr);
     gap: 10px;
   }
 

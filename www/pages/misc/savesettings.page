@@ -12,12 +12,12 @@
   db_safe( $sv );
   db_safe( $sp );
 
-  if( is_numeric( $sv ) && $sv > 0 ) {
-    db_query( "UPDATE users SET volume_sound = $sv WHERE id = ".$user->uid );
+  if( is_numeric( $sv ) && $sv >= 0 ) {
+    db_query( "UPDATE users SET volume_sound = ".intval( $sv )." WHERE id = ".$user->uid );
   }
 
-  if( is_numeric( $mv ) && $mv > 0 ) {
-    db_query( "UPDATE users SET volume_music = $mv WHERE id = ".$user->uid );
+  if( is_numeric( $mv ) && $mv >= 0 ) {
+    db_query( "UPDATE users SET volume_music = ".intval( $mv )." WHERE id = ".$user->uid );
   }
 
   if( is_numeric( $sp ) && $sp !== null ) {

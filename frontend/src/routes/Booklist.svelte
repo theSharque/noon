@@ -93,13 +93,29 @@
   $: msgtoQs = (qs.get('msgto') || qs.get('to') || '').trim();
 
   function parseBar(text) {
-    const raw = String(text || '').replace(/<[^>]+>/g, '').trim();
-    const m = raw.match(/(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)/);
-    if (m) {
-      const cur = Number(m[1]);
-      const max = Number(m[2]);
+    const raw = String(text || '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const titled = raw.match(/\((-?\d+)\)\s*$/);
+    if (titled) {
+      const n = Math.abs(parseInt(titled[1], 10));
+      if (!Number.isFinite(n) || n <= 0) return { value: raw, percent: 0 };
+      const digits = String(n).length;
+      const tierStart = digits === 1 ? 0 : 10 ** (digits - 1);
+      const tierEnd = 10 ** digits;
+      const percent = Math.max(0, Math.min(100, ((n - tierStart) / (tierEnd - tierStart)) * 100));
+      return { value: raw, percent };
+    }
+
+    const ratio = raw.match(/(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)/);
+    if (ratio) {
+      const cur = Number(ratio[1]);
+      const max = Number(ratio[2]);
       if (max > 0) return { value: raw, percent: Math.max(0, Math.min(100, (cur / max) * 100)) };
     }
+
     const n = Number(raw.replace(/[^\d.-]/g, ''));
     if (!Number.isNaN(n) && n >= 0 && n <= 100) return { value: raw, percent: n };
     return { value: raw || '—', percent: 0 };
@@ -179,27 +195,30 @@
       let timeLabel = String(item.time ?? '');
       let bgColor = '';
       const t = String(item.time);
-      if (t === '0') {
-        timeLabel = 'Изучено';
-        bgColor = '0x666666';
-      } else if (t === '-100') {
-        timeLabel = 'Имплантант';
-        bgColor = '0x006600';
-      } else if (t === '-200') {
-        timeLabel = 'Установлен';
-        bgColor = '0x336633';
-      } else if (t === '-1000') {
-        timeLabel = 'Недоступно';
-        bgColor = '0x000000';
-      } else if (item.tp !== undefined && item.tp !== '' && !Number.isNaN(Number(item.tp))) {
-        const remainingSec = Math.floor((Number(item.tp) * 1000 - (now - learnStartTime)) / 1000);
-        if (remainingSec > 0) {
-          timeLabel = formatCountdown(remainingSec);
+      switch (t) {
+        case '0':
+          timeLabel = 'Изучено';
+          bgColor = '0x666666';
+          break;
+        case '-100':
+          timeLabel = 'Имплантант';
           bgColor = '0x006600';
-        } else {
-          timeLabel = '00:00:00';
-          bgColor = '0x006600';
-        }
+          break;
+        case '-200':
+          timeLabel = 'Установлен';
+          bgColor = '0x336633';
+          break;
+        case '-1000':
+          timeLabel = 'Недоступно';
+          bgColor = '0x000000';
+          break;
+        default:
+          if (item.tp !== undefined && item.tp !== '' && !Number.isNaN(Number(item.tp))) {
+            const remainingSec = Math.floor((Number(item.tp) * 1000 - (now - learnStartTime)) / 1000);
+            timeLabel = remainingSec > 0 ? formatCountdown(remainingSec) : '00:00:00';
+            bgColor = '0x006600';
+          }
+          break;
       }
       return { ...item, timeLabel, bgColor };
     });
@@ -474,16 +493,20 @@
   $: showMailDelete = mailSelected.size > 0;
   $: showMailDeleteAll = messages.length > 0;
 
-  $: detailTitle =
-    activeTab === 'messages'
-      ? 'Сообщение'
-      : activeTab === 'learn'
-        ? learnItems[learnSelected]?.name || 'Описание'
-        : activeTab === 'quest'
-          ? questItems[questSelected]?.name || 'Задание'
-          : activeTab === 'stat'
-            ? statItems[statSelected]?.name || 'Объект'
-            : 'Информация';
+  $: detailTitle = (() => {
+    switch (activeTab) {
+      case 'messages':
+        return 'Сообщение';
+      case 'learn':
+        return learnItems[learnSelected]?.name || 'Описание';
+      case 'quest':
+        return questItems[questSelected]?.name || 'Задание';
+      case 'stat':
+        return statItems[statSelected]?.name || 'Объект';
+      default:
+        return 'Информация';
+    }
+  })();
 
   onMount(async () => {
     scratchAudio = new Audio(`${IMG}/sounds/scratch.mp3`);
@@ -532,8 +555,8 @@
       {/if}
 
       <div class="bars">
-        <ProgressBar label="Военное обучение" value={barWr.value} percent={barWr.percent} />
-        <ProgressBar label="Ответственность" value={barSt.value} percent={barSt.percent} />
+        <ProgressBar label="Звание" value={barWr.value} percent={barWr.percent} />
+        <ProgressBar label="Статус" value={barSt.value} percent={barSt.percent} />
         <ProgressBar label="Опыт" value={barLv.value} percent={barLv.percent} />
       </div>
     </ScifiPanel>
@@ -852,7 +875,7 @@
     flex: 1 1 auto;
     min-height: 0;
     display: grid;
-    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    grid-template-columns: var(--layout-side) minmax(0, 1fr);
     gap: 10px;
   }
 
@@ -863,7 +886,14 @@
     gap: 10px;
   }
 
-  .booklist :global(.col-status),
+  .booklist :global(.col-status) {
+    width: var(--layout-side);
+    max-width: var(--layout-side);
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+  }
+
   .booklist :global(.col-main),
   .booklist :global(.col-detail) {
     min-height: 0;
@@ -932,7 +962,7 @@
 
   .stat-split {
     display: grid;
-    grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+    grid-template-columns: var(--layout-side) minmax(0, 1fr);
     gap: 10px;
     min-height: 0;
     flex: 1 1 auto;

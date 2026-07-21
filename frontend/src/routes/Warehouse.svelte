@@ -367,10 +367,20 @@
     const idx = parseInt(tr.dataset.idx, 10);
     if (Number.isNaN(idx)) return;
     const kind = table.getAttribute('data-ware-table');
-    if (kind === 'ships') onShipClick(idx, e);
-    else if (kind === 'ship-items') onShipItemClick(idx, e);
-    else if (kind === 'silos') onSiloClick(idx);
-    else if (kind === 'ware-items') onWareItemClick(idx, e);
+    switch (kind) {
+      case 'ships':
+        onShipClick(idx, e);
+        break;
+      case 'ship-items':
+        onShipItemClick(idx, e);
+        break;
+      case 'silos':
+        onSiloClick(idx);
+        break;
+      case 'ware-items':
+        onWareItemClick(idx, e);
+        break;
+    }
   }
 
   onMount(() => {
@@ -601,7 +611,7 @@
 
   .ware-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    grid-template-columns: var(--layout-side) minmax(0, 1.2fr);
     grid-template-rows: minmax(140px, 1fr) auto minmax(140px, 1fr);
     gap: 10px;
     min-height: 0;

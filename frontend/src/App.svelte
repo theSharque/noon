@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import TopMenu from './lib/TopMenu.svelte';
   import Chat from './lib/Chat.svelte';
+  import ScifiConfirm from './lib/ui/ScifiConfirm.svelte';
   import { routes } from './lib/router.js';
   import { getNoonConfig } from './lib/api.js';
 
@@ -31,6 +32,7 @@
   <footer class="shell-chat">
     <Chat />
   </footer>
+  <ScifiConfirm />
 </div>
 
 <style>

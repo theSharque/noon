@@ -8,6 +8,7 @@
     sendChat,
   } from './api.js';
   import { openPlayerAbout } from './chatActions.js';
+  import { askYesNo } from './confirmStore.js';
 
   const tabs = [
     { id: 'main', label: 'Основной' },
@@ -94,7 +95,12 @@
 
   async function adminBlock(id) {
     if (!id) return;
-    if (!confirm('Заблокировать игрока на 7 дней и удалить его сообщения?')) return;
+    const ok = await askYesNo({
+      title: 'Блокировка',
+      message: 'Заблокировать игрока на 7 дней и удалить его сообщения?',
+      danger: true,
+    });
+    if (!ok) return;
     await blockChatUser(id);
     await refreshChat();
   }
@@ -104,20 +110,19 @@
     if (!el) return;
     e.preventDefault();
     const action = el.dataset.chatAction;
-    if (action === 'nick') {
-      prefillNick(el.dataset.nick);
-      return;
-    }
-    if (action === 'del') {
-      adminDelete(el.dataset.id);
-      return;
-    }
-    if (action === 'blk') {
-      adminBlock(el.dataset.id);
-      return;
-    }
-    if (action === 'about') {
-      openPlayerAbout(el.dataset.login);
+    switch (action) {
+      case 'nick':
+        prefillNick(el.dataset.nick);
+        break;
+      case 'del':
+        adminDelete(el.dataset.id);
+        break;
+      case 'blk':
+        adminBlock(el.dataset.id);
+        break;
+      case 'about':
+        openPlayerAbout(el.dataset.login);
+        break;
     }
   }
 
@@ -319,7 +324,5 @@
 
   .chat-write .scifi-btn {
     flex: 0 0 auto;
-    padding: 6px 14px;
-    font-size: var(--font-size-sm);
   }
 </style>

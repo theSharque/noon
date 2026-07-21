@@ -23,8 +23,8 @@
     { key: 'aliance', label: 'Альянс' },
     { key: 'titul', label: 'Титул' },
     { key: 'star', label: 'Родная звезда' },
-    { key: 'war', label: 'Военное обучение' },
-    { key: 'status', label: 'Ответственность' },
+    { key: 'war', label: 'Звание' },
+    { key: 'status', label: 'Статус' },
     { key: 'level', label: 'Опыт' },
     { key: 'ships', label: 'Кораблей во флоте' },
     { key: 'power', label: 'Сила флота' },
@@ -369,7 +369,7 @@
 
   .about-grid {
     display: grid;
-    grid-template-columns: minmax(320px, 1fr) minmax(320px, 1.2fr);
+    grid-template-columns: var(--layout-side) minmax(0, 1fr);
     gap: 10px;
     height: 100%;
     min-height: 0;
@@ -451,7 +451,7 @@
 
   .medals-layout {
     display: grid;
-    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+    grid-template-columns: var(--layout-side) minmax(0, 1fr);
     gap: 12px;
     min-height: 0;
     flex: 1 1 auto;

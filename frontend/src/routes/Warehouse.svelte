@@ -611,7 +611,7 @@
 
   .ware-grid {
     display: grid;
-    grid-template-columns: var(--layout-side) minmax(0, 1.2fr);
+    grid-template-columns: 480px minmax(0, 1.2fr);
     grid-template-rows: minmax(140px, 1fr) auto minmax(140px, 1fr);
     gap: 10px;
     min-height: 0;

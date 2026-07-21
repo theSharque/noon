@@ -1002,3 +1002,254 @@ export async function tradeConfBay({ tp, oid, ocnt }) {
     ].join('&'),
   );
 }
+
+function parseShipsPlaces(data) {
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') {
+    return { err, places: [{ value: '*', label: 'Все' }], lastPlace: '', others: false };
+  }
+  const places = [
+    { value: '*', label: 'Все' },
+    ...parseIndexedList(data, 'cnt', {
+      value: 'id',
+      label: 'name',
+    }),
+  ];
+  return {
+    err: '0',
+    places,
+    lastPlace: data.lastPlace || '',
+    others: data.others !== undefined ? String(data.others) !== '0' : false,
+  };
+}
+
+export async function loadShipsPlaces() {
+  return parseShipsPlaces(await fetchPage(311));
+}
+
+function parseShipsList(data) {
+  const err = data.err !== undefined ? String(data.err) : '0';
+  const ships = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'name',
+    place: 'place',
+    group: 'group',
+    bgColor: 'c',
+    tp: 'tp',
+    cnt: 'cnt',
+  }).map((row) => ({
+    ...row,
+    tp: row.tp !== undefined && row.tp !== '' && !Number.isNaN(Number(row.tp)) ? Number(row.tp) : null,
+    cnt: row.cnt !== undefined ? Number(row.cnt) : null,
+  }));
+  return {
+    err,
+    ships,
+    fid: data.fid || '',
+  };
+}
+
+export async function loadShipsList({ oth, pl, ord } = {}) {
+  const parts = [
+    `oth=${oth ? 'true' : 'false'}`,
+    `pl=${encodeURIComponent(pl == null ? '*' : pl)}`,
+  ];
+  if (ord === 0 || ord === 1 || ord === '0' || ord === '1') {
+    parts.push(`ord=${encodeURIComponent(ord)}`);
+  }
+  return parseShipsList(await fetchPage(31, parts.join('&')));
+}
+
+export async function loadShipsOrders(shid) {
+  const data = await fetchPage(32, `shid=${encodeURIComponent(shid)}`);
+  const orders = [
+    { value: '100', label: 'Выберите приказ' },
+    ...parseIndexedList(data, 'cnt', {
+      value: 'id',
+      label: 'name',
+    }),
+  ];
+  return { err: data.err !== undefined ? String(data.err) : '0', orders };
+}
+
+export async function loadShipsFleetOrders(shipIds) {
+  const ids = Array.isArray(shipIds) ? shipIds.filter(Boolean) : [];
+  const parts = [`cnt=${ids.length}`];
+  ids.forEach((id, i) => parts.push(`sh${i}=${encodeURIComponent(id)}`));
+  const data = await fetchPage(34, parts.join('&'));
+  const orders = [
+    { value: '100', label: 'Выберите приказ' },
+    ...parseIndexedList(data, 'cnt', {
+      value: 'id',
+      label: 'name',
+    }),
+  ];
+  return { err: data.err !== undefined ? String(data.err) : '0', orders };
+}
+
+export async function loadShipsInfo(shid) {
+  const data = await fetchPage(36, `shid=${encodeURIComponent(shid)}`);
+  return {
+    err: data.err !== undefined ? String(data.err) : '0',
+    out: data.out || '',
+    info: data.info || '',
+    pic: data.pic || '',
+  };
+}
+
+export async function loadShipsItems(shid) {
+  const data = await fetchPage(321, `shid=${encodeURIComponent(shid)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') return { err, items: [] };
+  const items = parseIndexedList(data, 'cnt', {
+    name: 'n',
+    count: 'c',
+    mass: 'm',
+    bgColor: 't',
+  });
+  return { err: '0', items };
+}
+
+export async function loadShipsFleetList(shid) {
+  const data = await fetchPage(352, `shid=${encodeURIComponent(shid)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') return { err, ships: [], ms: '' };
+  const ships = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+  });
+  return { err: '0', ships, ms: data.ms || '' };
+}
+
+export async function loadShipsFleetOrderList(shid) {
+  const data = await fetchPage(354, `shid=${encodeURIComponent(shid)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') return { err, ships: [], ms: '' };
+  const ships = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+  });
+  return { err: '0', ships, ms: data.ms || '' };
+}
+
+export async function loadShipsInterruptMsg(shid) {
+  const data = await fetchPage(374, `shid=${encodeURIComponent(shid)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  return { err, msg: err === '0' ? data.msg || '' : '' };
+}
+
+function shipsSelectParams(shipIds) {
+  const ids = Array.isArray(shipIds) ? shipIds.filter(Boolean) : [];
+  const parts = [`cnt=${ids.length}`];
+  ids.forEach((id, i) => parts.push(`sh${i}=${encodeURIComponent(id)}`));
+  return parts.join('&');
+}
+
+export async function shipsMakeOrder({ shid, orid, nname, gname, msg }) {
+  const parts = [`shid=${encodeURIComponent(shid)}`, `orid=${encodeURIComponent(orid)}`];
+  if (nname !== undefined) parts.push(`nname=${encodeURIComponent(nname)}`);
+  if (gname !== undefined) parts.push(`gname=${encodeURIComponent(gname)}`);
+  if (msg !== undefined) parts.push(`msg=${encodeURIComponent(msg)}`);
+  return fetchPage(33, parts.join('&'));
+}
+
+export async function shipsMakeAttack({ shid, orid }) {
+  return fetchPage(
+    331,
+    `shid=${encodeURIComponent(shid)}&orid=${encodeURIComponent(orid)}`,
+  );
+}
+
+export async function shipsMakeFleet(shipIds) {
+  return fetchPage(35, shipsSelectParams(shipIds));
+}
+
+export async function shipsFleetAttack(shipIds) {
+  return fetchPage(351, shipsSelectParams(shipIds));
+}
+
+export async function shipsFleetOff({ fid, shipIds }) {
+  const ids = Array.isArray(shipIds) ? shipIds.filter(Boolean) : [];
+  const parts = [`cnt=${ids.length}`, `fid=${encodeURIComponent(fid)}`];
+  ids.forEach((id, i) => parts.push(`sh${i}=${encodeURIComponent(id)}`));
+  return fetchPage(353, parts.join('&'));
+}
+
+export async function shipsFleetSet({ set, shipIds }) {
+  const ids = Array.isArray(shipIds) ? shipIds.filter(Boolean) : [];
+  const parts = [`cnt=${ids.length}`, `set=${encodeURIComponent(set)}`];
+  ids.forEach((id, i) => parts.push(`sh${i}=${encodeURIComponent(id)}`));
+  return fetchPage(355, parts.join('&'));
+}
+
+export async function shipsDeconserv({ shid, cnt, gname }) {
+  return fetchPage(
+    391,
+    [
+      `shid=${encodeURIComponent(shid)}`,
+      `cnt=${encodeURIComponent(cnt)}`,
+      `gname=${encodeURIComponent(gname || '')}`,
+    ].join('&'),
+  );
+}
+
+async function fetchWo(id, params = '') {
+  const qs = params ? (params.startsWith('&') ? params : `&${params}`) : '';
+  const res = await fetch(`/wo.php?id=${id}${qs}`, { credentials: 'same-origin' });
+  return parseVars(await res.text());
+}
+
+function parseWarSide(data, prefix, cntKey) {
+  const cnt = parseInt(data[cntKey] || '0', 10);
+  const items = [];
+  for (let i = 0; i < cnt; i++) {
+    items.push({
+      id: data[`${prefix}id${i}`] || '',
+      name: data[`${prefix}name${i}`] || '',
+      count: data[`${prefix}c${i}`] || '',
+      shield: data[`${prefix}sh${i}`] || '',
+      shieldTot: data[`${prefix}st${i}`] || '',
+      pic: data[`${prefix}pc${i}`] || '',
+    });
+  }
+  return items;
+}
+
+export async function loadWarStart(wid) {
+  const data = await fetchWo(361, `wid=${encodeURIComponent(wid)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') {
+    return { err, side: '0', lastMove: '0', placeHash: '', near: [], far: [] };
+  }
+  return {
+    err: '0',
+    side: data.side !== undefined ? String(data.side) : '0',
+    lastMove: data.lm !== undefined ? String(data.lm) : '0',
+    placeHash: data.ph || '',
+    near: parseWarSide(data, 'n', 'ncnt'),
+    far: parseWarSide(data, 'f', 'fcnt'),
+  };
+}
+
+export async function loadWarRead({ wi, lm, sd }) {
+  const data = await fetchWo(
+    362,
+    [
+      `wi=${encodeURIComponent(wi)}`,
+      `lm=${encodeURIComponent(lm)}`,
+      `sd=${encodeURIComponent(sd)}`,
+    ].join('&'),
+  );
+  const err = data.err !== undefined ? String(data.err) : '0';
+  const cnt = parseInt(data.cnt || '0', 10);
+  const shots = [];
+  for (let i = 0; i < cnt; i++) {
+    if (data[`l${i}`] !== undefined) shots.push(data[`l${i}`]);
+  }
+  return {
+    err,
+    reload: String(data.reload || '') === 'true',
+    lastMove: data.lm !== undefined ? String(data.lm) : String(lm),
+    shots,
+  };
+}

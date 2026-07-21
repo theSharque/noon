@@ -544,16 +544,6 @@
         {@html userInfo.insur || '—'}
       </StatRow>
 
-      {#if userInfo.referal}
-        <div class="referral">
-          <div class="referral-label">Реферальная ссылка</div>
-          <div class="referral-link">{userInfo.referal}</div>
-          {#if userInfo.refcnt}
-            <div class="referral-meta">Приглашено: {userInfo.refcnt}</div>
-          {/if}
-        </div>
-      {/if}
-
       <div class="bars">
         <ProgressBar label="Звание" value={barWr.value} percent={barWr.percent} />
         <ProgressBar label="Статус" value={barSt.value} percent={barSt.percent} />
@@ -907,34 +897,6 @@
     gap: 10px;
     min-height: 0;
     overflow: hidden;
-  }
-
-  .referral {
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid var(--border-light);
-    background: rgba(0, 229, 255, 0.05);
-  }
-
-  .referral-label {
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: var(--text-muted);
-    margin-bottom: 4px;
-  }
-
-  .referral-link {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--neon-cyan);
-    word-break: break-all;
-  }
-
-  .referral-meta {
-    margin-top: 6px;
-    font-size: 0.75rem;
-    color: var(--text-muted);
   }
 
   .bars {

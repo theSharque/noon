@@ -40,13 +40,15 @@
   $: mv = $musicVolume;
   $: sv = $soundVolume;
 
-  function sfxVolume() {
-    const v = Math.max(0, Math.min(1, sv / 100));
+  function sfxVolume(vol = sv) {
+    const v = Math.max(0, Math.min(1, Number(vol) / 100));
     if (sndHover) sndHover.volume = v;
     if (sndClick) sndClick.volume = v;
+    return v;
   }
 
   function playHover() {
+    if (get(soundVolume) <= 0 || !sndHover) return;
     try {
       sndHover.pause();
       sndHover.currentTime = 0;
@@ -55,6 +57,7 @@
   }
 
   function playClick() {
+    if (get(soundVolume) <= 0 || !sndClick) return;
     try {
       sndClick.pause();
       sndClick.currentTime = 0;
@@ -163,7 +166,7 @@
     unsubMusic = musicVolume.subscribe((vol) => {
       applyPlayerVolume(vol);
     });
-    unsubSound = soundVolume.subscribe(() => sfxVolume());
+    unsubSound = soundVolume.subscribe((vol) => sfxVolume(vol));
     loadTrack(trackIndex);
     if (get(musicVolume) > 0) playMusic();
     else pauseMusic();

@@ -532,13 +532,20 @@ export async function listRobots() {
   return parseRobotsList(await fetchPage(64));
 }
 
+function parseVolume(raw, fallback) {
+  const n = parseInt(raw, 10);
+  if (Number.isFinite(n)) return Math.max(0, Math.min(100, n));
+  const fb = parseInt(fallback, 10);
+  if (Number.isFinite(fb)) return Math.max(0, Math.min(100, fb));
+  return 0;
+}
+
 export async function getMiscSettings() {
   const data = await fetchPage(66);
-  const mv = parseInt(data.mv, 10);
-  const sv = parseInt(data.sv, 10);
+  const noon = getNoonConfig();
   const volumes = {
-    mv: Number.isFinite(mv) ? mv : 0,
-    sv: Number.isFinite(sv) ? sv : 50,
+    mv: parseVolume(data.mv, noon.mv),
+    sv: parseVolume(data.sv, noon.sv ?? 50),
   };
   if (String(data.err) !== '0') return { ...data, items: [], ...volumes };
   const items = parseIndexedList(data, 'cnt', {

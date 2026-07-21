@@ -101,8 +101,8 @@
   let robots = [];
 
   let settingsItems = [];
-  let settingsMv = 50;
-  let settingsSv = 50;
+  let settingsMv = Number(getNoonConfig().mv) || 0;
+  let settingsSv = Number.isFinite(Number(getNoonConfig().sv)) ? Number(getNoonConfig().sv) : 50;
 
   let hireItems = [];
   let hireQuest = 0;
@@ -487,13 +487,22 @@
 
   async function loadSettingsTab() {
     const data = await getMiscSettings();
+    const noon = getNoonConfig();
     settingsItems = (data.items || []).map((row) => ({
       ...row,
       chat: row.chat === '1' || row.chat === 1,
       mail: row.mail === '1' || row.mail === 1,
     }));
-    settingsMv = Number.isFinite(Number(data.mv)) ? Number(data.mv) : 0;
-    settingsSv = Number.isFinite(Number(data.sv)) ? Number(data.sv) : 50;
+    settingsMv = Number.isFinite(Number(data.mv))
+      ? Number(data.mv)
+      : Number.isFinite(Number(noon.mv))
+        ? Number(noon.mv)
+        : 0;
+    settingsSv = Number.isFinite(Number(data.sv))
+      ? Number(data.sv)
+      : Number.isFinite(Number(noon.sv))
+        ? Number(noon.sv)
+        : 50;
     setMusicVolumeLocal(settingsMv);
     setSoundVolumeLocal(settingsSv);
     loaded.settings = true;

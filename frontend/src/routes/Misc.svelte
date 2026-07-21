@@ -492,8 +492,10 @@
       chat: row.chat === '1' || row.chat === 1,
       mail: row.mail === '1' || row.mail === 1,
     }));
-    settingsMv = data.mv ?? 50;
-    settingsSv = data.sv ?? 50;
+    settingsMv = Number.isFinite(Number(data.mv)) ? Number(data.mv) : 0;
+    settingsSv = Number.isFinite(Number(data.sv)) ? Number(data.sv) : 50;
+    setMusicVolumeLocal(settingsMv);
+    setSoundVolumeLocal(settingsSv);
     loaded.settings = true;
   }
 

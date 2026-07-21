@@ -26,16 +26,20 @@
     19 => 'Все сообщения от лаборатории'
   );
 
+  $mv = intval( $user->music );
+  $sv = intval( $user->sound );
+  $sp = intval( $user->show_planet );
+
   if( is_array( $result ) && count( $result ) ) {
 
     $l = 0;
-    $out = 'err=0&cnt='.count( $result )."&mv=".$user->music."&sv=".$user->sound."&sp=".$user->show_planet;
+    $out = 'err=0&cnt='.count( $result )."&mv=$mv&sv=$sv&sp=$sp";
     foreach( $result as $item ) {
       $out .= "&t$l=".$item['type']."&d$l=".$types[ $item['type'] ]."&c$l=".$item['chat']."&m$l=".$item['mail'];
       $l++;
     }
   } else {
-    $out = 'err=1';
+    $out = "err=1&cnt=0&mv=$mv&sv=$sv&sp=$sp";
   }
 
   printOut( $out );

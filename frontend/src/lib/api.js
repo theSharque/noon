@@ -534,7 +534,13 @@ export async function listRobots() {
 
 export async function getMiscSettings() {
   const data = await fetchPage(66);
-  if (String(data.err) !== '0') return { ...data, items: [] };
+  const mv = parseInt(data.mv, 10);
+  const sv = parseInt(data.sv, 10);
+  const volumes = {
+    mv: Number.isFinite(mv) ? mv : 0,
+    sv: Number.isFinite(sv) ? sv : 50,
+  };
+  if (String(data.err) !== '0') return { ...data, items: [], ...volumes };
   const items = parseIndexedList(data, 'cnt', {
     type: 't',
     desc: 'd',
@@ -544,8 +550,7 @@ export async function getMiscSettings() {
   return {
     ...data,
     items,
-    mv: parseInt(data.mv || '0', 10),
-    sv: parseInt(data.sv || '0', 10),
+    ...volumes,
   };
 }
 

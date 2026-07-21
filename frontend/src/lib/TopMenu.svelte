@@ -338,7 +338,13 @@
     cursor: pointer;
     text-decoration: none;
     clip-path: var(--ctrl-clip);
-    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    transform: translateY(0) scale(1);
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.12s ease;
   }
 
   .tool-btn:hover {
@@ -346,6 +352,12 @@
     border-color: var(--ctrl-active-border);
     box-shadow: var(--ctrl-active-shadow);
     background: var(--ctrl-hover-bg);
+  }
+
+  .tool-btn:active {
+    transform: translateY(1px) scale(0.94);
+    background: rgba(0, 229, 255, 0.22);
+    box-shadow: inset 0 0 12px rgba(0, 229, 255, 0.35);
   }
 
   .tool-btn.mail.has-mail {

@@ -13,8 +13,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Статус | Кол-во |
 |--------|--------|
-| redesign (cosmic UI) | shell + booklist + about + misc + ware |
-| stub | 3 — place, ships, trade |
+| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade |
+| stub | 2 — place, ships |
 | todo | transitions, tutorial |
 
 ---
@@ -26,9 +26,9 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 - Токены/utilities: `frontend/src/app.css`
 - UI kit: `frontend/src/lib/ui/` (ScifiPanel, ScifiButton, ScifiTabs, ProgressBar, StatRow)
 - Shell: `App.svelte`, `TopMenu.svelte`, `Chat.svelte` — glass/cyan, без sprite-кнопок
-- `Booklist.svelte` / `About.svelte` / `Misc.svelte` / `Warehouse.svelte` — CSS grid, без absolute 1000×500 и PNG-скинов; RPC без изменений
+- `Booklist.svelte` / `About.svelte` / `Misc.svelte` / `Warehouse.svelte` / `Trade.svelte` — CSS grid, без absolute 1000×500 и PNG-скинов; RPC без изменений
 - Pixel-perfect purge (booklist / about / topmenu / fonts): **done** 2026-07-20
-- Routes: Booklist, About, Misc, Warehouse cosmic; stubs place/ships/trade
+- Routes: Booklist, About, Misc, Warehouse, Trade cosmic; stubs place/ships
 
 ### Pixel-perfect purge list
 
@@ -38,7 +38,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `frontend/public/img/about/` (кроме `buzz.mp3`) | **удалено** |
 | `frontend/public/img/topmenu/*.png`, `plate.svg` | **удалено** (оставлены `*.wav` + `*.mp3`) |
 | `frontend/public/fonts/*Techno*`, `*Terminator*` | **удалено** |
-| `www/swf/{read,write,booklist}.jpg` | **удалено** (отдельно от SPA-purge; about.jpg ещё есть) |
+| `www/swf/{read,write,booklist,warehouse,trade}.jpg` | **удалено** (отдельно от SPA-purge; about.jpg ещё есть) |
 
 Проверка: `rg -n "img/booklist|img/about|Techno|TerminatorCyr" frontend/src` — только `const IMG` для sounds.
 
@@ -62,7 +62,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `planet/orbit/station` | `/place` | **stub** | |
 | `ships.jpg` | `/ships` | **stub** | |
 | `warehouse.jpg` | `/ware` → `Warehouse.svelte` | **redesign** | Dual-pane cargo move; RPC 41–47; SWF удалён |
-| `trade.jpg` | `/trade` | **stub** | Следующий кандидат на cosmic (concept-2) |
+| `trade.jpg` | `/trade` → `Trade.svelte` | **redesign** | 4 вкладки Comp/Bay/Sell/Conf; RPC 53–58, 63, 65, 651–652; SWF удалён |
 | `misc.jpg` | `/misc` → `Misc.svelte` | **redesign** | 7 вкладок + atlas SVG; SWF ещё в www |
 
 ---
@@ -84,3 +84,4 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `read.jpg` / `write.jpg` | 2026-07-20 cosmic purge | `frontend/src/lib/Chat.svelte` |
 | `booklist.jpg` | 2026-07-20 cosmic purge | `frontend/src/routes/Booklist.svelte` |
 | `warehouse.jpg` | 2026-07-21 cosmic port | `frontend/src/routes/Warehouse.svelte` |
+| `trade.jpg` | 2026-07-21 cosmic port | `frontend/src/routes/Trade.svelte` |

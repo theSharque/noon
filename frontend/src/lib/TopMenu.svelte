@@ -1,5 +1,6 @@
 <script>
   import { link, push } from 'svelte-spa-router';
+  import active from 'svelte-spa-router/active';
   import { onMount, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import { pollMail } from './api.js';
@@ -25,6 +26,8 @@
   let playing = false;
   let pingMs = null;
   let pingClass = '';
+  let creditsText = '—';
+  let confText = '—';
 
   let player;
   let sndHover;
@@ -102,11 +105,17 @@
     else pingClass = 'bad';
   }
 
+  function applyBalances(data) {
+    if (data.summ !== undefined) creditsText = data.summ;
+    if (data.conf !== undefined) confText = data.conf;
+  }
+
   async function doPoll() {
     try {
       const { data, ts } = await pollMail(get(mailLastId));
       const sent = parseInt(data.png, 10);
       if (!isNaN(sent)) setPing(ts - sent);
+      applyBalances(data);
       if (parseInt(data.err, 10) === 0) {
         const nextId = parseInt(data.id, 10) || get(mailLastId);
         mailLastId.set(nextId);
@@ -167,6 +176,7 @@
         class="nav-link"
         href={item.href}
         use:link
+        use:active
         title={item.title}
         on:mouseenter={playHover}
         on:mousedown={onNavClick}
@@ -185,6 +195,11 @@
       Выход
     </a>
   </nav>
+
+  <div class="balances">
+    <span class="balance">Кредиты: {creditsText}</span>
+    <span class="balance">Конфедераты: {confText}</span>
+  </div>
 
   <div class="tools">
     <span class="ping {pingClass}">{pingMs ?? ''}</span>
@@ -257,11 +272,17 @@
     transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
   }
 
-  .nav-link:hover {
+  .nav-link:hover,
+  .nav-link:global(.active) {
     color: var(--neon-cyan);
     border-color: var(--neon-cyan);
     background: rgba(0, 229, 255, 0.08);
     box-shadow: var(--glow-soft);
+  }
+
+  .nav-link:global(.active) {
+    background: rgba(0, 229, 255, 0.16);
+    box-shadow: var(--glow-strong);
   }
 
   .nav-link.exit {
@@ -273,6 +294,27 @@
     color: #ff7a90;
     border-color: var(--accent-danger);
     background: rgba(255, 59, 92, 0.1);
+  }
+
+  .balances {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+    min-width: 0;
+  }
+
+  .balance {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--neon-cyan);
+    border: 1px solid var(--border-light);
+    background: rgba(0, 229, 255, 0.06);
+    white-space: nowrap;
   }
 
   .tools {
@@ -328,6 +370,14 @@
   @keyframes mailPulse {
     50% {
       box-shadow: 0 0 12px rgba(255, 154, 60, 0.55);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .balances {
+      order: 3;
+      width: 100%;
+      margin-left: 0;
     }
   }
 </style>

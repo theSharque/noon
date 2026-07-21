@@ -13,5 +13,7 @@
   }
 
   $out .= "&png=$dt&mv=".$user->music."&sv=".$user->sound;
+  $out .= "&summ=".number_format( $user->money, 2, '.', ' ' );
+  $out .= "&conf=".number_format( $user->credits, 0, '', ' ' );
 
   printOut( $out );

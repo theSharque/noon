@@ -847,3 +847,146 @@ export async function moveWareMult({ ships, plid, tid, objects, ocnt, move }) {
     ].join('&'),
   );
 }
+
+function parseTradeShips(data) {
+  const ships = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'name',
+    place: 'place',
+    cargo: 'cargo',
+  });
+  return { err: data.err !== undefined ? String(data.err) : '0', ships };
+}
+
+function parseTradeBayWare(data) {
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') {
+    return { err, money: data.money || '', items: [] };
+  }
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+    shipCnt: 'sc',
+    offerCnt: 'oc',
+    price: 'op',
+    bgColor: 't',
+  });
+  return { err: '0', money: data.money || '', items };
+}
+
+function parseTradeSellWare(data) {
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') {
+    return { err, money: data.money || '', items: [] };
+  }
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+    shipCnt: 'sc',
+    demandCnt: 'ic',
+    price: 'ip',
+    bgColor: 't',
+  });
+  return { err: '0', money: data.money || '', items };
+}
+
+export async function loadTradeComp({ min = 1, rf = '0', oid = '' } = {}) {
+  const parts = [`rf=${encodeURIComponent(rf)}`];
+  if (oid) {
+    parts.push(`oid=${encodeURIComponent(oid)}`);
+  } else {
+    parts.push(`min=${encodeURIComponent(min)}`);
+  }
+  const data = await fetchPage(63, parts.join('&'));
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+    sellPrice: 'bm',
+    sellCnt: 'bc',
+    sellStar: 'bs',
+    sellLogin: 'bl',
+    buyPrice: 'sm',
+    buyCnt: 'sc',
+    buyStar: 'ss',
+    buyLogin: 'sl',
+    bgColor: 'c',
+  });
+  return { err: data.err !== undefined ? String(data.err) : '0', items };
+}
+
+export async function loadTradeBayShips() {
+  return parseTradeShips(await fetchPage(55));
+}
+
+export async function loadTradeSellShips() {
+  return parseTradeShips(await fetchPage(56));
+}
+
+export async function loadTradeBayWare(shid) {
+  return parseTradeBayWare(await fetchPage(57, `shid=${encodeURIComponent(shid)}`));
+}
+
+export async function loadTradeSellWare(shid) {
+  return parseTradeSellWare(await fetchPage(58, `shid=${encodeURIComponent(shid)}`));
+}
+
+export async function tradeBay({ shid, oid, ocnt }) {
+  return fetchPage(
+    53,
+    [
+      `shid=${encodeURIComponent(shid)}`,
+      `oid=${encodeURIComponent(oid)}`,
+      `ocnt=${encodeURIComponent(ocnt)}`,
+    ].join('&'),
+  );
+}
+
+export async function tradeSell({ shid, oid, ocnt }) {
+  return fetchPage(
+    54,
+    [
+      `shid=${encodeURIComponent(shid)}`,
+      `oid=${encodeURIComponent(oid)}`,
+      `ocnt=${encodeURIComponent(ocnt)}`,
+    ].join('&'),
+  );
+}
+
+export async function loadTradeConfList() {
+  const data = await fetchPage(65);
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'n',
+    bgColor: 'c',
+  });
+  return { err: data.err !== undefined ? String(data.err) : '0', items };
+}
+
+export async function loadTradeConfDesc(oid) {
+  const data = await fetchPage(651, `oid=${encodeURIComponent(oid)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err !== '0') {
+    return { err, desc: '', money: '', conf: '', price: '', confPrice: '', canBuyMoney: false, canBuyConf: false };
+  }
+  return {
+    err: '0',
+    desc: data.desc || '',
+    money: data.money || '',
+    conf: data.conf || '',
+    price: data.pr || '',
+    confPrice: data.cp || '',
+    canBuyMoney: String(data.bb) === '1',
+    canBuyConf: String(data.cb) === '1',
+  };
+}
+
+export async function tradeConfBay({ tp, oid, ocnt }) {
+  return fetchPage(
+    652,
+    [
+      `tp=${encodeURIComponent(tp)}`,
+      `oid=${encodeURIComponent(oid)}`,
+      `ocnt=${encodeURIComponent(ocnt)}`,
+    ].join('&'),
+  );
+}

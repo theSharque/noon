@@ -3,13 +3,14 @@ import Booklist from '../routes/Booklist.svelte';
 import About from '../routes/About.svelte';
 import Misc from '../routes/Misc.svelte';
 import Warehouse from '../routes/Warehouse.svelte';
+import Trade from '../routes/Trade.svelte';
 
 export const routes = {
   '/character': Booklist,
   '/place': Stub,
   '/ships': Stub,
   '/ware': Warehouse,
-  '/trade': Stub,
+  '/trade': Trade,
   '/misc': Misc,
   '/mail': Booklist,
   '/about': About,

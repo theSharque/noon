@@ -138,6 +138,8 @@
   let systemStype = 1;
   let systemSvg;
   let systemCoordTimer;
+  let systemOrbitTimer;
+  let systemOrbitBusy = false;
 
   let busy = false;
   let errorText = '';
@@ -355,6 +357,7 @@
   }
 
   function resetSystem() {
+    stopSystemOrbitPoll();
     clearSystemCoordTimer();
     systemPlanets = [];
     systemOrbits = [];
@@ -375,6 +378,59 @@
     if (systemCoordTimer) {
       clearTimeout(systemCoordTimer);
       systemCoordTimer = null;
+    }
+  }
+
+  function stopSystemOrbitPoll() {
+    if (systemOrbitTimer) {
+      clearInterval(systemOrbitTimer);
+      systemOrbitTimer = null;
+    }
+    systemOrbitBusy = false;
+  }
+
+  function startSystemOrbitPoll() {
+    stopSystemOrbitPoll();
+    systemOrbitTimer = setInterval(() => {
+      refreshSystemMapQuiet();
+    }, 5000);
+  }
+
+  function applySystemMapData(data, { resetPreview = false } = {}) {
+    systemPlanets = (data.planets || []).map((p) => ({
+      ...p,
+      ...systemPolarXy(p.angle, p.orb),
+    }));
+    systemOrbits = uniqueSystemOrbits(data.planets || []);
+    systemMarkers = data.markers || [];
+    systemBg = data.bgUrl || systemBg;
+    systemName = data.sname || systemName;
+    systemStype = data.stype || systemStype;
+    const start = systemStartFromData(data);
+    systemShip = start;
+    if (resetPreview || systemPreviewT === 0) {
+      systemPlace = { ...start };
+      systemCoordX = String(start.x);
+      systemCoordY = String(start.y);
+      systemPreviewT = 0;
+      systemDesc = lightenGalaxyDesc(data.ftxt || '');
+      showOrderBtn = false;
+      orderGlow = false;
+    }
+  }
+
+  async function refreshSystemMapQuiet() {
+    if (monitor !== 'system' || systemOrbitBusy) return;
+    const shid = primaryId();
+    if (!shid) return;
+    systemOrbitBusy = true;
+    try {
+      const data = await loadSystemMap(shid);
+      if (monitor !== 'system' || !data.ok) return;
+      applySystemMapData(data, { resetPreview: false });
+    } catch {
+    } finally {
+      systemOrbitBusy = false;
     }
   }
 
@@ -893,6 +949,14 @@
     return PLANET_SIZE[type] || 16;
   }
 
+  function planetShadowSize(type) {
+    return planetSize(type) + 1;
+  }
+
+  function planetShadowRotate(angle) {
+    return 6.28 - angle;
+  }
+
   function starImg(stype) {
     const t = STAR_SIZE[stype] ? stype : 1;
     return `${SYSTEM_IMG}/st${t}.png`;
@@ -950,23 +1014,8 @@
         errorText = 'Ошибка карты системы';
         return;
       }
-      systemPlanets = (data.planets || []).map((p) => ({
-        ...p,
-        ...systemPolarXy(p.angle, p.orb),
-      }));
-      systemOrbits = uniqueSystemOrbits(data.planets || []);
-      systemMarkers = data.markers || [];
-      systemBg = data.bgUrl || '';
-      systemName = data.sname || '';
-      systemStype = data.stype || 1;
-      const start = systemStartFromData(data);
-      systemShip = start;
-      systemPlace = { ...start };
-      systemCoordX = String(start.x);
-      systemCoordY = String(start.y);
-      systemDesc = lightenGalaxyDesc(data.ftxt || '');
-      showOrderBtn = false;
-      orderGlow = false;
+      applySystemMapData(data, { resetPreview: true });
+      startSystemOrbitPoll();
     } catch {
       errorText = 'Ошибка карты системы';
     } finally {
@@ -1257,6 +1306,7 @@
     stopWarPoll();
     clearGalaxyCoordTimer();
     clearSystemCoordTimer();
+    stopSystemOrbitPoll();
   });
 </script>
 
@@ -1658,7 +1708,7 @@
                   y="0"
                   width={SYSTEM_W}
                   height={SYSTEM_H}
-                  opacity="0.55"
+                  opacity="0.5"
                   preserveAspectRatio="xMidYMid slice"
                 />
               {/if}
@@ -1690,6 +1740,17 @@
                 >
                   <title>{p.name}</title>
                 </image>
+                {#if p.type !== 5}
+                  <image
+                    href={`${SYSTEM_IMG}/shadow.png`}
+                    x={p.x - planetShadowSize(p.type) / 2}
+                    y={p.y - planetShadowSize(p.type) / 2}
+                    width={planetShadowSize(p.type)}
+                    height={planetShadowSize(p.type)}
+                    transform={`rotate(${planetShadowRotate(p.angle)} ${p.x} ${p.y})`}
+                    pointer-events="none"
+                  />
+                {/if}
               {/each}
               {#each systemMarkers as m}
                 {#if m.ct === 3}

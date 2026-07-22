@@ -60,17 +60,14 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `booklist.jpg` | `/character`, `/mail` → `Booklist.svelte` | **redesign** | 5 вкладок, cosmic grid; SWF удалён |
 | `about.jpg` | `/about` → `About.svelte` | **redesign** | Профиль/медали; PNG purged; SWF ещё в www |
 | `planet/orbit/station` | `/place` | **stub** | |
-| `ships.jpg` | `/ships` → `Ships.svelte` | **redesign** | Master–detail; galaxy 9/41; system map 8; war text poll; SWF ещё в www |
+| `ships.jpg` | `/ships` → `Ships.svelte` | **redesign** | Master–detail; galaxy 9/41; system map 8; war text poll; SWF удалён |
 | `warehouse.jpg` | `/ware` → `Warehouse.svelte` | **redesign** | Dual-pane cargo move; RPC 41–47; SWF удалён |
 | `trade.jpg` | `/trade` → `Trade.svelte` | **redesign** | 4 вкладки Comp/Bay/Sell/Conf; RPC 53–58, 63, 65, 651–652; SWF удалён |
 | `misc.jpg` | `/misc` → `Misc.svelte` | **redesign** | 7 вкладок + atlas SVG; SWF ещё в www |
 
-### Ships — вне scope / отложено
+### Ships — отложено
 
-- Полноценная Cosmic-анимация боя (пока упрощённый текстовый poll `361`/`362`)
-- Pixel-perfect / Flash PNG / Techno fonts
-- Изменения PHP (карта системы: 37/38/39 без правок)
-- Purge `www/swf/ships.jpg` — только после явного «ок» на приёмку
+- Полноценная Cosmic-анимация боя (пока упрощённый текстовый poll `361`/`362`) — отдельный большой проход
 - Экран `/place`
 
 ---
@@ -93,3 +90,4 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `booklist.jpg` | 2026-07-20 cosmic purge | `frontend/src/routes/Booklist.svelte` |
 | `warehouse.jpg` | 2026-07-21 cosmic port | `frontend/src/routes/Warehouse.svelte` |
 | `trade.jpg` | 2026-07-21 cosmic port | `frontend/src/routes/Trade.svelte` |
+| `ships.jpg` | 2026-07-22 cosmic accept | `frontend/src/routes/Ships.svelte` |

@@ -175,8 +175,23 @@ body {
 }
 
 .scifi-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
+  opacity: 1;
+  background: rgba(120, 130, 145, 0.22);
+  border-color: rgba(140, 150, 165, 0.35);
+  color: rgba(180, 190, 205, 0.55);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.scifi-btn.primary:disabled,
+.scifi-btn.danger:disabled,
+.scifi-btn.warn:disabled,
+.scifi-btn.ghost:disabled,
+.scifi-btn.active:disabled {
+  background: rgba(120, 130, 145, 0.22);
+  border-color: rgba(140, 150, 165, 0.35);
+  color: rgba(180, 190, 205, 0.55);
+  box-shadow: none;
 }
 
 .scifi-btn.primary,

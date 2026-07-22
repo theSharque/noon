@@ -1,8 +1,9 @@
 <script>
-  import { onDestroy, onMount } from 'svelte';
+  import { onDestroy, onMount, tick as svelteTick } from 'svelte';
   import { push, querystring } from 'svelte-spa-router';
   import {
     getNoonConfig,
+    getStarCoord,
     loadShipsFleetList,
     loadShipsFleetOrderList,
     loadShipsFleetOrders,
@@ -12,6 +13,7 @@
     loadShipsList,
     loadShipsOrders,
     loadShipsPlaces,
+    loadStarMap,
     loadWarRead,
     loadWarStart,
     shipsDeconserv,
@@ -21,6 +23,7 @@
     shipsMakeAttack,
     shipsMakeFleet,
     shipsMakeOrder,
+    shipsStarMove,
   } from '../lib/api.js';
   import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
@@ -33,7 +36,11 @@
     0, 1, 2, 3, 4, 5, 6, 7, 12, 14, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
     34, 35, 36, 37, 38, 39, 40, 43, 44, 46, 47, 48, 49, 51,
   ]);
-  const MAP_ORDERS = new Set([8, 9, 41]);
+  const GALAXY_ORDERS = new Set([9, 41]);
+  const SYSTEM_ORDERS = new Set([8]);
+  const GALAXY_BG = '/app/img/ships/galaxy-bg.jpg';
+  const GALAXY_BG_SIZE = 2000;
+  const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
   const CARGO_ORDERS = new Set([10, 28, 30]);
   const LAND_ORDERS = new Set([1, 22, 23, 24, 34, 35, 36, 37, 40, 43]);
   const DOCK_ORDERS = new Set([4, 31]);
@@ -82,6 +89,25 @@
   let warLastMove = '0';
   let warPlaceHash = '';
   let warWid = '';
+
+  let galaxyStars = [];
+  let galaxyYellow = [];
+  let galaxyHome = null;
+  let galaxyQuest = null;
+  let galaxyShip = null;
+  let galaxyBounds = { minX: 0, minY: 0, maxX: 800, maxY: 600 };
+  let galaxyOffset = { x: 0, y: 0 };
+  let galaxyHover = '';
+  let galaxyDesc = '';
+  let galaxyPlace = { x: 0, y: 0 };
+  let galaxyCoordX = '';
+  let galaxyCoordY = '';
+  let galaxyPreviewT = 0;
+  let galaxyViewport;
+  let galaxyDragging = false;
+  let galaxyDragMoved = false;
+  let galaxyDragStart = { x: 0, y: 0, ox: 0, oy: 0 };
+  let galaxyCoordTimer;
 
   let busy = false;
   let errorText = '';
@@ -262,6 +288,39 @@
     warFar = [];
     warLog = [];
     warWid = '';
+    resetGalaxy();
+  }
+
+  function resetGalaxy() {
+    clearGalaxyCoordTimer();
+    galaxyStars = [];
+    galaxyYellow = [];
+    galaxyHome = null;
+    galaxyQuest = null;
+    galaxyShip = null;
+    galaxyDesc = '';
+    galaxyPlace = { x: 0, y: 0 };
+    galaxyCoordX = '';
+    galaxyCoordY = '';
+    galaxyPreviewT = 0;
+    galaxyHover = '';
+    galaxyDragging = false;
+    galaxyDragMoved = false;
+  }
+
+  function clearGalaxyCoordTimer() {
+    if (galaxyCoordTimer) {
+      clearTimeout(galaxyCoordTimer);
+      galaxyCoordTimer = null;
+    }
+  }
+
+  function scheduleGalaxyCoords() {
+    clearGalaxyCoordTimer();
+    galaxyCoordTimer = setTimeout(() => {
+      galaxyCoordTimer = null;
+      applyGalaxyCoords();
+    }, 500);
   }
 
   async function refreshPlaces(keepSelection = true) {
@@ -418,7 +477,15 @@
       return;
     }
 
-    if (MAP_ORDERS.has(id)) {
+    if (GALAXY_ORDERS.has(id)) {
+      monitor = 'galaxy';
+      showOrderBtn = false;
+      orderGlow = false;
+      await openGalaxyMap(id === 41);
+      return;
+    }
+
+    if (SYSTEM_ORDERS.has(id)) {
       monitor = 'map_stub';
       showOrderBtn = false;
       return;
@@ -544,6 +611,188 @@
     return `${parts[0]} → ${parts[2]} · ${defeat} · сила ${parts[6]}`;
   }
 
+  function starFill(type) {
+    if (type === 'h') return '#ffffff';
+    if (type === 'e') return '#00ff00';
+    if (type === 'r') return '#ff4040';
+    if (type === 's') return '#7ec8ff';
+    if (type === 'f') return '#c77dff';
+    const n = parseInt(type, 10);
+    if (n === 1) return '#00ccff';
+    if (n === 2) return '#ffff00';
+    if (n === 3) return '#ff2020';
+    if (n === 4) return '#c800ff';
+    if (n === 5) return '#b8c4ff';
+    return '#e8f6ff';
+  }
+
+  function starGlowR(type) {
+    const n = parseInt(type, 10);
+    if (n === 3 || n === 4) return 3.5;
+    if (type === 'h' || type === 'e' || type === 'r') return 4;
+    return 2.8;
+  }
+
+  function computeGalaxyBounds(stars) {
+    let minX = -GALAXY_BG_HALF;
+    let minY = -GALAXY_BG_HALF;
+    let maxX = GALAXY_BG_HALF;
+    let maxY = GALAXY_BG_HALF;
+    for (const s of stars) {
+      minX = Math.min(minX, s.x - 40);
+      minY = Math.min(minY, s.y - 40);
+      maxX = Math.max(maxX, s.x + 40);
+      maxY = Math.max(maxY, s.y + 40);
+    }
+    return { minX, minY, maxX, maxY };
+  }
+
+  function centerGalaxy(cx, cy) {
+    const vp = galaxyViewport;
+    if (!vp) return;
+    const x = cx ?? galaxyHome?.x ?? (galaxyBounds.minX + galaxyBounds.maxX) / 2;
+    const y = cy ?? galaxyHome?.y ?? (galaxyBounds.minY + galaxyBounds.maxY) / 2;
+    galaxyOffset = {
+      x: vp.clientWidth / 2 - (x - galaxyBounds.minX),
+      y: vp.clientHeight / 2 - (y - galaxyBounds.minY),
+    };
+  }
+
+  function galaxyLocal(e) {
+    const vp = galaxyViewport;
+    if (!vp) return null;
+    const rect = vp.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left - galaxyOffset.x + galaxyBounds.minX - 2,
+      y: e.clientY - rect.top - galaxyOffset.y + galaxyBounds.minY - 1,
+    };
+  }
+
+  function galaxyPointerDown(e) {
+    galaxyDragging = true;
+    galaxyDragMoved = false;
+    galaxyDragStart = {
+      x: e.clientX,
+      y: e.clientY,
+      ox: galaxyOffset.x,
+      oy: galaxyOffset.y,
+    };
+  }
+
+  function galaxyPointerMove(e) {
+    if (!galaxyDragging) {
+      const pt = galaxyLocal(e);
+      if (pt) galaxyHover = `${Math.round(pt.x)}:${Math.round(pt.y)}`;
+      return;
+    }
+    const dx = e.clientX - galaxyDragStart.x;
+    const dy = e.clientY - galaxyDragStart.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) galaxyDragMoved = true;
+    galaxyOffset = {
+      x: galaxyDragStart.ox + dx,
+      y: galaxyDragStart.oy + dy,
+    };
+  }
+
+  function snapGalaxyPoint(x, y, radius = 3) {
+    let best = null;
+    let bestD = Infinity;
+    const consider = (px, py) => {
+      if (Math.abs(px - x) > radius || Math.abs(py - y) > radius) return;
+      const d = (px - x) * (px - x) + (py - y) * (py - y);
+      if (d < bestD) {
+        bestD = d;
+        best = { x: px, y: py };
+      }
+    };
+    for (const s of galaxyStars) consider(s.x, s.y);
+    for (const y of galaxyYellow) consider(y.x, y.y);
+    if (galaxyHome) consider(galaxyHome.x, galaxyHome.y);
+    if (galaxyQuest) consider(galaxyQuest.x, galaxyQuest.y);
+    return best || { x: Math.round(x), y: Math.round(y) };
+  }
+
+  async function galaxyPointerUp(e) {
+    if (!galaxyDragging) return;
+    galaxyDragging = false;
+    if (galaxyDragMoved) return;
+    const pt = galaxyLocal(e);
+    if (!pt) return;
+    const snap = snapGalaxyPoint(pt.x, pt.y);
+    await probeGalaxy(snap.x, snap.y);
+  }
+
+  async function openGalaxyMap(homeJump) {
+    resetGalaxy();
+    const shid = primaryId();
+    if (!shid) return;
+    busy = true;
+    try {
+      const data = await loadStarMap(shid);
+      galaxyStars = data.stars || [];
+      galaxyYellow = data.yellow || [];
+      galaxyHome =
+        data.hstx != null && data.hsty != null ? { x: data.hstx, y: data.hsty } : null;
+      galaxyQuest =
+        data.quest && data.qsx != null && data.qsy != null
+          ? { x: data.qsx, y: data.qsy }
+          : null;
+      galaxyShip =
+        data.shx != null && data.shy != null ? { x: data.shx, y: data.shy } : null;
+      galaxyBounds = computeGalaxyBounds(galaxyStars);
+      galaxyDesc = lightenGalaxyDesc(data.desc || '');
+      await svelteTick();
+      if (homeJump && galaxyHome) {
+        centerGalaxy(galaxyHome.x, galaxyHome.y);
+        await probeGalaxy(galaxyHome.x, galaxyHome.y);
+      } else {
+        centerGalaxy(galaxyShip?.x, galaxyShip?.y);
+      }
+    } catch {
+      errorText = 'Ошибка карты галактики';
+    } finally {
+      busy = false;
+    }
+  }
+
+  function lightenGalaxyDesc(html) {
+    return String(html || '')
+      .replace(/#FF0000/gi, '#FFB4B4')
+      .replace(/#FFFF00/gi, '#FFE566')
+      .replace(/#00FF00/gi, '#9DFF9D');
+  }
+
+  async function probeGalaxy(mx, my) {
+    const shid = primaryId();
+    if (!shid) return;
+    const data = await getStarCoord(mx, my, shid);
+    if (String(data.err) !== '0') {
+      showOrderBtn = false;
+      orderGlow = false;
+      return;
+    }
+    const rx = parseInt(data.rx != null ? data.rx : mx, 10);
+    const ry = parseInt(data.ry != null ? data.ry : my, 10);
+    const t = parseInt(data.t != null ? data.t : '3', 10);
+    const desc = data.desc || '';
+    galaxyPlace = { x: rx, y: ry };
+    galaxyCoordX = String(rx);
+    galaxyCoordY = String(ry);
+    galaxyPreviewT = t;
+    galaxyDesc = lightenGalaxyDesc(desc);
+    showOrderBtn = t === 1 || t === 2;
+    orderGlow = showOrderBtn && /#FF0000/i.test(desc);
+  }
+
+  async function applyGalaxyCoords() {
+    const mx = parseInt(galaxyCoordX, 10);
+    const my = parseInt(galaxyCoordY, 10);
+    if (Number.isNaN(mx) || Number.isNaN(my)) return;
+    if (mx === galaxyPlace.x && my === galaxyPlace.y && galaxyPreviewT > 0) return;
+    playBuzz();
+    await probeGalaxy(mx, my);
+  }
+
   async function afterOrder(data) {
     if (data?.fid) {
       lastShip = data.fid;
@@ -561,7 +810,13 @@
     try {
       let data;
       const ids = selectedIds();
-      if (ATTACK_RPC.has(id)) {
+      if (GALAXY_ORDERS.has(id)) {
+        data = await shipsStarMove({
+          shid: primaryId(),
+          x: galaxyPlace.x,
+          y: galaxyPlace.y,
+        });
+      } else if (ATTACK_RPC.has(id)) {
         if (ids.length > 1) data = await shipsFleetAttack(ids);
         else data = await shipsMakeAttack({ shid: primaryId(), orid: raw });
       } else if (ids.length > 1) {
@@ -728,7 +983,9 @@
       case 'interrupt':
         return 'Сообщение перехвата';
       case 'map_stub':
-        return 'Карта';
+        return 'Карта системы';
+      case 'galaxy':
+        return 'Карта галактики';
       case 'war':
         return 'Бой';
       case 'attack':
@@ -771,6 +1028,7 @@
   onDestroy(() => {
     if (shipsTimer) clearInterval(shipsTimer);
     stopWarPoll();
+    clearGalaxyCoordTimer();
   });
 </script>
 
@@ -825,8 +1083,9 @@
       </table>
     </ScifiPanel>
 
-    <ScifiPanel title={monitorTitle()} className="ships-monitor-pane">
-      <div class="monitor-head">
+    <ScifiPanel className="ships-monitor-pane">
+      <div slot="header" class="monitor-header">
+        <span class="monitor-title">{monitorTitle()}</span>
         <ScifiSelect
           className="orders-select"
           value={orderValue}
@@ -834,17 +1093,32 @@
           disabled={!orderOptions.length}
           on:change={onOrderChange}
         />
-        {#if showOrderBtn}
-          <ScifiButton
-            variant={orderGlow ? 'danger' : 'primary'}
-            disabled={busy}
-            on:click={clickOrder}
-          >
-            Выполнить
-          </ScifiButton>
+        {#if monitor === 'galaxy'}
+          <div class="galaxy-coords">
+            <input
+              class="scifi-input narrow"
+              bind:value={galaxyCoordX}
+              aria-label="X"
+              on:input={scheduleGalaxyCoords}
+            />
+            <span class="galaxy-coords-sep">:</span>
+            <input
+              class="scifi-input narrow"
+              bind:value={galaxyCoordY}
+              aria-label="Y"
+              on:input={scheduleGalaxyCoords}
+            />
+          </div>
         {/if}
+        <ScifiButton
+          className="order-run-btn"
+          variant={showOrderBtn && orderGlow ? 'danger' : 'primary'}
+          disabled={busy || !showOrderBtn}
+          on:click={clickOrder}
+        >
+          Выполнить
+        </ScifiButton>
       </div>
-
       {#if monitor === 'info' || monitor === 'conserv'}
         <div class="monitor-body info-layout">
           {#if shipPic}
@@ -977,10 +1251,126 @@
           </ScifiButton>
         </div>
 
+      {:else if monitor === 'galaxy'}
+        <div class="monitor-body galaxy-layout">
+          <div
+            class="galaxy-viewport"
+            bind:this={galaxyViewport}
+            on:pointerdown={galaxyPointerDown}
+            on:pointermove={galaxyPointerMove}
+            on:pointerup={galaxyPointerUp}
+            on:pointerleave={() => {
+              galaxyDragging = false;
+              galaxyHover = '';
+            }}
+          >
+            <svg
+              class="galaxy-svg"
+              style={`transform:translate(${galaxyOffset.x}px,${galaxyOffset.y}px)`}
+              width={galaxyBounds.maxX - galaxyBounds.minX}
+              height={galaxyBounds.maxY - galaxyBounds.minY}
+              viewBox={`${galaxyBounds.minX} ${galaxyBounds.minY} ${galaxyBounds.maxX - galaxyBounds.minX} ${galaxyBounds.maxY - galaxyBounds.minY}`}
+            >
+              <image
+                href={GALAXY_BG}
+                x={-GALAXY_BG_HALF}
+                y={-GALAXY_BG_HALF}
+                width={GALAXY_BG_SIZE}
+                height={GALAXY_BG_SIZE}
+                opacity="0.5"
+                preserveAspectRatio="none"
+              />
+              {#each galaxyYellow as y}
+                <circle cx={y.x} cy={y.y} r="6.5" fill="none" stroke="#3366ff" stroke-width="1.2" />
+              {/each}
+              {#each galaxyStars as s}
+                {#if s.friend}
+                  <circle cx={s.x} cy={s.y} r="5.5" fill="none" stroke="#00ff00" stroke-width="1" />
+                {/if}
+                {#if s.foe}
+                  <circle cx={s.x} cy={s.y} r="5.5" fill="none" stroke="#ff0000" stroke-width="1" />
+                {/if}
+                {#if s.aliance}
+                  <circle cx={s.x} cy={s.y} r="6.5" fill="none" stroke="#ffff00" stroke-width="1" />
+                {/if}
+                <circle
+                  cx={s.x}
+                  cy={s.y}
+                  r={starGlowR(s.type)}
+                  fill={starFill(s.type)}
+                  opacity="0.35"
+                />
+                <circle cx={s.x} cy={s.y} r="0.7" fill={starFill(s.type)} />
+              {/each}
+              {#if galaxyHome}
+                <circle
+                  cx={galaxyHome.x}
+                  cy={galaxyHome.y}
+                  r="6.5"
+                  fill="none"
+                  stroke="#00ff00"
+                  stroke-width="1.2"
+                />
+              {/if}
+              {#if galaxyQuest}
+                <rect
+                  x={galaxyQuest.x - 4}
+                  y={galaxyQuest.y - 4}
+                  width="8"
+                  height="8"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="1"
+                />
+              {/if}
+              {#if galaxyShip}
+                <circle
+                  cx={galaxyShip.x}
+                  cy={galaxyShip.y}
+                  r="5.5"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="1"
+                />
+              {/if}
+              {#if galaxyPreviewT > 0 && galaxyShip}
+                <line
+                  x1={galaxyShip.x}
+                  y1={galaxyShip.y}
+                  x2={galaxyPlace.x}
+                  y2={galaxyPlace.y}
+                  stroke={galaxyPreviewT === 3 ? '#ff5a5a' : 'var(--neon-cyan)'}
+                  stroke-width="1.5"
+                  stroke-dasharray={galaxyPreviewT === 1 ? '4 3' : '0'}
+                  opacity="0.85"
+                />
+                <g stroke="var(--neon-cyan)" stroke-width="1.5">
+                  <line
+                    x1={galaxyPlace.x - 8}
+                    y1={galaxyPlace.y}
+                    x2={galaxyPlace.x + 8}
+                    y2={galaxyPlace.y}
+                  />
+                  <line
+                    x1={galaxyPlace.x}
+                    y1={galaxyPlace.y - 8}
+                    x2={galaxyPlace.x}
+                    y2={galaxyPlace.y + 8}
+                  />
+                </g>
+              {/if}
+            </svg>
+            {#if galaxyHover}
+              <div class="galaxy-hover">{galaxyHover}</div>
+            {/if}
+            <div class="html-rich galaxy-desc">{@html galaxyDesc || 'Кликните по карте'}</div>
+          </div>
+        </div>
+
       {:else if monitor === 'map_stub'}
         <div class="monitor-body stub-box">
-          <p>Интерактивная карта системы / галактики — следующий шаг порта.</p>
-          <p class="muted">Приказы 8 / 9 / 41 пока без перемещения.</p>
+          <p>Интерактивная карта системы — следующий шаг порта.</p>
+          <p class="muted">Приказ 8 пока без перемещения.</p>
         </div>
 
       {:else if monitor === 'war'}
@@ -1055,7 +1445,7 @@
   .ships-screen {
     display: flex;
     flex-direction: column;
-    gap: 0.65rem;
+    gap: 0.35rem;
     height: 100%;
     min-height: 0;
   }
@@ -1065,6 +1455,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 0.85rem;
+    margin-top: -0.15rem;
   }
 
   .toolbar-field {
@@ -1105,6 +1496,7 @@
     gap: 0.75rem;
     flex: 1 1 auto;
     min-height: 0;
+    align-items: stretch;
   }
 
   .ships-grid :global(.ships-list-pane),
@@ -1120,7 +1512,9 @@
   }
 
   .ships-grid :global(.ships-monitor-pane .panel-content) {
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     min-height: 0;
   }
 
@@ -1142,23 +1536,47 @@
     color: var(--neon-cyan);
   }
 
-  .monitor-head {
+  .ships-grid :global(.ships-monitor-pane .panel-header) {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
     align-items: center;
-    margin-bottom: 0.65rem;
+    gap: 0.55rem;
+    flex-wrap: wrap;
   }
 
-  .monitor-head :global(.orders-select) {
+  .monitor-header {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .monitor-title {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .monitor-header :global(.orders-select) {
     flex: 1 1 12rem;
     min-width: 10rem;
+  }
+
+  .monitor-header :global(.scifi-btn) {
+    flex: 0 0 auto;
+  }
+
+  .monitor-header :global(.order-run-btn) {
+    min-width: 7.5rem;
   }
 
   .monitor-body {
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
   }
 
   .info-layout {
@@ -1248,6 +1666,109 @@
     color: var(--text-muted);
     border-top: 1px solid rgba(0, 229, 255, 0.15);
     padding-top: 0.45rem;
+  }
+
+  .galaxy-layout {
+    gap: 0;
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+
+  .galaxy-viewport {
+    position: relative;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    align-self: stretch;
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-panel, 4px);
+    background: #000;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  .galaxy-viewport:active {
+    cursor: crosshair;
+  }
+
+  .galaxy-svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: visible;
+  }
+
+  .galaxy-hover {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    z-index: 2;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    color: var(--neon-cyan-dim);
+    background: rgba(4, 8, 20, 0.55);
+    pointer-events: none;
+  }
+
+  .galaxy-desc {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    z-index: 2;
+    max-width: min(70%, 28rem);
+    margin: 0;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+    pointer-events: none;
+  }
+
+  .galaxy-desc :global(a) {
+    color: inherit;
+  }
+
+  .galaxy-desc :global(font) {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  }
+
+  .galaxy-desc :global(font[color='#FF0000']),
+  .galaxy-desc :global(font[color='#ff0000']) {
+    color: #ffb4b4 !important;
+  }
+
+  .galaxy-desc :global(font[color='#FFFF00']),
+  .galaxy-desc :global(font[color='#ffff00']) {
+    color: #ffe566 !important;
+  }
+
+  .galaxy-desc :global(font[color='#00FF00']),
+  .galaxy-desc :global(font[color='#00ff00']) {
+    color: #9dff9d !important;
+  }
+
+  .galaxy-coords {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex: 0 0 auto;
+  }
+
+  .galaxy-coords-sep {
+    color: var(--neon-cyan-dim);
+    font-size: 0.95rem;
+    line-height: 1;
+    user-select: none;
+    text-transform: none;
+  }
+
+  .galaxy-coords :global(.scifi-input.narrow) {
+    width: 4.5rem;
   }
 
   @media (max-width: 500px) {

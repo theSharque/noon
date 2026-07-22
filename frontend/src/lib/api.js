@@ -702,12 +702,29 @@ function parseStarMap(data) {
   };
 }
 
-export async function loadStarMap() {
-  return parseStarMap(await fetchPage(371));
+export async function loadStarMap(shid = '') {
+  const params = shid ? `shid=${encodeURIComponent(shid)}` : '';
+  return parseStarMap(await fetchPage(371, params));
 }
 
-export async function getStarCoord(mx, my) {
-  return fetchPage(372, `mx=${encodeURIComponent(mx)}&my=${encodeURIComponent(my)}`);
+export async function getStarCoord(mx, my, shid = '') {
+  const parts = [
+    `mx=${encodeURIComponent(mx)}`,
+    `my=${encodeURIComponent(my)}`,
+  ];
+  if (shid) parts.push(`shid=${encodeURIComponent(shid)}`);
+  return fetchPage(372, parts.join('&'));
+}
+
+export async function shipsStarMove({ shid, x, y }) {
+  return fetchPage(
+    373,
+    [
+      `shid=${encodeURIComponent(shid)}`,
+      `x=${encodeURIComponent(x)}`,
+      `y=${encodeURIComponent(y)}`,
+    ].join('&'),
+  );
 }
 
 export async function saveStarHint(x, y, text, type, vis) {

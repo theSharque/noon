@@ -35,6 +35,9 @@
   import { askYesNo } from '../lib/confirmStore.js';
 
   const IMG = '/app/img/booklist';
+  const GALAXY_BG = '/app/img/ships/galaxy-bg.jpg';
+  const GALAXY_BG_SIZE = 2000;
+  const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
   const TAB_DEFS = [
     { id: 'enc', label: 'Энциклопедия' },
     { id: 'atlas', label: 'Атлас' },
@@ -697,24 +700,25 @@
   }
 
   function starFill(type) {
-    if (type === 'h') return '#3dff7a';
-    if (type === 'e') return '#ffe14a';
-    if (type === 'r') return '#ff5a5a';
+    if (type === 'h') return '#ffffff';
+    if (type === 'e') return '#00ff00';
+    if (type === 'r') return '#ff4040';
     if (type === 's') return '#7ec8ff';
     if (type === 'f') return '#c77dff';
     const n = parseInt(type, 10);
-    if (n === 1) return '#fff4c2';
-    if (n === 2) return '#ffd9a4';
-    if (n === 3) return '#ff9f6b';
-    if (n === 4) return '#ff6b8a';
+    if (n === 1) return '#00ccff';
+    if (n === 2) return '#ffff00';
+    if (n === 3) return '#ff2020';
+    if (n === 4) return '#c800ff';
     if (n === 5) return '#b8c4ff';
     return '#e8f6ff';
   }
 
-  function starRadius(type) {
-    if (type === 'h' || type === 'e' || type === 'r') return 5;
-    if (type === 's' || type === 'f') return 4;
-    return 3;
+  function starGlowR(type) {
+    const n = parseInt(type, 10);
+    if (n === 3 || n === 4) return 3.5;
+    if (type === 'h' || type === 'e' || type === 'r') return 4;
+    return 2.8;
   }
 
   async function loadAtlas() {
@@ -728,28 +732,17 @@
       data.quest && data.qsx != null && data.qsy != null
         ? { x: data.qsx, y: data.qsy }
         : null;
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
+    let minX = -GALAXY_BG_HALF;
+    let minY = -GALAXY_BG_HALF;
+    let maxX = GALAXY_BG_HALF;
+    let maxY = GALAXY_BG_HALF;
     for (const s of atlasStars) {
-      minX = Math.min(minX, s.x);
-      minY = Math.min(minY, s.y);
-      maxX = Math.max(maxX, s.x);
-      maxY = Math.max(maxY, s.y);
+      minX = Math.min(minX, s.x - 40);
+      minY = Math.min(minY, s.y - 40);
+      maxX = Math.max(maxX, s.x + 40);
+      maxY = Math.max(maxY, s.y + 40);
     }
-    if (!Number.isFinite(minX)) {
-      minX = 0;
-      minY = 0;
-      maxX = 800;
-      maxY = 600;
-    }
-    atlasBounds = {
-      minX: minX - 40,
-      minY: minY - 40,
-      maxX: maxX + 40,
-      maxY: maxY + 40,
-    };
+    atlasBounds = { minX, minY, maxX, maxY };
     loaded.atlas = true;
     await tick();
     centerAtlas(data.shx, data.shy);
@@ -792,13 +785,31 @@
     };
   }
 
+  function snapAtlasPoint(x, y, radius = 3) {
+    let best = null;
+    let bestD = Infinity;
+    const consider = (px, py) => {
+      if (Math.abs(px - x) > radius || Math.abs(py - y) > radius) return;
+      const d = (px - x) * (px - x) + (py - y) * (py - y);
+      if (d < bestD) {
+        bestD = d;
+        best = { x: px, y: py };
+      }
+    };
+    for (const s of atlasStars) consider(s.x, s.y);
+    for (const y of atlasYellow) consider(y.x, y.y);
+    if (atlasHome) consider(atlasHome.x, atlasHome.y);
+    if (atlasQuest) consider(atlasQuest.x, atlasQuest.y);
+    return best || { x: Math.round(x), y: Math.round(y) };
+  }
+
   async function atlasPointerUp(e) {
     if (!atlasDragging) return;
     atlasDragging = false;
     if (atlasDragMoved) return;
     const pt = atlasLocal(e);
     if (!pt) return;
-    atlasPlace = { x: Math.round(pt.x), y: Math.round(pt.y) };
+    atlasPlace = snapAtlasPoint(pt.x, pt.y);
     const data = await getStarCoord(atlasPlace.x, atlasPlace.y);
     if (String(data.err) !== '0') return;
     atlasPlace = {
@@ -823,8 +834,8 @@
     if (!vp) return null;
     const rect = vp.getBoundingClientRect();
     return {
-      x: e.clientX - rect.left - atlasOffset.x + atlasBounds.minX,
-      y: e.clientY - rect.top - atlasOffset.y + atlasBounds.minY,
+      x: e.clientX - rect.left - atlasOffset.x + atlasBounds.minX - 2,
+      y: e.clientY - rect.top - atlasOffset.y + atlasBounds.minY - 1,
     };
   }
 
@@ -911,33 +922,49 @@
             height={atlasBounds.maxY - atlasBounds.minY}
             viewBox={`${atlasBounds.minX} ${atlasBounds.minY} ${atlasBounds.maxX - atlasBounds.minX} ${atlasBounds.maxY - atlasBounds.minY}`}
           >
+            <image
+              href={GALAXY_BG}
+              x={-GALAXY_BG_HALF}
+              y={-GALAXY_BG_HALF}
+              width={GALAXY_BG_SIZE}
+              height={GALAXY_BG_SIZE}
+              opacity="0.5"
+              preserveAspectRatio="none"
+            />
             {#each atlasYellow as y}
-              <circle cx={y.x} cy={y.y} r="10" fill="rgba(255,220,60,0.18)" stroke="rgba(255,220,60,0.55)" />
+              <circle cx={y.x} cy={y.y} r="6.5" fill="none" stroke="#3366ff" stroke-width="1.2" />
             {/each}
             {#each atlasStars as s}
               {#if s.friend}
-                <circle cx={s.x} cy={s.y} r="8" fill="none" stroke="#3dff7a" stroke-width="1.5" />
+                <circle cx={s.x} cy={s.y} r="5.5" fill="none" stroke="#00ff00" stroke-width="1" />
               {/if}
               {#if s.foe}
-                <circle cx={s.x} cy={s.y} r="8" fill="none" stroke="#ff5a5a" stroke-width="1.5" />
+                <circle cx={s.x} cy={s.y} r="5.5" fill="none" stroke="#ff0000" stroke-width="1" />
               {/if}
               {#if s.aliance}
-                <circle cx={s.x} cy={s.y} r="10" fill="none" stroke="#7ec8ff" stroke-width="1" stroke-dasharray="2 2" />
+                <circle cx={s.x} cy={s.y} r="6.5" fill="none" stroke="#ffff00" stroke-width="1" />
               {/if}
-              <circle cx={s.x} cy={s.y} r={starRadius(s.type)} fill={starFill(s.type)} />
+              <circle
+                cx={s.x}
+                cy={s.y}
+                r={starGlowR(s.type)}
+                fill={starFill(s.type)}
+                opacity="0.35"
+              />
+              <circle cx={s.x} cy={s.y} r="0.7" fill={starFill(s.type)} />
             {/each}
             {#if atlasHome}
-              <circle cx={atlasHome.x} cy={atlasHome.y} r="7" fill="none" stroke="var(--neon-cyan)" stroke-width="2" />
+              <circle cx={atlasHome.x} cy={atlasHome.y} r="6.5" fill="none" stroke="#00ff00" stroke-width="1.2" />
             {/if}
             {#if atlasQuest}
               <rect
-                x={atlasQuest.x - 5}
-                y={atlasQuest.y - 5}
-                width="10"
-                height="10"
+                x={atlasQuest.x - 4}
+                y={atlasQuest.y - 4}
+                width="8"
+                height="8"
                 fill="none"
-                stroke="#ffe14a"
-                stroke-width="2"
+                stroke="#ffffff"
+                stroke-width="1"
               />
             {/if}
             {#if atlasCross}
@@ -1377,16 +1404,13 @@
     overflow: hidden;
     border: 1px solid var(--border-light);
     border-radius: var(--radius-panel);
-    background:
-      radial-gradient(ellipse at 30% 20%, rgba(40, 80, 140, 0.25), transparent 55%),
-      radial-gradient(ellipse at 70% 80%, rgba(80, 40, 120, 0.2), transparent 50%),
-      #040814;
-    cursor: grab;
+    background: #000;
+    cursor: crosshair;
     touch-action: none;
   }
 
   .atlas-viewport:active {
-    cursor: grabbing;
+    cursor: crosshair;
   }
 
   .atlas-svg {

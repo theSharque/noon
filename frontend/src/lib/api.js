@@ -1333,3 +1333,89 @@ export async function loadWarRead({ wi, lm, sd }) {
     shots,
   };
 }
+
+function parseStationLots(data) {
+  const rows = parseInt(data.rows || '0', 10);
+  const lots = [];
+  for (let i = 0; i < rows; i++) {
+    lots.push({
+      id: data[`l${i}c0`] || '',
+      name: data[`l${i}c1`] || '',
+      buyCnt: data[`l${i}c2`] || '',
+      buyPrice: data[`l${i}c3`] || '',
+      sellCnt: data[`l${i}c4`] || '',
+      sellPrice: data[`l${i}c5`] || '',
+      min: data[`l${i}c6`] || '',
+      avg: data[`l${i}c7`] || '',
+      max: data[`l${i}c8`] || '',
+      bgColor: data[`l${i}c9`] || '',
+    });
+  }
+  return { lots, rows };
+}
+
+export async function loadStationLots(rf = '') {
+  const params = rf !== '' && rf !== undefined ? `rf=${encodeURIComponent(rf)}` : '';
+  const data = await fetchPage(23, params);
+  return { ...data, ...parseStationLots(data), ok: data.rows !== undefined };
+}
+
+export async function loadStationGoods(rf = '') {
+  const params = rf !== '' && rf !== undefined ? `rf=${encodeURIComponent(rf)}` : '';
+  const data = await fetchPage(233, params);
+  const err = data.err !== undefined ? String(data.err) : '';
+  if (err !== '0') {
+    return { err: err || '1', items: [], ok: false };
+  }
+  const items = parseIndexedList(data, 'cnt', {
+    id: 'id',
+    name: 'name',
+    bgColor: 'c',
+  });
+  return { ...data, err: '0', items, ok: true };
+}
+
+export async function loadStationTradeInfo(oid) {
+  const data = await fetchPage(231, `oid=${encodeURIComponent(oid)}`);
+  const err = data.err !== undefined ? String(data.err) : '1';
+  if (err !== '0') {
+    return {
+      err,
+      money: '',
+      maxcnt: '0',
+      canbay: false,
+      cansell: false,
+    };
+  }
+  return {
+    err: '0',
+    money: data.money || '',
+    maxcnt: data.maxcnt !== undefined ? String(data.maxcnt) : '0',
+    canbay: String(data.canbay || '') === '1',
+    cansell: String(data.cansell || '') === '1',
+    i_min: data.i_min || '',
+    i_avg: data.i_avg || '',
+    i_max: data.i_max || '',
+    i_cnt: data.i_cnt || '0',
+    i_price: data.i_price || '0',
+    o_min: data.o_min || '',
+    o_avg: data.o_avg || '',
+    o_max: data.o_max || '',
+    o_cnt: data.o_cnt || '0',
+    o_price: data.o_price || '0',
+  };
+}
+
+export async function saveStationTrade({ oid, iprice, icnt, oprice, ocnt }) {
+  const data = await fetchPage(
+    232,
+    [
+      `oid=${encodeURIComponent(oid)}`,
+      `iprice=${encodeURIComponent(iprice ?? '0')}`,
+      `icnt=${encodeURIComponent(icnt ?? '0')}`,
+      `oprice=${encodeURIComponent(oprice ?? '0')}`,
+      `ocnt=${encodeURIComponent(ocnt ?? '0')}`,
+    ].join('&'),
+  );
+  return { err: data.err !== undefined ? String(data.err) : '1' };
+}

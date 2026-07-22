@@ -31,13 +31,16 @@
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
   import ScifiTabs from '../lib/ui/ScifiTabs.svelte';
   import ScifiSelect from '../lib/ui/ScifiSelect.svelte';
+  import GalaxyMap from '../lib/ui/GalaxyMap.svelte';
+  import {
+    computeGalaxyBounds,
+    galaxyCenterOffset,
+    galaxyLocalPoint,
+  } from '../lib/galaxyMap.js';
   import { setMusicVolumeLocal, setSoundVolumeLocal } from '../lib/audioStore.js';
   import { askYesNo } from '../lib/confirmStore.js';
 
   const IMG = '/app/img/booklist';
-  const GALAXY_BG = '/app/img/ships/galaxy-bg.jpg';
-  const GALAXY_BG_SIZE = 2000;
-  const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
   const TAB_DEFS = [
     { id: 'enc', label: 'Энциклопедия' },
     { id: 'atlas', label: 'Атлас' },
@@ -412,6 +415,13 @@
       push('/character?msgto=Aliance');
       return;
     }
+    if (kind === 'create') {
+      const ok = await askYesNo({
+        title: 'Создание альянса',
+        message: 'Создание альянса стоит 10 конфедерат. Вы согласны оплатить создание',
+      });
+      if (!ok) return;
+    }
     let ord = '';
     let extra = '';
     switch (kind) {
@@ -699,28 +709,6 @@
     loaded.top = true;
   }
 
-  function starFill(type) {
-    if (type === 'h') return '#ffffff';
-    if (type === 'e') return '#00ff00';
-    if (type === 'r') return '#ff4040';
-    if (type === 's') return '#7ec8ff';
-    if (type === 'f') return '#c77dff';
-    const n = parseInt(type, 10);
-    if (n === 1) return '#00ccff';
-    if (n === 2) return '#ffff00';
-    if (n === 3) return '#ff2020';
-    if (n === 4) return '#c800ff';
-    if (n === 5) return '#b8c4ff';
-    return '#e8f6ff';
-  }
-
-  function starGlowR(type) {
-    const n = parseInt(type, 10);
-    if (n === 3 || n === 4) return 3.5;
-    if (type === 'h' || type === 'e' || type === 'r') return 4;
-    return 2.8;
-  }
-
   async function loadAtlas() {
     const data = await loadStarMap();
     atlasDesc = data.desc || '';
@@ -732,31 +720,16 @@
       data.quest && data.qsx != null && data.qsy != null
         ? { x: data.qsx, y: data.qsy }
         : null;
-    let minX = -GALAXY_BG_HALF;
-    let minY = -GALAXY_BG_HALF;
-    let maxX = GALAXY_BG_HALF;
-    let maxY = GALAXY_BG_HALF;
-    for (const s of atlasStars) {
-      minX = Math.min(minX, s.x - 40);
-      minY = Math.min(minY, s.y - 40);
-      maxX = Math.max(maxX, s.x + 40);
-      maxY = Math.max(maxY, s.y + 40);
-    }
-    atlasBounds = { minX, minY, maxX, maxY };
+    atlasBounds = computeGalaxyBounds(atlasStars);
     loaded.atlas = true;
     await tick();
     centerAtlas(data.shx, data.shy);
   }
 
   function centerAtlas(shx, shy) {
-    const vp = atlasViewport;
-    if (!vp) return;
     const cx = shx ?? atlasHome?.x ?? (atlasBounds.minX + atlasBounds.maxX) / 2;
     const cy = shy ?? atlasHome?.y ?? (atlasBounds.minY + atlasBounds.maxY) / 2;
-    atlasOffset = {
-      x: vp.clientWidth / 2 - (cx - atlasBounds.minX),
-      y: vp.clientHeight / 2 - (cy - atlasBounds.minY),
-    };
+    atlasOffset = galaxyCenterOffset(atlasViewport, atlasBounds, cx, cy);
   }
 
   function atlasPointerDown(e) {
@@ -830,13 +803,7 @@
   }
 
   function atlasLocal(e) {
-    const vp = atlasViewport;
-    if (!vp) return null;
-    const rect = vp.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left - atlasOffset.x + atlasBounds.minX - 2,
-      y: e.clientY - rect.top - atlasOffset.y + atlasBounds.minY - 1,
-    };
+    return galaxyLocalPoint(atlasViewport, atlasOffset, atlasBounds, e);
   }
 
   async function doHintSave() {
@@ -904,9 +871,18 @@
 
     {:else if activeTab === 'atlas'}
       <ScifiPanel title="Карта галактики" className="col-atlas">
-        <div
-          class="atlas-viewport"
-          bind:this={atlasViewport}
+        <GalaxyMap
+          idPrefix="atlas"
+          className="bleed"
+          bind:viewport={atlasViewport}
+          stars={atlasStars}
+          yellow={atlasYellow}
+          home={atlasHome}
+          quest={atlasQuest}
+          cross={atlasCross}
+          offset={atlasOffset}
+          bounds={atlasBounds}
+          hover={atlasHover}
           on:pointerdown={atlasPointerDown}
           on:pointermove={atlasPointerMove}
           on:pointerup={atlasPointerUp}
@@ -914,70 +890,7 @@
             atlasDragging = false;
             atlasHover = '';
           }}
-        >
-          <svg
-            class="atlas-svg"
-            style={`transform:translate(${atlasOffset.x}px,${atlasOffset.y}px)`}
-            width={atlasBounds.maxX - atlasBounds.minX}
-            height={atlasBounds.maxY - atlasBounds.minY}
-            viewBox={`${atlasBounds.minX} ${atlasBounds.minY} ${atlasBounds.maxX - atlasBounds.minX} ${atlasBounds.maxY - atlasBounds.minY}`}
-          >
-            <image
-              href={GALAXY_BG}
-              x={-GALAXY_BG_HALF}
-              y={-GALAXY_BG_HALF}
-              width={GALAXY_BG_SIZE}
-              height={GALAXY_BG_SIZE}
-              opacity="0.5"
-              preserveAspectRatio="none"
-            />
-            {#each atlasYellow as y}
-              <circle cx={y.x} cy={y.y} r="6.5" fill="none" stroke="#3366ff" stroke-width="1.2" />
-            {/each}
-            {#each atlasStars as s}
-              {#if s.friend}
-                <circle cx={s.x} cy={s.y} r="5.5" fill="none" stroke="#00ff00" stroke-width="1" />
-              {/if}
-              {#if s.foe}
-                <circle cx={s.x} cy={s.y} r="5.5" fill="none" stroke="#ff0000" stroke-width="1" />
-              {/if}
-              {#if s.aliance}
-                <circle cx={s.x} cy={s.y} r="6.5" fill="none" stroke="#ffff00" stroke-width="1" />
-              {/if}
-              <circle
-                cx={s.x}
-                cy={s.y}
-                r={starGlowR(s.type)}
-                fill={starFill(s.type)}
-                opacity="0.35"
-              />
-              <circle cx={s.x} cy={s.y} r="0.7" fill={starFill(s.type)} />
-            {/each}
-            {#if atlasHome}
-              <circle cx={atlasHome.x} cy={atlasHome.y} r="6.5" fill="none" stroke="#00ff00" stroke-width="1.2" />
-            {/if}
-            {#if atlasQuest}
-              <rect
-                x={atlasQuest.x - 4}
-                y={atlasQuest.y - 4}
-                width="8"
-                height="8"
-                fill="none"
-                stroke="#ffffff"
-                stroke-width="1"
-              />
-            {/if}
-            {#if atlasCross}
-              <g stroke="var(--neon-cyan)" stroke-width="1.5">
-                <line x1={atlasCross.x - 8} y1={atlasCross.y} x2={atlasCross.x + 8} y2={atlasCross.y} />
-                <line x1={atlasCross.x} y1={atlasCross.y - 8} x2={atlasCross.x} y2={atlasCross.y + 8} />
-              </g>
-            {/if}
-          </svg>
-          {#if atlasHover}
-            <div class="atlas-hover">{atlasHover}</div>
-          {/if}
-        </div>
+        />
       </ScifiPanel>
       <ScifiPanel title="Метка" className="col-atlas-side">
         <div class="html-rich detail-body">{@html atlasDesc || 'Кликните по карте'}</div>
@@ -1281,6 +1194,27 @@
 
   .layout-atlas {
     grid-template-columns: minmax(0, 1.6fr) minmax(220px, 320px);
+    align-items: stretch;
+  }
+
+  .layout-atlas :global(.col-atlas),
+  .layout-atlas :global(.col-atlas-side) {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .layout-atlas :global(.col-atlas .panel-content) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .layout-atlas :global(.col-atlas-side .panel-content) {
+    overflow: auto;
+    min-height: 0;
   }
 
   .layout-top {
@@ -1396,41 +1330,6 @@
     gap: 10px;
     min-height: 0;
     overflow: auto;
-  }
-
-  .atlas-viewport {
-    position: relative;
-    height: min(55vh, 480px);
-    overflow: hidden;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-panel);
-    background: #000;
-    cursor: crosshair;
-    touch-action: none;
-  }
-
-  .atlas-viewport:active {
-    cursor: crosshair;
-  }
-
-  .atlas-svg {
-    position: absolute;
-    left: 0;
-    top: 0;
-    overflow: visible;
-  }
-
-  .atlas-hover {
-    position: absolute;
-    right: 8px;
-    top: 8px;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.55);
-    color: var(--neon-cyan);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    pointer-events: none;
   }
 
   .settings-list {

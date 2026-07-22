@@ -31,6 +31,14 @@
   import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
   import ScifiSelect from '../lib/ui/ScifiSelect.svelte';
+  import GalaxyMap from '../lib/ui/GalaxyMap.svelte';
+  import {
+    RING_R,
+    RING_STROKE,
+    computeGalaxyBounds,
+    galaxyCenterOffset,
+    galaxyLocalPoint,
+  } from '../lib/galaxyMap.js';
 
   const IMG = '/app/img/booklist';
   const ATTACK_ORDERS = new Set([14, 16, 17, 18, 32, 33, 49, 51]);
@@ -41,9 +49,6 @@
   ]);
   const GALAXY_ORDERS = new Set([9, 41]);
   const SYSTEM_ORDERS = new Set([8]);
-  const GALAXY_BG = '/app/img/ships/galaxy-bg.jpg';
-  const GALAXY_BG_SIZE = 2000;
-  const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
   const SYSTEM_W = 680;
   const SYSTEM_H = 440;
   const SYSTEM_CX = 340;
@@ -52,9 +57,9 @@
   const PLANET_SIZE = { 1: 12, 2: 20, 3: 12, 4: 14, 5: 8 };
   const STAR_SIZE = { 1: { w: 69, h: 61 }, 2: { w: 47, h: 47 }, 3: { w: 66, h: 66 } };
   const SYSTEM_MARKER_R = 2.5;
-  const SYSTEM_CIRCLE_R = 4.5;
+  const SYSTEM_CIRCLE_R = RING_R;
   const SYSTEM_TRASH_S = 4;
-  const MAP_STROKE = 1.2;
+  const MAP_STROKE = RING_STROKE;
   const CARGO_ORDERS = new Set([10, 28, 30]);
   const LAND_ORDERS = new Set([1, 22, 23, 24, 34, 35, 36, 37, 40, 43]);
   const DOCK_ORDERS = new Set([4, 31]);
@@ -277,7 +282,7 @@
     const hex = String(bgColor).replace(/^0x/i, '#');
     if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return '';
     if (hex.toLowerCase() === '#000000') return '';
-    return `background: ${hex}22`;
+    return `background: ${hex}50`;
   }
 
   function parseOrderId(raw) {
@@ -732,61 +737,14 @@
     return `${parts[0]} → ${parts[2]} · ${defeat} · сила ${parts[6]}`;
   }
 
-  function starFill(type) {
-    if (type === 'h') return '#ffffff';
-    if (type === 'e') return '#00ff00';
-    if (type === 'r') return '#ff4040';
-    if (type === 's') return '#7ec8ff';
-    if (type === 'f') return '#c77dff';
-    const n = parseInt(type, 10);
-    if (n === 1) return '#00ccff';
-    if (n === 2) return '#ffff00';
-    if (n === 3) return '#ff2020';
-    if (n === 4) return '#c800ff';
-    if (n === 5) return '#b8c4ff';
-    return '#e8f6ff';
-  }
-
-  function starGlowR(type) {
-    const n = parseInt(type, 10);
-    if (n === 3 || n === 4) return 3.5;
-    if (type === 'h' || type === 'e' || type === 'r') return 4;
-    return 2.8;
-  }
-
-  function computeGalaxyBounds(stars) {
-    let minX = -GALAXY_BG_HALF;
-    let minY = -GALAXY_BG_HALF;
-    let maxX = GALAXY_BG_HALF;
-    let maxY = GALAXY_BG_HALF;
-    for (const s of stars) {
-      minX = Math.min(minX, s.x - 40);
-      minY = Math.min(minY, s.y - 40);
-      maxX = Math.max(maxX, s.x + 40);
-      maxY = Math.max(maxY, s.y + 40);
-    }
-    return { minX, minY, maxX, maxY };
-  }
-
   function centerGalaxy(cx, cy) {
-    const vp = galaxyViewport;
-    if (!vp) return;
     const x = cx ?? galaxyHome?.x ?? (galaxyBounds.minX + galaxyBounds.maxX) / 2;
     const y = cy ?? galaxyHome?.y ?? (galaxyBounds.minY + galaxyBounds.maxY) / 2;
-    galaxyOffset = {
-      x: vp.clientWidth / 2 - (x - galaxyBounds.minX),
-      y: vp.clientHeight / 2 - (y - galaxyBounds.minY),
-    };
+    galaxyOffset = galaxyCenterOffset(galaxyViewport, galaxyBounds, x, y);
   }
 
   function galaxyLocal(e) {
-    const vp = galaxyViewport;
-    if (!vp) return null;
-    const rect = vp.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left - galaxyOffset.x + galaxyBounds.minX - 2,
-      y: e.clientY - rect.top - galaxyOffset.y + galaxyBounds.minY - 1,
-    };
+    return galaxyLocalPoint(galaxyViewport, galaxyOffset, galaxyBounds, e);
   }
 
   function galaxyPointerDown(e) {
@@ -970,14 +928,6 @@
     if (ct === 2) return '#5cff8a';
     if (ct === 3) return '#c8c8c8';
     return '#ff6a6a';
-  }
-
-  function ringStroke(kind) {
-    if (kind === 'friend' || kind === 'home') return markerStroke(2);
-    if (kind === 'foe') return markerStroke(1);
-    if (kind === 'aliance') return '#ffe566';
-    if (kind === 'yellow') return 'var(--neon-cyan)';
-    return '#ffffff';
   }
 
   function systemLocal(e) {
@@ -1547,9 +1497,19 @@
 
       {:else if monitor === 'galaxy'}
         <div class="monitor-body galaxy-layout">
-          <div
-            class="galaxy-viewport"
-            bind:this={galaxyViewport}
+          <GalaxyMap
+            idPrefix="galaxy"
+            bind:viewport={galaxyViewport}
+            stars={galaxyStars}
+            yellow={galaxyYellow}
+            home={galaxyHome}
+            quest={galaxyQuest}
+            ship={galaxyShip}
+            offset={galaxyOffset}
+            bounds={galaxyBounds}
+            hover={galaxyHover}
+            showDesc={true}
+            descHtml={galaxyDesc}
             on:pointerdown={galaxyPointerDown}
             on:pointermove={galaxyPointerMove}
             on:pointerup={galaxyPointerUp}
@@ -1558,131 +1518,29 @@
               galaxyHover = '';
             }}
           >
-            <svg
-              class="galaxy-svg"
-              style={`transform:translate(${galaxyOffset.x}px,${galaxyOffset.y}px)`}
-              width={galaxyBounds.maxX - galaxyBounds.minX}
-              height={galaxyBounds.maxY - galaxyBounds.minY}
-              viewBox={`${galaxyBounds.minX} ${galaxyBounds.minY} ${galaxyBounds.maxX - galaxyBounds.minX} ${galaxyBounds.maxY - galaxyBounds.minY}`}
-            >
-              <image
-                href={GALAXY_BG}
-                x={-GALAXY_BG_HALF}
-                y={-GALAXY_BG_HALF}
-                width={GALAXY_BG_SIZE}
-                height={GALAXY_BG_SIZE}
-                opacity="0.5"
-                preserveAspectRatio="none"
+            {#if galaxyPreviewT > 0 && galaxyShip}
+              <line
+                class="route-march"
+                class:route-blocked={galaxyPreviewT === 3}
+                x1={galaxyShip.x}
+                y1={galaxyShip.y}
+                x2={galaxyPlace.x}
+                y2={galaxyPlace.y}
+                fill="none"
+                stroke={galaxyPreviewT === 3 ? '#ff5a5a' : 'var(--neon-cyan)'}
+                stroke-width="1.5"
+                stroke-linecap="round"
               />
-              {#each galaxyYellow as y}
-                <circle
-                  cx={y.x}
-                  cy={y.y}
-                  r={SYSTEM_CIRCLE_R}
-                  fill="none"
-                  stroke={ringStroke('yellow')}
-                  stroke-width={MAP_STROKE}
-                />
-              {/each}
-              {#each galaxyStars as s}
-                {#if s.friend}
-                  <circle
-                    cx={s.x}
-                    cy={s.y}
-                    r={SYSTEM_CIRCLE_R}
-                    fill="none"
-                    stroke={ringStroke('friend')}
-                    stroke-width={MAP_STROKE}
-                  />
-                {/if}
-                {#if s.foe}
-                  <circle
-                    cx={s.x}
-                    cy={s.y}
-                    r={SYSTEM_CIRCLE_R}
-                    fill="none"
-                    stroke={ringStroke('foe')}
-                    stroke-width={MAP_STROKE}
-                  />
-                {/if}
-                {#if s.aliance}
-                  <circle
-                    cx={s.x}
-                    cy={s.y}
-                    r={SYSTEM_CIRCLE_R}
-                    fill="none"
-                    stroke={ringStroke('aliance')}
-                    stroke-width={MAP_STROKE}
-                  />
-                {/if}
-                <circle
-                  cx={s.x}
-                  cy={s.y}
-                  r={starGlowR(s.type)}
-                  fill={starFill(s.type)}
-                  opacity="0.35"
-                />
-                <circle cx={s.x} cy={s.y} r="0.7" fill={starFill(s.type)} />
-              {/each}
-              {#if galaxyHome}
-                <circle
-                  cx={galaxyHome.x}
-                  cy={galaxyHome.y}
-                  r={SYSTEM_CIRCLE_R}
-                  fill="none"
-                  stroke={ringStroke('home')}
-                  stroke-width={MAP_STROKE}
-                />
-              {/if}
-              {#if galaxyQuest}
-                <rect
-                  x={galaxyQuest.x - SYSTEM_TRASH_S / 2}
-                  y={galaxyQuest.y - SYSTEM_TRASH_S / 2}
-                  width={SYSTEM_TRASH_S}
-                  height={SYSTEM_TRASH_S}
-                  fill="none"
-                  stroke="#ffffff"
-                  stroke-width={MAP_STROKE}
-                />
-              {/if}
-              {#if galaxyShip}
-                <circle
-                  cx={galaxyShip.x}
-                  cy={galaxyShip.y}
-                  r={SYSTEM_CIRCLE_R}
-                  fill="none"
-                  stroke="#ffffff"
-                  stroke-width={MAP_STROKE}
-                />
-              {/if}
-              {#if galaxyPreviewT > 0 && galaxyShip}
-                <line
-                  class="route-march"
-                  class:route-blocked={galaxyPreviewT === 3}
-                  x1={galaxyShip.x}
-                  y1={galaxyShip.y}
-                  x2={galaxyPlace.x}
-                  y2={galaxyPlace.y}
-                  fill="none"
-                  stroke={galaxyPreviewT === 3 ? '#ff5a5a' : 'var(--neon-cyan)'}
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-                <circle
-                  cx={galaxyPlace.x}
-                  cy={galaxyPlace.y}
-                  r={SYSTEM_CIRCLE_R}
-                  fill="none"
-                  stroke="var(--neon-cyan)"
-                  stroke-width={MAP_STROKE}
-                />
-              {/if}
-            </svg>
-            {#if galaxyHover}
-              <div class="galaxy-hover">{galaxyHover}</div>
+              <circle
+                cx={galaxyPlace.x}
+                cy={galaxyPlace.y}
+                r={SYSTEM_CIRCLE_R}
+                fill="none"
+                stroke="var(--neon-cyan)"
+                stroke-width={MAP_STROKE}
+              />
             {/if}
-            <div class="html-rich galaxy-desc">{@html galaxyDesc || 'Кликните по карте'}</div>
-          </div>
+          </GalaxyMap>
         </div>
 
       {:else if monitor === 'system'}
@@ -2138,13 +1996,6 @@
 
   .galaxy-viewport:active {
     cursor: crosshair;
-  }
-
-  .galaxy-svg {
-    position: absolute;
-    left: 0;
-    top: 0;
-    overflow: visible;
   }
 
   .galaxy-hover {

@@ -1419,3 +1419,166 @@ export async function saveStationTrade({ oid, iprice, icnt, oprice, ocnt }) {
   );
   return { err: data.err !== undefined ? String(data.err) : '1' };
 }
+
+function parsePlanetMap(data) {
+  const err = data.err !== undefined ? String(data.err) : '0';
+  if (err === '1' || err === '2') {
+    return { err, ok: false, num: 0, width: 0, ground: [], buildings: [], trees: [], highlights: [], levels: {}, timers: [], lastx: 0, lasty: 0 };
+  }
+  const num = parseInt(data.num || '0', 10);
+  const width = data.bl0 != null ? String(data.bl0).length : 0;
+  const ground = [];
+  const buildings = [];
+  const trees = [];
+  const highlights = [];
+  for (let y = 0; y < num; y++) {
+    if (data[`gl${y}`] !== undefined) ground[y] = String(data[`gl${y}`]);
+    buildings[y] = String(data[`bl${y}`] || '');
+    trees[y] = String(data[`tr${y}`] || '');
+    if (data[`hl${y}`] !== undefined) highlights[y] = String(data[`hl${y}`]);
+  }
+  const levels = {};
+  const timers = [];
+  for (const key of Object.keys(data)) {
+    const vm = key.match(/^v(\d+)x(\d+)$/);
+    if (vm) {
+      levels[`${vm[1]}x${vm[2]}`] = String(data[key]);
+      continue;
+    }
+    const tm = key.match(/^t(\d+)x(\d+)$/);
+    if (tm) {
+      const x = tm[1];
+      const y = tm[2];
+      timers.push({
+        x: parseInt(x, 10),
+        y: parseInt(y, 10),
+        remain: parseInt(data[`t${x}x${y}`] || '0', 10),
+        eventType: String(data[`c${x}x${y}`] || ''),
+        total: parseInt(data[`l${x}x${y}`] || '0', 10),
+        cycles: parseInt(data[`s${x}x${y}`] || '0', 10),
+      });
+    }
+  }
+  return {
+    err: '0',
+    ok: true,
+    num,
+    width,
+    ground,
+    buildings,
+    trees,
+    highlights,
+    levels,
+    timers,
+    lastx: parseInt(data.lastx || '0', 10),
+    lasty: parseInt(data.lasty || '0', 10),
+    raw: data,
+  };
+}
+
+export async function loadPlanetMap({ full = true, ml = 0 } = {}) {
+  const data = await fetchPage(
+    21,
+    `full=${full ? 'true' : 'false'}&ml=${encodeURIComponent(ml)}`,
+  );
+  return parsePlanetMap(data);
+}
+
+export async function loadPlanetInfo(x, y) {
+  const data = await fetchPage(26, `x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  return {
+    err,
+    info: data.info || '',
+    desc: data.desc || '',
+    destroy: data.destroy !== undefined,
+  };
+}
+
+function parsePlanetGrid(data) {
+  const cols = parseInt(data.cols || '0', 10);
+  const rows = parseInt(data.rows || '0', 10);
+  const colNames = [];
+  for (let t = 0; t < cols; t++) colNames.push(data[`col${t}`] || `c${t}`);
+  const items = [];
+  for (let i = 0; i < rows; i++) {
+    const row = { bgColor: data[`l${i}color`] };
+    for (let t = 0; t < cols; t++) {
+      row[colNames[t]] = data[`l${i}c${t}`] || '';
+    }
+    items.push(row);
+  }
+  return { cols: colNames, rows, items };
+}
+
+export async function loadPlanetUse(x, y) {
+  const data = await fetchPage(27, `x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  const combo = [];
+  const cbCount = parseInt(data.cb_c || '0', 10);
+  if (data.cb_h !== undefined && cbCount > 0) {
+    for (let i = 0; i < cbCount; i++) {
+      combo.push({
+        value: data[`cb_d${i}`] || '',
+        label: data[`cb_l${i}`] || '',
+        bgColor: data[`cb_c${i}`],
+      });
+    }
+  }
+  return {
+    err,
+    detail: data.detail || '',
+    btLabel: data.btLabel,
+    btOnClick: data.btOnClick ? decodeLoadVar(String(data.btOnClick)) : '',
+    cbHeader: data.cb_h || '',
+    combo,
+    busyStop: data.btLabel !== undefined && data.cb_h === undefined,
+  };
+}
+
+export async function loadPlanetUpgrade(x, y) {
+  const data = await fetchPage(273, `x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  const grid = data.header !== undefined ? parsePlanetGrid(data) : { cols: [], rows: 0, items: [] };
+  return {
+    err,
+    title: data.title || '',
+    level: data.level || '',
+    desc: data.desc || '',
+    header: data.header || '',
+    btLabel: data.btLabel,
+    upgOnClick: data.upgOnClick || '',
+    ...grid,
+  };
+}
+
+export async function destroyPlanetTile(x, y) {
+  const data = await fetchPage(261, `x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`);
+  return { err: data.err !== undefined ? String(data.err) : '0' };
+}
+
+export async function fetchActionUrl(url) {
+  let path = String(url || '').trim();
+  if (!path) return { err: '1' };
+  if (path.startsWith('page.php')) path = `/${path}`;
+  else if (!path.startsWith('/') && !path.startsWith('http')) path = `/${path}`;
+  const res = await fetch(path, { credentials: 'same-origin' });
+  const data = parseVars(await res.text());
+  return { ...data, err: data.err !== undefined ? String(data.err) : '0', ...parsePlanetGrid(data) };
+}
+
+export async function loadPlanetActionDetail(url) {
+  const data = await fetchActionUrl(url);
+  return {
+    err: data.err,
+    btLabel: data.btLabel,
+    btOnClick: data.btOnClick ? decodeLoadVar(String(data.btOnClick)) : '',
+    btRobot: data.btRobot !== undefined ? parseInt(data.btRobot, 10) : 0,
+    nsMax: data.nsMax !== undefined ? parseInt(data.nsMax, 10) : null,
+    nsVal: data.nsVal !== undefined ? String(data.nsVal) : '1',
+    dgHeader: data.dg_h || '',
+    cols: data.cols || [],
+    rows: data.rows || 0,
+    items: data.items || [],
+  };
+}

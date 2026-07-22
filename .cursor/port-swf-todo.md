@@ -13,8 +13,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Статус | Кол-во |
 |--------|--------|
-| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(station) |
-| stub | place planet/orbit/transitions |
+| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+station) |
+| stub | place orbit/transitions |
 | todo | transitions screens, tutorial |
 
 ---
@@ -24,11 +24,11 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 - Design system: `frontend/docs/Cosmic_UI_Design_System.md`
 - Концепты: `frontend/public/img/design/cosmic-concept-{1,2}.png`
 - Токены/utilities: `frontend/src/app.css`
-- UI kit: `frontend/src/lib/ui/` (ScifiPanel, ScifiButton, ScifiTabs, ProgressBar, StatRow)
+- UI kit: `frontend/src/lib/ui/` (ScifiPanel, ScifiButton, ScifiTabs, ProgressBar, StatRow, PlanetMap, GalaxyMap)
 - Shell: `App.svelte`, `TopMenu.svelte`, `Chat.svelte` — glass/cyan, без sprite-кнопок
 - `Booklist.svelte` / `About.svelte` / `Misc.svelte` / `Warehouse.svelte` / `Trade.svelte` — CSS grid, без absolute 1000×500 и PNG-скинов; RPC без изменений
 - Pixel-perfect purge (booklist / about / topmenu / fonts): **done** 2026-07-20
-- Routes: Booklist, About, Misc, Warehouse, Trade, Ships, Place (station); stub planet/orbit/transitions
+- Routes: Booklist, About, Misc, Warehouse, Trade, Ships, Place → Planet/Station; stub orbit/transitions
 
 ### Pixel-perfect purge list
 
@@ -59,7 +59,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 |-----|-----|--------|---------|
 | `booklist.jpg` | `/character`, `/mail` → `Booklist.svelte` | **redesign** | 5 вкладок, cosmic grid; SWF удалён |
 | `about.jpg` | `/about` → `About.svelte` | **redesign** | Профиль/медали; PNG purged; SWF удалён |
-| `planet/orbit/station` | `/place` → `Place.svelte` | **partial** | Station Cosmic (23/231–233); planet/orbit/transitions stub |
+| `planet.jpg` / `station.jpg` | `/place` → `Place` + `Planet` / `Station` | **redesign** | Place shell probe 21/233; planet map jpeg*/bld* + panels 26/27/273; station trade; orbit stub |
 | `ships.jpg` | `/ships` → `Ships.svelte` | **redesign** | Master–detail; galaxy 9/41; system map 8; war text poll; SWF удалён |
 | `warehouse.jpg` | `/ware` → `Warehouse.svelte` | **redesign** | Dual-pane cargo move; RPC 41–47; SWF удалён |
 | `trade.jpg` | `/trade` → `Trade.svelte` | **redesign** | 4 вкладки Comp/Bay/Sell/Conf; RPC 53–58, 63, 65, 651–652; SWF удалён |
@@ -67,14 +67,13 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 ### Place — отложено
 
-- `planet.jpg` / `orbit.jpg`
+- `orbit.jpg`
 - Переходы land/flyout/infly/inhyper/inspace
-- Purge `www/swf/station.jpg` — после приёмки
+- Purge `www/swf/planet.jpg` / `station.jpg` — после приёмки
 
 ### Ships — отложено
 
 - Полноценная Cosmic-анимация боя (пока упрощённый текстовый poll `361`/`362`) — отдельный большой проход
-- Экран `/place` planet/orbit
 
 ---
 

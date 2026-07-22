@@ -4,6 +4,7 @@
   import {
     getNoonConfig,
     getStarCoord,
+    getSystemCoord,
     loadShipsFleetList,
     loadShipsFleetOrderList,
     loadShipsFleetOrders,
@@ -14,6 +15,7 @@
     loadShipsOrders,
     loadShipsPlaces,
     loadStarMap,
+    loadSystemMap,
     loadWarRead,
     loadWarStart,
     shipsDeconserv,
@@ -24,6 +26,7 @@
     shipsMakeFleet,
     shipsMakeOrder,
     shipsStarMove,
+    shipsSystemMove,
   } from '../lib/api.js';
   import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
@@ -41,6 +44,17 @@
   const GALAXY_BG = '/app/img/ships/galaxy-bg.jpg';
   const GALAXY_BG_SIZE = 2000;
   const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
+  const SYSTEM_W = 680;
+  const SYSTEM_H = 440;
+  const SYSTEM_CX = 340;
+  const SYSTEM_CY = 220;
+  const SYSTEM_IMG = '/app/img/ships/system';
+  const PLANET_SIZE = { 1: 12, 2: 20, 3: 12, 4: 14, 5: 8 };
+  const STAR_SIZE = { 1: { w: 69, h: 61 }, 2: { w: 47, h: 47 }, 3: { w: 66, h: 66 } };
+  const SYSTEM_MARKER_R = 2.5;
+  const SYSTEM_CIRCLE_R = 4.5;
+  const SYSTEM_TRASH_S = 4;
+  const MAP_STROKE = 1.2;
   const CARGO_ORDERS = new Set([10, 28, 30]);
   const LAND_ORDERS = new Set([1, 22, 23, 24, 34, 35, 36, 37, 40, 43]);
   const DOCK_ORDERS = new Set([4, 31]);
@@ -108,6 +122,22 @@
   let galaxyDragMoved = false;
   let galaxyDragStart = { x: 0, y: 0, ox: 0, oy: 0 };
   let galaxyCoordTimer;
+
+  let systemPlanets = [];
+  let systemOrbits = [];
+  let systemMarkers = [];
+  let systemShip = null;
+  let systemPlace = { x: 0, y: 0 };
+  let systemCoordX = '';
+  let systemCoordY = '';
+  let systemPreviewT = 0;
+  let systemDesc = '';
+  let systemHover = '';
+  let systemBg = '';
+  let systemName = '';
+  let systemStype = 1;
+  let systemSvg;
+  let systemCoordTimer;
 
   let busy = false;
   let errorText = '';
@@ -289,6 +319,7 @@
     warLog = [];
     warWid = '';
     resetGalaxy();
+    resetSystem();
   }
 
   function resetGalaxy() {
@@ -320,6 +351,38 @@
     galaxyCoordTimer = setTimeout(() => {
       galaxyCoordTimer = null;
       applyGalaxyCoords();
+    }, 500);
+  }
+
+  function resetSystem() {
+    clearSystemCoordTimer();
+    systemPlanets = [];
+    systemOrbits = [];
+    systemMarkers = [];
+    systemShip = null;
+    systemPlace = { x: 0, y: 0 };
+    systemCoordX = '';
+    systemCoordY = '';
+    systemPreviewT = 0;
+    systemDesc = '';
+    systemHover = '';
+    systemBg = '';
+    systemName = '';
+    systemStype = 1;
+  }
+
+  function clearSystemCoordTimer() {
+    if (systemCoordTimer) {
+      clearTimeout(systemCoordTimer);
+      systemCoordTimer = null;
+    }
+  }
+
+  function scheduleSystemCoords() {
+    clearSystemCoordTimer();
+    systemCoordTimer = setTimeout(() => {
+      systemCoordTimer = null;
+      applySystemCoords();
     }, 500);
   }
 
@@ -486,8 +549,10 @@
     }
 
     if (SYSTEM_ORDERS.has(id)) {
-      monitor = 'map_stub';
+      monitor = 'system';
       showOrderBtn = false;
+      orderGlow = false;
+      await openSystemMap();
       return;
     }
 
@@ -793,6 +858,153 @@
     await probeGalaxy(mx, my);
   }
 
+  function systemPolarXy(angleDeg, orb) {
+    const rad = (angleDeg * Math.PI) / 180;
+    return {
+      x: Math.round(SYSTEM_CX + Math.sin(rad) * orb),
+      y: Math.round(SYSTEM_CY + Math.cos(rad) * orb * 0.75),
+    };
+  }
+
+  function systemStartFromData(data) {
+    if (data.pt === 0) {
+      return systemPolarXy(data.arg1, data.arg2);
+    }
+    return { x: data.arg1, y: data.arg2 };
+  }
+
+  function uniqueSystemOrbits(planets) {
+    const seen = new Set();
+    const orbs = [];
+    for (const p of planets) {
+      if (seen.has(p.orb)) continue;
+      seen.add(p.orb);
+      orbs.push(p.orb);
+    }
+    return orbs;
+  }
+
+  function planetImg(type) {
+    const t = PLANET_SIZE[type] ? type : 1;
+    return `${SYSTEM_IMG}/p${t}.gif`;
+  }
+
+  function planetSize(type) {
+    return PLANET_SIZE[type] || 16;
+  }
+
+  function starImg(stype) {
+    const t = STAR_SIZE[stype] ? stype : 1;
+    return `${SYSTEM_IMG}/st${t}.png`;
+  }
+
+  function starSize(stype) {
+    return STAR_SIZE[stype] || STAR_SIZE[1];
+  }
+
+  function markerStroke(ct) {
+    if (ct === 2) return '#5cff8a';
+    if (ct === 3) return '#c8c8c8';
+    return '#ff6a6a';
+  }
+
+  function ringStroke(kind) {
+    if (kind === 'friend' || kind === 'home') return markerStroke(2);
+    if (kind === 'foe') return markerStroke(1);
+    if (kind === 'aliance') return '#ffe566';
+    if (kind === 'yellow') return 'var(--neon-cyan)';
+    return '#ffffff';
+  }
+
+  function systemLocal(e) {
+    const svg = systemSvg;
+    if (!svg) return null;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const sp = pt.matrixTransform(ctm.inverse());
+    return { x: Math.round(sp.x), y: Math.round(sp.y) };
+  }
+
+  function systemPointerMove(e) {
+    const pt = systemLocal(e);
+    if (pt) systemHover = `${pt.x}:${pt.y}`;
+  }
+
+  async function systemPointerUp(e) {
+    const pt = systemLocal(e);
+    if (!pt) return;
+    await probeSystem(pt.x, pt.y);
+  }
+
+  async function openSystemMap() {
+    resetSystem();
+    const shid = primaryId();
+    if (!shid) return;
+    busy = true;
+    try {
+      const data = await loadSystemMap(shid);
+      if (!data.ok) {
+        errorText = 'Ошибка карты системы';
+        return;
+      }
+      systemPlanets = (data.planets || []).map((p) => ({
+        ...p,
+        ...systemPolarXy(p.angle, p.orb),
+      }));
+      systemOrbits = uniqueSystemOrbits(data.planets || []);
+      systemMarkers = data.markers || [];
+      systemBg = data.bgUrl || '';
+      systemName = data.sname || '';
+      systemStype = data.stype || 1;
+      const start = systemStartFromData(data);
+      systemShip = start;
+      systemPlace = { ...start };
+      systemCoordX = String(start.x);
+      systemCoordY = String(start.y);
+      systemDesc = lightenGalaxyDesc(data.ftxt || '');
+      showOrderBtn = false;
+      orderGlow = false;
+    } catch {
+      errorText = 'Ошибка карты системы';
+    } finally {
+      busy = false;
+    }
+  }
+
+  async function probeSystem(mx, my) {
+    const shid = primaryId();
+    if (!shid) return;
+    const data = await getSystemCoord(mx, my, shid);
+    if (String(data.err) !== '0') {
+      showOrderBtn = false;
+      orderGlow = false;
+      return;
+    }
+    const rx = parseInt(data.rx != null ? data.rx : mx, 10);
+    const ry = parseInt(data.ry != null ? data.ry : my, 10);
+    const t = parseInt(data.t != null ? data.t : '3', 10);
+    const desc = data.desc || '';
+    systemPlace = { x: rx, y: ry };
+    systemCoordX = String(rx);
+    systemCoordY = String(ry);
+    systemPreviewT = t;
+    systemDesc = lightenGalaxyDesc(desc);
+    showOrderBtn = t === 1 || t === 2;
+    orderGlow = showOrderBtn && /#FF0000/i.test(desc);
+  }
+
+  async function applySystemCoords() {
+    const mx = parseInt(systemCoordX, 10);
+    const my = parseInt(systemCoordY, 10);
+    if (Number.isNaN(mx) || Number.isNaN(my)) return;
+    if (mx === systemPlace.x && my === systemPlace.y && systemPreviewT > 0) return;
+    playBuzz();
+    await probeSystem(mx, my);
+  }
+
   async function afterOrder(data) {
     if (data?.fid) {
       lastShip = data.fid;
@@ -815,6 +1027,12 @@
           shid: primaryId(),
           x: galaxyPlace.x,
           y: galaxyPlace.y,
+        });
+      } else if (SYSTEM_ORDERS.has(id)) {
+        data = await shipsSystemMove({
+          shid: primaryId(),
+          x: systemPlace.x,
+          y: systemPlace.y,
         });
       } else if (ATTACK_RPC.has(id)) {
         if (ids.length > 1) data = await shipsFleetAttack(ids);
@@ -967,6 +1185,13 @@
     refreshShips(true);
   }
 
+  $: monitorHeading =
+    monitor === 'system'
+      ? systemName || 'Карта системы'
+      : monitor === 'galaxy'
+        ? 'Карта галактики'
+        : monitorTitle();
+
   function monitorTitle() {
     switch (monitor) {
       case 'info':
@@ -984,6 +1209,8 @@
         return 'Сообщение перехвата';
       case 'map_stub':
         return 'Карта системы';
+      case 'system':
+        return systemName || 'Карта системы';
       case 'galaxy':
         return 'Карта галактики';
       case 'war':
@@ -1029,6 +1256,7 @@
     if (shipsTimer) clearInterval(shipsTimer);
     stopWarPoll();
     clearGalaxyCoordTimer();
+    clearSystemCoordTimer();
   });
 </script>
 
@@ -1085,7 +1313,7 @@
 
     <ScifiPanel className="ships-monitor-pane">
       <div slot="header" class="monitor-header">
-        <span class="monitor-title">{monitorTitle()}</span>
+        <span class="monitor-title">{monitorHeading}</span>
         <ScifiSelect
           className="orders-select"
           value={orderValue}
@@ -1107,6 +1335,22 @@
               bind:value={galaxyCoordY}
               aria-label="Y"
               on:input={scheduleGalaxyCoords}
+            />
+          </div>
+        {:else if monitor === 'system'}
+          <div class="galaxy-coords">
+            <input
+              class="scifi-input narrow"
+              bind:value={systemCoordX}
+              aria-label="X"
+              on:input={scheduleSystemCoords}
+            />
+            <span class="galaxy-coords-sep">:</span>
+            <input
+              class="scifi-input narrow"
+              bind:value={systemCoordY}
+              aria-label="Y"
+              on:input={scheduleSystemCoords}
             />
           </div>
         {/if}
@@ -1281,17 +1525,45 @@
                 preserveAspectRatio="none"
               />
               {#each galaxyYellow as y}
-                <circle cx={y.x} cy={y.y} r="6.5" fill="none" stroke="#3366ff" stroke-width="1.2" />
+                <circle
+                  cx={y.x}
+                  cy={y.y}
+                  r={SYSTEM_CIRCLE_R}
+                  fill="none"
+                  stroke={ringStroke('yellow')}
+                  stroke-width={MAP_STROKE}
+                />
               {/each}
               {#each galaxyStars as s}
                 {#if s.friend}
-                  <circle cx={s.x} cy={s.y} r="5.5" fill="none" stroke="#00ff00" stroke-width="1" />
+                  <circle
+                    cx={s.x}
+                    cy={s.y}
+                    r={SYSTEM_CIRCLE_R}
+                    fill="none"
+                    stroke={ringStroke('friend')}
+                    stroke-width={MAP_STROKE}
+                  />
                 {/if}
                 {#if s.foe}
-                  <circle cx={s.x} cy={s.y} r="5.5" fill="none" stroke="#ff0000" stroke-width="1" />
+                  <circle
+                    cx={s.x}
+                    cy={s.y}
+                    r={SYSTEM_CIRCLE_R}
+                    fill="none"
+                    stroke={ringStroke('foe')}
+                    stroke-width={MAP_STROKE}
+                  />
                 {/if}
                 {#if s.aliance}
-                  <circle cx={s.x} cy={s.y} r="6.5" fill="none" stroke="#ffff00" stroke-width="1" />
+                  <circle
+                    cx={s.x}
+                    cy={s.y}
+                    r={SYSTEM_CIRCLE_R}
+                    fill="none"
+                    stroke={ringStroke('aliance')}
+                    stroke-width={MAP_STROKE}
+                  />
                 {/if}
                 <circle
                   cx={s.x}
@@ -1306,58 +1578,54 @@
                 <circle
                   cx={galaxyHome.x}
                   cy={galaxyHome.y}
-                  r="6.5"
+                  r={SYSTEM_CIRCLE_R}
                   fill="none"
-                  stroke="#00ff00"
-                  stroke-width="1.2"
+                  stroke={ringStroke('home')}
+                  stroke-width={MAP_STROKE}
                 />
               {/if}
               {#if galaxyQuest}
                 <rect
-                  x={galaxyQuest.x - 4}
-                  y={galaxyQuest.y - 4}
-                  width="8"
-                  height="8"
+                  x={galaxyQuest.x - SYSTEM_TRASH_S / 2}
+                  y={galaxyQuest.y - SYSTEM_TRASH_S / 2}
+                  width={SYSTEM_TRASH_S}
+                  height={SYSTEM_TRASH_S}
                   fill="none"
                   stroke="#ffffff"
-                  stroke-width="1"
+                  stroke-width={MAP_STROKE}
                 />
               {/if}
               {#if galaxyShip}
                 <circle
                   cx={galaxyShip.x}
                   cy={galaxyShip.y}
-                  r="5.5"
+                  r={SYSTEM_CIRCLE_R}
                   fill="none"
                   stroke="#ffffff"
-                  stroke-width="1"
+                  stroke-width={MAP_STROKE}
                 />
               {/if}
               {#if galaxyPreviewT > 0 && galaxyShip}
                 <line
+                  class="route-march"
+                  class:route-blocked={galaxyPreviewT === 3}
                   x1={galaxyShip.x}
                   y1={galaxyShip.y}
                   x2={galaxyPlace.x}
                   y2={galaxyPlace.y}
+                  fill="none"
                   stroke={galaxyPreviewT === 3 ? '#ff5a5a' : 'var(--neon-cyan)'}
                   stroke-width="1.5"
-                  stroke-dasharray={galaxyPreviewT === 1 ? '4 3' : '0'}
-                  opacity="0.85"
+                  stroke-linecap="round"
                 />
-                <g stroke="var(--neon-cyan)" stroke-width="1.5">
-                  <line
-                    x1={galaxyPlace.x - 8}
-                    y1={galaxyPlace.y}
-                    x2={galaxyPlace.x + 8}
-                    y2={galaxyPlace.y}
-                  />
-                  <line
-                    x1={galaxyPlace.x}
-                    y1={galaxyPlace.y - 8}
-                    x2={galaxyPlace.x}
-                    y2={galaxyPlace.y + 8}
-                  />
-                </g>
+                <circle
+                  cx={galaxyPlace.x}
+                  cy={galaxyPlace.y}
+                  r={SYSTEM_CIRCLE_R}
+                  fill="none"
+                  stroke="var(--neon-cyan)"
+                  stroke-width={MAP_STROKE}
+                />
               {/if}
             </svg>
             {#if galaxyHover}
@@ -1367,10 +1635,127 @@
           </div>
         </div>
 
+      {:else if monitor === 'system'}
+        <div class="monitor-body galaxy-layout">
+          <div
+            class="galaxy-viewport system-viewport"
+            on:pointermove={systemPointerMove}
+            on:pointerup={systemPointerUp}
+            on:pointerleave={() => {
+              systemHover = '';
+            }}
+          >
+            <svg
+              class="system-svg"
+              bind:this={systemSvg}
+              viewBox={`0 0 ${SYSTEM_W} ${SYSTEM_H}`}
+              preserveAspectRatio="xMidYMid slice"
+            >
+              {#if systemBg}
+                <image
+                  href={systemBg}
+                  x="0"
+                  y="0"
+                  width={SYSTEM_W}
+                  height={SYSTEM_H}
+                  opacity="0.55"
+                  preserveAspectRatio="xMidYMid slice"
+                />
+              {/if}
+              {#each systemOrbits as orb}
+                <ellipse
+                  cx={SYSTEM_CX}
+                  cy={SYSTEM_CY}
+                  rx={orb}
+                  ry={orb * 0.75}
+                  fill="none"
+                  stroke="rgba(180, 220, 255, 0.28)"
+                  stroke-width="1"
+                />
+              {/each}
+              <image
+                href={starImg(systemStype)}
+                x={SYSTEM_CX - starSize(systemStype).w / 2}
+                y={SYSTEM_CY - starSize(systemStype).h / 2}
+                width={starSize(systemStype).w}
+                height={starSize(systemStype).h}
+              />
+              {#each systemPlanets as p}
+                <image
+                  href={planetImg(p.type)}
+                  x={p.x - planetSize(p.type) / 2}
+                  y={p.y - planetSize(p.type) / 2}
+                  width={planetSize(p.type)}
+                  height={planetSize(p.type)}
+                >
+                  <title>{p.name}</title>
+                </image>
+              {/each}
+              {#each systemMarkers as m}
+                {#if m.ct === 3}
+                  <rect
+                    x={m.x - SYSTEM_TRASH_S / 2}
+                    y={m.y - SYSTEM_TRASH_S / 2}
+                    width={SYSTEM_TRASH_S}
+                    height={SYSTEM_TRASH_S}
+                    fill="none"
+                    stroke={markerStroke(m.ct)}
+                    stroke-width={MAP_STROKE}
+                  />
+                {:else}
+                  <circle
+                    cx={m.x}
+                    cy={m.y}
+                    r={SYSTEM_MARKER_R}
+                    fill="none"
+                    stroke={markerStroke(m.ct)}
+                    stroke-width={MAP_STROKE}
+                  />
+                {/if}
+              {/each}
+              {#if systemShip}
+                <circle
+                  cx={systemShip.x}
+                  cy={systemShip.y}
+                  r={SYSTEM_CIRCLE_R}
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width={MAP_STROKE}
+                />
+              {/if}
+              {#if systemPreviewT > 0 && systemShip}
+                <line
+                  class="route-march"
+                  class:route-blocked={systemPreviewT === 3}
+                  x1={systemShip.x}
+                  y1={systemShip.y}
+                  x2={systemPlace.x}
+                  y2={systemPlace.y}
+                  fill="none"
+                  stroke={systemPreviewT === 3 ? '#ff5a5a' : 'var(--neon-cyan)'}
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+                <circle
+                  cx={systemPlace.x}
+                  cy={systemPlace.y}
+                  r={SYSTEM_CIRCLE_R}
+                  fill="none"
+                  stroke="var(--neon-cyan)"
+                  stroke-width={MAP_STROKE}
+                />
+              {/if}
+            </svg>
+            {#if systemHover}
+              <div class="galaxy-hover">{systemHover}</div>
+            {/if}
+            <div class="html-rich galaxy-desc">{@html systemDesc || 'Кликните по карте'}</div>
+          </div>
+        </div>
+
       {:else if monitor === 'map_stub'}
         <div class="monitor-body stub-box">
-          <p>Интерактивная карта системы — следующий шаг порта.</p>
-          <p class="muted">Приказ 8 пока без перемещения.</p>
+          <p>Интерактивная карта — в разработке.</p>
         </div>
 
       {:else if monitor === 'war'}
@@ -1750,6 +2135,35 @@
   .galaxy-desc :global(font[color='#00FF00']),
   .galaxy-desc :global(font[color='#00ff00']) {
     color: #9dff9d !important;
+  }
+
+  .system-viewport {
+    cursor: crosshair;
+  }
+
+  .system-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .route-march {
+    stroke-dasharray: 5 6;
+    stroke-dashoffset: 0;
+    opacity: 0.9;
+    animation: route-march 0.7s linear infinite;
+  }
+
+  .route-march.route-blocked {
+    opacity: 0.75;
+  }
+
+  @keyframes route-march {
+    to {
+      stroke-dashoffset: -22;
+    }
   }
 
   .galaxy-coords {

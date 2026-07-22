@@ -727,6 +727,69 @@ export async function shipsStarMove({ shid, x, y }) {
   );
 }
 
+function parseSystemMap(data) {
+  const cnt = parseInt(data.cnt || '0', 10);
+  const planets = [];
+  for (let i = 0; i < cnt; i++) {
+    if (data[`or${i}`] === undefined) continue;
+    planets.push({
+      orb: parseInt(data[`or${i}`] || '0', 10),
+      name: data[`pn${i}`] || '',
+      angle: parseInt(data[`an${i}`] || '0', 10),
+      type: parseInt(data[`ty${i}`] || '0', 10),
+    });
+  }
+  const fcnt = parseInt(data.fcnt || '0', 10);
+  const markers = [];
+  for (let i = 0; i < fcnt; i++) {
+    markers.push({
+      ct: parseInt(data[`ct${i}`] || '0', 10),
+      x: parseInt(data[`sx${i}`] || '0', 10),
+      y: parseInt(data[`sy${i}`] || '0', 10),
+    });
+  }
+  const bgid = parseInt(data.bgid || '0', 10);
+  return {
+    ...data,
+    sname: data.sname || '',
+    stype: parseInt(data.stype || '1', 10),
+    bgid,
+    bgUrl: `/img/n${String(bgid).padStart(2, '0')}.jpg`,
+    pt: parseInt(data.pt || '0', 10),
+    arg1: parseInt(data.arg1 || '0', 10),
+    arg2: parseInt(data.arg2 || '0', 10),
+    planets,
+    markers,
+    ftxt: data.ftxt || '',
+    ok: Boolean(data.sname) || planets.length > 0,
+  };
+}
+
+export async function loadSystemMap(shid = '') {
+  const params = shid ? `shid=${encodeURIComponent(shid)}` : '';
+  return parseSystemMap(await fetchPage(37, params));
+}
+
+export async function getSystemCoord(mx, my, shid = '') {
+  const parts = [
+    `mx=${encodeURIComponent(mx)}`,
+    `my=${encodeURIComponent(my)}`,
+  ];
+  if (shid) parts.push(`shid=${encodeURIComponent(shid)}`);
+  return fetchPage(38, parts.join('&'));
+}
+
+export async function shipsSystemMove({ shid, x, y }) {
+  return fetchPage(
+    39,
+    [
+      `shid=${encodeURIComponent(shid)}`,
+      `x=${encodeURIComponent(x)}`,
+      `y=${encodeURIComponent(y)}`,
+    ].join('&'),
+  );
+}
+
 export async function saveStarHint(x, y, text, type, vis) {
   return fetchPage(
     673,

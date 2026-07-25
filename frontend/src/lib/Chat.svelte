@@ -290,6 +290,32 @@
     text-decoration: none;
   }
 
+  .chat-msgs :global(a.chat-act),
+  .chat-online :global(a.chat-act) {
+    margin: 0 2px;
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.75;
+  }
+
+  .chat-msgs :global(a.chat-act:hover),
+  .chat-online :global(a.chat-act:hover) {
+    opacity: 1;
+    color: var(--accent-danger);
+  }
+
+  .chat-msgs :global(a.chat-act svg),
+  .chat-online :global(a.chat-act svg) {
+    display: inline;
+    width: 10px;
+    height: 10px;
+    vertical-align: 2px;
+  }
+
+  .chat-online :global(img) {
+    vertical-align: baseline;
+  }
+
   .chat-msgs :global(font),
   .chat-online :global(font),
   .chat-msgs :global(b),

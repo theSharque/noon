@@ -15,7 +15,7 @@
     if( isset( $_GET['gname'] ) ) {
       $group = $_GET['gname'];
       db_safe( $group );
-      $group = ereg_replace( "[^[a-zA-Z0-9а-яА-ЯёЁ `~!@#$^&*()_+-=\"]+", "", $group );
+      $group = preg_replace( "/[^a-zA-Z0-9а-яА-ЯёЁ `~!@#\$\^&*()_\+\-=\"]+/u", "", $group );
     } else {
       $group = '';
     }

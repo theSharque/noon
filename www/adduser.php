@@ -25,9 +25,9 @@ if( count( $_POST ) > 0 ) {
   }
 
   if( !isset( $_POST['login'] ) ||
-      strlen( $_POST['login'] ) == 0 ||
-      strlen( $_POST['login'] ) > 16 ||
-      eregi( '[^0-9a-zA-Zа-яА-Я=_ \\-]+', $_POST['login'] ) ) {
+      mb_strlen( $_POST['login'], 'UTF-8' ) == 0 ||
+      mb_strlen( $_POST['login'], 'UTF-8' ) > 16 ||
+      preg_match( '/[^0-9a-zA-Zа-яА-ЯёЁ=_ \\-]/u', $_POST['login'] ) ) {
     $good = false;
     get_out( 1 );
   } else {
@@ -74,7 +74,7 @@ if( count( $_POST ) > 0 ) {
     $good = false;
     get_out( 6 );
   } else {
-    if( eregi( "^[\_a-z0-9\-]+([\.\_a-z0-9\-]+)*@[a-z0-9\-]+(\.[a-z0-9\-]+)*(\.[a-z]{2,4})$", $_POST['email'] ) != 1 ) {
+    if( !preg_match( '/^[\_a-z0-9\-]+([\.\_a-z0-9\-]+)*@[a-z0-9\-]+(\.[a-z0-9\-]+)*(\.[a-z]{2,4})$/i', $_POST['email'] ) ) {
       $good = false;
       get_out( 7 );
     } else {

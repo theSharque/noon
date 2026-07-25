@@ -2348,3 +2348,22 @@ function decode_in( $s ) {
     return str_replace( $in, $out, $s );  
 }
 
+function pct_encode_special( $text ) {
+  return preg_replace_callback( '/([^a-zA-Z0-9а-яА-ЯёЁ])/u', function( $m ) {
+    $out = '';
+    $bytes = $m[1];
+    $len = strlen( $bytes );
+    for( $i = 0; $i < $len; $i++ ) {
+      $out .= '%' . str_pad( dechex( ord( $bytes[$i] ) ), 2, '0', STR_PAD_LEFT );
+    }
+    return $out;
+  }, $text );
+}
+
+function capital( $text ) {
+  $text = mb_strtolower( $text, 'UTF-8' );
+  $first = mb_substr( $text, 0, 1, 'UTF-8' );
+  $rest = mb_substr( $text, 1, null, 'UTF-8' );
+  return mb_strtoupper( $first, 'UTF-8' ) . $rest;
+}
+

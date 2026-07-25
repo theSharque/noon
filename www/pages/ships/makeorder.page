@@ -295,13 +295,13 @@
 
             db_safe( $new_name );
             $new_name = decode_in( $new_name );
-            $new_name = preg_replace( "/[^a-zA-Z0-9а-яА-ЯёЁ ,.`~!@#$\^\*()_\+\-\=\"]/", "", $new_name );
+            $new_name = preg_replace( "/[^a-zA-Z0-9а-яА-ЯёЁ ,.`~!@#$\^\*()_\+\-\=\"]/u", "", $new_name );
 
             if( isset( $_GET['gname'] ) ) {
               $new_grp = $_GET['gname'];
               db_safe( $new_grp );
               $new_grp = decode_in( $new_grp );
-              $new_grp = preg_replace( "/[^a-zA-Z0-9а-яА-ЯёЁ ,.`~!@#$\^\*()_\+\-\=\"]/", "", $new_grp );
+              $new_grp = preg_replace( "/[^a-zA-Z0-9а-яА-ЯёЁ ,.`~!@#$\^\*()_\+\-\=\"]/u", "", $new_grp );
 
               db_query( "UPDATE $table SET name = '$new_name', `group` = '$new_grp' WHERE id = $shid" );
               switch( $plt ) {

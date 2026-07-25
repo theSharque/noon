@@ -16,10 +16,8 @@
       $to = db_fetch_val( "SELECT id FROM users WHERE login='$to_user'", 'id' );
     }
 
-    $text = preg_replace( array( "/\t/i", '/\'/i', '/</i', '/>/i' ), array( ' ', '"', '"', '"' ), $text ); 
-    $text = preg_replace_callback('/([^a-zA-Z0-9а-яА-ЯёЁ])/u', function ($m) {
-      return '%' . dechex(ord($m[1]));
-    }, $text);
+    $text = preg_replace( array( "/\t/i", '/\'/i', '/</i', '/>/i' ), array( ' ', '"', '"', '"' ), $text );
+    $text = pct_encode_special( $text );
     $text = preg_replace( '/%5c/i', '', $text ); 
 
     db_safe( $text );
@@ -77,10 +75,10 @@
           }
         } else {
           db_query( "INSERT INTO chat (user_id, text) VALUES ( $uid, '$text' )" );
-          preg_match_all( "/[a-zA-Zа-яА-ЯёЁ]+/i", $stext, $words );
+          preg_match_all( "/[a-zA-Zа-яА-ЯёЁ]+/iu", $stext, $words );
           foreach( $words[0] as $item ) {
-            if( strlen( $item ) > 2 ) {
-              $fid[ "'".strtolower( $item )."'" ] = 1;
+            if( mb_strlen( $item, 'UTF-8' ) > 2 ) {
+              $fid[ "'".mb_strtolower( $item, 'UTF-8' )."'" ] = 1;
             }
           }
 

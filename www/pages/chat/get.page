@@ -28,8 +28,8 @@
       $aliance = $me['aliance'];
       $me = $me['id'];
 
-      $login = preg_replace( array( '/\'/i', '/</i', '/>/i' ), array( '"', '"', '"' ), $login ); 
-      $login = preg_replace( '/([^a-zA-Z0-9а-яА-ЯёЁ])/e', '"%".dechex(ord("$1"))', $login ); 
+      $login = preg_replace( array( '/\'/i', '/</i', '/>/i' ), array( '"', '"', '"' ), $login );
+      $login = pct_encode_special( $login );
       $login = preg_replace( '/%5c/i', '', $login ); 
 
       $lim = 200;
@@ -137,7 +137,7 @@
           } elseif( $line['user_id'] > 1 ) {
             $line['text'] = str_ireplace( "$login_plain:", "<font color=\"#00FF00\">$login_plain:</font>", $line['text'] );
             if( $adm >= 1 ) {
-              $delete = "<a href='#' data-chat-action='del' data-id='{$line['id']}' title='Удалить'>X </a>";
+              $delete = "<a href='#' data-chat-action='del' data-id='{$line['id']}' class='chat-act chat-act-del' title='Удалить' aria-label='Удалить'><svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 7h16'/><path d='M9 7V5h6v2'/><path d='M8 7l1 12h6l1-12'/><path d='M10 11v5M14 11v5'/></svg></a>";
             } else {
               $delete = "";
             }
@@ -250,7 +250,7 @@
           }
 
           if( $adm >= 1 ) {
-            $block = "<a href='#' data-chat-action='blk' data-id='{$line['id']}' title='Заблокировать 7 дней'> X </a>";
+            $block = "<a href='#' data-chat-action='blk' data-id='{$line['id']}' class='chat-act chat-act-blk' title='Заблокировать 7 дней' aria-label='Заблокировать 7 дней'><svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='12' r='9'/><path d='M6.5 6.5l11 11'/></svg></a>";
           } else {
             $block = "";
           }

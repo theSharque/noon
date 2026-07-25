@@ -5,10 +5,8 @@
 
   $text = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode( $text ));
   $text = html_entity_decode( $text, null, 'UTF-8' );;
-  $text = preg_replace( array( '/\'/i', '/</i', '/>/i' ), array( '"', '"', '"' ), $text ); 
-  $text = preg_replace_callback('/([^a-zA-Z0-9а-яА-ЯёЁ])/u', function ($m) {
-    return '%' . dechex(ord($m[1]));
-  }, $text);
+  $text = preg_replace( array( '/\'/i', '/</i', '/>/i' ), array( '"', '"', '"' ), $text );
+  $text = pct_encode_special( $text );
   $text = preg_replace( '/%5c/i', '', $text ); 
 
   db_safe( $to );

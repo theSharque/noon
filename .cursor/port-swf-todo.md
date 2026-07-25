@@ -13,7 +13,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Статус | Кол-во |
 |--------|--------|
-| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+orbit+station) + tutorial |
+| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+orbit+station) + tutorial (SWF purged) |
 | stub | place transitions |
 | todo | transitions screens |
 
@@ -81,7 +81,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | Файл | Статус |
 |------|--------|
 | land/flyout/infly/inhyper/inspace | **todo** |
-| tutorial.jpg | **redesign** — `Tutorial.svelte` overlay, RPC id=14, gate level≤42; SWF pending purge |
+| tutorial.jpg | **done** — `Tutorial.svelte` overlay, RPC id=14 (`gettutor.page`); SWF + `tutorial.inc` purged 2026-07-25 |
 
 ---
 
@@ -98,3 +98,4 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `about.jpg` | 2026-07-22 cosmic accept | `frontend/src/routes/About.svelte` |
 | `misc.jpg` | 2026-07-22 cosmic accept | `frontend/src/routes/Misc.svelte` |
 | `orbit.jpg` | 2026-07-25 cosmic accept | `frontend/src/routes/Orbit.svelte` |
+| `tutorial.jpg` | 2026-07-25 cosmic accept | `frontend/src/lib/Tutorial.svelte` (+ RPC `gettutor.page`) |

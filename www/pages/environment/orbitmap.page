@@ -5,6 +5,7 @@
   $out = 'err=1';
   if( $user->place_type == 0 ) {
     $planet_id = $user->place_id;
+    $pid = db_fetch_val( "SELECT type FROM planets WHERE id = $planet_id", 'type' );
 
     $pos = db_fetch_row( "SELECT last_orb FROM planets_active WHERE id=$planet_id" );
 
@@ -12,6 +13,9 @@
     if( strlen( $line ) > 0 ) {
 //      $line = file_get_contents( "./pages/environment/orbit/$planet_id.lin" );
       $out = 'line='.trim( $line );
+      if( $pid ) {
+        $out .= '&pid='.$pid;
+      }
 
       $timers = db_fetch_array( "SELECT e.x,
                                         MIN( UNIX_TIMESTAMP(e.event_time) - UNIX_TIMESTAMP(NOW())) remain,

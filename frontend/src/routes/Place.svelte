@@ -3,12 +3,14 @@
   import { querystring } from 'svelte-spa-router';
   import {
     getUserInfo,
+    loadOrbitMap,
     loadPlanetMap,
     loadStationGoods,
   } from '../lib/api.js';
   import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
   import Station from './Station.svelte';
   import Planet from './Planet.svelte';
+  import Orbit from './Orbit.svelte';
 
   let mode = 'loading';
   let errorText = '';
@@ -17,6 +19,7 @@
   let stationGoods = null;
   let mapLight = 0;
   let initialMap = null;
+  let initialOrbit = null;
 
   const meta = {
     title: 'Местность',
@@ -32,34 +35,56 @@
     return 0;
   }
 
-  onMount(() => {
-    (async () => {
-      mapLight = parseMl($querystring);
-      const info = await getUserInfo();
-      starName = info.sname || '';
-      planetName = info.pname || '';
+  async function probePlace() {
+    mode = 'loading';
+    errorText = '';
+    initialMap = null;
+    initialOrbit = null;
+    stationGoods = null;
 
-      const planetProbe = await loadPlanetMap({ full: true, ml: mapLight });
-      if (String(planetProbe.err) !== '1') {
-        if (String(planetProbe.err) === '2') {
-          errorText = 'Карта планеты недоступна';
-          mode = 'stub';
-          return;
-        }
-        initialMap = planetProbe;
-        mode = 'planet';
+    mapLight = parseMl($querystring);
+    const info = await getUserInfo();
+    starName = info.sname || '';
+    planetName = info.pname || '';
+
+    const planetProbe = await loadPlanetMap({ full: true, ml: mapLight });
+    if (String(planetProbe.err) !== '1') {
+      if (String(planetProbe.err) === '2') {
+        errorText = 'Карта планеты недоступна';
+        mode = 'stub';
         return;
       }
+      initialMap = planetProbe;
+      mode = 'planet';
+      return;
+    }
 
-      const stationProbe = await loadStationGoods('1');
-      if (stationProbe.ok) {
-        stationGoods = stationProbe;
-        mode = 'station';
-        return;
-      }
+    const orbitProbe = await loadOrbitMap();
+    if (orbitProbe.ok) {
+      initialOrbit = orbitProbe;
+      mode = 'orbit';
+      return;
+    }
 
+    const stationProbe = await loadStationGoods('1');
+    if (stationProbe.ok) {
+      stationGoods = stationProbe;
+      mode = 'station';
+      return;
+    }
+
+    mode = 'stub';
+  }
+
+  function onPlaceChanged() {
+    probePlace().catch((e) => {
+      errorText = e?.message || 'Ошибка загрузки';
       mode = 'stub';
-    })().catch((e) => {
+    });
+  }
+
+  onMount(() => {
+    probePlace().catch((e) => {
       errorText = e?.message || 'Ошибка загрузки';
       mode = 'stub';
     });
@@ -76,6 +101,10 @@
   <div class="place-screen place-screen--map">
     <Planet {mapLight} {initialMap} />
   </div>
+{:else if mode === 'orbit'}
+  <div class="place-screen place-screen--map">
+    <Orbit initialMap={initialOrbit} on:placeChanged={onPlaceChanged} />
+  </div>
 {:else if mode === 'station'}
   <div class="place-screen">
     <Station initialGoods={stationGoods} {starName} {planetName} />
@@ -86,7 +115,7 @@
     <div class="panel-content">
       <p class="hint">{meta.hint}</p>
       <p class="note">
-        {errorText || 'Сейчас вы не на планете и не на станции. Орбита и переходы — следующие экраны.'}
+        {errorText || 'Сейчас вы не на планете, орбите и не на станции. Переходы — следующие экраны.'}
       </p>
       <img src={meta.gallery} alt={meta.title} />
     </div>
@@ -120,23 +149,18 @@
     margin: 0 auto;
   }
 
-  .stub .hint {
-    margin: 0 0 8px;
+  .hint {
+    color: var(--text-muted);
+  }
+
+  .note {
     color: var(--text-main);
   }
 
-  .stub .note {
-    margin: 0 0 12px;
-    color: var(--text-muted);
-    font-style: italic;
-    font-size: 0.85rem;
-  }
-
   .stub img {
-    display: block;
     max-width: 100%;
     height: auto;
-    border: 1px solid var(--border-light);
-    box-shadow: var(--glow-soft);
+    margin-top: 12px;
+    opacity: 0.85;
   }
 </style>

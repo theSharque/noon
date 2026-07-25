@@ -1582,3 +1582,95 @@ export async function loadPlanetActionDetail(url) {
     items: data.items || [],
   };
 }
+
+function parseOrbitMap(data) {
+  const err = data.err !== undefined ? String(data.err) : '0';
+  const line = data.line !== undefined ? String(data.line) : '';
+  if (err === '1' || !line) {
+    return { err: err === '1' ? '1' : err, ok: false, line: '', timers: [], lastx: 0, pid: 1 };
+  }
+  const timers = [];
+  for (const key of Object.keys(data)) {
+    const tm = key.match(/^t(\d+)$/);
+    if (!tm) continue;
+    const x = tm[1];
+    timers.push({
+      x: parseInt(x, 10),
+      remain: parseInt(data[`t${x}`] || '0', 10),
+      eventType: String(data[`c${x}`] || ''),
+      total: parseInt(data[`l${x}`] || '0', 10),
+      cycles: parseInt(data[`s${x}`] || '0', 10),
+    });
+  }
+  return {
+    err: '0',
+    ok: true,
+    line,
+    timers,
+    lastx: parseInt(data.lastx || '0', 10),
+    pid: parseInt(data.pid || '1', 10) || 1,
+    raw: data,
+  };
+}
+
+export async function loadOrbitMap() {
+  const data = await fetchPage(22);
+  return parseOrbitMap(data);
+}
+
+export async function loadOrbitInfo(x) {
+  const data = await fetchPage(221, `x=${encodeURIComponent(x)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  return {
+    err,
+    info: data.info || '',
+    desc: data.desc || '',
+    destroy: data.destroy !== undefined,
+  };
+}
+
+export async function loadOrbitUse(x) {
+  const data = await fetchPage(222, `x=${encodeURIComponent(x)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  const combo = [];
+  const cbCount = parseInt(data.cb_c || '0', 10);
+  if (data.cb_h !== undefined && cbCount > 0) {
+    for (let i = 0; i < cbCount; i++) {
+      combo.push({
+        value: data[`cb_d${i}`] || '',
+        label: data[`cb_l${i}`] || '',
+        bgColor: data[`cb_c${i}`],
+      });
+    }
+  }
+  return {
+    err,
+    detail: data.detail || '',
+    btLabel: data.btLabel,
+    btOnClick: data.btOnClick ? decodeLoadVar(String(data.btOnClick)) : '',
+    cbHeader: data.cb_h || '',
+    combo,
+    busyStop: data.btLabel !== undefined && data.cb_h === undefined,
+  };
+}
+
+export async function loadOrbitUpgrade(x) {
+  const data = await fetchPage(273, `x=${encodeURIComponent(x)}`);
+  const err = data.err !== undefined ? String(data.err) : '0';
+  const grid = data.header !== undefined ? parsePlanetGrid(data) : { cols: [], rows: 0, items: [] };
+  return {
+    err,
+    title: data.title || '',
+    level: data.level || '',
+    desc: data.desc || '',
+    header: data.header || '',
+    btLabel: data.btLabel,
+    upgOnClick: data.upgOnClick || '',
+    ...grid,
+  };
+}
+
+export async function destroyOrbitTile(x) {
+  const data = await fetchPage(261, `x=${encodeURIComponent(x)}`);
+  return { err: data.err !== undefined ? String(data.err) : '0' };
+}

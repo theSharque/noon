@@ -14,6 +14,7 @@
   } from '../lib/api.js';
   import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
+  import { flashBgStyle } from '../lib/flashColor.js';
 
   const IMG = '/app/img/about';
 
@@ -300,7 +301,11 @@
             </thead>
             <tbody>
               {#each medals as medal, index}
-                <tr class:active-row={selectedMedalIdx === index} on:click={() => selectMedalRow(index)}>
+                <tr
+                  class:active-row={selectedMedalIdx === index}
+                  style={flashBgStyle(medal.bgColor)}
+                  on:click={() => selectMedalRow(index)}
+                >
                   <td>{medal.name}</td>
                 </tr>
               {/each}

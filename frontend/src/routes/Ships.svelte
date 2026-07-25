@@ -39,6 +39,7 @@
     galaxyCenterOffset,
     galaxyLocalPoint,
   } from '../lib/galaxyMap.js';
+  import { flashBgStyle } from '../lib/flashColor.js';
 
   const IMG = '/app/img/booklist';
   const ATTACK_ORDERS = new Set([14, 16, 17, 18, 32, 33, 49, 51]);
@@ -278,11 +279,7 @@
   }
 
   function rowStyle(bgColor) {
-    if (!bgColor) return '';
-    const hex = String(bgColor).replace(/^0x/i, '#');
-    if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return '';
-    if (hex.toLowerCase() === '#000000') return '';
-    return `background: ${hex}50`;
+    return flashBgStyle(bgColor);
   }
 
   function parseOrderId(raw) {

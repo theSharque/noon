@@ -24,6 +24,7 @@
   let trees = [];
   let highlights = [];
   let timers = [];
+  let levels = {};
   let selected = { x: 0, y: 0 };
   let mapReady = false;
 
@@ -43,6 +44,7 @@
     if (data.buildings) buildings = data.buildings;
     if (data.trees) trees = data.trees;
     if (data.highlights) highlights = data.highlights;
+    levels = data.levels || {};
     timers = stampTimers(data.timers || []);
     const h = (full ? data.ground?.length : buildings.length) || buildings.length || ground.length || 0;
     const w = (data.buildings?.[0] || data.ground?.[0] || buildings[0] || ground[0] || '').length;
@@ -98,6 +100,7 @@
       {trees}
       {highlights}
       {timers}
+      {levels}
       {selected}
       {zoom}
       mapLight={Boolean(mapLight)}

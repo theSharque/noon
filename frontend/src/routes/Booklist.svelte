@@ -30,6 +30,7 @@
   import ScifiTabs from '../lib/ui/ScifiTabs.svelte';
   import ProgressBar from '../lib/ui/ProgressBar.svelte';
   import StatRow from '../lib/ui/StatRow.svelte';
+  import { flashBgStyle } from '../lib/flashColor.js';
 
   export let initialTab = 'messages';
 
@@ -51,20 +52,6 @@
   let mailSelected = new Set();
   let mailLastSelected = -1;
   let msgTo = '';
-
-  function flashColor(hex) {
-    const raw = String(hex || '').replace(/^0x/i, '');
-    if (!/^[0-9a-fA-F]{6}$/.test(raw)) return '';
-    const r = parseInt(raw.slice(0, 2), 16);
-    const g = parseInt(raw.slice(2, 4), 16);
-    const b = parseInt(raw.slice(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, 0.35)`;
-  }
-
-  function rowBg(hex) {
-    const bg = flashColor(hex);
-    return bg ? `background:${bg}` : '';
-  }
 
   let learnItems = [];
   let learnMeta = { lmax: 0, bid: 0 };
@@ -614,7 +601,7 @@
               {#each learnItems as item, i}
                 <tr
                   class:active-row={learnSelected === i}
-                  style={rowBg(item.bgColor)}
+                  style={flashBgStyle(item.bgColor)}
                   on:click={() => selectLearn(i)}
                 >
                   <td>{item.name}</td>
@@ -635,7 +622,7 @@
               {#each questItems as item, i}
                 <tr
                   class:active-row={questSelected === i}
-                  style={rowBg(item.bgColor)}
+                  style={flashBgStyle(item.bgColor)}
                   on:click={() => selectQuest(i)}
                 >
                   <td>{item.name}</td>
@@ -655,7 +642,7 @@
                 {#each statItems as item, i}
                   <tr
                     class:active-row={statSelected === i}
-                    style={rowBg(item.bgColor)}
+                    style={flashBgStyle(item.bgColor)}
                     on:click={() => selectStat(i)}
                   >
                     <td>{item.name}</td>
@@ -692,7 +679,7 @@
                 {#each relations.friends as item, i}
                   <tr
                     class:active-row={relFriend === i}
-                    style={rowBg(item.bgColor)}
+                    style={flashBgStyle(item.bgColor)}
                     on:click={() => {
                       relFriend = i;
                       relFoe = -1;
@@ -712,7 +699,7 @@
                 {#each relations.foes as item, i}
                   <tr
                     class:active-row={relFoe === i}
-                    style={rowBg(item.bgColor)}
+                    style={flashBgStyle(item.bgColor)}
                     on:click={() => {
                       relFoe = i;
                       relFriend = -1;
@@ -732,7 +719,7 @@
                 {#each relations.ignores as item, i}
                   <tr
                     class:active-row={relIgnore === i}
-                    style={rowBg(item.bgColor)}
+                    style={flashBgStyle(item.bgColor)}
                     on:click={() => {
                       relIgnore = i;
                       relFriend = -1;

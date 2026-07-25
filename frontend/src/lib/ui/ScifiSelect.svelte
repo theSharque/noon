@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { flashBgStyle } from '../flashColor.js';
 
   export let value = '';
   export let options = [];
@@ -13,15 +14,20 @@
   $: selected = options.find((o) => String(o.value) === String(value));
   $: label = selected ? selected.label : '—';
 
+  function optionDisabled(opt) {
+    return Boolean(opt?.disabled);
+  }
+
   function toggle() {
     if (disabled || !options.length) return;
     open = !open;
   }
 
-  function pick(next) {
-    value = next;
+  function pick(opt) {
+    if (optionDisabled(opt)) return;
+    value = opt.value;
     open = false;
-    dispatch('change', { value: next });
+    dispatch('change', { value: opt.value });
   }
 
   function onDocPointer(e) {
@@ -39,7 +45,13 @@
 </script>
 
 <div class="scifi-combo {className}" class:open class:disabled bind:this={root}>
-  <button type="button" class="scifi-combo-trigger" {disabled} on:click={toggle}>
+  <button
+    type="button"
+    class="scifi-combo-trigger"
+    {disabled}
+    style={selected ? flashBgStyle(selected.bgColor) : ''}
+    on:click={toggle}
+  >
     <span class="scifi-combo-label">{label}</span>
     <span class="scifi-combo-caret" aria-hidden="true"></span>
   </button>
@@ -50,9 +62,13 @@
           type="button"
           class="scifi-combo-option"
           class:active={String(opt.value) === String(value)}
+          class:is-disabled={optionDisabled(opt)}
           role="option"
           aria-selected={String(opt.value) === String(value)}
-          on:click={() => pick(opt.value)}
+          aria-disabled={optionDisabled(opt)}
+          disabled={optionDisabled(opt)}
+          style={flashBgStyle(opt.bgColor)}
+          on:click={() => pick(opt)}
         >
           {opt.label}
         </button>
@@ -60,3 +76,11 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .scifi-combo-option.is-disabled,
+  .scifi-combo-option:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+</style>

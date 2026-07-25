@@ -18,6 +18,7 @@
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
   import ScifiTabs from '../lib/ui/ScifiTabs.svelte';
   import ScifiSelect from '../lib/ui/ScifiSelect.svelte';
+  import { flashBgStyle } from '../lib/flashColor.js';
 
   const IMG = '/app/img/booklist';
   const TAB_DEFS = [
@@ -88,15 +89,6 @@
   let confCanConf = false;
   let confBtnMoney = false;
   let confBtnConf = false;
-
-  function flashColor(hex) {
-    const raw = String(hex || '').replace(/^0x/i, '');
-    if (!/^[0-9a-fA-F]{6}$/.test(raw)) return null;
-    const r = parseInt(raw.slice(0, 2), 16);
-    const g = parseInt(raw.slice(2, 4), 16);
-    const b = parseInt(raw.slice(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, 0.35)`;
-  }
 
   function num(v) {
     const n = Number(String(v ?? '').replace(/\s/g, ''));
@@ -508,7 +500,7 @@
               {#each compItems as row, i}
                 <tr
                   class:active-row={compSelected === i}
-                  style={flashColor(row.bgColor) ? `background:${flashColor(row.bgColor)}` : ''}
+                  style={flashBgStyle(row.bgColor)}
                   on:click={() => onCompRow(i)}
                 >
                   <td>{row.name}</td>
@@ -582,7 +574,7 @@
               {#each bayWare as item, i}
                 <tr
                   class:active-row={bayWareIdx === i}
-                  style={flashColor(item.bgColor) ? `background:${flashColor(item.bgColor)}` : ''}
+                  style={flashBgStyle(item.bgColor)}
                   on:click={() => onBayWare(i)}
                 >
                   <td>{item.name}</td>
@@ -669,7 +661,7 @@
               {#each sellWare as item, i}
                 <tr
                   class:active-row={sellWareIdx === i}
-                  style={flashColor(item.bgColor) ? `background:${flashColor(item.bgColor)}` : ''}
+                  style={flashBgStyle(item.bgColor)}
                   on:click={() => onSellWare(i)}
                 >
                   <td>{item.name}</td>
@@ -728,7 +720,7 @@
               {#each confItems as item, i}
                 <tr
                   class:active-row={confIdx === i}
-                  style={flashColor(item.bgColor) ? `background:${flashColor(item.bgColor)}` : ''}
+                  style={flashBgStyle(item.bgColor)}
                   on:click={() => onConfRow(i)}
                 >
                   <td>{item.name}</td>

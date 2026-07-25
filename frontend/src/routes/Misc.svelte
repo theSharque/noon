@@ -39,6 +39,7 @@
   } from '../lib/galaxyMap.js';
   import { setMusicVolumeLocal, setSoundVolumeLocal } from '../lib/audioStore.js';
   import { askYesNo } from '../lib/confirmStore.js';
+  import { flashBgStyle } from '../lib/flashColor.js';
 
   const IMG = '/app/img/booklist';
   const TAB_DEFS = [
@@ -66,6 +67,8 @@
   $: hireQuestOptions = hireItems.map((item) => ({
     value: item.id,
     label: item.name,
+    disabled: String(item.enabled) === '0',
+    bgColor: item.bgColor || '',
   }));
   $: hireVisOptions = HIRE_VIS.map((v) => ({ value: v.data, label: v.label }));
   $: atlasColorOptions = HINT_COLORS.map((c) => ({
@@ -152,15 +155,6 @@
 
   $: qs = new URLSearchParams($querystring || '');
   $: itmQs = (qs.get('itm') || '').trim();
-
-  function flashColor(hex) {
-    const raw = String(hex || '').replace(/^0x/i, '');
-    if (!/^[0-9a-fA-F]{6}$/.test(raw)) return null;
-    const r = parseInt(raw.slice(0, 2), 16);
-    const g = parseInt(raw.slice(2, 4), 16);
-    const b = parseInt(raw.slice(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, 0.35)`;
-  }
 
   function playScratch() {
     const { sv } = getNoonConfig();
@@ -573,7 +567,8 @@
     hireConf = data.conf || '';
     loaded.hire = true;
     if (hireItems.length) {
-      hireQuest = hireItems[0].id;
+      const firstOk = hireItems.find((item) => String(item.enabled) !== '0') || hireItems[0];
+      hireQuest = firstOk.id;
       await onHireQuestChange();
     }
   }
@@ -852,7 +847,7 @@
               {#each encItems as item, i}
                 <tr
                   class:active-row={encSelected === i}
-                  style={flashColor(item.bgColor) ? `background:${flashColor(item.bgColor)}` : ''}
+                  style={flashBgStyle(item.bgColor)}
                   on:click={() => selectEnc(i)}
                 >
                   <td>{item.name}</td>
@@ -927,7 +922,7 @@
               {#each aliances as item, i}
                 <tr
                   class:active-row={alianceSelected === i}
-                  style={flashColor(item.bgColor) ? `background:${flashColor(item.bgColor)}` : ''}
+                  style={flashBgStyle(item.bgColor)}
                   on:click={() => selectAliance(i)}
                 >
                   <td>{item.name}</td>
@@ -971,7 +966,7 @@
                 {#each users as item, i}
                   <tr
                     class:active-row={userSelected === i}
-                    style={flashColor(item.bgColor) ? `background:${flashColor(item.bgColor)}` : ''}
+                    style={flashBgStyle(item.bgColor)}
                     on:click={() => selectUser(i)}
                   >
                     <td>{item.name}</td>
@@ -1083,7 +1078,7 @@
             </thead>
             <tbody>
               {#each robots as item}
-                <tr style={flashColor(item.bgColor) ? `background:${flashColor(item.bgColor)}` : ''}>
+                <tr style={flashBgStyle(item.bgColor)}>
                   <td>{item.usedTime || ''}</td>
                   <td>{item.place || ''}</td>
                   <td>{item.object || ''}</td>

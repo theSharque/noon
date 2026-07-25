@@ -18,12 +18,40 @@
       $ship_id = $parent['fleet_id'] ? $parent['fleet_id'] : $parent['id'];
     }
 
-    $timer = db_fetch_row( "SELECT UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain, timer FROM space_events WHERE ship_id = ".$ship_id );
+    $timer = db_fetch_row( "SELECT UNIX_TIMESTAMP(event_time) - UNIX_TIMESTAMP(NOW()) remain, timer, event_type, arg1, arg2
+                              FROM space_events WHERE ship_id = ".$ship_id );
 
-    $out = "err=0&total=".$timer['timer']."&remain=".($timer['remain']);
+    if( !$timer || !isset( $timer['timer'] ) ) {
+      $out = "err=1";
+      printOut( $out );
+      return;
+    }
+
+    $et = isset( $timer['event_type'] ) ? intval( $timer['event_type'] ) : 0;
+    $st = 1;
+    $sname = '';
+
+    $star = db_fetch_row( "SELECT s.type, s.name FROM planets p INNER JOIN stars s ON s.id = p.star_id WHERE p.id = ".$user->place_id );
+    if( !$star || !isset( $star['type'] ) ) {
+      $star = db_fetch_row( "SELECT type, name FROM stars WHERE id = ".$user->place_id );
+    }
+
+    if( ( !$star || !isset( $star['type'] ) ) && ( $et == 3 || $et == 103 ) && isset( $timer['arg2'] ) ) {
+      $star = db_fetch_row( "SELECT s.type, s.name FROM planets p INNER JOIN stars s ON s.id = p.star_id WHERE p.id = ".$timer['arg2'] );
+    }
+
+    if( ( !$star || !isset( $star['type'] ) ) && ( $et == 4 || $et == 104 ) && isset( $timer['arg2'] ) ) {
+      $star = db_fetch_row( "SELECT type, name FROM stars WHERE id = ".$timer['arg2'] );
+    }
+
+    if( $star && isset( $star['type'] ) ) {
+      $st = intval( $star['type'] );
+      $sname = $star['name'];
+    }
+
+    $out = "err=0&total=".$timer['timer']."&remain=".($timer['remain'])."&et=".$et."&st=".$st."&sname=".$sname;
   } else {
     $out = "err=1";
   }
 
   printOut( $out );
-  

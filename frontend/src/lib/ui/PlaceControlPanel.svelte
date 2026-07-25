@@ -10,6 +10,7 @@
   import ScifiPanel from './ScifiPanel.svelte';
   import ScifiSelect from './ScifiSelect.svelte';
   import ScifiTabs from './ScifiTabs.svelte';
+  import { flashTextStyle } from '../flashColor.js';
 
   export let coordLabel = '';
   export let loadInfo = async () => ({ err: '1' });
@@ -190,6 +191,10 @@
     useCountGlow = ok ? 'ok' : 'fail';
   }
 
+  function rowToneStyle(row) {
+    return flashTextStyle(row?.bgColor);
+  }
+
   function onTab(e) {
     activeTab = e.detail;
     playSelect();
@@ -321,7 +326,7 @@
               {#each useRows as row}
                 <tr>
                   {#each useCols as col}
-                    <td>{row[col]}</td>
+                    <td style={rowToneStyle(row)}>{row[col]}</td>
                   {/each}
                 </tr>
               {/each}
@@ -382,7 +387,7 @@
               {#each upgRows as row}
                 <tr>
                   {#each upgCols as col}
-                    <td>{row[col]}</td>
+                    <td style={rowToneStyle(row)}>{row[col]}</td>
                   {/each}
                 </tr>
               {/each}

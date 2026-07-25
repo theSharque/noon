@@ -25,6 +25,7 @@
   export let trees = [];
   export let highlights = [];
   export let timers = [];
+  export let levels = {};
   export let selected = { x: 0, y: 0 };
   export let zoom = 1;
   export let mapLight = false;
@@ -47,6 +48,7 @@
   $: size = mapPixelSize(width || 1, height || 1);
   $: scale = 1 / zoom;
   $: sel = selectionPos(selected.x, selected.y);
+  $: selectedLevel = levels[`${selected.x}x${selected.y}`] || '';
   $: liveTimers = timers.map((t) => {
     const elapsed = (now - (t._started || now)) / 1000;
     let remain = t.remain - elapsed;
@@ -197,6 +199,7 @@
 <div class="planet-map-wrap">
   <div
     class="planet-viewport"
+    class:dragging
     bind:this={viewport}
     on:pointerdown={onPointerDown}
     on:pointermove={onPointerMove}
@@ -226,6 +229,9 @@
           <polygon class="sel-hex-glow" points={HEX_POINTS} />
           <polygon class="sel-hex-stroke" points={HEX_POINTS} />
         </svg>
+        {#if selectedLevel}
+          <div class="sel-level">{selectedLevel}</div>
+        {/if}
       </div>
 
       {#each buildings as row, y}
@@ -339,10 +345,10 @@
     height: 100%;
     overflow: hidden;
     touch-action: none;
-    cursor: grab;
+    cursor: default;
   }
 
-  .planet-viewport:active {
+  .planet-viewport.dragging {
     cursor: grabbing;
   }
 
@@ -359,7 +365,15 @@
     z-index: 1;
   }
 
-  .bld,
+  .bld {
+    position: absolute;
+    pointer-events: auto;
+    cursor: pointer;
+    user-select: none;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+  }
+
   .decor {
     position: absolute;
     pointer-events: none;
@@ -421,6 +435,24 @@
     position: absolute;
     z-index: 2;
     pointer-events: none;
+  }
+
+  .sel-level {
+    position: absolute;
+    left: 4px;
+    top: 2px;
+    z-index: 3;
+    min-width: 1.1em;
+    padding: 0 3px;
+    border-radius: 2px;
+    background: rgba(0, 12, 28, 0.78);
+    border: 1px solid rgba(0, 229, 255, 0.55);
+    color: var(--neon-cyan);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-shadow: 0 0 6px rgba(0, 229, 255, 0.45);
   }
 
   .sel-hex {

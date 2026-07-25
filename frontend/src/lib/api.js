@@ -606,6 +606,7 @@ function parseHireList(data) {
     enabled: 'en',
   }).map((item) => ({
     ...item,
+    enabled: String(item.enabled ?? '1'),
     name: String(item.name || '')
       .replace(/\s*\(минимум\s+или\s*\)\s*$/i, '')
       .trim(),
@@ -1690,4 +1691,20 @@ export async function loadOrbitUpgrade(x) {
 export async function destroyOrbitTile(x) {
   const data = await fetchPage(261, `x=${encodeURIComponent(x)}`);
   return { err: data.err !== undefined ? String(data.err) : '0' };
+}
+
+export async function loadFlightTimer() {
+  const data = await fetchPage(240);
+  if (String(data.err) !== '0') {
+    return { ok: false, err: String(data.err || '1') };
+  }
+  return {
+    ok: true,
+    err: '0',
+    remain: parseInt(data.remain || '0', 10),
+    total: parseInt(data.total || '0', 10),
+    et: parseInt(data.et || '0', 10),
+    st: parseInt(data.st || '1', 10) || 1,
+    sname: data.sname || '',
+  };
 }

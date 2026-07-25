@@ -14,8 +14,9 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | Статус | Кол-во |
 |--------|--------|
 | redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+orbit+station) + tutorial (SWF purged) |
-| stub | place transitions |
-| todo | transitions screens |
+| partial | infly (Canvas 2D) |
+| stub | land/flyout/inhyper/inspace |
+| todo | remaining transitions |
 
 ---
 
@@ -67,7 +68,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 ### Place — отложено
 
-- Переходы land/flyout/infly/inhyper/inspace
+- Переходы land/flyout/inhyper/inspace
+- `infly` — **partial** (Canvas 2D): палитра по `st`, parallax, sparks/streaks/motes, скорость `4t(1-t)` (пик в середине); RPC `240` → `et/st/sname`; demo `#/place?demo=infly&st=2`
 
 ### Ships — отложено
 
@@ -79,7 +81,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Файл | Статус |
 |------|--------|
-| land/flyout/infly/inhyper/inspace | **todo** |
+| infly | **partial** — `Infly.svelte` + `inflyFx.js`; gettimer id=240 (+et/st/sname) |
+| land/flyout/inhyper/inspace | **todo** |
 | tutorial.jpg | **done** — `Tutorial.svelte` overlay, RPC id=14 (`gettutor.page`); SWF + `tutorial.inc` purged 2026-07-25 |
 
 ---

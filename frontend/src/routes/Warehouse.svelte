@@ -14,6 +14,7 @@
   import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
   import ScifiSelect from '../lib/ui/ScifiSelect.svelte';
+  import { flashBgStyle } from '../lib/flashColor.js';
 
   const IMG = '/app/img/booklist';
   const CLASS_FILTERS = [
@@ -430,7 +431,11 @@
           </thead>
           <tbody>
             {#each ships as ship, i}
-              <tr data-idx={i} class:active-row={shipSelected.includes(i)}>
+              <tr
+                data-idx={i}
+                class:active-row={shipSelected.includes(i)}
+                style={flashBgStyle(ship.bgColor)}
+              >
                 <td>{ship.name}</td>
                 <td>{ship.place}</td>
                 <td class="num">{ship.cargo}</td>
@@ -464,7 +469,11 @@
           </thead>
           <tbody>
             {#each shipItems as item, i}
-              <tr data-idx={i} class:active-row={shipItemSelected.includes(i)}>
+              <tr
+                data-idx={i}
+                class:active-row={shipItemSelected.includes(i)}
+                style={flashBgStyle(item.bgColor)}
+              >
                 <td>{item.name}</td>
                 <td class="num">{item.count}</td>
                 <td class="num">{item.mass}</td>
@@ -527,7 +536,11 @@
           </thead>
           <tbody>
             {#each silos as silo, i}
-              <tr data-idx={i} class:active-row={siloSelected === i}>
+              <tr
+                data-idx={i}
+                class:active-row={siloSelected === i}
+                style={flashBgStyle(silo.bgColor)}
+              >
                 <td>{silo.name}</td>
                 <td>{silo.place}</td>
                 <td class="num">{silo.cargo}</td>
@@ -561,7 +574,11 @@
           </thead>
           <tbody>
             {#each wareItems as item, i}
-              <tr data-idx={i} class:active-row={wareItemSelected.includes(i)}>
+              <tr
+                data-idx={i}
+                class:active-row={wareItemSelected.includes(i)}
+                style={flashBgStyle(item.bgColor)}
+              >
                 <td>{item.name}</td>
                 <td class="num">{item.count}</td>
                 <td class="num">{item.mass}</td>

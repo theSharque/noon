@@ -11,6 +11,7 @@
   import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
   import ScifiSelect from '../lib/ui/ScifiSelect.svelte';
+  import { flashBgStyle } from '../lib/flashColor.js';
 
   const IMG = '/app/img/booklist';
   const CLASS_FILTERS = [
@@ -77,15 +78,6 @@
 
   let scratchAudio;
   let buzzAudio;
-
-  function flashColor(hex) {
-    const raw = String(hex || '').replace(/^0x/i, '');
-    if (!/^[0-9a-fA-F]{6}$/.test(raw)) return null;
-    const r = parseInt(raw.slice(0, 2), 16);
-    const g = parseInt(raw.slice(2, 4), 16);
-    const b = parseInt(raw.slice(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, 0.35)`;
-  }
 
   function num(v) {
     const n = Number(String(v ?? '').replace(/\s/g, ''));
@@ -498,7 +490,7 @@
             {#each lots as row, i}
               <tr
                 class:active-row={lotIdx === i}
-                style={flashColor(row.bgColor) ? `background:${flashColor(row.bgColor)}` : ''}
+                style={flashBgStyle(row.bgColor)}
                 on:click={() => onLotRow(i)}
               >
                 <td>{row.name}</td>

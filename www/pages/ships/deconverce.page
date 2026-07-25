@@ -21,7 +21,7 @@
     }
 
     if( $type == 'C' ) {
-      $ware_item = db_fetch_row( "SELECT w.object_id, w.place_id, w.place_type, w.object_cnt FROM warehouse w WHERE w.wid = $shid" );
+      $ware_item = db_fetch_row( "SELECT w.object_id, w.place_id, w.place_type, w.object_cnt FROM warehouse w WHERE w.id = $shid" );
 
       $place_type = 0;
       if( $ware_item['place_type'] == 2 ) {

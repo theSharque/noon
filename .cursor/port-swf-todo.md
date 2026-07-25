@@ -13,9 +13,9 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Статус | Кол-во |
 |--------|--------|
-| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+orbit+station) |
+| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+orbit+station) + tutorial |
 | stub | place transitions |
-| todo | transitions screens, tutorial |
+| todo | transitions screens |
 
 ---
 
@@ -81,7 +81,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | Файл | Статус |
 |------|--------|
 | land/flyout/infly/inhyper/inspace | **todo** |
-| tutorial.jpg | **todo** |
+| tutorial.jpg | **redesign** — `Tutorial.svelte` overlay, RPC id=14, gate level≤42; SWF pending purge |
 
 ---
 

@@ -992,7 +992,7 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
       }
     }
 
-    $result = db_fetch_array( "SELECT CONCAT( 'C', w.wid ) id, o.name, w.place_id, w.place_type, w.object_cnt cnt, a.name star, p.name planet
+    $result = db_fetch_array( "SELECT CONCAT( 'C', w.id ) id, o.name, w.place_id, w.place_type, w.object_cnt cnt, a.name star, p.name planet
                                  FROM warehouse w
                            INNER JOIN objects o ON o.id = w.object_id
                            INNER JOIN planets p ON p.id = w.place_id
@@ -1003,7 +1003,7 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
                                       p.user_id = ".$user->uid );
     $conserv = array_merge( $conserv, $result );
 
-    $result = db_fetch_array( "SELECT CONCAT( 'C', w.wid ) id, o.name, IFNULL( CONCAT( 'F', s.fleet_id ), CONCAT( 'S', s.id ) ) place_id, w.place_type, w.object_cnt cnt, s.name planet
+    $result = db_fetch_array( "SELECT CONCAT( 'C', w.id ) id, o.name, IFNULL( CONCAT( 'F', s.fleet_id ), CONCAT( 'S', s.id ) ) place_id, w.place_type, w.object_cnt cnt, s.name planet
                                  FROM warehouse w
                            INNER JOIN objects o ON o.id = w.object_id
                            INNER JOIN ships s ON s.id = w.place_id
@@ -1026,7 +1026,7 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
       case 1:
         $place = implode( ',', array_unique( $type ) );
 
-        $result = db_fetch_array( "SELECT CONCAT( 'C', w.wid ) id, o.name, w.place_id, w.place_type, w.object_cnt cnt, a.name star, p.name planet
+        $result = db_fetch_array( "SELECT CONCAT( 'C', w.id ) id, o.name, w.place_id, w.place_type, w.object_cnt cnt, a.name star, p.name planet
                                      FROM warehouse w
                                INNER JOIN objects o ON w.object_id = o.id AND o.class = 9
                                INNER JOIN planets p ON p.id = w.place_id AND ( p.user_id IS NULL OR p.user_id = {$user->uid})
@@ -1100,7 +1100,7 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
     $g_all = array_merge( $g_all, $guests );
     unset( $guests );
 
-    $result = db_fetch_array( "SELECT CONCAT( 'C', w.wid ) id, o.name, IFNULL( CONCAT( 'F', s.fleet_id ), CONCAT( 'S', s.id ) ) place_id, w.place_type, w.object_cnt cnt, s.name planet
+    $result = db_fetch_array( "SELECT CONCAT( 'C', w.id ) id, o.name, IFNULL( CONCAT( 'F', s.fleet_id ), CONCAT( 'S', s.id ) ) place_id, w.place_type, w.object_cnt cnt, s.name planet
                                  FROM ships s
                            INNER JOIN warehouse w ON w.object_cnt > 0 AND w.place_id = s.id AND w.place_type = 2
                            INNER JOIN objects o ON o.id = w.object_id AND o.class = 9

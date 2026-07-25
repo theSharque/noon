@@ -7,6 +7,7 @@
     loadPlanetUpgrade,
     loadPlanetUse,
   } from '../lib/api.js';
+  import { bumpTutorialNav } from '../lib/tutorialStore.js';
   import PlanetMap from '../lib/ui/PlanetMap.svelte';
   import PlaceControlPanel from '../lib/ui/PlaceControlPanel.svelte';
 
@@ -65,6 +66,7 @@
     selected = e.detail;
     panelRef?.playSelect?.();
     await panelRef?.refresh?.();
+    bumpTutorialNav();
   }
 
   async function onChanged() {

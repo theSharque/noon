@@ -51,8 +51,6 @@ $main_content .= "<form action=\"adduser.php\" method=POST>
 <tr><td align=right>Пароль</td><td><input type=password name='pass1' value='".(isset( $_COOKIE['pass1'] ) ? $_COOKIE['pass1'] : '')."'></td>
 <td align=right>Повторите пароль</td><td><input type=password name='pass2' value='".(isset( $_COOKIE['pass2'] ) ? $_COOKIE['pass2'] : '')."'></td></tr>
 
-<tr><td></td><td align=right><img src=\"/kcaptcha/?".session_name()."=".session_id()."\"></td>
-<td align=right>Введите текст слева:</td><td><input type=\"text\" name=\"keystring\"></td></tr>
 <tr><td><td colspan=3 align=left><input name=rules type=\"checkbox\">Я ознакомлен и согласен с <a href=index.php?pid=rules target=\"_blank\">правилами</a></td></tr>
 <tr><td><td colspan=3 align=left><input name=license type=\"checkbox\">Я ознакомлен и согласен с <a href=index.php?pid=license target=\"_blank\">соглашением</a></td></tr>
 <tr><td colspan=4 align=center><input id=\"buttonregisterint\" type=\"image\" src=\"images/buttonregisterintoff.png\" onmouseover=\"menuOver('buttonregisterint');\" onmouseout=\"menuOut('buttonregisterint');\" width=\"257\" height=\"32\" name=\"submit\" /></td></tr>

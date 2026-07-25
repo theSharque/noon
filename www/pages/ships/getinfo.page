@@ -174,7 +174,7 @@
                                  FROM warehouse w
                            INNER JOIN objects o ON o.id = w.object_id
                            INNER JOIN ship_types st ON st.conserv_id = w.object_id
-                                WHERE w.wid = $shid" );
+                                WHERE w.id = $shid" );
 
         $addons = array();
         if( $ship['radar'] ) {

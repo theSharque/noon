@@ -1,8 +1,10 @@
+import { bumpTutorialNav } from './tutorialStore.js';
+
 export function getNoonConfig() {
   if (typeof window !== 'undefined' && window.__NOON__) {
     return window.__NOON__;
   }
-  return { mv: 0, sv: 50 };
+  return { mv: 0, sv: 50, level: 99 };
 }
 
 export function parseVars(text) {
@@ -131,6 +133,19 @@ export async function sendChat(text) {
   });
   const body = await res.text();
   return parseVars(body);
+}
+
+export async function fetchTutor(pg) {
+  const res = await fetch(`/page.php?id=14&pg=${encodeURIComponent(pg)}`, {
+    credentials: 'same-origin',
+  });
+  const raw = (await res.text()).replace(/&eof=1$/, '');
+  const errMatch = raw.match(/^err=(\d+)/);
+  const err = errMatch ? errMatch[1] : '1';
+  if (err !== '0') return { err };
+  const txStart = raw.indexOf('&tx=');
+  if (txStart < 0) return { err: '2' };
+  return { err: '0', tx: decodeLoadVar(raw.slice(txStart + 4)) };
 }
 
 export async function deleteChatMessage(id) {
@@ -462,7 +477,9 @@ export async function listEncyclopedia() {
 }
 
 export async function getEncyclopediaDesc(oid) {
-  return fetchPage(62, `oid=${encodeURIComponent(oid)}`);
+  const data = await fetchPage(62, `oid=${encodeURIComponent(oid)}`);
+  bumpTutorialNav();
+  return data;
 }
 
 function parseAlianceList(data) {

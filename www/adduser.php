@@ -19,11 +19,6 @@ function get_out( $err ) {
 }
 
 if( count( $_POST ) > 0 ) {
-  if( !isset( $_SESSION['captcha_keystring'] ) || $_SESSION['captcha_keystring'] != $_POST['keystring'] ) {
-    $good = false;
-    get_out( 8 );
-  }
-
   if( !isset( $_POST['login'] ) ||
       mb_strlen( $_POST['login'], 'UTF-8' ) == 0 ||
       mb_strlen( $_POST['login'], 'UTF-8' ) > 16 ||

@@ -1874,7 +1874,7 @@ function enter_place( $shid, $isfleet ) {
 }                 
 
 function noon_render_spa( $boot_path ) {
-  global $noon_boot;
+  global $noon_boot, $user;
   $noon_boot = $boot_path;
   include dirname( __FILE__ ) . '/../pages/shell.page';
 }

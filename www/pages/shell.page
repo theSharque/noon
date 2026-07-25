@@ -1,5 +1,7 @@
 <?php
 
+  global $user, $noon_boot;
+
   $mv = intval( $user->music );
   $sv = intval( $user->sound );
 
@@ -11,7 +13,7 @@
   }
 
   $html = file_get_contents( $index_path );
-  $config = array( 'mv' => $mv, 'sv' => $sv );
+  $config = array( 'mv' => $mv, 'sv' => $sv, 'level' => intval( $user->level ) );
   if( isset( $noon_boot ) && $noon_boot != '' ) {
     $config['boot'] = $noon_boot;
   }

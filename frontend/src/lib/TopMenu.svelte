@@ -1,11 +1,12 @@
 <script>
-  import { link, push } from 'svelte-spa-router';
+  import { link, push, location } from 'svelte-spa-router';
   import active from 'svelte-spa-router/active';
   import { onMount, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import { pollMail } from './api.js';
   import { mailHasUnread, mailLastId } from './mailStore.js';
   import { musicVolume, soundVolume, setMusicVolumeLocal, setSoundVolumeLocal } from './audioStore.js';
+  import { bumpTutorialNav } from './tutorialStore.js';
 
   export let mv = 0;
   export let sv = 50;
@@ -144,13 +145,19 @@
     }
   }
 
-  function onNavClick() {
+  function onNavClick(e) {
     playClick();
+    const href = (e.currentTarget.getAttribute('href') || '').replace(/^#/, '') || '/';
+    const path = href.split('?')[0];
+    if ($location === path) {
+      bumpTutorialNav();
+    }
   }
 
   function onMailClick() {
     playClick();
     mailHasUnread.set(false);
+    bumpTutorialNav();
     push('/mail');
   }
 

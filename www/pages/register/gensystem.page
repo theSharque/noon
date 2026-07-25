@@ -59,6 +59,8 @@ function GenerateSystem( $user_id ) {
   }
 */
 
+  $nx = 0;
+  $ny = 0;
   $prob = db_fetch_array( "SELECT id, x, y FROM star_pos ORDER BY id" );
   for( $i = 0; $i < count( $prob ); $i++ ) {
     $nx = $prob[$i]['x'];
@@ -72,7 +74,13 @@ function GenerateSystem( $user_id ) {
     }
   }
   db_query( "INSERT INTO stars ( name, x, y, type ) VALUES ( '$sName ($nx:$ny)', $nx, $ny, ".(mt_rand(1,3))." )" );
-  $star_id = mysql_insert_id();
+  $star_id = intval( mysql_insert_id() );
+  if( $star_id <= 0 ) {
+    $star_id = intval( db_fetch_val( "SELECT LAST_INSERT_ID() id", 'id' ) );
+  }
+  if( $star_id <= 0 ) {
+    $star_id = intval( db_fetch_val( "SELECT id FROM stars WHERE name = '$sName ($nx:$ny)' ORDER BY id DESC LIMIT 1", 'id' ) );
+  }
   db_query( "UPDATE stars SET bg = right( concat( '0', id % 60 ), 2 ) WHERE id = $star_id" );
 
   for( $i = 0; $i < $pCount; $i++ ) {

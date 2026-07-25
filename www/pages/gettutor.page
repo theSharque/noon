@@ -217,10 +217,30 @@
     levelUp( $user->level, $user->uid );
   }
 
-  if( $user->level > $user->lastlevel || $user->leveltime > 1800 ) {
-    $pg = $_GET['pg'];
-    db_safe( $pg );
+  $pg = isset( $_GET['pg'] ) ? $_GET['pg'] : 0;
+  db_safe( $pg );
 
+  switch( $pg ) {
+    case 2:
+      if( $user->place_type == 1 ) {
+        levelUp( 2, $user->uid );
+        levelUp( 8, $user->uid );
+      }
+      break;
+
+    case 6:
+      levelUp( 6, $user->uid );
+      break;
+  }
+
+  $row = db_fetch_row( "SELECT level, lastlevel, NOW() - tutorial_time leveltime FROM users WHERE id = ".$user->uid );
+  if( is_array( $row ) && isset( $row['level'] ) ) {
+    $user->level = $row['level'];
+    $user->lastlevel = $row['lastlevel'];
+    $user->leveltime = $row['leveltime'];
+  }
+
+  if( $user->level > $user->lastlevel || $user->leveltime > 1800 ) {
     if( $user->level > $user->lastlevel ) {
       $tutor = db_fetch_row( "SELECT tutorial FROM tutorials WHERE ( page_id = 0 OR page_id = $pg ) AND level = ".( $user->lastlevel + 1 ) );
     } else {

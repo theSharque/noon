@@ -181,14 +181,14 @@
         noon_render_spa( '/place' );
         break;
       case 21:
-//        do_events( false );
-//        authorization();
+        do_events( false );
+        authorization();
         include './pages/environment/planetmap.page';
         break;
 
       case 22:
-//        do_events( false );
-//        authorization();
+        do_events( false );
+        authorization();
         include './pages/environment/orbitmap.page';
         break;
       case 221:

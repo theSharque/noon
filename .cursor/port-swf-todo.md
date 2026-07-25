@@ -59,7 +59,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 |-----|-----|--------|---------|
 | `booklist.jpg` | `/character`, `/mail` → `Booklist.svelte` | **redesign** | 5 вкладок, cosmic grid; SWF удалён |
 | `about.jpg` | `/about` → `About.svelte` | **redesign** | Профиль/медали; PNG purged; SWF удалён |
-| `planet.jpg` / `orbit.jpg` / `station.jpg` | `/place` → `Place` + `Planet` / `Orbit` / `Station` | **redesign** | Probe 21→22→233; planet hex map; orbit 1D strip + `p{pid}` bg; shared PlaceControlPanel; station trade |
+| `planet.jpg` / `orbit.jpg` (purged) / `station.jpg` | `/place` → `Place` + `Planet` / `Orbit` / `Station` | **redesign** | Probe 21→22→233; planet hex map; orbit 1D strip + `p{pid}` bg; shared PlaceControlPanel; station trade; **orbit.jpg удалён** |
 | `ships.jpg` | `/ships` → `Ships.svelte` | **redesign** | Master–detail; galaxy 9/41; system map 8; war text poll; SWF удалён |
 | `warehouse.jpg` | `/ware` → `Warehouse.svelte` | **redesign** | Dual-pane cargo move; RPC 41–47; SWF удалён |
 | `trade.jpg` | `/trade` → `Trade.svelte` | **redesign** | 4 вкладки Comp/Bay/Sell/Conf; RPC 53–58, 63, 65, 651–652; SWF удалён |
@@ -68,7 +68,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 ### Place — отложено
 
 - Переходы land/flyout/infly/inhyper/inspace
-- Purge `www/swf/planet.jpg` / `orbit.jpg` / `station.jpg` — после приёмки
+- Purge `www/swf/planet.jpg` / `station.jpg` — после приёмки (`orbit.jpg` удалён 2026-07-25)
 
 ### Ships — отложено
 
@@ -97,3 +97,4 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `ships.jpg` | 2026-07-22 cosmic accept | `frontend/src/routes/Ships.svelte` |
 | `about.jpg` | 2026-07-22 cosmic accept | `frontend/src/routes/About.svelte` |
 | `misc.jpg` | 2026-07-22 cosmic accept | `frontend/src/routes/Misc.svelte` |
+| `orbit.jpg` | 2026-07-25 cosmic accept | `frontend/src/routes/Orbit.svelte` |

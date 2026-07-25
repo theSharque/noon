@@ -52,6 +52,20 @@
   let mailLastSelected = -1;
   let msgTo = '';
 
+  function flashColor(hex) {
+    const raw = String(hex || '').replace(/^0x/i, '');
+    if (!/^[0-9a-fA-F]{6}$/.test(raw)) return '';
+    const r = parseInt(raw.slice(0, 2), 16);
+    const g = parseInt(raw.slice(2, 4), 16);
+    const b = parseInt(raw.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.35)`;
+  }
+
+  function rowBg(hex) {
+    const bg = flashColor(hex);
+    return bg ? `background:${bg}` : '';
+  }
+
   let learnItems = [];
   let learnMeta = { lmax: 0, bid: 0 };
   let learnDesc = '';
@@ -598,7 +612,11 @@
             </thead>
             <tbody>
               {#each learnItems as item, i}
-                <tr class:active-row={learnSelected === i} on:click={() => selectLearn(i)}>
+                <tr
+                  class:active-row={learnSelected === i}
+                  style={rowBg(item.bgColor)}
+                  on:click={() => selectLearn(i)}
+                >
                   <td>{item.name}</td>
                   <td class="num">{item.level}</td>
                   <td>{item.timeLabel}</td>
@@ -615,7 +633,11 @@
             </thead>
             <tbody>
               {#each questItems as item, i}
-                <tr class:active-row={questSelected === i} on:click={() => selectQuest(i)}>
+                <tr
+                  class:active-row={questSelected === i}
+                  style={rowBg(item.bgColor)}
+                  on:click={() => selectQuest(i)}
+                >
                   <td>{item.name}</td>
                 </tr>
               {/each}
@@ -631,7 +653,11 @@
               </thead>
               <tbody>
                 {#each statItems as item, i}
-                  <tr class:active-row={statSelected === i} on:click={() => selectStat(i)}>
+                  <tr
+                    class:active-row={statSelected === i}
+                    style={rowBg(item.bgColor)}
+                    on:click={() => selectStat(i)}
+                  >
                     <td>{item.name}</td>
                   </tr>
                 {/each}
@@ -666,6 +692,7 @@
                 {#each relations.friends as item, i}
                   <tr
                     class:active-row={relFriend === i}
+                    style={rowBg(item.bgColor)}
                     on:click={() => {
                       relFriend = i;
                       relFoe = -1;
@@ -685,6 +712,7 @@
                 {#each relations.foes as item, i}
                   <tr
                     class:active-row={relFoe === i}
+                    style={rowBg(item.bgColor)}
                     on:click={() => {
                       relFoe = i;
                       relFriend = -1;
@@ -704,6 +732,7 @@
                 {#each relations.ignores as item, i}
                   <tr
                     class:active-row={relIgnore === i}
+                    style={rowBg(item.bgColor)}
                     on:click={() => {
                       relIgnore = i;
                       relFriend = -1;
@@ -980,6 +1009,21 @@
 
   tr.unread td {
     color: var(--neon-cyan-dim);
+  }
+
+  .html-rich :global(font[color='#FF0000']),
+  .html-rich :global(font[color='#ff0000']) {
+    color: #ff8a8a;
+  }
+
+  .html-rich :global(font[color='#00FF00']),
+  .html-rich :global(font[color='#00ff00']) {
+    color: #7dff7d;
+  }
+
+  .html-rich :global(font[color='#FFFF00']),
+  .html-rich :global(font[color='#ffff00']) {
+    color: #ffe566;
   }
 
   .modal-form {

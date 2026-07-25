@@ -109,8 +109,13 @@
     return e.clientX - rect.left - offsetX;
   }
 
+  function isMapUiTarget(e) {
+    return Boolean(e.target?.closest?.('.frame-btn, .frame-actions'));
+  }
+
   function onDown(e) {
     if (e.button !== 0) return;
+    if (isMapUiTarget(e)) return;
     dragging = true;
     moved = false;
     dragStart = { x: e.clientX, ox: offsetX };
@@ -126,7 +131,7 @@
   function onUp(e) {
     if (!dragging) return;
     dragging = false;
-    if (!moved && e.type === 'mouseup') {
+    if (!moved && e.type === 'mouseup' && !isMapUiTarget(e)) {
       const giX = hitTest(localX(e), length);
       dispatch('select', giX);
     }
@@ -189,7 +194,12 @@
       {/each}
 
       {#if frameActions.use || frameActions.stop || frameActions.upgrade}
-        <div class="frame-actions" style={`left:${selX}px; top:-10px`}>
+        <div
+          class="frame-actions"
+          style={`left:${selX}px; top:-10px`}
+          on:mousedown|stopPropagation
+          on:mouseup|stopPropagation
+        >
           {#if frameActions.stop}
             <button type="button" class="frame-btn" on:click|stopPropagation={() => dispatch('frame', 'stop')}>Стоп</button>
           {/if}
@@ -284,9 +294,13 @@
     position: absolute;
     z-index: 5;
     width: 150px;
+    padding: 4px 6px 3px;
+    margin: -4px -6px 0;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.55);
+    box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.45);
     pointer-events: none;
     font-size: 0.7rem;
-    text-shadow: 0 0 4px #000;
   }
 
   .mtimer-bar {
@@ -315,14 +329,17 @@
   .mtimer-disp {
     margin-top: 2px;
     text-align: center;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 2px #000, 0 0 6px rgba(0, 0, 0, 0.9);
   }
 
   .frame-actions {
     position: absolute;
-    z-index: 6;
+    z-index: 8;
     transform: translate(-50%, -100%);
     display: flex;
     gap: 4px;
+    pointer-events: auto;
   }
 
   .frame-btn {
@@ -332,5 +349,6 @@
     font-size: 0.7rem;
     padding: 2px 8px;
     cursor: pointer;
+    pointer-events: auto;
   }
 </style>

@@ -10,10 +10,12 @@
   import { openPlayerAbout } from './chatActions.js';
   import { askYesNo } from './confirmStore.js';
 
+  export let collapsed = false;
+
   const tabs = [
-    { id: 'main', label: 'Основной' },
-    { id: 'sys', label: 'Системный' },
-    { id: 'priv', label: 'Приват' },
+    { id: 'main', label: 'Основной', icon: 'main' },
+    { id: 'sys', label: 'Системный', icon: 'sys' },
+    { id: 'priv', label: 'Приват', icon: 'priv' },
   ];
 
   let cid = 0;
@@ -67,6 +69,15 @@
     activeTab = id;
     if (id === 'sys') unread.sys = false;
     if (id === 'priv') unread.priv = false;
+  }
+
+  function collapseChat() {
+    collapsed = true;
+  }
+
+  function expandToTab(id) {
+    collapsed = false;
+    selectTab(id);
   }
 
   function prefillNick(nick) {
@@ -160,56 +171,98 @@
   });
 </script>
 
-<div class="chat">
-  <div class="chat-read">
-    <div class="scifi-tabs chat-tabs">
-      {#each tabs as tab}
+{#if collapsed}
+  <div class="chat-dock" role="toolbar" aria-label="Чат">
+    {#each tabs as tab}
+      <button
+        type="button"
+        class="dock-btn"
+        class:blink={tab.id === 'sys' && unread.sys && activeTab !== 'sys'}
+        class:blink-priv={tab.id === 'priv' && unread.priv && activeTab !== 'priv'}
+        title={tab.label}
+        aria-label={tab.label}
+        on:click={() => expandToTab(tab.id)}
+      >
+        {#if tab.icon === 'main'}
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M4 6h11a2 2 0 012 2v5a2 2 0 01-2 2H9l-4 3v-3H4a2 2 0 01-2-2V8a2 2 0 012-2z" />
+            <path d="M16 9h4a2 2 0 012 2v4a2 2 0 01-2 2h-1v2l-3-2" />
+          </svg>
+        {:else if tab.icon === 'sys'}
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="14" rx="2" />
+            <path d="M7 9h2M11 9h6M7 13h10" />
+          </svg>
+        {:else}
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="9" rx="2" />
+            <path d="M8 11V8a4 4 0 018 0v3" />
+          </svg>
+        {/if}
+      </button>
+    {/each}
+  </div>
+{:else}
+  <div class="chat">
+    <div class="chat-read">
+      <div class="scifi-tabs chat-tabs">
         <button
           type="button"
-          class="tab"
-          class:active={activeTab === tab.id}
-          class:blink={tab.id === 'sys' && unread.sys && activeTab !== 'sys'}
-          class:blink-priv={tab.id === 'priv' && unread.priv && activeTab !== 'priv'}
-          on:click={() => selectTab(tab.id)}
+          class="tab collapse-btn"
+          aria-label="Свернуть"
+          title="Свернуть"
+          on:click={collapseChat}
         >
-          {tab.label}
+          ↙
         </button>
-      {/each}
-    </div>
-    <div class="chat-panes">
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <div class="chat-msgs" bind:this={msgsEl} on:click={onChatClick}>
-        {#if activeHtml}
-          {@html activeHtml}
-        {:else}
-          <span class="empty">…</span>
-        {/if}
+        {#each tabs as tab}
+          <button
+            type="button"
+            class="tab"
+            class:active={activeTab === tab.id}
+            class:blink={tab.id === 'sys' && unread.sys && activeTab !== 'sys'}
+            class:blink-priv={tab.id === 'priv' && unread.priv && activeTab !== 'priv'}
+            on:click={() => selectTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        {/each}
       </div>
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <div class="chat-online" bind:this={onlineEl} on:click={onChatClick}>
-        {#if usersHtml}
-          {@html usersHtml}
-        {/if}
+      <div class="chat-panes">
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div class="chat-msgs" bind:this={msgsEl} on:click={onChatClick}>
+          {#if activeHtml}
+            {@html activeHtml}
+          {:else}
+            <span class="empty">…</span>
+          {/if}
+        </div>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div class="chat-online" bind:this={onlineEl} on:click={onChatClick}>
+          {#if usersHtml}
+            {@html usersHtml}
+          {/if}
+        </div>
       </div>
     </div>
+    <form class="chat-write" on:submit|preventDefault={submitMessage}>
+      <input
+        class="scifi-input"
+        type="text"
+        bind:this={inputEl}
+        bind:value={draft}
+        maxlength="1400"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Сообщение"
+        on:keydown={onKeydown}
+      />
+      <button class="scifi-btn primary" type="submit" disabled={sending}>Отправить</button>
+    </form>
   </div>
-  <form class="chat-write" on:submit|preventDefault={submitMessage}>
-    <input
-      class="scifi-input"
-      type="text"
-      bind:this={inputEl}
-      bind:value={draft}
-      maxlength="1400"
-      autocomplete="off"
-      spellcheck="false"
-      placeholder="Сообщение"
-      on:keydown={onKeydown}
-    />
-    <button class="scifi-btn primary" type="submit" disabled={sending}>Отправить</button>
-  </form>
-</div>
+{/if}
 
 <style>
   .chat {
@@ -235,8 +288,22 @@
     gap: 6px;
   }
 
+  .chat-tabs .tab.collapse-btn {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
   .chat-tabs .tab.blink,
-  .chat-tabs .tab.blink-priv {
+  .chat-tabs .tab.blink-priv,
+  .dock-btn.blink,
+  .dock-btn.blink-priv {
     animation: tabBlink 1s steps(2) infinite;
   }
 
@@ -245,6 +312,34 @@
       color: var(--neon-cyan);
       border-color: var(--neon-cyan);
     }
+  }
+
+  .chat-dock {
+    display: flex;
+    gap: 6px;
+    padding: 0;
+  }
+
+  .dock-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ctrl-color);
+    background: var(--panel-bg-strong);
+    border: 1px solid var(--ctrl-border-color);
+    border-radius: var(--radius-panel);
+    clip-path: var(--ctrl-clip);
+    cursor: pointer;
+    box-shadow: var(--glow-soft);
+    backdrop-filter: blur(8px);
+  }
+
+  .dock-btn:hover {
+    background: var(--ctrl-hover-bg);
+    color: var(--text-main);
   }
 
   .chat-panes {

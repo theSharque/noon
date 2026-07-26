@@ -9,6 +9,7 @@
   import { getNoonConfig } from './lib/api.js';
 
   const config = getNoonConfig();
+  let chatCollapsed = false;
 
   onMount(() => {
     if (config.boot) {
@@ -30,8 +31,8 @@
   <main class="shell-main">
     <Router {routes} />
   </main>
-  <footer class="shell-chat">
-    <Chat />
+  <footer class="shell-chat" class:collapsed={chatCollapsed}>
+    <Chat bind:collapsed={chatCollapsed} />
   </footer>
   <Tutorial />
   <ScifiConfirm />
@@ -108,5 +109,22 @@
     border-radius: var(--radius-panel);
     border: 1px solid var(--border-light);
     box-shadow: var(--glow-soft);
+  }
+
+  .shell-chat.collapsed {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    z-index: 20;
+    flex: none;
+    height: auto;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    overflow: visible;
   }
 </style>

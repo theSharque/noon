@@ -1793,7 +1793,7 @@
 
   .ships-grid {
     display: grid;
-    grid-template-columns: minmax(240px, var(--layout-side)) minmax(0, 1fr);
+    grid-template-columns: minmax(240px, 360px) minmax(0, 1fr);
     gap: 0.75rem;
     flex: 1 1 auto;
     min-height: 0;

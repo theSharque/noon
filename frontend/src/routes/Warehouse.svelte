@@ -39,7 +39,7 @@
   let shipItemSelected = [];
   let shipItemLastIdx = -1;
   let shipFree = '';
-  let shipRf = '5';
+  let shipRf = '0';
 
   let silos = [];
   let siloSelected = -1;
@@ -48,7 +48,7 @@
   let wareItemSelected = [];
   let wareItemLastIdx = -1;
   let wareFree = '';
-  let wareRf = '5';
+  let wareRf = '0';
 
   let qtyText = '';
   let qtyVisible = false;

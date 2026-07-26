@@ -185,11 +185,15 @@
 
       {#each liveTimers as t (String(t.x))}
         <div class="mtimer" style={`left:${t.left}px; top:-75px; color:${t.color}`}>
+          <div class="mtimer-disp">{t.label}</div>
           <div class="mtimer-bar">
             <div class="mtimer-lin" style={`transform:scaleX(${t.progress})`}></div>
-            <div class="mtimer-cnt" style={`width:${Math.max(0, t.cycles) * 5}px`}></div>
           </div>
-          <div class="mtimer-disp">{t.label}</div>
+          <div class="mtimer-cnt">
+            {#each Array(t.cycles < 0 ? 10 : Math.max(0, t.cycles)) as _}
+              <span class="mtimer-sq"></span>
+            {/each}
+          </div>
         </div>
       {/each}
 
@@ -293,19 +297,20 @@
   .mtimer {
     position: absolute;
     z-index: 5;
-    width: 150px;
+    width: 120px;
     padding: 4px 6px 3px;
     margin: -4px -6px 0;
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.55);
     box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.45);
     pointer-events: none;
-    font-size: 0.7rem;
+    font-size: 0.6rem;
   }
 
   .mtimer-bar {
     position: relative;
-    height: 6px;
+    height: 4px;
+    margin-top: 2px;
     background: rgba(0, 0, 0, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.25);
     overflow: hidden;
@@ -319,16 +324,21 @@
   }
 
   .mtimer-cnt {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 2px;
-    background: #fff;
+    display: flex;
+    gap: 2px;
+    margin-top: 3px;
+    min-height: 5px;
+  }
+
+  .mtimer-sq {
+    width: 5px;
+    height: 5px;
+    flex-shrink: 0;
+    background: currentColor;
   }
 
   .mtimer-disp {
-    margin-top: 2px;
-    text-align: center;
+    line-height: 1.1;
     letter-spacing: 0.02em;
     text-shadow: 0 1px 2px #000, 0 0 6px rgba(0, 0, 0, 0.9);
   }

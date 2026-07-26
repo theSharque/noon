@@ -38,7 +38,7 @@
   let busy = false;
   let errorText = '';
 
-  let filterRf = '1';
+  let filterRf = '0';
   let lots = [];
   let lotIdx = -1;
   let goods = [];

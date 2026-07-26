@@ -146,11 +146,12 @@ export const HEX_POINTS = '65,2 128,34 128,65 65,97 2,65 2,34';
 export function clampMapOffset(ox, oy, mapW, mapH, viewW, viewH, zoom) {
   const scaledW = mapW / zoom;
   const scaledH = mapH / zoom;
+  const maxX = Math.min(400, viewW * 0.4) + CELL_W;
   let x = ox;
   let y = oy;
   if (x + scaledW < viewW + 100) x = -scaledW + viewW + 100;
   if (y + scaledH < viewH) y = -scaledH + viewH;
-  if (x > 400) x = Math.min(400, viewW * 0.4);
+  if (x > maxX) x = maxX;
   if (y > 80) y = Math.min(80, viewH * 0.15);
   return { x, y };
 }

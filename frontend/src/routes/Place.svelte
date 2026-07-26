@@ -10,6 +10,8 @@
   } from '../lib/api.js';
   import { formatFlyTime, isInflyEvent } from '../lib/inflyFx.js';
   import { isInhyperEvent } from '../lib/inhyperFx.js';
+  import { isLandEvent } from '../lib/landFx.js';
+  import { isTakeoffEvent } from '../lib/takeoffFx.js';
   import ScifiPanel from '../lib/ui/ScifiPanel.svelte';
   import Station from './Station.svelte';
   import Planet from './Planet.svelte';
@@ -18,6 +20,8 @@
   import Inhyper from './Inhyper.svelte';
   import Inspace from './Inspace.svelte';
   import Indeep from './Indeep.svelte';
+  import Land from './Land.svelte';
+  import Takeoff from './Takeoff.svelte';
 
   let mode = 'loading';
   let errorText = '';
@@ -34,6 +38,8 @@
   let demoInhyper = false;
   let demoInspace = false;
   let demoIndeep = false;
+  let demoLand = false;
+  let demoTakeoff = false;
   let probeDiag = null;
 
   const PLACE_NAMES = {
@@ -110,6 +116,39 @@
     };
   }
 
+  function parseDemoLand(qs) {
+    const params = parseQs(qs);
+    if (params.get('demo') !== 'land') return null;
+    const ptype = Math.max(1, parseInt(params.get('ptype') || '1', 10) || 1);
+    return {
+      ptype,
+      remain: Math.max(1, parseInt(params.get('remain') || '10', 10) || 10),
+      total: Math.max(1, parseInt(params.get('total') || '10', 10) || 10),
+      pname: params.get('pname') || demoPlanetName(ptype),
+      et: 0,
+    };
+  }
+
+  function parseDemoTakeoff(qs) {
+    const params = parseQs(qs);
+    if (params.get('demo') !== 'takeoff') return null;
+    const ptype = Math.max(1, parseInt(params.get('ptype') || '1', 10) || 1);
+    return {
+      ptype,
+      remain: Math.max(1, parseInt(params.get('remain') || '10', 10) || 10),
+      total: Math.max(1, parseInt(params.get('total') || '10', 10) || 10),
+      pname: params.get('pname') || demoPlanetName(ptype),
+      et: 1,
+    };
+  }
+
+  function demoPlanetName(ptype) {
+    if (ptype === 3) return 'Демо-пустыня';
+    if (ptype === 4) return 'Демо-мёртвая';
+    if (ptype === 2) return 'Демо-гигант';
+    return 'Демо-земля';
+  }
+
   async function probePlace() {
     mode = 'loading';
     errorText = '';
@@ -123,7 +162,43 @@
     demoInhyper = false;
     demoInspace = false;
     demoIndeep = false;
+    demoLand = false;
+    demoTakeoff = false;
     probeDiag = null;
+
+    const demoAscent = parseDemoTakeoff($querystring);
+    if (demoAscent) {
+      flight = {
+        remain: demoAscent.remain,
+        total: demoAscent.total,
+        et: demoAscent.et,
+        ptype: demoAscent.ptype,
+        pname: demoAscent.pname,
+        sname: '',
+        st: 1,
+      };
+      planetName = demoAscent.pname;
+      demoTakeoff = true;
+      mode = 'takeoff';
+      return;
+    }
+
+    const demoLanding = parseDemoLand($querystring);
+    if (demoLanding) {
+      flight = {
+        remain: demoLanding.remain,
+        total: demoLanding.total,
+        et: demoLanding.et,
+        ptype: demoLanding.ptype,
+        pname: demoLanding.pname,
+        sname: '',
+        st: 1,
+      };
+      planetName = demoLanding.pname;
+      demoLand = true;
+      mode = 'land';
+      return;
+    }
 
     const demoDeep = parseDemoIndeep($querystring);
     if (demoDeep) {
@@ -243,6 +318,15 @@
     if (timer.ok) {
       flight = timer;
       starName = timer.sname || starName;
+      if (timer.pname) planetName = timer.pname;
+      if (isLandEvent(timer.et)) {
+        mode = 'land';
+        return;
+      }
+      if (isTakeoffEvent(timer.et)) {
+        mode = 'takeoff';
+        return;
+      }
       if (isInflyEvent(timer.et)) {
         mode = 'infly';
         return;
@@ -272,7 +356,15 @@
   async function onFlightArrived() {
     for (let i = 0; i < 10; i++) {
       await probePlace();
-      if (mode !== 'infly' && mode !== 'inhyper' && mode !== 'flight') return;
+      if (
+        mode !== 'infly' &&
+        mode !== 'inhyper' &&
+        mode !== 'land' &&
+        mode !== 'takeoff' &&
+        mode !== 'flight'
+      ) {
+        return;
+      }
       if (flight && Number(flight.remain) > 0) return;
       await sleep(250);
     }
@@ -292,12 +384,46 @@
     });
   }
 
+  function onLandArrived() {
+    onFlightArrived().catch((e) => {
+      errorText = e?.message || 'Ошибка загрузки';
+      mode = 'stub';
+    });
+  }
+
+  function onTakeoffArrived() {
+    onFlightArrived().catch((e) => {
+      errorText = e?.message || 'Ошибка загрузки';
+      mode = 'stub';
+    });
+  }
+
   onMount(() => {
     probePlace().catch((e) => {
       errorText = e?.message || 'Ошибка загрузки';
       mode = 'stub';
     });
   });
+
+  let lastDemoKey = '';
+  $: {
+    const params = parseQs($querystring);
+    const demo = params.get('demo') || '';
+    const demoKey = demo
+      ? `${demo}|${params.get('ptype') || ''}|${params.get('st') || ''}|${params.get('et') || ''}|${params.get('remain') || ''}|${params.get('total') || ''}|${params.get('pname') || ''}|${params.get('sname') || ''}|${params.get('bgid') || ''}|${params.get('x') || ''}|${params.get('y') || ''}`
+      : '';
+    if (demoKey && demoKey !== lastDemoKey) {
+      lastDemoKey = demoKey;
+      if (mode !== 'loading') {
+        probePlace().catch((e) => {
+          errorText = e?.message || 'Ошибка загрузки';
+          mode = 'stub';
+        });
+      }
+    } else if (!demoKey) {
+      lastDemoKey = '';
+    }
+  }
 </script>
 
 {#if mode === 'loading'}
@@ -332,6 +458,28 @@
 {:else if mode === 'indeep' && deep}
   <div class="place-screen place-screen--map">
     <Indeep x={deep.x} y={deep.y} demo={demoIndeep} />
+  </div>
+{:else if mode === 'land' && flight}
+  <div class="place-screen place-screen--map">
+    <Land
+      planetType={flight.ptype || 1}
+      planetName={flight.pname || planetName}
+      remain={flight.remain}
+      total={flight.total || flight.remain || 1}
+      demo={demoLand}
+      on:arrived={onLandArrived}
+    />
+  </div>
+{:else if mode === 'takeoff' && flight}
+  <div class="place-screen place-screen--map">
+    <Takeoff
+      planetType={flight.ptype || 1}
+      planetName={flight.pname || planetName}
+      remain={flight.remain}
+      total={flight.total || flight.remain || 1}
+      demo={demoTakeoff}
+      on:arrived={onTakeoffArrived}
+    />
   </div>
 {:else if mode === 'infly' && flight}
   <div class="place-screen place-screen--map">
@@ -389,6 +537,12 @@ st={probeDiag.st ?? '—'}  bgid={probeDiag.bgid ?? '—'}  x={probeDiag.x ?? '�
       </p>
       <p class="hint demo-hint">
         Превью indeep: <code>#/place?demo=indeep&amp;x=120&amp;y=-40</code>
+      </p>
+      <p class="hint demo-hint">
+        Превью land: <code>#/place?demo=land&amp;ptype=1&amp;remain=10&amp;total=10</code>
+      </p>
+      <p class="hint demo-hint">
+        Превью takeoff: <code>#/place?demo=takeoff&amp;ptype=1&amp;remain=10&amp;total=10</code>
       </p>
       <img src={meta.gallery} alt={meta.title} />
     </div>

@@ -1718,5 +1718,7 @@ export async function loadFlightTimer() {
     et: parseInt(data.et || '0', 10),
     st: parseInt(data.st || '0', 10) || 0,
     sname: data.sname || '',
+    ptype: parseInt(data.ptype || '0', 10) || 0,
+    pname: data.pname || '',
   };
 }

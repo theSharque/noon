@@ -13,8 +13,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Статус | Кол-во |
 |--------|--------|
-| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+orbit+station) + tutorial + infly/inhyper/inspace/indeep (SWF purged) |
-| stub | land/flyout |
+| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+orbit+station) + tutorial + infly/inhyper/inspace/indeep/land/takeoff |
+| stub | — |
 | todo | battle Cosmic animation (Ships) |
 
 ---
@@ -71,7 +71,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 - `inhyper` — **redesign** (Canvas 2D); SWF purged 2026-07-26
 - `inspace` — **redesign** (Canvas 2D ambient pt=7); SWF purged 2026-07-26
 - `indeep` — **redesign** (Canvas 2D ambient pt=8); SWF не было (новый экран)
-- `land` / `flyout` — **todo**
+- `land` — **redesign** (Canvas 2D descent by ptype; gettimer +ptype/pname; demo `?demo=land&ptype=1|3|4`); SWF purged 2026-07-26
+- `takeoff` (ex-`flyout`) — **redesign** (Canvas 2D ascent FPV; et 1/101; demo `?demo=takeoff&ptype=1|3|4`); SWF flyout purged 2026-07-26
 
 ### Ships — отложено
 
@@ -87,7 +88,8 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | inhyper | **redesign** — `Inhyper.svelte` + `inhyperFx.js`; et 4/5/104/105; SWF purged |
 | inspace | **redesign** — `Inspace.svelte` + `inspaceFx.js`; pt=7; SWF purged |
 | indeep | **redesign** — `Indeep.svelte` + `indeepFx.js`; pt=8; indeep-bg |
-| land/flyout | **todo** |
+| land | **redesign** — `Land.svelte` + `landFx.js`; et 0/100; SWF purged |
+| takeoff (ex-flyout) | **redesign** — `Takeoff.svelte` + `takeoffFx.js`; et 1/101; SWF flyout purged |
 | tutorial.jpg | **done** — `Tutorial.svelte` overlay, RPC id=14 (`gettutor.page`); SWF + `tutorial.inc` purged 2026-07-25 |
 
 ---
@@ -111,3 +113,5 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `infly.jpg` | 2026-07-26 cosmic accept | `frontend/src/routes/Infly.svelte` + `inflyFx.js` |
 | `inhyper.jpg` | 2026-07-26 cosmic accept | `frontend/src/routes/Inhyper.svelte` + `inhyperFx.js` |
 | `inspace.jpg` | 2026-07-26 cosmic accept | `frontend/src/routes/Inspace.svelte` + `inspaceFx.js` |
+| `land.jpg` | 2026-07-26 cosmic accept | `frontend/src/routes/Land.svelte` + `landFx.js` |
+| `flyout.jpg` | 2026-07-26 cosmic accept | `frontend/src/routes/Takeoff.svelte` + `takeoffFx.js` |

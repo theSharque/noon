@@ -30,6 +30,8 @@
     $et = isset( $timer['event_type'] ) ? intval( $timer['event_type'] ) : 0;
     $st = 0;
     $sname = '';
+    $ptype = 0;
+    $pname = '';
     $star = null;
 
     if( $et == 4 || $et == 104 ) {
@@ -56,7 +58,32 @@
       $sname = $star['name'];
     }
 
-    $out = "err=0&total=".$timer['timer']."&remain=".($timer['remain'])."&et=".$et."&st=".$st."&sname=".$sname;
+    if( $et == 0 || $et == 1 || $et == 100 || $et == 101 ) {
+      $planet_id = 0;
+      if( isset( $timer['arg1'] ) && intval( $timer['arg1'] ) > 0 ) {
+        $planet_id = intval( $timer['arg1'] );
+      } else if( intval( $user->place_id ) > 0 ) {
+        $planet_id = intval( $user->place_id );
+      }
+      if( $planet_id > 0 ) {
+        $planet = db_fetch_row( "SELECT p.type, p.name, s.type stype, s.name sname
+                                   FROM planets p
+                             INNER JOIN stars s ON s.id = p.star_id
+                                  WHERE p.id = ".$planet_id );
+        if( $planet && isset( $planet['type'] ) ) {
+          $ptype = intval( $planet['type'] );
+          $pname = $planet['name'];
+          if( !$st ) {
+            $st = intval( $planet['stype'] );
+          }
+          if( $sname === '' ) {
+            $sname = $planet['sname'];
+          }
+        }
+      }
+    }
+
+    $out = "err=0&total=".$timer['timer']."&remain=".($timer['remain'])."&et=".$et."&st=".$st."&sname=".$sname."&ptype=".$ptype."&pname=".$pname;
   } else {
     $out = "err=1";
   }

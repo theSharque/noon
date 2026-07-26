@@ -8,7 +8,7 @@
     loadPlanetMap,
     loadStationGoods,
   } from '../lib/api.js';
-  import { formatFlyTime, isInflyEvent } from '../lib/inflyFx.js';
+  import { isInflyEvent } from '../lib/inflyFx.js';
   import { isInhyperEvent } from '../lib/inhyperFx.js';
   import { isLandEvent } from '../lib/landFx.js';
   import { isTakeoffEvent } from '../lib/takeoffFx.js';
@@ -40,23 +40,6 @@
   let demoIndeep = false;
   let demoLand = false;
   let demoTakeoff = false;
-  let probeDiag = null;
-
-  const PLACE_NAMES = {
-    0: 'орбита',
-    1: 'планета',
-    2: 'корабль',
-    3: 'станция',
-    5: 'в полёте',
-    7: 'система',
-    8: 'гипер / deep space',
-  };
-
-  const meta = {
-    title: 'Местность',
-    gallery: '/images/planet.jpg',
-    hint: 'Планета, орбита, станция, галактика',
-  };
 
   function parseQs(qs) {
     const raw = String(qs || '').replace(/^\?/, '');
@@ -149,6 +132,11 @@
     return 'Демо-земля';
   }
 
+  function fail(message) {
+    errorText = message || 'Местность недоступна';
+    mode = 'error';
+  }
+
   async function probePlace() {
     mode = 'loading';
     errorText = '';
@@ -164,7 +152,6 @@
     demoIndeep = false;
     demoLand = false;
     demoTakeoff = false;
-    probeDiag = null;
 
     const demoAscent = parseDemoTakeoff($querystring);
     if (demoAscent) {
@@ -250,18 +237,6 @@
     planetName = info.pname || '';
     const pt = parseInt(info.pt, 10) || 0;
 
-    probeDiag = {
-      pt,
-      ptName: PLACE_NAMES[pt] || `unknown(${pt})`,
-      sname: info.sname || '',
-      pname: info.pname || '',
-      st: info.st,
-      bgid: info.bgid,
-      x: info.x,
-      y: info.y,
-      steps: [],
-    };
-
     if (pt === 7) {
       space = {
         st: info.st || 1,
@@ -285,11 +260,9 @@
     }
 
     const planetProbe = await loadPlanetMap({ full: true, ml: mapLight });
-    probeDiag.steps.push(`planetMap err=${planetProbe.err}`);
     if (String(planetProbe.err) !== '1') {
       if (String(planetProbe.err) === '2') {
-        errorText = 'Карта планеты недоступна';
-        mode = 'stub';
+        fail('Карта планеты недоступна');
         return;
       }
       initialMap = planetProbe;
@@ -298,7 +271,6 @@
     }
 
     const orbitProbe = await loadOrbitMap();
-    probeDiag.steps.push(`orbitMap ok=${orbitProbe.ok}`);
     if (orbitProbe.ok) {
       initialOrbit = orbitProbe;
       mode = 'orbit';
@@ -306,7 +278,6 @@
     }
 
     const stationProbe = await loadStationGoods('1');
-    probeDiag.steps.push(`station ok=${stationProbe.ok}`);
     if (stationProbe.ok) {
       stationGoods = stationProbe;
       mode = 'station';
@@ -314,7 +285,6 @@
     }
 
     const timer = await loadFlightTimer();
-    probeDiag.steps.push(`timer ok=${timer.ok}${timer.ok ? ` et=${timer.et} remain=${timer.remain}` : ''}`);
     if (timer.ok) {
       flight = timer;
       starName = timer.sname || starName;
@@ -335,18 +305,15 @@
         mode = 'inhyper';
         return;
       }
-      mode = 'flight';
+      fail(`Неизвестный переход (et=${timer.et})`);
       return;
     }
 
-    mode = 'stub';
+    fail('Местность недоступна');
   }
 
   function onPlaceChanged() {
-    probePlace().catch((e) => {
-      errorText = e?.message || 'Ошибка загрузки';
-      mode = 'stub';
-    });
+    probePlace().catch((e) => fail(e?.message || 'Ошибка загрузки'));
   }
 
   function sleep(ms) {
@@ -356,13 +323,7 @@
   async function onFlightArrived() {
     for (let i = 0; i < 10; i++) {
       await probePlace();
-      if (
-        mode !== 'infly' &&
-        mode !== 'inhyper' &&
-        mode !== 'land' &&
-        mode !== 'takeoff' &&
-        mode !== 'flight'
-      ) {
+      if (mode !== 'infly' && mode !== 'inhyper' && mode !== 'land' && mode !== 'takeoff') {
         return;
       }
       if (flight && Number(flight.remain) > 0) return;
@@ -371,38 +332,23 @@
   }
 
   function onInflyArrived() {
-    onFlightArrived().catch((e) => {
-      errorText = e?.message || 'Ошибка загрузки';
-      mode = 'stub';
-    });
+    onFlightArrived().catch((e) => fail(e?.message || 'Ошибка загрузки'));
   }
 
   function onInhyperArrived() {
-    onFlightArrived().catch((e) => {
-      errorText = e?.message || 'Ошибка загрузки';
-      mode = 'stub';
-    });
+    onFlightArrived().catch((e) => fail(e?.message || 'Ошибка загрузки'));
   }
 
   function onLandArrived() {
-    onFlightArrived().catch((e) => {
-      errorText = e?.message || 'Ошибка загрузки';
-      mode = 'stub';
-    });
+    onFlightArrived().catch((e) => fail(e?.message || 'Ошибка загрузки'));
   }
 
   function onTakeoffArrived() {
-    onFlightArrived().catch((e) => {
-      errorText = e?.message || 'Ошибка загрузки';
-      mode = 'stub';
-    });
+    onFlightArrived().catch((e) => fail(e?.message || 'Ошибка загрузки'));
   }
 
   onMount(() => {
-    probePlace().catch((e) => {
-      errorText = e?.message || 'Ошибка загрузки';
-      mode = 'stub';
-    });
+    probePlace().catch((e) => fail(e?.message || 'Ошибка загрузки'));
   });
 
   let lastDemoKey = '';
@@ -415,10 +361,7 @@
     if (demoKey && demoKey !== lastDemoKey) {
       lastDemoKey = demoKey;
       if (mode !== 'loading') {
-        probePlace().catch((e) => {
-          errorText = e?.message || 'Ошибка загрузки';
-          mode = 'stub';
-        });
+        probePlace().catch((e) => fail(e?.message || 'Ошибка загрузки'));
       }
     } else if (!demoKey) {
       lastDemoKey = '';
@@ -504,48 +447,11 @@
       on:arrived={onInhyperArrived}
     />
   </div>
-{:else if mode === 'flight' && flight}
-  <div class="place-screen">
-    <ScifiPanel title="В полёте">
-      <p class="muted">Экран перехода ещё в работе.</p>
-      <p class="note">Осталось: {formatFlyTime(flight.remain)}</p>
-    </ScifiPanel>
-  </div>
 {:else}
-  <div class="stub scifi-panel">
-    <div class="panel-header">{meta.title}</div>
-    <div class="panel-content">
-      <p class="hint">{meta.hint}</p>
-      <p class="note">
-        {errorText || 'Сейчас вы не на планете, орбите и не на станции. Переходы — следующие экраны.'}
-      </p>
-      {#if probeDiag}
-        <pre class="diag">pt={probeDiag.pt} ({probeDiag.ptName})
-sname={probeDiag.sname || '—'}  pname={probeDiag.pname || '—'}
-st={probeDiag.st ?? '—'}  bgid={probeDiag.bgid ?? '—'}  x={probeDiag.x ?? '—'}  y={probeDiag.y ?? '—'}
-{#each probeDiag.steps as step}{step}
-{/each}</pre>
-      {/if}
-      <p class="hint demo-hint">
-        Превью infly: <code>#/place?demo=infly&amp;st=2&amp;remain=90&amp;total=180</code>
-      </p>
-      <p class="hint demo-hint">
-        Превью inhyper: <code>#/place?demo=inhyper&amp;remain=90&amp;total=180</code>
-      </p>
-      <p class="hint demo-hint">
-        Превью inspace: <code>#/place?demo=inspace&amp;st=2&amp;bgid=0&amp;x=220&amp;y=180</code>
-      </p>
-      <p class="hint demo-hint">
-        Превью indeep: <code>#/place?demo=indeep&amp;x=120&amp;y=-40</code>
-      </p>
-      <p class="hint demo-hint">
-        Превью land: <code>#/place?demo=land&amp;ptype=1&amp;remain=10&amp;total=10</code>
-      </p>
-      <p class="hint demo-hint">
-        Превью takeoff: <code>#/place?demo=takeoff&amp;ptype=1&amp;remain=10&amp;total=10</code>
-      </p>
-      <img src={meta.gallery} alt={meta.title} />
-    </div>
+  <div class="place-screen">
+    <ScifiPanel title="Местность">
+      <p class="muted">{errorText || 'Местность недоступна'}</p>
+    </ScifiPanel>
   </div>
 {/if}
 
@@ -569,48 +475,5 @@ st={probeDiag.st ?? '—'}  bgid={probeDiag.bgid ?? '—'}  x={probeDiag.x ?? '�
     margin: 0;
     color: var(--text-muted);
     font-size: 0.9rem;
-  }
-
-  .stub {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .hint {
-    color: var(--text-muted);
-  }
-
-  .note {
-    color: var(--text-main);
-  }
-
-  .demo-hint {
-    margin-top: 10px;
-    font-size: 0.85rem;
-  }
-
-  .demo-hint code {
-    font-size: 0.8rem;
-    color: var(--neon-cyan);
-  }
-
-  .diag {
-    margin: 12px 0;
-    padding: 10px 12px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid var(--border-light);
-    color: var(--neon-cyan);
-    font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 0.75rem;
-    line-height: 1.45;
-    white-space: pre-wrap;
-    overflow: auto;
-  }
-
-  .stub img {
-    max-width: 100%;
-    height: auto;
-    margin-top: 12px;
-    opacity: 0.85;
   }
 </style>

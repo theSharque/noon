@@ -4,7 +4,7 @@ export { formatFlyTime };
 
 export function isLandEvent(et) {
   const n = parseInt(et, 10);
-  return n === 0 || n === 100;
+  return n === 0 || n === 100 || n === 6 || n === 8;
 }
 
 export function planetPalette(ptype) {

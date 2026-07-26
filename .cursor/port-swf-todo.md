@@ -28,7 +28,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 - Shell: `App.svelte`, `TopMenu.svelte`, `Chat.svelte` — glass/cyan, без sprite-кнопок
 - `Booklist.svelte` / `About.svelte` / `Misc.svelte` / `Warehouse.svelte` / `Trade.svelte` — CSS grid, без absolute 1000×500 и PNG-скинов; RPC без изменений
 - Pixel-perfect purge (booklist / about / topmenu / fonts): **done** 2026-07-20
-- Routes: Booklist, About, Misc, Warehouse, Trade, Ships, Place → Planet/Orbit/Station; stub transitions
+- Routes: Booklist, About, Misc, Warehouse, Trade, Ships, Place → Planet/Orbit/Station + transitions
 
 ### Pixel-perfect purge list
 
@@ -88,7 +88,7 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | inhyper | **redesign** — `Inhyper.svelte` + `inhyperFx.js`; et 4/5/104/105; SWF purged |
 | inspace | **redesign** — `Inspace.svelte` + `inspaceFx.js`; pt=7; SWF purged |
 | indeep | **redesign** — `Indeep.svelte` + `indeepFx.js`; pt=8; indeep-bg |
-| land | **redesign** — `Land.svelte` + `landFx.js`; et 0/100; SWF purged |
+| land | **redesign** — `Land.svelte` + `landFx.js`; et 0/100 + spy 6 / sabotage 8; SWF purged |
 | takeoff (ex-flyout) | **redesign** — `Takeoff.svelte` + `takeoffFx.js`; et 1/101; SWF flyout purged |
 | tutorial.jpg | **done** — `Tutorial.svelte` overlay, RPC id=14 (`gettutor.page`); SWF + `tutorial.inc` purged 2026-07-25 |
 

@@ -1222,8 +1222,6 @@
         return 'Главнокомандующий';
       case 'interrupt':
         return 'Сообщение перехвата';
-      case 'map_stub':
-        return 'Карта системы';
       case 'system':
         return systemName || 'Карта системы';
       case 'galaxy':
@@ -1720,11 +1718,6 @@
             {/if}
             <div class="html-rich galaxy-desc">{@html systemDesc || 'Кликните по карте'}</div>
           </div>
-        </div>
-
-      {:else if monitor === 'map_stub'}
-        <div class="monitor-body stub-box">
-          <p>Интерактивная карта — в разработке.</p>
         </div>
 
       {:else if monitor === 'war'}

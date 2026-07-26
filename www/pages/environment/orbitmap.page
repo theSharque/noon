@@ -13,9 +13,6 @@
     if( strlen( $line ) > 0 ) {
 //      $line = file_get_contents( "./pages/environment/orbit/$planet_id.lin" );
       $out = 'line='.trim( $line );
-      if( $pid ) {
-        $out .= '&pid='.$pid;
-      }
 
       $timers = db_fetch_array( "SELECT e.x,
                                         MIN( UNIX_TIMESTAMP(e.event_time) - UNIX_TIMESTAMP(NOW())) remain,
@@ -42,6 +39,9 @@
       }
     } else {
       $out = 'line=0&lastx=0';
+    }
+    if( $pid ) {
+      $out .= '&pid='.$pid;
     }
   }
 

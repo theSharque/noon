@@ -7,8 +7,8 @@ export function starPalette(type) {
       star: '#fff4c8',
       starDim: 'rgba(255, 220, 140, 0.35)',
       spark: '#ffe08a',
-      streak: 'rgba(255, 210, 80, 0.85)',
-      mote: 'rgba(255, 240, 180, 0.55)',
+      streak: 'rgba(255, 210, 80, 0.95)',
+      mote: 'rgba(255, 240, 180, 0.75)',
       hud: '#ffe566',
       hudMuted: 'rgba(255, 229, 102, 0.55)',
     };
@@ -20,8 +20,8 @@ export function starPalette(type) {
       star: '#ffd0d0',
       starDim: 'rgba(255, 120, 100, 0.35)',
       spark: '#ff8080',
-      streak: 'rgba(255, 70, 50, 0.85)',
-      mote: 'rgba(255, 160, 140, 0.5)',
+      streak: 'rgba(255, 70, 50, 0.95)',
+      mote: 'rgba(255, 160, 140, 0.7)',
       hud: '#ff6a6a',
       hudMuted: 'rgba(255, 106, 106, 0.55)',
     };
@@ -33,8 +33,8 @@ export function starPalette(type) {
       star: '#f0d8ff',
       starDim: 'rgba(200, 120, 255, 0.35)',
       spark: '#e0a0ff',
-      streak: 'rgba(200, 80, 255, 0.85)',
-      mote: 'rgba(220, 160, 255, 0.5)',
+      streak: 'rgba(200, 80, 255, 0.95)',
+      mote: 'rgba(220, 160, 255, 0.7)',
       hud: '#c77dff',
       hudMuted: 'rgba(199, 125, 255, 0.55)',
     };
@@ -46,8 +46,8 @@ export function starPalette(type) {
       star: '#e8eeff',
       starDim: 'rgba(180, 196, 255, 0.35)',
       spark: '#c8d4ff',
-      streak: 'rgba(170, 190, 255, 0.8)',
-      mote: 'rgba(200, 210, 255, 0.5)',
+      streak: 'rgba(170, 190, 255, 0.92)',
+      mote: 'rgba(200, 210, 255, 0.7)',
       hud: '#b8c4ff',
       hudMuted: 'rgba(184, 196, 255, 0.55)',
     };
@@ -58,8 +58,8 @@ export function starPalette(type) {
     star: '#d8f6ff',
     starDim: 'rgba(90, 200, 255, 0.35)',
     spark: '#7adfff',
-    streak: 'rgba(60, 200, 255, 0.85)',
-    mote: 'rgba(140, 220, 255, 0.5)',
+    streak: 'rgba(60, 200, 255, 0.95)',
+    mote: 'rgba(140, 220, 255, 0.7)',
     hud: '#5cffd7',
     hudMuted: 'rgba(92, 255, 215, 0.55)',
   };
@@ -159,7 +159,7 @@ function makeRadial(rand, kind) {
     angle: rand() * Math.PI * 2,
     dist: rand(),
     speed: 0.35 + rand() * 0.9,
-    size: kind === 'streak' ? 0.6 + rand() * 1.4 : kind === 'mote' ? 1.2 + rand() * 2.2 : 0.7 + rand() * 1.3,
+    size: kind === 'streak' ? 0.35 + rand() * 0.7 : kind === 'mote' ? 0.6 + rand() * 1.1 : 0.35 + rand() * 0.65,
     phase: rand(),
   };
 }
@@ -168,18 +168,14 @@ export function stepInflyField(field, dt, speedFactor, w, h) {
   const cx = w * 0.5;
   const cy = h * 0.5;
   const maxR = Math.hypot(cx, cy) * 1.15;
-  const drift = dt * (0.015 + speedFactor * 0.04);
 
   for (const s of field.far) {
-    s.x = (s.x + drift * 0.15) % 1;
     s.tw += dt * s.twSpeed;
   }
   for (const s of field.mid) {
-    s.x = (s.x + drift * 0.4) % 1;
     s.tw += dt * s.twSpeed;
   }
   for (const s of field.near) {
-    s.x = (s.x + drift * 0.85) % 1;
     s.tw += dt * s.twSpeed;
   }
 
@@ -220,11 +216,11 @@ export function drawInflyField(ctx, field, layout, speedFactor, time) {
     const r = mote.dist * maxR;
     const x = cx + Math.cos(mote.angle) * r;
     const y = cy + Math.sin(mote.angle) * r;
-    const alpha = Math.min(0.7, mote.dist * 1.2) * (0.45 + speedFactor * 0.4);
+    const alpha = Math.min(0.85, mote.dist * 1.35) * (0.55 + speedFactor * 0.4);
     ctx.fillStyle = p.mote;
     ctx.globalAlpha = alpha;
     ctx.beginPath();
-    ctx.arc(x, y, mote.size * (0.8 + mote.dist * 1.5), 0, Math.PI * 2);
+    ctx.arc(x, y, mote.size * (0.5 + mote.dist * 1.0), 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.restore();
@@ -239,8 +235,8 @@ export function drawInflyField(ctx, field, layout, speedFactor, time) {
     const y = cy + Math.sin(streak.angle) * r;
     const x2 = cx + Math.cos(streak.angle) * Math.max(0, r - len);
     const y2 = cy + Math.sin(streak.angle) * Math.max(0, r - len);
-    ctx.globalAlpha = Math.min(0.95, streak.dist * 1.3) * (0.35 + speedFactor * 0.65);
-    ctx.lineWidth = 0.7 + streak.size * (0.5 + speedFactor);
+    ctx.globalAlpha = Math.min(1, streak.dist * 1.4) * (0.5 + speedFactor * 0.5);
+    ctx.lineWidth = 0.35 + streak.size * (0.25 + speedFactor * 0.45);
     ctx.beginPath();
     ctx.moveTo(x2, y2);
     ctx.lineTo(x, y);
@@ -254,8 +250,8 @@ export function drawInflyField(ctx, field, layout, speedFactor, time) {
     const r = spark.dist * maxR;
     const x = cx + Math.cos(spark.angle) * r;
     const y = cy + Math.sin(spark.angle) * r;
-    ctx.globalAlpha = Math.min(1, spark.dist * 1.4) * (0.4 + speedFactor * 0.6);
-    const size = spark.size * (0.6 + spark.dist * 1.8);
+    ctx.globalAlpha = Math.min(1, spark.dist * 1.5) * (0.55 + speedFactor * 0.45);
+    const size = spark.size * (0.35 + spark.dist * 1.1);
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fill();

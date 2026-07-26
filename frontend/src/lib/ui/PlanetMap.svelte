@@ -263,7 +263,7 @@
             <div class="mtimer-lin" style={`transform:scaleX(${t.progress})`}></div>
           </div>
           <div class="mtimer-cnt">
-            {#each Array(t.cycles < 0 ? 10 : Math.max(0, t.cycles)) as _}
+            {#each Array(t.cycles < 0 ? 9 : Math.min(9, Math.max(0, t.cycles))) as _}
               <span class="mtimer-sq"></span>
             {/each}
           </div>
@@ -389,22 +389,26 @@
   .mtimer {
     position: absolute;
     z-index: 5;
-    width: 94px;
+    width: max-content;
+    min-width: 61px;
     padding: 4px 6px 3px;
-    margin: -4px -6px 0;
+    margin: -4px 0 0;
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.55);
     box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.45);
     pointer-events: none;
     font-family: var(--font-mono);
+    transform: translateX(-50%);
   }
 
   .mtimer-bar {
     position: relative;
+    width: 61px;
     height: 4px;
     margin-top: 2px;
     background: rgba(0, 0, 0, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    box-sizing: border-box;
     overflow: hidden;
   }
 
@@ -418,6 +422,7 @@
   .mtimer-cnt {
     display: flex;
     gap: 2px;
+    width: 61px;
     margin-top: 3px;
     min-height: 5px;
   }

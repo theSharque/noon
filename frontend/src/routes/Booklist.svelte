@@ -30,9 +30,16 @@
   import ScifiTabs from '../lib/ui/ScifiTabs.svelte';
   import ProgressBar from '../lib/ui/ProgressBar.svelte';
   import StatRow from '../lib/ui/StatRow.svelte';
-  import { flashBgStyle } from '../lib/flashColor.js';
+  import { flashBgStyle, parseFlashHex } from '../lib/flashColor.js';
 
   export let initialTab = 'messages';
+
+  function learnRowStyle(hex) {
+    const c = parseFlashHex(hex);
+    if (!c) return '';
+    return `background:rgba(${c.r},${c.g},${c.b},0.55)`;
+  }
+
 
   const IMG = '/app/img/booklist';
   const TABS = ['messages', 'learn', 'quest', 'stat', 'relation'];
@@ -194,7 +201,7 @@
     const now = Date.now();
     return data.items.map((item) => {
       let timeLabel = String(item.time ?? '');
-      let bgColor = '';
+      let bgColor = '0x000033';
       const t = String(item.time);
       switch (t) {
         case '0':
@@ -601,12 +608,11 @@
               {#each learnItems as item, i}
                 <tr
                   class:active-row={learnSelected === i}
-                  style={flashBgStyle(item.bgColor)}
                   on:click={() => selectLearn(i)}
                 >
-                  <td>{item.name}</td>
-                  <td class="num">{item.level}</td>
-                  <td>{item.timeLabel}</td>
+                  <td style={learnRowStyle(item.bgColor)}>{item.name}</td>
+                  <td class="num" style={learnRowStyle(item.bgColor)}>{item.level}</td>
+                  <td style={learnRowStyle(item.bgColor)}>{item.timeLabel}</td>
                 </tr>
               {/each}
             </tbody>

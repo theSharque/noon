@@ -1324,18 +1324,19 @@
                 {#if ship.kind}
                   <span class="kind-icon" title={kindLabel(ship.kind)} aria-label={kindLabel(ship.kind)}>
                     {#if ship.kind === 'pilot'}
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <circle cx="12" cy="8" r="3.2" />
-                        <path d="M5 19c1.2-3.2 3.8-5 7-5s5.8 1.8 7 5" />
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="5" r="3.4" />
+                        <path d="M12 8.5v8M5.5 12h13M12 16.5l-4.5 5M12 16.5l4.5 5" />
                       </svg>
                     {:else if ship.kind === 'fleet'}
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path d="M4 16l3-8 3 8zM10 16l3-8 3 8zM16 16l3-8 3 8z" />
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+                        <path d="M12 2.5L16.2 10H7.8Z" />
+                        <path d="M7 12.5L11.2 20H2.8Z" />
+                        <path d="M17 12.5L21.2 20H12.8Z" />
                       </svg>
                     {:else}
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path d="M4 15l8-10 8 10H4z" />
-                        <path d="M7 15v3h10v-3" />
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+                        <path d="M12 3.5L20 20.5H4Z" />
                       </svg>
                     {/if}
                   </span>

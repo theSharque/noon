@@ -125,7 +125,7 @@ export function formatRemain(seconds) {
 
 export function timerPos(x, y) {
   return {
-    x: cellCenterX(x, y) - 60 + ORIGIN_X,
+    x: cellCenterX(x, y) + ORIGIN_X,
     y: cellCenterY(y) - 60 + ORIGIN_Y,
   };
 }
@@ -146,12 +146,11 @@ export const HEX_POINTS = '65,2 128,34 128,65 65,97 2,65 2,34';
 export function clampMapOffset(ox, oy, mapW, mapH, viewW, viewH, zoom) {
   const scaledW = mapW / zoom;
   const scaledH = mapH / zoom;
-  const maxX = Math.min(400, viewW * 0.4) + CELL_W;
-  let x = ox;
+  const maxX = Math.min(400, viewW * 0.4);
+  const minX = viewW - CELL_W - scaledW;
+  let x = Math.min(maxX, Math.max(minX, ox));
   let y = oy;
-  if (x + scaledW < viewW + 100) x = -scaledW + viewW + 100;
   if (y + scaledH < viewH) y = -scaledH + viewH;
-  if (x > maxX) x = maxX;
   if (y > 80) y = Math.min(80, viewH * 0.15);
   return { x, y };
 }

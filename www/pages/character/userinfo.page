@@ -24,16 +24,38 @@
         $out = "err=0&pname=".$result['pname']."&sname=".$result['sname'];
         break;
       case 7:
-        $result = db_fetch_row( "SELECT s.name sname FROM stars s WHERE s.id = ".$user->place_id );
-        $out = "err=0&pname=&sname=".$result['sname'];
+        $result = db_fetch_row( "SELECT s.name sname, s.type st, s.bg bgid FROM stars s WHERE s.id = ".$user->place_id );
+        $out = "err=0&pname=&sname=".$result['sname']."&st=".intval( $result['st'] )."&bgid=".intval( $result['bgid'] );
+        if( $user->real_type == 2 ) {
+          $pos = db_fetch_row( "SELECT arg1, arg2 FROM ships WHERE id = ".$user->real_id );
+        } else {
+          $pos = db_fetch_row( "SELECT arg1, arg2 FROM fleets WHERE id = ".$user->real_id );
+        }
+        if( $pos ) {
+          $out .= "&x=".intval( $pos['arg1'] )."&y=".intval( $pos['arg2'] );
+        } else {
+          $out .= "&x=0&y=0";
+        }
         break;
       case 8:
         $out = "err=0&pname=&sname=";
+        if( $user->real_type == 2 ) {
+          $pos = db_fetch_row( "SELECT arg1, arg2 FROM ships WHERE id = ".$user->real_id );
+        } else {
+          $pos = db_fetch_row( "SELECT arg1, arg2 FROM fleets WHERE id = ".$user->real_id );
+        }
+        if( $pos ) {
+          $out .= "&x=".intval( $pos['arg1'] )."&y=".intval( $pos['arg2'] );
+        } else {
+          $out .= "&x=0&y=0";
+        }
         break;
     }
   } else {
     $out = "err=0&pname=&sname=";
   }
+
+  $out .= "&pt=".intval( $user->place_type );
 
   $result = db_fetch_row( "SELECT p.name hplanet, s.name hstar
                              FROM planets p

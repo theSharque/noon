@@ -13,10 +13,9 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Статус | Кол-во |
 |--------|--------|
-| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+orbit+station) + tutorial (SWF purged) |
-| partial | infly (Canvas 2D) |
-| stub | land/flyout/inhyper/inspace |
-| todo | remaining transitions |
+| redesign (cosmic UI) | shell + booklist + about + misc + ware + trade + ships + place(planet+orbit+station) + tutorial + infly/inhyper/inspace/indeep (SWF purged) |
+| stub | land/flyout |
+| todo | battle Cosmic animation (Ships) |
 
 ---
 
@@ -66,10 +65,13 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `trade.jpg` | `/trade` → `Trade.svelte` | **redesign** | 4 вкладки Comp/Bay/Sell/Conf; RPC 53–58, 63, 65, 651–652; SWF удалён |
 | `misc.jpg` | `/misc` → `Misc.svelte` | **redesign** | 7 вкладок + atlas SVG; SWF удалён |
 
-### Place — отложено
+### Place — transitions
 
-- Переходы land/flyout/inhyper/inspace
-- `infly` — **partial** (Canvas 2D): палитра по `st`, parallax, sparks/streaks/motes, скорость `4t(1-t)` (пик в середине); RPC `240` → `et/st/sname`; demo `#/place?demo=infly&st=2`
+- `infly` — **redesign** (Canvas 2D); SWF purged 2026-07-26
+- `inhyper` — **redesign** (Canvas 2D); SWF purged 2026-07-26
+- `inspace` — **redesign** (Canvas 2D ambient pt=7); SWF purged 2026-07-26
+- `indeep` — **redesign** (Canvas 2D ambient pt=8); SWF не было (новый экран)
+- `land` / `flyout` — **todo**
 
 ### Ships — отложено
 
@@ -81,8 +83,11 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 
 | Файл | Статус |
 |------|--------|
-| infly | **partial** — `Infly.svelte` + `inflyFx.js`; gettimer id=240 (+et/st/sname) |
-| land/flyout/inhyper/inspace | **todo** |
+| infly | **redesign** — `Infly.svelte` + `inflyFx.js`; gettimer id=240 (+et/st/sname); SWF purged |
+| inhyper | **redesign** — `Inhyper.svelte` + `inhyperFx.js`; et 4/5/104/105; SWF purged |
+| inspace | **redesign** — `Inspace.svelte` + `inspaceFx.js`; pt=7; SWF purged |
+| indeep | **redesign** — `Indeep.svelte` + `indeepFx.js`; pt=8; indeep-bg |
+| land/flyout | **todo** |
 | tutorial.jpg | **done** — `Tutorial.svelte` overlay, RPC id=14 (`gettutor.page`); SWF + `tutorial.inc` purged 2026-07-25 |
 
 ---
@@ -103,3 +108,6 @@ SPA: `frontend/src/`, маршруты — `frontend/src/lib/router.js`.
 | `tutorial.jpg` | 2026-07-25 cosmic accept | `frontend/src/lib/Tutorial.svelte` (+ RPC `gettutor.page`) |
 | `planet.jpg` | 2026-07-25 cosmic accept | `frontend/src/routes/Planet.svelte` |
 | `station.jpg` | 2026-07-25 cosmic accept | `frontend/src/routes/Station.svelte` |
+| `infly.jpg` | 2026-07-26 cosmic accept | `frontend/src/routes/Infly.svelte` + `inflyFx.js` |
+| `inhyper.jpg` | 2026-07-26 cosmic accept | `frontend/src/routes/Inhyper.svelte` + `inhyperFx.js` |
+| `inspace.jpg` | 2026-07-26 cosmic accept | `frontend/src/routes/Inspace.svelte` + `inspaceFx.js` |

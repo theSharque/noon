@@ -38,6 +38,7 @@
     computeGalaxyBounds,
     galaxyCenterOffset,
     galaxyLocalPoint,
+    starFill,
   } from '../lib/galaxyMap.js';
   import { flashBgStyle } from '../lib/flashColor.js';
 
@@ -56,7 +57,7 @@
   const SYSTEM_CY = 220;
   const SYSTEM_IMG = '/app/img/ships/system';
   const PLANET_SIZE = { 1: 12, 2: 20, 3: 12, 4: 14, 5: 8 };
-  const STAR_SIZE = { 1: { w: 69, h: 61 }, 2: { w: 47, h: 47 }, 3: { w: 66, h: 66 } };
+  const STAR_R = { 1: 34, 2: 26, 3: 33 };
   const SYSTEM_MARKER_R = 2.5;
   const SYSTEM_CIRCLE_R = RING_R;
   const SYSTEM_TRASH_S = 4;
@@ -935,13 +936,8 @@
     return 6.28 - angle;
   }
 
-  function starImg(stype) {
-    const t = STAR_SIZE[stype] ? stype : 1;
-    return `${SYSTEM_IMG}/st${t}.png`;
-  }
-
-  function starSize(stype) {
-    return STAR_SIZE[stype] || STAR_SIZE[1];
+  function starRadius(stype) {
+    return STAR_R[stype] || STAR_R[1];
   }
 
   function markerStroke(ct) {
@@ -1624,13 +1620,24 @@
                   stroke-width="1"
                 />
               {/each}
-              <image
-                href={starImg(systemStype)}
-                x={SYSTEM_CX - starSize(systemStype).w / 2}
-                y={SYSTEM_CY - starSize(systemStype).h / 2}
-                width={starSize(systemStype).w}
-                height={starSize(systemStype).h}
-              />
+              {#key systemStype}
+                <defs>
+                  <radialGradient id={`system-star-glow-${systemStype}`} cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                    <stop offset="18%" stop-color={starFill(systemStype)} stop-opacity="1" />
+                    <stop offset="45%" stop-color={starFill(systemStype)} stop-opacity="0.55" />
+                    <stop offset="78%" stop-color={starFill(systemStype)} stop-opacity="0.12" />
+                    <stop offset="100%" stop-color={starFill(systemStype)} stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <circle
+                  cx={SYSTEM_CX}
+                  cy={SYSTEM_CY}
+                  r={starRadius(systemStype)}
+                  fill={`url(#system-star-glow-${systemStype})`}
+                  pointer-events="none"
+                />
+              {/key}
               {#each systemPlanets as p}
                 <image
                   href={planetImg(p.type)}

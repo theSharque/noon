@@ -1,16 +1,19 @@
 <script>
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import {
-    createInflyField,
-    drawInflyField,
+    createInhyperField,
+    drawInhyperField,
     formatFlyTime,
+    hyperFieldSpeed,
+    hyperTargetStarColor,
     journeySpeed,
-    starPalette,
-    stepInflyField,
-  } from '../lib/inflyFx.js';
+    showHyperTargetStar,
+    stepInhyperField,
+  } from '../lib/inhyperFx.js';
 
   export let starType = 1;
   export let starName = '';
+  export let eventType = 4;
   export let remain = 90;
   export let total = 180;
   export let demo = false;
@@ -29,10 +32,12 @@
   let lastTs = 0;
   let ended = false;
 
-  $: palette = starPalette(starType);
   $: progress = Math.max(0, Math.min(1, (totalLive - remainLive) / totalLive));
   $: speed = journeySpeed(progress);
+  $: fieldSpeed = hyperFieldSpeed(speed);
   $: timeLabel = formatFlyTime(remainLive);
+  $: targetStarVisible = showHyperTargetStar(eventType, starType);
+  $: targetStarColor = targetStarVisible ? hyperTargetStarColor(starType) : '';
 
   $: ensureField(starType, starName);
   $: armTimer(remain, total);
@@ -48,7 +53,7 @@
     const key = `${type}|${name || ''}`;
     if (key === fieldKey && field) return;
     fieldKey = key;
-    field = createInflyField(type, (Number(type) * 9973 + (seedFromName(name) || 1)) >>> 0);
+    field = createInhyperField(type, (Number(type) * 7919 + (seedFromName(name) || 1)) >>> 0);
   }
 
   function armTimer(r, t) {
@@ -88,14 +93,17 @@
     const speedFactor = journeySpeed(journeyProgress);
 
     if (!field) return;
-    const layoutPos = stepInflyField(field, dt, speedFactor, w, h);
-    drawInflyField(
-      ctx,
-      field,
-      { w, h, cx: layoutPos.cx, cy: layoutPos.cy, maxR: layoutPos.maxR },
-      speedFactor,
-      ts / 1000,
-    );
+    const layoutPos = stepInhyperField(field, dt, speedFactor, w, h);
+    drawInhyperField(ctx, field, {
+      w,
+      h,
+      cx: layoutPos.cx,
+      cy: layoutPos.cy,
+      maxR: layoutPos.maxR,
+      fieldSpeed: layoutPos.fieldSpeed,
+      showTargetStar: targetStarVisible,
+      targetStarColor,
+    });
 
     if (!ended && remainLive <= 0 && !demo) {
       ended = true;
@@ -118,33 +126,33 @@
   });
 </script>
 
-<div class="infly" bind:this={wrap} style="--hud:var(--neon-cyan); --hud-muted:color-mix(in srgb, var(--neon-cyan) 55%, transparent)">
-  <canvas bind:this={canvas} class="infly-canvas"></canvas>
+<div class="inhyper" bind:this={wrap} style="--hud:var(--neon-cyan); --hud-muted:color-mix(in srgb, var(--neon-cyan) 55%, transparent)">
+  <canvas bind:this={canvas} class="inhyper-canvas"></canvas>
   <div class="hud">
-    <div class="hud-title">Перелёт в системе{starName ? ` · ${starName}` : ''}</div>
+    <div class="hud-title">Гиперперелёт{starName ? ` · ${starName}` : ''}</div>
     <div class="hud-time">{timeLabel}</div>
     <div class="hud-bar">
       <div class="hud-bar-fill" style="width:{progress * 100}%"></div>
       <div class="hud-bar-peak" style="left:50%"></div>
     </div>
     <div class="hud-meta">
-      <span>скорость {(speed * 100).toFixed(0)}%</span>
+      <span>скорость {(fieldSpeed * 100).toFixed(0)}%</span>
       {#if demo}<span class="demo">demo</span>{/if}
     </div>
   </div>
 </div>
 
 <style>
-  .infly {
+  .inhyper {
     position: relative;
     width: 100%;
     height: 100%;
     min-height: 280px;
     overflow: hidden;
-    background: #020810;
+    background: #030308;
   }
 
-  .infly-canvas {
+  .inhyper-canvas {
     display: block;
     width: 100%;
     height: 100%;
@@ -188,7 +196,7 @@
 
   .hud-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, transparent, var(--hud));
+    background: linear-gradient(90deg, #4aa8ff, #ff4a4a);
     box-shadow: 0 0 8px var(--hud);
     transition: width 0.2s linear;
   }

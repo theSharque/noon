@@ -29,6 +29,12 @@
   export let hover = '';
   export let descHtml = '';
   export let showDesc = false;
+
+  function starGlowUrl(type) {
+    const n = parseInt(type, 10);
+    const st = n === 2 || n === 3 || n === 5 ? n : 1;
+    return `url(#${idPrefix}-star-glow-${st})`;
+  }
 </script>
 
 <div
@@ -52,6 +58,13 @@
         <stop offset="30%" stop-color="#c800ff" stop-opacity="0.2" />
         <stop offset="100%" stop-color="#c800ff" stop-opacity="0" />
       </radialGradient>
+      {#each [1, 2, 3, 5] as st}
+        <radialGradient id={`${idPrefix}-star-glow-${st}`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color={starFill(st)} stop-opacity="0.95" />
+          <stop offset="40%" stop-color={starFill(st)} stop-opacity="0.35" />
+          <stop offset="100%" stop-color={starFill(st)} stop-opacity="0" />
+        </radialGradient>
+      {/each}
     </defs>
     <image
       href={GALAXY_BG}
@@ -111,8 +124,7 @@
           cx={s.x}
           cy={s.y}
           r={starGlowR(s.type)}
-          fill={starFill(s.type)}
-          opacity="0.35"
+          fill={starGlowUrl(s.type)}
         />
         <circle cx={s.x} cy={s.y} r={STAR_CORE_R} fill={starFill(s.type)} />
       {/if}

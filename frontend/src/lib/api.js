@@ -316,7 +316,17 @@ function parseIndexedList(data, cntKey, fields) {
 }
 
 export async function getUserInfo() {
-  return fetchPage(13);
+  const data = await fetchPage(13);
+  const bgid = parseInt(data.bgid || '0', 10);
+  return {
+    ...data,
+    pt: parseInt(data.pt || '0', 10),
+    st: parseInt(data.st || '0', 10),
+    bgid,
+    bgUrl: `/img/n${String(bgid).padStart(2, '0')}.jpg`,
+    x: parseInt(data.x || '0', 10),
+    y: parseInt(data.y || '0', 10),
+  };
 }
 
 export async function getBooklistHint(name) {
@@ -1706,7 +1716,7 @@ export async function loadFlightTimer() {
     remain: parseInt(data.remain || '0', 10),
     total: parseInt(data.total || '0', 10),
     et: parseInt(data.et || '0', 10),
-    st: parseInt(data.st || '1', 10) || 1,
+    st: parseInt(data.st || '0', 10) || 0,
     sname: data.sname || '',
   };
 }

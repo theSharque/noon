@@ -221,8 +221,8 @@
         break;
 
       case 240:
-//        do_events();
-//        authorization();
+        do_events( false );
+        authorization();
         include './pages/environment/gettimer.page';
         break;
 

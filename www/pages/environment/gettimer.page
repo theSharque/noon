@@ -28,20 +28,27 @@
     }
 
     $et = isset( $timer['event_type'] ) ? intval( $timer['event_type'] ) : 0;
-    $st = 1;
+    $st = 0;
     $sname = '';
+    $star = null;
 
-    $star = db_fetch_row( "SELECT s.type, s.name FROM planets p INNER JOIN stars s ON s.id = p.star_id WHERE p.id = ".$user->place_id );
-    if( !$star || !isset( $star['type'] ) ) {
-      $star = db_fetch_row( "SELECT type, name FROM stars WHERE id = ".$user->place_id );
-    }
+    if( $et == 4 || $et == 104 ) {
+      if( isset( $timer['arg2'] ) ) {
+        $star = db_fetch_row( "SELECT type, name FROM stars WHERE id = ".$timer['arg2'] );
+      }
+    } else if( $et == 5 || $et == 105 ) {
+      if( isset( $timer['arg1'] ) && isset( $timer['arg2'] ) ) {
+        $sname = $timer['arg1'].':'.$timer['arg2'];
+      }
+    } else {
+      $star = db_fetch_row( "SELECT s.type, s.name FROM planets p INNER JOIN stars s ON s.id = p.star_id WHERE p.id = ".$user->place_id );
+      if( !$star || !isset( $star['type'] ) ) {
+        $star = db_fetch_row( "SELECT type, name FROM stars WHERE id = ".$user->place_id );
+      }
 
-    if( ( !$star || !isset( $star['type'] ) ) && ( $et == 3 || $et == 103 ) && isset( $timer['arg2'] ) ) {
-      $star = db_fetch_row( "SELECT s.type, s.name FROM planets p INNER JOIN stars s ON s.id = p.star_id WHERE p.id = ".$timer['arg2'] );
-    }
-
-    if( ( !$star || !isset( $star['type'] ) ) && ( $et == 4 || $et == 104 ) && isset( $timer['arg2'] ) ) {
-      $star = db_fetch_row( "SELECT type, name FROM stars WHERE id = ".$timer['arg2'] );
+      if( ( !$star || !isset( $star['type'] ) ) && ( $et == 3 || $et == 103 ) && isset( $timer['arg2'] ) ) {
+        $star = db_fetch_row( "SELECT s.type, s.name FROM planets p INNER JOIN stars s ON s.id = p.star_id WHERE p.id = ".$timer['arg2'] );
+      }
     }
 
     if( $star && isset( $star['type'] ) ) {

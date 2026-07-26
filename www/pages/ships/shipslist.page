@@ -1652,7 +1652,7 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
     }
 
     if( ( ( $user->real_type == 2 && $type == 'S' ) || ( $user->real_type == 6 && $type == 'F' ) ) && $user->real_id == $shid ) {
-      $color = "&c$l=0x990099";
+      $title .= "&you$l=1";
     }
 
     $out .= $title;

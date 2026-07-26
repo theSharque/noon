@@ -164,7 +164,23 @@
     ...ship,
     location: formatLocation(ship, tick),
     selected: selected.includes(i),
+    kind: shipKind(ship),
   }));
+
+  function shipKind(ship) {
+    if (ship.you) return 'pilot';
+    const p = String(ship.id || '').charAt(0);
+    if (p === 'F') return 'fleet';
+    if (p === 'S' || p === 'C' || p === 'Z') return 'ship';
+    return '';
+  }
+
+  function kindLabel(kind) {
+    if (kind === 'pilot') return 'Вы здесь';
+    if (kind === 'fleet') return 'Флот';
+    if (kind === 'ship') return 'Корабль';
+    return '';
+  }
 
   function formatShipInfoHtml(raw) {
     const text = String(raw || '').trim();
@@ -460,7 +476,6 @@
   async function refreshShips(keepSelection = true) {
     const gen = ++loadGen;
     const prevIds = keepSelection ? selectedIds() : [];
-    const prefer = keepSelection && prevIds.length ? prevIds : lastShip || bootLs ? [lastShip || bootLs] : [];
     busy = true;
     errorText = '';
     try {
@@ -473,6 +488,14 @@
       shipsStartMs = Date.now();
       ships = data.ships || [];
       tick = 0;
+      if (data.fid) lastShip = data.fid;
+
+      const prefer =
+        keepSelection && prevIds.length
+          ? prevIds
+          : lastShip || bootLs
+            ? [lastShip || bootLs]
+            : [];
 
       let next = [];
       if (prefer.length) {
@@ -1281,6 +1304,7 @@
       <table class="scifi-table">
         <thead>
           <tr>
+            <th class="kind-col" aria-hidden="true"></th>
             <th>
               <button type="button" class="th-btn" on:click={() => sortBy(0)}>Имя</button>
             </th>
@@ -1296,12 +1320,33 @@
               style={rowStyle(ship.bgColor)}
               on:click={(e) => onShipClick(i, e)}
             >
+              <td class="kind-col">
+                {#if ship.kind}
+                  <span class="kind-icon" title={kindLabel(ship.kind)} aria-label={kindLabel(ship.kind)}>
+                    {#if ship.kind === 'pilot'}
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <circle cx="12" cy="8" r="3.2" />
+                        <path d="M5 19c1.2-3.2 3.8-5 7-5s5.8 1.8 7 5" />
+                      </svg>
+                    {:else if ship.kind === 'fleet'}
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M4 16l3-8 3 8zM10 16l3-8 3 8zM16 16l3-8 3 8z" />
+                      </svg>
+                    {:else}
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M4 15l8-10 8 10H4z" />
+                        <path d="M7 15v3h10v-3" />
+                      </svg>
+                    {/if}
+                  </span>
+                {/if}
+              </td>
               <td>{ship.name}</td>
               <td>{ship.location}</td>
             </tr>
           {:else}
             <tr>
-              <td colspan="2">Нет кораблей</td>
+              <td colspan="3">Нет кораблей</td>
             </tr>
           {/each}
         </tbody>
@@ -1822,6 +1867,27 @@
   .ships-grid :global(.ships-list-pane .scifi-table th),
   .ships-grid :global(.ships-list-pane .scifi-table td) {
     white-space: nowrap;
+  }
+
+  .ships-grid :global(.ships-list-pane .kind-col) {
+    width: 24px;
+    max-width: 24px;
+    padding-left: 4px;
+    padding-right: 2px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .kind-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neon-cyan);
+    opacity: 0.9;
+  }
+
+  .kind-icon svg {
+    display: block;
   }
 
   .th-btn {

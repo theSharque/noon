@@ -1135,10 +1135,12 @@ function parseShipsList(data) {
     bgColor: 'c',
     tp: 'tp',
     cnt: 'cnt',
+    you: 'you',
   }).map((row) => ({
     ...row,
     tp: row.tp !== undefined && row.tp !== '' && !Number.isNaN(Number(row.tp)) ? Number(row.tp) : null,
     cnt: row.cnt !== undefined ? Number(row.cnt) : null,
+    you: String(row.you || '') === '1',
   }));
   return {
     err,

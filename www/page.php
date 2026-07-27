@@ -712,60 +712,37 @@
         break;
 
       case 990:
-        if( $user->admin == 2 ) {
-          include './pages/admin/main.page';
-        }
+        include './pages/admin/api_990.inc';
         break;
       case 980:
-        if( $user->admin == 2 ) {
-          include './pages/admin/userdetail.page';
-        }
+        include './pages/admin/api_980.inc';
         break;
       case 991:
-        if( $user->admin == 2 ) {
-          include './pages/admin/subedit.page';
-        }
+        include './pages/admin/api_991.inc';
         break;
       case 992:
-        if( $user->admin == 2 ) {
-          include './pages/admin/objedit.page';
-        }
+        include './pages/admin/api_992.inc';
         break;
       case 993:
-        if( $user->admin == 2 ) {
-          include './pages/admin/stat.page';
-        }
+        include './pages/admin/api_993.inc';
         break;
       case 994:
-        if( $user->admin == 2 ) {
-          include './pages/admin/encedit.page';
-        }
+        include './pages/admin/api_994.inc';
         break;
       case 995:
-        if( $user->admin == 2 ) {
-          include './pages/admin/pricer.page';
-          include './pages/admin/main.page';
-        }
+        include './pages/admin/api_995.inc';
         break;
       case 996:
-        if( $user->admin == 2 ) {
-          include './pages/admin/research.page';
-        }
+        include './pages/admin/api_996.inc';
         break;
       case 997:
-        if( $user->admin == 2 ) {
-          include './pages/admin/ships.page';
-        }
+        include './pages/admin/api_997.inc';
         break;
       case 998:
-        if( $user->admin == 2 ) {
-          include './pages/admin/tutedit.page';
-        }
+        include './pages/admin/api_998.inc';
         break;
       case 999:
-        if( $user->admin == 2 ) {
-          include './pages/admin/logread.page';
-        }
+        include './pages/admin/api_999.inc';
         break;
 
       default :

@@ -1,0 +1,233 @@
+<script>
+  import { onMount } from 'svelte';
+  import { push, params as routeParams } from 'svelte-spa-router';
+  import TermConfirm from '../ui/TermConfirm.svelte';
+  import { adminUser, adminUserAction } from '../api.js';
+
+  const tabs = ['overview', 'money', 'trade', 'planets', 'ships', 'fleets'];
+  const tabLabels = {
+    overview: 'Обзор',
+    money: 'Платежи',
+    trade: 'Торговля',
+    planets: 'Планеты',
+    ships: 'Корабли',
+    fleets: 'Флоты',
+  };
+
+  let loginInput = '';
+  let data = null;
+  let tab = 'overview';
+  let err = '';
+  let loading = false;
+  let paySum = '';
+  let addObject = '';
+  let addCnt = '1';
+  let confirm = { open: false, title: '', message: '', act: null, danger: false };
+
+  $: routeLogin = $routeParams?.login ? decodeURIComponent($routeParams.login) : '';
+  $: if (routeLogin && routeLogin !== loginInput) {
+    loginInput = routeLogin;
+    loadUser(routeLogin);
+  }
+
+  async function loadUser(login) {
+    if (!login) return;
+    loading = true;
+    err = '';
+    try {
+      data = await adminUser(login);
+      if (!data?.ok) err = data?.err || 'not found';
+    } catch {
+      err = 'load failed';
+      data = null;
+    }
+    loading = false;
+  }
+
+  function search() {
+    const login = loginInput.trim();
+    if (!login) return;
+    push(`/users/${encodeURIComponent(login)}`);
+  }
+
+  function askConfirm(title, message, act, danger = true) {
+    confirm = { open: true, title, message, act, danger };
+  }
+
+  async function onConfirm() {
+    const { act } = confirm;
+    confirm = { ...confirm, open: false };
+    if (!act || !data?.profile?.login) return;
+    try {
+      await adminUserAction(data.profile.login, act, act === 'pay' ? { summ: paySum } : act === 'add' ? { object: addObject, cnt: addCnt } : {});
+      await loadUser(data.profile.login);
+    } catch {
+      err = 'action failed';
+    }
+  }
+
+  function userLink(name) {
+    if (!name) return;
+    push(`/users/${encodeURIComponent(name)}`);
+  }
+</script>
+
+<section class="term-panel">
+  <h2 class="term-panel-title">Пользователь</h2>
+  <div class="term-row">
+    <span>&gt;</span>
+    <input bind:value={loginInput} placeholder="login" on:keydown={(e) => e.key === 'Enter' && search()} />
+    <button type="button" on:click={search}>[ FIND ]</button>
+  </div>
+</section>
+
+{#if loading}
+  <div class="term-empty">загрузка...</div>
+{:else if err}
+  <p class="term-error">{err}</p>
+{:else if data?.profile}
+  <div class="term-tabs">
+    {#each tabs as t}
+      <button type="button" class:active={tab === t} on:click={() => (tab = t)}>{tabLabels[t]}</button>
+    {/each}
+  </div>
+
+  {#if tab === 'overview'}
+    <section class="term-panel">
+      <table class="term-table">
+        <tbody>
+          {#each Object.entries(data.profile) as [k, v]}
+            <tr>
+              <th>{k}</th>
+              <td>
+                {#if k === 'parent' && v}
+                  <a href="#/users/{v}" on:click|preventDefault={() => userLink(v)}>{v}</a>
+                {:else if k === 'child' && data.children?.length}
+                  {#each data.children as ch}
+                    <a href="#/users/{ch}" on:click|preventDefault={() => userLink(ch)}>{ch}</a>{' '}
+                  {/each}
+                {:else}
+                  {v}
+                {/if}
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="term-panel danger-zone">
+      <h2 class="term-panel-title">Danger zone</h2>
+      <div class="term-row">
+        <button type="button" class="danger" on:click={() => askConfirm('Kill', `Убить ${data.profile.login}?`, 'kill')}>kill</button>
+        <button type="button" on:click={() => askConfirm('Go home', `Отправить ${data.profile.login} домой?`, 'go_home', false)}>go home</button>
+        <button type="button" on:click={() => askConfirm('Mute week', `Мут на неделю: ${data.profile.login}?`, 'mute_w')}>mute week</button>
+        <button type="button" on:click={() => askConfirm('Mute month', `Мут на месяц: ${data.profile.login}?`, 'mute_m')}>mute month</button>
+        <button type="button" class="danger" on:click={() => askConfirm('Enter as user', `Войти как ${data.profile.login}?`, 'enter')}>enter as user</button>
+      </div>
+      <div class="term-row">
+        <input bind:value={paySum} placeholder="сумма конфедератов" />
+        <button type="button" on:click={() => askConfirm('Pay', `Зачислить ${paySum} конфедератов?`, 'pay', false)}>[ PAY ]</button>
+      </div>
+      <div class="term-row">
+        <select bind:value={addObject}>
+          <option value="">объект</option>
+          {#each data.objects || [] as o}
+            <option value={o.id}>{o.class} {o.name}</option>
+          {/each}
+        </select>
+        <input bind:value={addCnt} style="width:80px" />
+        <button type="button" on:click={() => askConfirm('Add item', 'Добавить предмет на склад?', 'add', false)}>[ ADD ]</button>
+      </div>
+    </section>
+  {:else if tab === 'money'}
+    <section class="term-panel">
+      <table class="term-table">
+        <thead><tr><th>time</th><th>message</th></tr></thead>
+        <tbody>
+          {#each data.pay || [] as row}
+            <tr><td>{row.log_time}</td><td>{row.mess}</td></tr>
+          {/each}
+        </tbody>
+      </table>
+    </section>
+  {:else if tab === 'trade'}
+    <section class="term-panel">
+      <table class="term-table">
+        <thead><tr><th>time</th><th>buyer</th><th>seller</th><th>object</th><th>cnt</th><th>sum</th></tr></thead>
+        <tbody>
+          {#each data.trade || [] as row}
+            <tr>
+              <td>{row.trade_time}</td>
+              <td><button type="button" class="linkish" on:click={() => userLink(row.bay_login)}>{row.bay_login}</button></td>
+              <td><button type="button" class="linkish" on:click={() => userLink(row.sell_login)}>{row.sell_login}</button></td>
+              <td>{row.oname}</td><td>{row.object_cnt}</td><td>{row.log_sum}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </section>
+    <section class="term-panel">
+      <h2 class="term-panel-title">Bay log</h2>
+      <table class="term-table">
+        <tbody>
+          {#each data.bay || [] as row}
+            <tr><td>{row.log_time}</td><td>{row.log_text}</td></tr>
+          {/each}
+        </tbody>
+      </table>
+    </section>
+  {:else if tab === 'planets'}
+    <section class="term-panel">
+      <table class="term-table">
+        <thead><tr><th>name</th><th>type</th><th>level</th></tr></thead>
+        <tbody>
+          {#each data.planets || [] as row}
+            <tr><td>{row.name}</td><td>{row.type}</td><td>{row.level}</td></tr>
+          {/each}
+        </tbody>
+      </table>
+    </section>
+  {:else if tab === 'ships'}
+    <section class="term-panel">
+      <table class="term-table">
+        <thead><tr><th>id</th><th>name</th><th>type</th><th>war</th><th>place</th></tr></thead>
+        <tbody>
+          {#each data.ships || [] as row}
+            <tr><td>{row.id}</td><td>{row.name}</td><td>{row.oname}</td><td>{row.inwar}</td><td>{row.place}</td></tr>
+          {/each}
+        </tbody>
+      </table>
+    </section>
+  {:else if tab === 'fleets'}
+    <section class="term-panel">
+      <table class="term-table">
+        <thead><tr><th>id</th><th>name</th><th>war</th><th>count</th><th>power</th><th>place</th></tr></thead>
+        <tbody>
+          {#each data.fleets || [] as row}
+            <tr><td>{row.id}</td><td>{row.name}</td><td>{row.inwar}</td><td>{row.w_count}</td><td>{row.w_power}</td><td>{row.place}</td></tr>
+          {/each}
+        </tbody>
+      </table>
+    </section>
+  {/if}
+{/if}
+
+<TermConfirm
+  bind:open={confirm.open}
+  title={confirm.title}
+  message={confirm.message}
+  danger={confirm.danger}
+  on:confirm={onConfirm}
+  on:cancel={() => (confirm = { ...confirm, open: false })}
+/>
+
+<style>
+  button.linkish {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--term-fg-bright);
+    text-decoration: underline;
+  }
+</style>

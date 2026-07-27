@@ -10,3 +10,4 @@ FROM nginx:1.25-alpine
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY www/ /var/www/noon/
 COPY --from=frontend /build/dist /var/www/noon/app/
+COPY --from=frontend /build/dist-admin /var/www/noon/admin/

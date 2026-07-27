@@ -23,7 +23,7 @@
   });
 </script>
 
-<div class="shell">
+<div class="shell" class:chat-collapsed={chatCollapsed}>
   <div class="shell-bg" aria-hidden="true"></div>
   <header class="shell-top">
     <TopMenu mv={config.mv} sv={config.sv} />
@@ -31,6 +31,7 @@
   <main class="shell-main">
     <Router {routes} />
   </main>
+  <div class="chat-spacer" aria-hidden="true"></div>
   <footer class="shell-chat" class:collapsed={chatCollapsed}>
     <Chat bind:collapsed={chatCollapsed} />
   </footer>
@@ -40,6 +41,7 @@
 
 <style>
   .shell {
+    --chat-slot: var(--shell-chat);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -47,6 +49,10 @@
     width: 100%;
     overflow: hidden;
     background: var(--bg-deep);
+  }
+
+  .shell.chat-collapsed {
+    --chat-slot: 0px;
   }
 
   .shell-bg {
@@ -76,8 +82,7 @@
   }
 
   .shell-top,
-  .shell-main,
-  .shell-chat {
+  .shell-main {
     position: relative;
     z-index: 1;
   }
@@ -98,33 +103,52 @@
     padding: 10px 12px;
   }
 
+  .chat-spacer {
+    flex: 0 0 var(--chat-slot);
+    height: var(--chat-slot);
+    pointer-events: none;
+    transition:
+      flex-basis 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      height 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   .shell-chat {
-    flex: 0 0 var(--shell-chat);
+    position: absolute;
+    z-index: 20;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
     height: var(--shell-chat);
     overflow: hidden;
-    border-top: 1px solid var(--border-light);
     background: rgba(4, 8, 16, 0.55);
     backdrop-filter: blur(8px);
-    margin: 0 8px 8px;
     border-radius: var(--radius-panel);
     border: 1px solid var(--border-light);
     box-shadow: var(--glow-soft);
+    transition:
+      height 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      right 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      background 0.28s ease,
+      border-color 0.28s ease,
+      box-shadow 0.28s ease,
+      backdrop-filter 0.28s ease;
   }
 
   .shell-chat.collapsed {
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    z-index: 20;
-    flex: none;
-    height: auto;
+    right: auto;
+    height: 28px;
     width: auto;
-    margin: 0;
-    padding: 0;
-    border: none;
+    overflow: visible;
     background: transparent;
+    border-color: transparent;
     box-shadow: none;
     backdrop-filter: none;
-    overflow: visible;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-spacer,
+    .shell-chat {
+      transition: none;
+    }
   }
 </style>

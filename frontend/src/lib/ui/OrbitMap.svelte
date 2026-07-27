@@ -78,6 +78,8 @@
     };
     layout();
     window.addEventListener('resize', layout);
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(layout) : null;
+    if (ro && viewport) ro.observe(viewport);
     tickId = setInterval(() => {
       now = Date.now();
       for (const t of liveTimers) {
@@ -88,7 +90,10 @@
         }
       }
     }, 500);
-    return () => window.removeEventListener('resize', layout);
+    return () => {
+      window.removeEventListener('resize', layout);
+      ro?.disconnect();
+    };
   });
 
   onDestroy(() => {

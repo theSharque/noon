@@ -15,6 +15,7 @@
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
   import ScifiSelect from '../lib/ui/ScifiSelect.svelte';
   import { flashBgStyle } from '../lib/flashColor.js';
+  import { askAlert } from '../lib/confirmStore.js';
 
   const IMG = '/app/img/booklist';
   const CLASS_FILTERS = [
@@ -185,7 +186,11 @@
       siloSelected = -1;
       wareItems = [];
       wareFree = '';
-      errorText = `Склады: ошибка ${data.err}`;
+      if (String(data.err) === '3') {
+        await askAlert({ message: 'Корабли находятся в разных местах' });
+      } else {
+        errorText = `Склады: ошибка ${data.err}`;
+      }
       return;
     }
     silos = data.silos || [];

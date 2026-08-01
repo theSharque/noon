@@ -31,6 +31,15 @@ export function askYesNo({ title = 'Подтверждение', message = '', d
   });
 }
 
+export function askAlert({ title = '', message = '', confirmLabel = 'OK' } = {}) {
+  return askConfirm({
+    title,
+    message,
+    confirmLabel,
+    cancelLabel: null,
+  });
+}
+
 export function closeConfirm(result) {
   let current;
   confirmDialog.update((state) => {

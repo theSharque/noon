@@ -13,7 +13,7 @@
     switch (e.key) {
       case 'Escape':
         e.preventDefault();
-        closeConfirm(false);
+        closeConfirm(Boolean(!state.cancelLabel));
         break;
       case 'Enter':
         e.preventDefault();
@@ -41,10 +41,12 @@
 {#if state}
   <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
   <div class="scifi-confirm-backdrop" on:click={onBackdrop} role="presentation">
-    <div class="scifi-panel scifi-modal scifi-confirm" role="dialog" aria-modal="true" aria-labelledby="scifi-confirm-title">
-      <div class="panel-header" id="scifi-confirm-title">{state.title}</div>
+    <div class="scifi-panel scifi-modal scifi-confirm" role="dialog" aria-modal="true" aria-labelledby={state.title ? 'scifi-confirm-title' : undefined} aria-describedby="scifi-confirm-message">
+      {#if state.title}
+        <div class="panel-header" id="scifi-confirm-title">{state.title}</div>
+      {/if}
       <div class="panel-content scifi-confirm-body">
-        <p class="scifi-confirm-message">{state.message}</p>
+        <p class="scifi-confirm-message" id="scifi-confirm-message">{state.message}</p>
         <div class="scifi-confirm-actions">
           <ScifiButton
             variant={state.danger ? 'danger' : 'primary'}
@@ -52,9 +54,11 @@
           >
             {state.confirmLabel}
           </ScifiButton>
-          <ScifiButton variant="ghost" on:click={() => closeConfirm(false)}>
-            {state.cancelLabel}
-          </ScifiButton>
+          {#if state.cancelLabel}
+            <ScifiButton variant="ghost" on:click={() => closeConfirm(false)}>
+              {state.cancelLabel}
+            </ScifiButton>
+          {/if}
         </div>
       </div>
     </div>

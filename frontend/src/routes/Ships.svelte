@@ -1207,6 +1207,18 @@
         ? 'Карта галактики'
         : monitorTitle();
 
+  $: quickOrders = orderOptions.filter((o) => String(o.value) !== '100');
+
+  function isDangerOrder(value) {
+    return ATTACK_ORDERS.has(parseOrderId(value).id);
+  }
+
+  async function quickOrder(value) {
+    if (busy) return;
+    await onOrderChange({ detail: { value } });
+    if (showOrderBtn) await clickOrder();
+  }
+
   function monitorTitle() {
     switch (monitor) {
       case 'info':
@@ -1402,33 +1414,51 @@
       </div>
       {#if monitor === 'info' || monitor === 'conserv'}
         <div class="monitor-body info-layout">
-          {#if shipPic}
-            <img class="ship-pic" src={`/img/ships/f${shipPic}.png`} alt="" />
-          {/if}
-          <div class="html-rich info-html" on:click={onInfoClick}>
-            {@html infoHtml || '—'}
-          </div>
-          {#if fleetHtml}
-            <div class="html-rich fleet-html">{@html fleetHtml}</div>
-          {/if}
-          {#if monitor === 'conserv'}
-            <div class="conserv-actions">
-              <label>
-                Кол-во
-                <input class="scifi-input" bind:value={conservCnt} />
-              </label>
-              <label>
-                Группа
-                <input class="scifi-input" bind:value={renameGroup} />
-              </label>
-              <ScifiButton variant="primary" disabled={busy} on:click={() => clickDeconserv(false)}>
-                Расконсервировать
-              </ScifiButton>
-              <ScifiButton variant="ghost" disabled={busy} on:click={() => clickDeconserv(true)}>
-                Все ({conservMax})
-              </ScifiButton>
+          <div class="info-with-orders">
+            <div class="info-main">
+              {#if shipPic}
+                <img class="ship-pic" src={`/img/ships/f${shipPic}.png`} alt="" />
+              {/if}
+              <div class="html-rich info-html" on:click={onInfoClick}>
+                {@html infoHtml || '—'}
+              </div>
+              {#if fleetHtml}
+                <div class="html-rich fleet-html">{@html fleetHtml}</div>
+              {/if}
+              {#if monitor === 'conserv'}
+                <div class="conserv-actions">
+                  <label>
+                    Кол-во
+                    <input class="scifi-input" bind:value={conservCnt} />
+                  </label>
+                  <label>
+                    Группа
+                    <input class="scifi-input" bind:value={renameGroup} />
+                  </label>
+                  <ScifiButton variant="primary" disabled={busy} on:click={() => clickDeconserv(false)}>
+                    Расконсервировать
+                  </ScifiButton>
+                  <ScifiButton variant="ghost" disabled={busy} on:click={() => clickDeconserv(true)}>
+                    Все ({conservMax})
+                  </ScifiButton>
+                </div>
+              {/if}
             </div>
-          {/if}
+            {#if quickOrders.length}
+              <div class="quick-orders" aria-label="Приказы">
+                {#each quickOrders as opt}
+                  <ScifiButton
+                    className="quick-order-btn"
+                    variant={isDangerOrder(opt.value) ? 'danger' : 'primary'}
+                    disabled={busy}
+                    on:click={() => quickOrder(opt.value)}
+                  >
+                    {opt.label}
+                  </ScifiButton>
+                {/each}
+              </div>
+            {/if}
+          </div>
         </div>
 
       {:else if monitor === 'rename'}
@@ -1774,9 +1804,27 @@
         </div>
 
       {:else if monitor === 'multi'}
-        <div class="monitor-body stub-box">
-          <p>Выбрано кораблей: {selected.length}</p>
-          <p class="muted">Выберите приказ для группы.</p>
+        <div class="monitor-body info-layout">
+          <div class="info-with-orders">
+            <div class="info-main stub-box">
+              <p>Выбрано кораблей: {selected.length}</p>
+              <p class="muted">Выберите приказ для группы.</p>
+            </div>
+            {#if quickOrders.length}
+              <div class="quick-orders" aria-label="Приказы">
+                {#each quickOrders as opt}
+                  <ScifiButton
+                    className="quick-order-btn"
+                    variant={isDangerOrder(opt.value) ? 'danger' : 'primary'}
+                    disabled={busy}
+                    on:click={() => quickOrder(opt.value)}
+                  >
+                    {opt.label}
+                  </ScifiButton>
+                {/each}
+              </div>
+            {/if}
+          </div>
         </div>
 
       {:else}
@@ -1949,6 +1997,44 @@
 
   .info-layout {
     gap: 0.75rem;
+  }
+
+  .info-with-orders {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .info-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .quick-orders {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 0 0 auto;
+    width: min(15.5rem, 34%);
+    max-height: 100%;
+    overflow: auto;
+    padding-left: 0.15rem;
+  }
+
+  .quick-orders :global(.quick-order-btn) {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    white-space: normal;
+    line-height: 1.25;
+    min-height: 2rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.82rem;
   }
 
   .ship-pic {

@@ -73,27 +73,27 @@
 
   $: activeHtml = activeTab === 'main' ? mainHtml : activeTab === 'sys' ? sysHtml : privHtml;
 
-  function mergeChannel(key, chunk) {
-    if (!chunk) return false;
-    if (key === 'main') mainHtml = mergeChatHtml(mainHtml, chunk);
-    if (key === 'sys') sysHtml = mergeChatHtml(sysHtml, chunk);
-    if (key === 'priv') privHtml = mergeChatHtml(privHtml, chunk);
-    return true;
-  }
-
   async function doPoll() {
+    const pollCid = cid;
+    const pollUh = uh;
     try {
-      const data = await pollChat(cid, uh);
+      const data = await pollChat(pollCid, pollUh);
       if (data.err !== '0') return;
 
       if (data.id) cid = parseInt(data.id, 10) || cid;
 
-      const gotMain = mergeChannel('main', data.msgm);
-      const gotSys = mergeChannel('sys', data.msgs);
-      const gotPriv = mergeChannel('priv', data.msgp);
+      if (pollCid === 0) {
+        mainHtml = data.msgm || '';
+        sysHtml = data.msgs || '';
+        privHtml = data.msgp || '';
+      } else {
+        if (data.msgm) mainHtml = mergeChatHtml(mainHtml, data.msgm);
+        if (data.msgs) sysHtml = mergeChatHtml(sysHtml, data.msgs);
+        if (data.msgp) privHtml = mergeChatHtml(privHtml, data.msgp);
+      }
 
-      if (gotSys && activeTab !== 'sys') unread.sys = true;
-      if (gotPriv && activeTab !== 'priv') unread.priv = true;
+      if (data.msgs && activeTab !== 'sys') unread.sys = true;
+      if (data.msgp && activeTab !== 'priv') unread.priv = true;
 
       if (data.users) {
         usersHtml = data.users;

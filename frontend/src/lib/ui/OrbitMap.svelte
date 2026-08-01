@@ -115,7 +115,7 @@
   }
 
   function isMapUiTarget(e) {
-    return Boolean(e.target?.closest?.('.frame-btn, .frame-actions'));
+    return Boolean(e.target?.closest?.('.frame-btn, .frame-actions, .sel-stop'));
   }
 
   function isTypingTarget(el) {
@@ -209,7 +209,19 @@
         class="sel-frame"
         class:pulse={true}
         style={`left:${selX - SLOT_W / 2}px; top:-25px; width:${SLOT_W}px; height:${SLOT_H}px`}
-      ></div>
+      >
+        {#if frameActions.stop}
+          <button
+            type="button"
+            class="sel-stop"
+            title="Стоп"
+            aria-label="Стоп"
+            on:mousedown|stopPropagation
+            on:mouseup|stopPropagation
+            on:click|stopPropagation={() => dispatch('frame', 'stop')}
+          >✕</button>
+        {/if}
+      </div>
 
       {#each liveTimers as t (String(t.x))}
         <div class="mtimer" style={`left:${t.left}px; top:-75px; color:${t.color}`}>
@@ -225,21 +237,29 @@
         </div>
       {/each}
 
-      {#if frameActions.use || frameActions.stop || frameActions.upgrade}
+      {#if frameActions.use || frameActions.upgrade}
         <div
           class="frame-actions"
           style={`left:${selX}px; top:-10px`}
           on:mousedown|stopPropagation
           on:mouseup|stopPropagation
         >
-          {#if frameActions.stop}
-            <button type="button" class="frame-btn" on:click|stopPropagation={() => dispatch('frame', 'stop')}>Стоп</button>
-          {/if}
           {#if frameActions.use}
             <button type="button" class="frame-btn" on:click|stopPropagation={() => dispatch('frame', 'use')}>Старт</button>
           {/if}
           {#if frameActions.upgrade}
-            <button type="button" class="frame-btn" on:click|stopPropagation={() => dispatch('frame', 'upgrade')}>Ап</button>
+            <button
+              type="button"
+              class="frame-btn frame-btn-icon"
+              title="Ап"
+              aria-label="Ап"
+              on:click|stopPropagation={() => dispatch('frame', 'upgrade')}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 1.5 L8 10.5 M4.5 5.5 L8 1.5 L11.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M3 13.5 H13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+            </button>
           {/if}
         </div>
       {/if}
@@ -306,6 +326,35 @@
     box-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
     border-radius: 8px;
     pointer-events: none;
+  }
+
+  .sel-stop {
+    position: absolute;
+    right: 4px;
+    top: 2px;
+    z-index: 4;
+    width: 1.35em;
+    height: 1.35em;
+    padding: 0;
+    border-radius: 2px;
+    border: 1px solid rgba(255, 64, 64, 0.75);
+    background: rgba(40, 0, 0, 0.82);
+    color: #ff4040;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-shadow: 0 0 6px rgba(255, 64, 64, 0.55);
+    cursor: pointer;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sel-stop:hover {
+    background: rgba(80, 0, 0, 0.92);
+    color: #ff6868;
   }
 
   .sel-frame.pulse {
@@ -393,5 +442,20 @@
     padding: 2px 8px;
     cursor: pointer;
     pointer-events: auto;
+  }
+
+  .frame-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.55rem;
+    height: 1.55rem;
+    padding: 0;
+  }
+
+  .frame-btn-icon svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    display: block;
   }
 </style>

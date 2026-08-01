@@ -263,7 +263,7 @@
     </tr>
 
     <tr>
-        <td class="footertabletextcontainer" align="center">Все права защищены, любое использование материала без согласия владельцев преследуется по закону.<br>The noon &copy; 2010-2014</td>
+        <td class="footertabletextcontainer" align="center">Все права защищены, любое использование материала без согласия владельцев преследуется по закону.<br>The noon &copy; 2010-2026</td>
     </tr>
 </table>
                 <img src="images/dot.gif" border="0" width="900" height="20">

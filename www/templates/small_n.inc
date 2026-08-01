@@ -316,7 +316,7 @@ VK.Widgets.Group("vk_groups", {mode: 0, width: "274", height: "390"}, 22182769);
         </td>
     </tr>
     <tr>
-        <td class="footertabletextcontainer" align="center">Все права защищены, любое использование материала без согласия владельцев преследуется по закону.<br>The noon &copy; 2010-2014</td>
+        <td class="footertabletextcontainer" align="center">Все права защищены, любое использование материала без согласия владельцев преследуется по закону.<br>The noon &copy; 2010-2026</td>
     </tr>
 </table>
 

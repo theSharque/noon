@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -e
+
+REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
+DEPLOY_DIR="${REPO_ROOT}/deploy"
+REMOTE="${REMOTE:-ubunew}"
+REMOTE_PATH="${REMOTE_PATH:-/opt/noon}"
+SSH_OPTS="-i ${SSH_KEY:-$HOME/.ssh/id_rsa} -o StrictHostKeyChecking=accept-new"
+
+PHP_IMAGE="noon-php:latest"
+NGINX_IMAGE="noon-nginx:latest"
+CRON_IMAGE="noon-cron:latest"
+
+echo "[deploy] 1/5 Сборка Docker-образов..."
+cd "${REPO_ROOT}"
+docker compose build php nginx cron
+
+echo "[deploy] 2/5 Сохранение образов..."
+mkdir -p "${DEPLOY_DIR}"
+docker save "${PHP_IMAGE}" -o "${DEPLOY_DIR}/noon-php.tar"
+docker save "${NGINX_IMAGE}" -o "${DEPLOY_DIR}/noon-nginx.tar"
+docker save "${CRON_IMAGE}" -o "${DEPLOY_DIR}/noon-cron.tar"
+
+echo "[deploy] 3/5 Подготовка deploy bundle..."
+cp "${REPO_ROOT}/.env.example" "${DEPLOY_DIR}/.env.example"
+rm -rf "${DEPLOY_DIR}/db" "${DEPLOY_DIR}/docker"
+cp -a "${REPO_ROOT}/db" "${DEPLOY_DIR}/db"
+mkdir -p "${DEPLOY_DIR}/docker/mysql"
+cp "${REPO_ROOT}/docker/mysql/charset.cnf" "${DEPLOY_DIR}/docker/mysql/charset.cnf"
+
+echo "[deploy] 4/5 rsync → ${REMOTE}:${REMOTE_PATH}/"
+rsync -avz -e "ssh ${SSH_OPTS}" \
+  "${DEPLOY_DIR}/" \
+  "${REMOTE}:${REMOTE_PATH}/"
+
+echo "[deploy] 5/5 На сервере: load, compose up..."
+ssh ${SSH_OPTS} "${REMOTE}" bash -s -- "${REMOTE_PATH}" <<'REMOTE_UP'
+set -e
+RP="$1"
+cd "$RP"
+if ! docker network inspect edge >/dev/null 2>&1; then
+  echo "[deploy][remote] Ошибка: нет Docker-сети edge. Сначала задеплойте /qs/edge."
+  exit 1
+fi
+docker load -i noon-php.tar
+docker load -i noon-nginx.tar
+docker load -i noon-cron.tar
+docker compose up -d --remove-orphans
+REMOTE_UP
+
+echo ""
+echo "[deploy] Готово: ${REMOTE}:${REMOTE_PATH}"
+echo "  Стек: mysql, flyway, php, nginx, cron (без публичных портов)."
+echo "  TLS: /opt/edge — после up: ISSUE_NOON_CERT=1 в /qs/edge/deploy.sh"
+echo "  Проверка: curl -sS https://21noon.com/"
+echo ""

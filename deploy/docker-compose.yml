@@ -1,6 +1,20 @@
+# Noon production — MySQL, Flyway, PHP-FPM, nginx, cron.
+# Public HTTP via edge network only (container_name: noon-nginx).
+
+networks:
+  noon-network:
+    driver: bridge
+  edge:
+    external: true
+
+volumes:
+  mysql_data:
+
 services:
   mysql:
     image: mysql:5.7
+    container_name: noon-mysql
+    restart: unless-stopped
     command: >
       --character-set-server=utf8
       --collation-server=utf8_general_ci
@@ -10,11 +24,11 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./docker/mysql/charset.cnf:/etc/mysql/conf.d/charset.cnf:ro
+    networks:
+      - noon-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
@@ -23,6 +37,7 @@ services:
 
   flyway:
     image: flyway/flyway:10
+    container_name: noon-flyway
     command: -connectRetries=60 migrate
     environment:
       FLYWAY_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8
@@ -34,39 +49,41 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    networks:
+      - noon-network
 
   php:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile
     image: noon-php:latest
+    container_name: noon-php
+    restart: unless-stopped
     environment:
-      NOON_DB_HOST: ${NOON_DB_HOST}
+      NOON_DB_HOST: mysql
       NOON_DB_USER: ${MYSQL_USER}
       NOON_DB_PASSWORD: ${MYSQL_PASSWORD}
       NOON_DB_NAME: ${MYSQL_DATABASE}
     depends_on:
       flyway:
         condition: service_completed_successfully
+    networks:
+      - noon-network
 
   nginx:
-    build:
-      context: .
-      dockerfile: docker/nginx/Dockerfile
     image: noon-nginx:latest
-    ports:
-      - "${NGINX_PORT}:80"
+    container_name: noon-nginx
+    restart: unless-stopped
     depends_on:
       - php
+    networks:
+      - noon-network
+      - edge
 
   cron:
-    build:
-      context: .
-      dockerfile: docker/cron/Dockerfile
     image: noon-cron:latest
+    container_name: noon-cron
+    restart: unless-stopped
     environment:
-      TZ: ${TZ}
-      NOON_DB_HOST: ${NOON_DB_HOST}
+      TZ: ${TZ:-Europe/Moscow}
+      NOON_DB_HOST: mysql
       NOON_DB_USER: ${MYSQL_USER}
       NOON_DB_PASSWORD: ${MYSQL_PASSWORD}
       NOON_DB_NAME: ${MYSQL_DATABASE}
@@ -75,6 +92,5 @@ services:
         condition: service_completed_successfully
       mysql:
         condition: service_healthy
-
-volumes:
-  mysql_data:
+    networks:
+      - noon-network

@@ -6,3 +6,5 @@ frontend/dist/
 frontend/node_modules/
 **/Thumbs.db
 **/desktop.ini
+deploy.sh
+deploy/*.tar

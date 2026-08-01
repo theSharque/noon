@@ -144,8 +144,8 @@ export function selectionPos(x, y) {
 export const HEX_POINTS = '65,2 128,34 128,65 65,97 2,65 2,34';
 
 export function clampMapOffset(ox, oy, mapW, mapH, viewW, viewH, zoom) {
-  const scaledW = mapW / zoom;
-  const scaledH = mapH / zoom;
+  const scaledW = (mapW * zoom) / 4;
+  const scaledH = (mapH * zoom) / 4;
   const maxX = Math.min(400, viewW * 0.4);
   const minX = viewW - CELL_W - scaledW;
   let x = Math.min(maxX, Math.max(minX, ox));

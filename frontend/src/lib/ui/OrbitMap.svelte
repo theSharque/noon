@@ -118,6 +118,27 @@
     return Boolean(e.target?.closest?.('.frame-btn, .frame-actions'));
   }
 
+  function isTypingTarget(el) {
+    if (!el || !(el instanceof Element)) return false;
+    const tag = el.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (el.isContentEditable) return true;
+    return Boolean(el.closest?.('input, textarea, select, [contenteditable="true"]'));
+  }
+
+  function onKeydown(e) {
+    if (e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (isTypingTarget(e.target)) return;
+    if (document.querySelector('.scifi-confirm-backdrop, .tutorial-backdrop')) return;
+    let action = null;
+    if (e.key === 'Enter' && frameActions.use) action = 'use';
+    else if (e.key === 'Escape' && frameActions.stop) action = 'stop';
+    else if ((e.key === ' ' || e.key === 'Spacebar') && frameActions.upgrade) action = 'upgrade';
+    if (!action) return;
+    e.preventDefault();
+    dispatch('frame', action);
+  }
+
   function onDown(e) {
     if (e.button !== 0) return;
     if (isMapUiTarget(e)) return;
@@ -143,6 +164,8 @@
     dragStart = null;
   }
 </script>
+
+<svelte:window on:keydown={onKeydown} />
 
 <div class="orbit-map-wrap">
   <div class="orbit-bg" style={`background-image:url('${bgSrc}')`}></div>

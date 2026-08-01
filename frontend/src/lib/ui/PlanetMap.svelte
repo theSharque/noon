@@ -27,7 +27,7 @@
   export let timers = [];
   export let levels = {};
   export let selected = { x: 0, y: 0 };
-  export let zoom = 1;
+  export let zoom = 4;
   export let mapLight = false;
   export let frameActions = { use: false, stop: false, upgrade: false };
 
@@ -46,7 +46,7 @@
   $: height = ground.length || buildings.length || 0;
   $: width = buildings[0]?.length || ground[0]?.length || 0;
   $: size = mapPixelSize(width || 1, height || 1);
-  $: scale = 1 / zoom;
+  $: scale = zoom / 4;
   $: sel = selectionPos(selected.x, selected.y);
   $: selectedLevel = levels[`${selected.x}x${selected.y}`] || '';
   $: liveTimers = timers.map((t) => {
@@ -112,6 +112,29 @@
     offset = clampMapOffset(offset.x, offset.y, size.w, size.h, viewport.clientWidth, viewport.clientHeight, zoom);
   }
 
+  function setZoom(next) {
+    const z = Math.max(1, Math.min(4, next));
+    if (z === zoom) return;
+    if (viewport) {
+      const oldScale = zoom / 4;
+      const newScale = z / 4;
+      const cx = viewport.clientWidth / 2;
+      const cy = viewport.clientHeight / 2;
+      const mapX = (cx - offset.x) / oldScale;
+      const mapY = (cy - offset.y) / oldScale;
+      offset = clampMapOffset(
+        cx - mapX * newScale,
+        cy - mapY * newScale,
+        size.w,
+        size.h,
+        viewport.clientWidth,
+        viewport.clientHeight,
+        z,
+      );
+    }
+    dispatch('zoom', z);
+  }
+
   function localPoint(e) {
     const rect = viewport.getBoundingClientRect();
     return {
@@ -122,6 +145,27 @@
 
   function isMapUiTarget(e) {
     return Boolean(e.target?.closest?.('.frame-btn, .frame-actions, .zbtn, .minimap'));
+  }
+
+  function isTypingTarget(el) {
+    if (!el || !(el instanceof Element)) return false;
+    const tag = el.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (el.isContentEditable) return true;
+    return Boolean(el.closest?.('input, textarea, select, [contenteditable="true"]'));
+  }
+
+  function onKeydown(e) {
+    if (e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (isTypingTarget(e.target)) return;
+    if (document.querySelector('.scifi-confirm-backdrop, .tutorial-backdrop')) return;
+    let action = null;
+    if (e.key === 'Enter' && frameActions.use) action = 'use';
+    else if (e.key === 'Escape' && frameActions.stop) action = 'stop';
+    else if ((e.key === ' ' || e.key === 'Spacebar') && frameActions.upgrade) action = 'upgrade';
+    if (!action) return;
+    e.preventDefault();
+    dispatch('frame', action);
   }
 
   function onPointerDown(e) {
@@ -162,8 +206,8 @@
 
   function onWheel(e) {
     e.preventDefault();
-    if (e.deltaY < 0 && zoom > 1) dispatch('zoom', zoom - 1);
-    else if (e.deltaY > 0 && zoom < 4) dispatch('zoom', zoom + 1);
+    if (e.deltaY < 0 && zoom < 4) setZoom(zoom + 1);
+    else if (e.deltaY > 0 && zoom > 1) setZoom(zoom - 1);
   }
 
   function onMiniClick(e) {
@@ -195,6 +239,8 @@
     return color;
   }
 </script>
+
+<svelte:window on:keydown={onKeydown} />
 
 <div class="planet-map-wrap">
   <div
@@ -327,9 +373,9 @@
   {/if}
 
   <div class="zoom-bar">
-    <button type="button" class="zbtn" disabled={zoom <= 1} on:click={() => dispatch('zoom', zoom - 1)}>−</button>
+    <button type="button" class="zbtn" disabled={zoom <= 1} on:click={() => setZoom(zoom - 1)}>−</button>
     <span>{zoom}×</span>
-    <button type="button" class="zbtn" disabled={zoom >= 4} on:click={() => dispatch('zoom', zoom + 1)}>+</button>
+    <button type="button" class="zbtn" disabled={zoom >= 4} on:click={() => setZoom(zoom + 1)}>+</button>
   </div>
 </div>
 

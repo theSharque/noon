@@ -16,7 +16,7 @@
 
   let mapRef;
   let panelRef;
-  let zoom = 1;
+  let zoom = 4;
   let frameActions = { use: false, stop: false, upgrade: false };
 
   let ground = [];

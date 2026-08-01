@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS `bot_out` (
 
 CREATE TABLE IF NOT EXISTS `buildings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `place_type` int(10) unsigned NOT NULL DEFAULT 1 COMMENT '0-orbit, 1-planet',
   `desc` varchar(450) NOT NULL,
   `energy` int(10) NOT NULL,
   `warehouse` int(10) unsigned NOT NULL,
@@ -97,7 +98,9 @@ CREATE TABLE IF NOT EXISTS `buildings` (
   UNIQUE KEY `by_id_atack` (`id`,`atack`),
   KEY `native` (`native`),
   KEY `by_shield` (`shield`),
-  KEY `by_atack` (`atack`)
+  KEY `by_atack` (`atack`),
+  KEY `by_place_type` (`place_type`),
+  KEY `by_place_type_id` (`place_type`, `id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `chat` (
@@ -362,7 +365,7 @@ CREATE TABLE IF NOT EXISTS `planets` (
   `last_build` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `by_star` (`star_id`),
-  KEY `by_user` (`user_id`),
+  UNIQUE KEY `by_user` (`user_id`),
   KEY `by_name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -493,6 +496,9 @@ CREATE TABLE IF NOT EXISTS `ships` (
   `guard` int(10) unsigned NOT NULL DEFAULT '0',
   `interupt` int(1) unsigned NOT NULL DEFAULT '0',
   `abordage` int(10) unsigned NOT NULL DEFAULT '1',
+  `fire` tinyint(1) NOT NULL DEFAULT '0',
+  `new` tinyint(1) NOT NULL DEFAULT '0',
+  `order_id` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `by_fleet` (`fleet_id`),
   KEY `by_user` (`user_id`),
@@ -1152,11 +1158,6 @@ ALTER TABLE `ship_types`
   ADD COLUMN `harvest` int(10) unsigned NOT NULL DEFAULT '0',
   ADD COLUMN `hot` int(10) unsigned NOT NULL DEFAULT '0',
   ADD COLUMN `titul` int(10) unsigned NOT NULL DEFAULT '0';
-
-ALTER TABLE `ships`
-  ADD COLUMN `fire` tinyint(1) NOT NULL DEFAULT '0',
-  ADD COLUMN `new` tinyint(1) NOT NULL DEFAULT '0',
-  ADD COLUMN `order_id` int(10) unsigned NOT NULL DEFAULT '0';
 
 ALTER TABLE `fleets`
   ADD COLUMN `corsar` int(10) unsigned NOT NULL DEFAULT '0',

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 DEPLOY_DIR="${REPO_ROOT}/deploy"
@@ -11,31 +11,31 @@ PHP_IMAGE="noon-php:latest"
 NGINX_IMAGE="noon-nginx:latest"
 CRON_IMAGE="noon-cron:latest"
 
-echo "[deploy] 1/5 Сборка Docker-образов..."
+echo "[deploy] 1/6 Сборка Docker-образов (php+nginx включают свежий frontend)..."
 cd "${REPO_ROOT}"
 docker compose build php nginx cron
 
-echo "[deploy] 2/5 Сохранение образов..."
+echo "[deploy] 2/6 Сохранение образов..."
 mkdir -p "${DEPLOY_DIR}"
 docker save "${PHP_IMAGE}" -o "${DEPLOY_DIR}/noon-php.tar"
 docker save "${NGINX_IMAGE}" -o "${DEPLOY_DIR}/noon-nginx.tar"
 docker save "${CRON_IMAGE}" -o "${DEPLOY_DIR}/noon-cron.tar"
 
-echo "[deploy] 3/5 Подготовка deploy bundle..."
+echo "[deploy] 3/6 Подготовка deploy bundle..."
 cp "${REPO_ROOT}/.env.example" "${DEPLOY_DIR}/.env.example"
 rm -rf "${DEPLOY_DIR}/db" "${DEPLOY_DIR}/docker"
 cp -a "${REPO_ROOT}/db" "${DEPLOY_DIR}/db"
 mkdir -p "${DEPLOY_DIR}/docker/mysql"
 cp "${REPO_ROOT}/docker/mysql/charset.cnf" "${DEPLOY_DIR}/docker/mysql/charset.cnf"
 
-echo "[deploy] 4/5 rsync → ${REMOTE}:${REMOTE_PATH}/"
+echo "[deploy] 4/6 rsync → ${REMOTE}:${REMOTE_PATH}/"
 rsync -avz -e "ssh ${SSH_OPTS}" \
   "${DEPLOY_DIR}/" \
   "${REMOTE}:${REMOTE_PATH}/"
 
-echo "[deploy] 5/5 На сервере: load, compose up..."
+echo "[deploy] 5/6 На сервере: load + recreate php/nginx/cron..."
 ssh ${SSH_OPTS} "${REMOTE}" bash -s -- "${REMOTE_PATH}" <<'REMOTE_UP'
-set -e
+set -euo pipefail
 RP="$1"
 cd "$RP"
 if ! docker network inspect edge >/dev/null 2>&1; then
@@ -46,15 +46,63 @@ if [ ! -f .env ]; then
   cp .env.example .env
   echo "[deploy][remote] Создан .env из .env.example — заполните пароли MySQL на сервере."
 fi
+
 docker load -i noon-php.tar
 docker load -i noon-nginx.tar
 docker load -i noon-cron.tar
+
 docker compose up -d --remove-orphans
+docker compose up -d --force-recreate --no-deps php nginx cron
+
+echo "[deploy][remote] Ожидание php/nginx..."
+for i in $(seq 1 30); do
+  if docker exec noon-php test -f /var/www/noon/app/index.html \
+    && docker exec noon-nginx test -f /var/www/noon/app/index.html; then
+    break
+  fi
+  sleep 1
+done
+
+PHP_JS="$(docker exec noon-php sed -n 's/.*src="\(\/app\/assets\/[^"]*\.js\)".*/\1/p' /var/www/noon/app/index.html | head -n1)"
+NGX_JS="$(docker exec noon-nginx sed -n 's/.*src="\(\/app\/assets\/[^"]*\.js\)".*/\1/p' /var/www/noon/app/index.html | head -n1)"
+
+if [ -z "${PHP_JS}" ] || [ -z "${NGX_JS}" ]; then
+  echo "[deploy][remote] Ошибка: не найден SPA bundle в php/nginx index.html"
+  echo "  php: ${PHP_JS:-<empty>}"
+  echo "  nginx: ${NGX_JS:-<empty>}"
+  exit 1
+fi
+
+if [ "${PHP_JS}" != "${NGX_JS}" ]; then
+  echo "[deploy][remote] SPA php≠nginx (${PHP_JS} vs ${NGX_JS}) — синхронизирую из nginx..."
+  TMP="$(mktemp -d)"
+  docker cp noon-nginx:/var/www/noon/app/. "${TMP}/"
+  docker exec noon-php rm -rf /var/www/noon/app
+  docker exec noon-php mkdir -p /var/www/noon/app
+  docker cp "${TMP}/." noon-php:/var/www/noon/app/
+  docker exec noon-php chown -R www-data:www-data /var/www/noon/app
+  docker exec noon-php chmod -R u+rwX,go+rX /var/www/noon/app
+  rm -rf "${TMP}"
+  PHP_JS="$(docker exec noon-php sed -n 's/.*src="\(\/app\/assets\/[^"]*\.js\)".*/\1/p' /var/www/noon/app/index.html | head -n1)"
+fi
+
+if [ "${PHP_JS}" != "${NGX_JS}" ]; then
+  echo "[deploy][remote] Ошибка: SPA всё ещё расходится после sync"
+  echo "  php: ${PHP_JS}"
+  echo "  nginx: ${NGX_JS}"
+  exit 1
+fi
+
+echo "[deploy][remote] SPA OK: ${PHP_JS}"
 REMOTE_UP
+
+echo "[deploy] 6/6 Проверка сайта..."
+HTTP_CODE="$(curl -sS -o /dev/null -w '%{http_code}' https://21noon.com/ || true)"
+echo "[deploy] https://21noon.com/ → HTTP ${HTTP_CODE}"
 
 echo ""
 echo "[deploy] Готово: ${REMOTE}:${REMOTE_PATH}"
 echo "  Стек: mysql, flyway, php, nginx, cron (без публичных портов)."
 echo "  TLS: /opt/edge — после up: ISSUE_NOON_CERT=1 в /qs/edge/deploy.sh"
-echo "  Проверка: curl -sS https://21noon.com/"
+echo "  SPA shell (page.php) и статика /app/ используют один bundle."
 echo ""

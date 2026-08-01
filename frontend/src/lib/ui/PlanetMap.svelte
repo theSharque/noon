@@ -523,15 +523,23 @@
   .minimap {
     position: absolute;
     top: 8px;
-    left: 8px;
+    left: calc(min(340px, 100% - 20px) + 20px);
     width: 34px;
     height: 30px;
     opacity: 0.55;
     overflow: hidden;
     border: 1px solid var(--border-light);
     background: #000;
-    transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease;
+    transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease, left 0.25s ease;
     z-index: 8;
+  }
+
+  @media (max-width: 500px) {
+    .minimap {
+      left: 8px;
+      top: auto;
+      bottom: 52px;
+    }
   }
 
   .minimap.expanded {

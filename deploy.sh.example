@@ -42,6 +42,10 @@ if ! docker network inspect edge >/dev/null 2>&1; then
   echo "[deploy][remote] Ошибка: нет Docker-сети edge. Сначала задеплойте /qs/edge."
   exit 1
 fi
+if [ ! -f .env ]; then
+  cp .env.example .env
+  echo "[deploy][remote] Создан .env из .env.example — заполните пароли MySQL на сервере."
+fi
 docker load -i noon-php.tar
 docker load -i noon-nginx.tar
 docker load -i noon-cron.tar

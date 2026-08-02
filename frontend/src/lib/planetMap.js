@@ -5,7 +5,7 @@ export const TILE_W = 130;
 export const TILE_H = 100;
 export const ORIGIN_X = TILE_W / 2;
 export const ORIGIN_Y = TILE_H / 2;
-export const SPRITE_Y_OFFSET = -CELL_H / 4;
+export const SPRITE_Y_OFFSET = -CELL_H / 2;
 
 export const TERRAIN_COLORS = {
   '0': '#0066CC',

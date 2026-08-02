@@ -276,20 +276,6 @@
           <polygon class="sel-hex-glow" points={HEX_POINTS} />
           <polygon class="sel-hex-stroke" points={HEX_POINTS} />
         </svg>
-        {#if selectedLevel}
-          <div class="sel-level">{selectedLevel}</div>
-        {/if}
-        {#if frameActions.stop}
-          <button
-            type="button"
-            class="sel-stop"
-            title="Стоп"
-            aria-label="Стоп"
-            on:pointerdown|stopPropagation
-            on:pointerup|stopPropagation
-            on:click|stopPropagation={() => dispatch('frame', 'stop')}
-          >✕</button>
-        {/if}
       </div>
 
       {#each buildings as row, y}
@@ -313,6 +299,25 @@
           {/if}
         {/each}
       {/each}
+
+      {#if selectedLevel || frameActions.stop}
+        <div class="sel-ui" style={`left:${sel.x}px; top:${sel.y}px; width:${TILE_W}px; height:${TILE_H}px`}>
+          {#if selectedLevel}
+            <div class="sel-level">{selectedLevel}</div>
+          {/if}
+          {#if frameActions.stop}
+            <button
+              type="button"
+              class="sel-stop"
+              title="Стоп"
+              aria-label="Стоп"
+              on:pointerdown|stopPropagation
+              on:pointerup|stopPropagation
+              on:click|stopPropagation={() => dispatch('frame', 'stop')}
+            >✕</button>
+          {/if}
+        </div>
+      {/if}
 
       {#each liveTimers as t ( `${t.x}x${t.y}` )}
         <div class="mtimer" style={`left:${t.pos.x}px; top:${t.pos.y}px; color:${t.color}`}>
@@ -513,11 +518,16 @@
     pointer-events: none;
   }
 
+  .sel-ui {
+    position: absolute;
+    z-index: 6;
+    pointer-events: none;
+  }
+
   .sel-level {
     position: absolute;
     left: 4px;
     top: 2px;
-    z-index: 3;
     min-width: 1.1em;
     padding: 0 3px;
     border-radius: 2px;
@@ -535,7 +545,6 @@
     position: absolute;
     right: 4px;
     top: 2px;
-    z-index: 4;
     width: 1.35em;
     height: 1.35em;
     padding: 0;

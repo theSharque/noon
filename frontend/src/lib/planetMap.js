@@ -5,6 +5,7 @@ export const TILE_W = 130;
 export const TILE_H = 100;
 export const ORIGIN_X = TILE_W / 2;
 export const ORIGIN_Y = TILE_H / 2;
+export const SPRITE_Y_OFFSET = -CELL_H / 4;
 
 export const TERRAIN_COLORS = {
   '0': '#0066CC',
@@ -53,6 +54,10 @@ export function cellX(x, y) {
 
 export function cellY(y) {
   return cellCenterY(y) + ORIGIN_Y;
+}
+
+export function spriteY(y) {
+  return cellY(y) + SPRITE_Y_OFFSET;
 }
 
 export function terrainColor(ch) {
@@ -126,7 +131,7 @@ export function formatRemain(seconds) {
 export function timerPos(x, y) {
   return {
     x: cellCenterX(x, y) + ORIGIN_X,
-    y: cellCenterY(y) - 60 + ORIGIN_Y,
+    y: cellCenterY(y) - 60 + ORIGIN_Y + SPRITE_Y_OFFSET,
   };
 }
 

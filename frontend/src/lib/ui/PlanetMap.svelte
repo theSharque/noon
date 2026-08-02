@@ -13,6 +13,7 @@
     hitTest,
     mapPixelSize,
     selectionPos,
+    spriteY,
     terrainColor,
     terrainSrc,
     tileDrawPos,
@@ -299,7 +300,7 @@
               src={buildingSrc(ch)}
               alt={ch}
               draggable="false"
-              style={`left:${cellX(x, y)}px; top:${cellY(y)}px`}
+              style={`left:${cellX(x, y)}px; top:${spriteY(y)}px`}
             />
           {:else if trees[y]?.charAt(x) && trees[y].charAt(x) !== '0'}
             <img
@@ -307,7 +308,7 @@
               src={decorSrc(trees[y].charAt(x))}
               alt=""
               draggable="false"
-              style={`left:${cellX(x, y)}px; top:${cellY(y)}px`}
+              style={`left:${cellX(x, y)}px; top:${spriteY(y)}px`}
             />
           {/if}
         {/each}

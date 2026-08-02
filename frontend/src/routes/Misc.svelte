@@ -244,6 +244,8 @@
     html = formatEncLinkTable(html, 'Для изготовления необходимо:', 'qty-first');
     html = formatEncLinkTable(html, 'Используется при постройке:', 'qty-first');
     html = formatEncLinkTable(html, 'Содержится в минералах:', 'name-first');
+    html = formatEncLinkTable(html, 'Содержит полезные ископаемые:', 'name-first');
+    html = formatEncNameNumTable(html, 'Сводная таблица распространенности материалов:');
     html = formatEncKvTable(html, 'ТТХ корабля:');
     return html;
   }
@@ -281,6 +283,36 @@
       .map(
         (r) =>
           `<tr><td class="enc-qty">${r.qty}</td><td><a href="${r.href}">${r.name}</a></td></tr>`,
+      )
+      .join('');
+    const table =
+      `<div class="enc-section"><div class="enc-section-title">${title}</div>` +
+      `<table class="enc-table"><tbody>${body}</tbody></table></div>`;
+    return html.slice(0, idx) + table + html.slice(cursor);
+  }
+
+  function formatEncNameNumTable(html, title) {
+    const idx = html.indexOf(title);
+    if (idx < 0) return html;
+    let pos = idx + title.length;
+    while (pos < html.length && (html[pos] === '\n' || html[pos] === '\r')) pos += 1;
+
+    const rows = [];
+    let cursor = pos;
+    while (cursor < html.length) {
+      const rest = html.slice(cursor);
+      if (rest.startsWith('\n')) break;
+      const m = rest.match(/^([^\t\n]+)\t+(\d+)\n?/);
+      if (!m) break;
+      rows.push({ name: m[1].trim(), qty: m[2] });
+      cursor += m[0].length;
+    }
+    if (!rows.length) return html;
+
+    const body = rows
+      .map(
+        (r) =>
+          `<tr><td class="enc-qty">${r.qty}</td><td>${r.name}</td></tr>`,
       )
       .join('');
     const table =

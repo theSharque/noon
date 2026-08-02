@@ -2,8 +2,6 @@
 
   global $user;
 
-  $result = db_fetch_array( "SELECT type, chat, mail FROM users_msg_settings WHERE user_id = ".$user->uid." ORDER BY type" );
-
   $types = array(
      1 => 'Сообщение об окончании изучения наук',
      2 => 'Сообщение об окончании строительства, улучшения или премия маркетолога',
@@ -12,13 +10,6 @@
      5 => 'Сообщение об окончании перелетов внутри системы и гиперпространстве',
      6 => 'Сообщение о гиперперехвате',
      7 => 'Сообщения свободных заданий, переименований',
-     8 => '8',
-     9 => '9',
-    10 => '10',
-    11 => '11',
-    12 => '12',
-    13 => '13',
-    14 => '14',
     15 => 'Обучающие сообщения, сообщения о премиях за обучение, сообщения астрономов',
     16 => 'Сообщения по торговле',
     17 => 'Детальное описание идущего боя, награда за пиратов',
@@ -26,20 +17,27 @@
     19 => 'Все сообщения от лаборатории'
   );
 
+  $uid = intval( $user->uid );
+  $rows = db_fetch_array( "SELECT type, chat, mail FROM users_msg_settings WHERE user_id = $uid" );
+
+  $by_type = array();
+  if( is_array( $rows ) ) {
+    foreach( $rows as $item ) {
+      $by_type[ intval( $item['type'] ) ] = $item;
+    }
+  }
+
   $mv = intval( $user->music );
   $sv = intval( $user->sound );
   $sp = intval( $user->show_planet );
 
-  if( is_array( $result ) && count( $result ) ) {
-
-    $l = 0;
-    $out = 'err=0&cnt='.count( $result )."&mv=$mv&sv=$sv&sp=$sp";
-    foreach( $result as $item ) {
-      $out .= "&t$l=".$item['type']."&d$l=".$types[ $item['type'] ]."&c$l=".$item['chat']."&m$l=".$item['mail'];
-      $l++;
-    }
-  } else {
-    $out = "err=1&cnt=0&mv=$mv&sv=$sv&sp=$sp";
+  $l = 0;
+  $out = 'err=0&cnt='.count( $types )."&mv=$mv&sv=$sv&sp=$sp";
+  foreach( $types as $type => $desc ) {
+    $chat = isset( $by_type[$type] ) ? $by_type[$type]['chat'] : 0;
+    $mail = isset( $by_type[$type] ) ? $by_type[$type]['mail'] : 0;
+    $out .= "&t$l=$type&d$l=$desc&c$l=$chat&m$l=$mail";
+    $l++;
   }
 
   printOut( $out );

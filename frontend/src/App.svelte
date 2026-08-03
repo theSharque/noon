@@ -32,7 +32,7 @@
     <Router {routes} />
   </main>
   <div class="chat-spacer" aria-hidden="true"></div>
-  <footer class="shell-chat" class:collapsed={chatCollapsed}>
+  <footer class="shell-chat scifi-panel" class:collapsed={chatCollapsed}>
     <Chat bind:collapsed={chatCollapsed} />
   </footer>
   <Tutorial />
@@ -41,7 +41,7 @@
 
 <style>
   .shell {
-    --chat-slot: var(--shell-chat);
+    --chat-slot: calc(var(--shell-chat) + 10px);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -115,16 +115,10 @@
   .shell-chat {
     position: absolute;
     z-index: 20;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
+    left: 12px;
+    right: 12px;
+    bottom: 10px;
     height: var(--shell-chat);
-    overflow: hidden;
-    background: rgba(4, 8, 16, 0.55);
-    backdrop-filter: blur(8px);
-    border-radius: var(--radius-panel);
-    border: 1px solid var(--border-light);
-    box-shadow: var(--glow-soft);
     transition:
       height 0.42s cubic-bezier(0.22, 1, 0.36, 1),
       right 0.42s cubic-bezier(0.22, 1, 0.36, 1),
@@ -143,6 +137,12 @@
     border-color: transparent;
     box-shadow: none;
     backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .shell-chat.collapsed::before,
+  .shell-chat.collapsed::after {
+    display: none;
   }
 
   @media (prefers-reduced-motion: reduce) {

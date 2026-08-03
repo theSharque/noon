@@ -325,8 +325,8 @@
 
   .chat-dock {
     position: absolute;
-    left: 12px;
-    bottom: 12px;
+    left: 0;
+    bottom: 0;
     display: flex;
     gap: 6px;
     padding: 0;

@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { push } from 'svelte-spa-router';
+  import { encHtmlLinkTarget, formatEncHtml } from '../lib/encHtml.js';
   import {
     getNoonConfig,
     loadTradeBayShips,
@@ -159,6 +160,15 @@
   function openProfile(login) {
     if (!login) return;
     push(`/about?login=${encodeURIComponent(login)}`);
+  }
+
+  function onConfDescClick(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+    const name = encHtmlLinkTarget(a.getAttribute('href') || '');
+    if (!name) return;
+    e.preventDefault();
+    push(`/misc?itm=${encodeURIComponent(name)}`);
   }
 
   function clearBayDetail() {
@@ -354,7 +364,7 @@
       confDesc = 'Нет данных';
       return;
     }
-    confDesc = (data.desc || '').replace(/\n/g, '<br>');
+    confDesc = formatEncHtml(data.desc || '');
     confMoney = data.money || '';
     confCredits = data.conf || '';
     confPrice = data.price || '';
@@ -734,7 +744,9 @@
       </ScifiPanel>
 
       <ScifiPanel title="Описание" className="pane">
-        <div class="conf-desc">{@html confDesc}</div>
+        <div class="conf-desc html-rich" on:click={onConfDescClick}>
+          {@html confDesc}
+        </div>
         <div class="action-bar">
           <label class="qty-wrap">
             <span>Кол-во</span>
@@ -884,13 +896,6 @@
     overflow: auto;
     min-height: 80px;
     flex: 1;
-    font-size: 0.9rem;
-    line-height: 1.45;
-    color: var(--text-main);
-  }
-
-  .conf-desc :global(a) {
-    color: inherit;
   }
 
   .action-bar .action-btns {

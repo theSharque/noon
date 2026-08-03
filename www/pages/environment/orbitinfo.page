@@ -9,7 +9,8 @@
     $planet_id = $user->place_id;
     $x = $_GET['x'];
 
-    db_query( "UPDATE LOW_PRIORITY planets_active SET last_orb=$x WHERE id=$planet_id" );
+    db_query( "INSERT INTO planets_active ( id, last_orb ) VALUES ( $planet_id, $x )
+               ON DUPLICATE KEY UPDATE last_orb=$x" );
 
     $line = db_fetch_val( "SELECT lin FROM orbits_map WHERE id = $planet_id", 'lin' );
     if( strlen( $line ) >= $x ) {

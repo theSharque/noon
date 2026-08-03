@@ -33,7 +33,8 @@
       }
     }
 
-    db_query( "UPDATE LOW_PRIORITY planets_active SET last_pos='$x:$y' WHERE id=$planet_id" );
+    db_query( "INSERT INTO planets_active ( id, last_pos ) VALUES ( $planet_id, '$x:$y' )
+               ON DUPLICATE KEY UPDATE last_pos='$x:$y'" );
 
     $def = db_fetch_row( "SELECT IFNULL( MAX( d.status ), 0 ) status, u.login
                             FROM defence d

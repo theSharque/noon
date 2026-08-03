@@ -136,7 +136,8 @@
     $x = $_GET['x'];
     $y = $_GET['y'];
 
-    db_query( "UPDATE LOW_PRIORITY planets_active SET last_pos='$x:$y' WHERE id=$planet_id" );
+    db_query( "INSERT INTO planets_active ( id, last_pos ) VALUES ( $planet_id, '$x:$y' )
+               ON DUPLICATE KEY UPDATE last_pos='$x:$y'" );
 
     $info = get_planet_info( $x, $y );
 

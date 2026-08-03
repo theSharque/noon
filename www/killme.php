@@ -3,6 +3,7 @@
   require_once( "./include/misc.inc" );
   require_once( "./include/db.inc" );
   require_once( "./include/messages.inc" );
+  require_once( "./include/email.inc" );
   message_init();
 
   $code = $_GET['act'];
@@ -23,15 +24,8 @@
 
 С уважением Администрация сайта.";
 
-    $headers = "From: 21noon <support@21noon.com>\r\n".
-               "Content-Transfer-Encoding: 8bit\r\n".
-               "Content-type: text/plain; charset=\"UTF-8\"".
-               "Reply-To: support@21noon.com\r\n".
-               'X-Mailer: PHP/' . phpversion();
-  
-    $subject = "=?UTF-8?B?" . base64_encode("Акаунт {$dat['login']} в игре Полдень 21 века успешно удален") . "?=";
-
-    mail( $dat['email'], $subject, $message, $headers );
+    $subject = "Акаунт {$dat['login']} в игре Полдень 21 века успешно удален";
+    send_resend_email( $dat['email'], $subject, $message );
     header( "Location: index.php?pid=72489" );
     
   } else {

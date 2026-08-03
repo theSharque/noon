@@ -6,6 +6,7 @@ session_start();
 require_once( "./include/misc.inc" );
 require_once( "./include/db.inc" );
 require_once( "./include/messages.inc" );
+require_once( "./include/email.inc" );
 message_init();
 
 function get_out( $err ) {
@@ -41,26 +42,21 @@ if( count( $_POST ) > 0 ) {
 
   if( $good ) {
     $tmp = md5( $urow['login'].$urow['password'] );
+    $baseUrl = noon_public_base_url();
     $message = "Здравствуйте $login.
 
 Вы или кто-то от вашего имени попросил восстановить пароль в игре \"Полдень 21 века\" на сервере 21noon.com.
 Если это сделали вы, то для восстановления пароля вам необходимо перейти по ссылке:
 
-  http://21noon.com/restore.php?id=$tmp
+  $baseUrl/restore.php?id=$tmp
   
 Если письмо попало к вам случайно, то мы приносим свои извинения за действия не добропорядочных пользователей и
 просим просто удалить письмо не обращая на него внимания.
 
 С уважением Администрация сайта.";
 
-    $headers = "From: 21noon <support@21noon.com>\r\n".
-               "Content-Transfer-Encoding: 8bit\r\n".
-               "Content-type: text/plain; charset=\"UTF-8\"".
-               "Reply-To: support@21noon.com\r\n".
-               'X-Mailer: PHP/' . phpversion();
-    
-    $subject = "=?UTF-8?B?" . base64_encode("Восстановление пароля $login в игре Полдень 21 века") . "?=";
-    mail( $email, $subject, $message, $headers );
+    $subject = "Восстановление пароля $login в игре Полдень 21 века";
+    send_resend_email( $email, $subject, $message );
 
     header("Location: index.php?pid=rep_ok");
 

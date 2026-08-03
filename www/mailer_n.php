@@ -3,6 +3,7 @@
   global $user;
   
   include "./include/boot.inc";
+  require_once( "./include/email.inc" );
   bootup();
   
   if( authorization() && $user->uid == 16 ) {
@@ -31,14 +32,8 @@
 
 С уважением Администрация сайта \"Полдень 21 века\".";
 
-      $headers = "From: 21noon <support@21noon.com>\r\n".
-                 "Content-Transfer-Encoding: 8bit\r\n".
-                 "Content-type: text/plain; charset=\"UTF-8\"".
-                 "Reply-To: support@21noon.com\r\n".
-                 'X-Mailer: PHP/' . phpversion();
-    
-      $subject = "=?UTF-8?B?" . base64_encode("Новости игры Полдень 21 века") . "?=";
-      mail( $email, $subject, $message, $headers );
+      $subject = "Новости игры Полдень 21 века";
+      send_resend_email( $email, $subject, $message );
       echo "Send $subject to $email for $login\n";
     }
     

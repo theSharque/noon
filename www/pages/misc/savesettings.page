@@ -43,6 +43,9 @@
       $type = $_GET["t$i"];
       db_safe( $type );
 
-      db_query( "UPDATE users_msg_settings SET chat = $chat, mail = $mail WHERE type = $type AND user_id = ".$user->uid );
+      db_query(
+        "INSERT INTO users_msg_settings (user_id, type, chat, mail) VALUES ( ".$user->uid.", $type, $chat, $mail ) ".
+        "ON DUPLICATE KEY UPDATE chat = $chat, mail = $mail"
+      );
     }
   }

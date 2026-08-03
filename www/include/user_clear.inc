@@ -225,6 +225,8 @@ function kill_users() {
 
 function email_user( $uid ) {
 
+  require_once( dirname( __FILE__ ) . '/email.inc' );
+
 //  $item = array( 'login' => 'sharque', 'email' => 'thesharque@gmail.com' );
   $item = db_fetch_row( "SELECT login, email FROM users u WHERE u.id = $uid" );
 
@@ -243,13 +245,6 @@ function email_user( $uid ) {
 С уважением,
 Администрация сайта \"Полдень 21 века\".", array( $login ) );
 
-  $headers = "From: 21noon <support@21noon.com>\r\n".
-             "Content-Transfer-Encoding: 8bit\r\n".
-             "Content-type: text/plain; charset=\"UTF-8\"".
-             "Reply-To: support@21noon.com\r\n".
-             'X-Mailer: PHP/' . phpversion();
-    
-  $subject = "=?UTF-8?B?" . base64_encode( t( "Техподдержка игры Полдень 21 века" ) ) . "?=";
-  mail( $email, $subject, $message, $headers );
-//  mail( 'thesharque@gmail.com', $subject, $message, $headers );
+  $subject = t( "Техподдержка игры Полдень 21 века" );
+  send_resend_email( $email, $subject, $message );
 }

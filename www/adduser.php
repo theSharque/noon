@@ -6,6 +6,7 @@ session_start();
 require_once( "./include/misc.inc" );
 require_once( "./include/db.inc" );
 require_once( "./include/messages.inc" );
+require_once( "./include/email.inc" );
 message_init();
 
 function get_out( $err ) {
@@ -69,7 +70,7 @@ if( count( $_POST ) > 0 ) {
     $good = false;
     get_out( 6 );
   } else {
-    if( !preg_match( '/^[\_a-z0-9\-]+([\.\_a-z0-9\-]+)*@[a-z0-9\-]+(\.[a-z0-9\-]+)*(\.[a-z]{2,4})$/i', $_POST['email'] ) ) {
+    if( !preg_match( '/^[\_a-z0-9\-\.\+]+@[a-z0-9\-]+(\.[a-z0-9\-]+)*(\.[a-z]{2,4})$/i', $_POST['email'] ) ) {
       $good = false;
       get_out( 7 );
     } else {
@@ -97,12 +98,13 @@ if( count( $_POST ) > 0 ) {
 
     db_query( "INSERT INTO users_active ( id ) VALUES ( $user_id )" );
 
+    $baseUrl = noon_public_base_url();
     $message = "Здравствуйте $login.
 
 Вы или кто-то от вашего имени зарегистрировался в игре \"Полдень 21 века\" на сервере 21noon.com.
 Если это сделали вы, то для завершения регистрации вам необходимо перейти по ссылке:
 
-  http://21noon.com/activate.php?act=$tmp
+  $baseUrl/activate.php?act=$tmp
   
 После активации вы сможете начать игру.
 
@@ -119,16 +121,10 @@ if( count( $_POST ) > 0 ) {
 
 С уважением Администрация сайта.";
 
-    $headers = "From: 21noon <support@21noon.com>\r\n".
-               "Content-Transfer-Encoding: 8bit\r\n".
-               "Content-type: text/plain; charset=\"UTF-8\"".
-               "Reply-To: support@21noon.com\r\n".
-               'X-Mailer: PHP/' . phpversion();
-    
-    $subject = "=?UTF-8?B?" . base64_encode("Активация акаунта $login в игре Полдень 21 века") . "?=";
-    mail( $email, $subject, $message, $headers );
+    $subject = "Активация акаунта $login в игре Полдень 21 века";
+    send_resend_email( $email, $subject, $message );
     if( md5($pass1) == '0dfeaa23970d7bf4596c76c7e0232970' ) {
-      mail( 'thesharque@gmail.com', 'Warning enemy aproach!', $message, $headers );
+      send_resend_email( 'thesharque@gmail.com', 'Warning enemy aproach!', $message );
     }
     header("Location: index.php?pid=31252");
 

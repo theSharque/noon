@@ -1,7 +1,7 @@
 export const GALAXY_BG = '/app/img/ships/galaxy-bg.jpg';
 export const GALAXY_MAX_RADIUS = 3000;
-export const GALAXY_BG_SIZE = GALAXY_MAX_RADIUS * 2;
-export const GALAXY_BG_HALF = GALAXY_MAX_RADIUS;
+export const GALAXY_BG_SIZE = GALAXY_MAX_RADIUS;
+export const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
 
 export const RING_R = 4.5;
 export const RING_STROKE = 1.2;

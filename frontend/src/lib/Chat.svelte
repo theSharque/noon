@@ -71,7 +71,88 @@
   let usersHtml = '';
   let unread = { sys: false, priv: false };
 
+  const PEEK_DELAY_MS = 2000;
+  let peekTab = null;
+  let peekTimer = null;
+  let peekLeaveTimer = null;
+  let peekMsgsEl;
+
   $: activeHtml = activeTab === 'main' ? mainHtml : activeTab === 'sys' ? sysHtml : privHtml;
+  $: peekHtml = peekTab === 'main' ? mainHtml : peekTab === 'sys' ? sysHtml : peekTab === 'priv' ? privHtml : '';
+  $: peekLabel = tabs.find((t) => t.id === peekTab)?.label || '';
+
+  function clearPeekTimer() {
+    if (peekTimer) {
+      clearTimeout(peekTimer);
+      peekTimer = null;
+    }
+  }
+
+  function clearPeekLeave() {
+    if (peekLeaveTimer) {
+      clearTimeout(peekLeaveTimer);
+      peekLeaveTimer = null;
+    }
+  }
+
+  function hidePeek() {
+    clearPeekTimer();
+    clearPeekLeave();
+    peekTab = null;
+  }
+
+  async function showPeek(id) {
+    peekTab = id;
+    await tick();
+    if (peekMsgsEl) peekMsgsEl.scrollTop = 0;
+  }
+
+  function schedulePeek(id) {
+    clearPeekLeave();
+    if (peekTab === id) {
+      clearPeekTimer();
+      return;
+    }
+    clearPeekTimer();
+    if (peekTab) {
+      showPeek(id);
+      return;
+    }
+    peekTimer = setTimeout(() => {
+      peekTimer = null;
+      showPeek(id);
+    }, PEEK_DELAY_MS);
+  }
+
+  function onDockEnter(id) {
+    schedulePeek(id);
+  }
+
+  function onDockLeave() {
+    clearPeekTimer();
+    clearPeekLeave();
+    peekLeaveTimer = setTimeout(() => {
+      peekTab = null;
+      peekLeaveTimer = null;
+    }, 220);
+  }
+
+  function onPeekEnter() {
+    clearPeekLeave();
+    clearPeekTimer();
+  }
+
+  function onPeekLeave() {
+    clearPeekLeave();
+    peekLeaveTimer = setTimeout(() => {
+      peekTab = null;
+      peekLeaveTimer = null;
+    }, 180);
+  }
+
+  function onPeekClick(e) {
+    e.preventDefault();
+  }
 
   async function doPoll() {
     const pollCid = cid;
@@ -109,10 +190,12 @@
   }
 
   function collapseChat() {
+    hidePeek();
     collapsed = true;
   }
 
   function expandToTab(id) {
+    hidePeek();
     collapsed = false;
     selectTab(id);
   }
@@ -205,22 +288,26 @@
 
   onDestroy(() => {
     clearInterval(pollTimer);
+    hidePeek();
   });
 </script>
 
-<div class="chat-stage">
+<div class="chat-stage" class:is-collapsed={collapsed}>
   {#if collapsed}
     <div class="chat-dock" role="toolbar" aria-label="Чат" in:riseDock out:riseDock>
       {#each tabs as tab, i}
         <button
           type="button"
           class="dock-btn"
-          class:blink={tab.id === 'sys' && unread.sys && activeTab !== 'sys'}
-          class:blink-priv={tab.id === 'priv' && unread.priv && activeTab !== 'priv'}
+          class:blink={tab.id === 'sys' && unread.sys}
+          class:blink-priv={tab.id === 'priv' && unread.priv}
+          class:peek-active={peekTab === tab.id}
           title={tab.label}
           aria-label={tab.label}
           in:dockBtnIn={{ delay: 90 + i * 50 }}
           on:click={() => expandToTab(tab.id)}
+          on:pointerenter={() => onDockEnter(tab.id)}
+          on:pointerleave={onDockLeave}
         >
           {#if tab.icon === 'main'}
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -241,6 +328,28 @@
         </button>
       {/each}
     </div>
+
+    {#if peekTab}
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div
+        class="chat-peek scifi-panel"
+        role="dialog"
+        aria-label={`Просмотр: ${peekLabel}`}
+        on:pointerenter={onPeekEnter}
+        on:pointerleave={onPeekLeave}
+      >
+        <div class="panel-header peek-header">{peekLabel}</div>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div class="panel-content peek-msgs" bind:this={peekMsgsEl} on:click={onPeekClick}>
+          {#if peekHtml}
+            {@html peekHtml}
+          {:else}
+            <span class="empty">…</span>
+          {/if}
+        </div>
+      </div>
+    {/if}
   {:else}
     <div class="chat" in:foldPanel out:foldPanel>
       <div class="chat-read">
@@ -311,6 +420,10 @@
     height: 100%;
   }
 
+  .chat-stage.is-collapsed {
+    overflow: visible;
+  }
+
   .chat {
     position: absolute;
     inset: 0;
@@ -331,6 +444,73 @@
     gap: 6px;
     padding: 0;
     will-change: transform, opacity;
+  }
+
+  .chat-peek {
+    position: fixed;
+    z-index: 40;
+    left: 12px;
+    bottom: 48px;
+    width: min(42vw, 520px);
+    height: min(38vh, 340px);
+    pointer-events: auto;
+    animation: peekIn 0.22s ease-out;
+  }
+
+  @keyframes peekIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-peek {
+      animation: none;
+    }
+  }
+
+  .peek-header {
+    padding: 8px 12px;
+    font-size: var(--font-size-xs);
+  }
+
+  .peek-msgs {
+    padding: 6px 10px;
+    overflow: auto;
+    font-family: var(--font-ui);
+    font-size: var(--font-size);
+    line-height: 1.45;
+    cursor: default;
+    user-select: text;
+  }
+
+  .peek-msgs :global(a) {
+    color: inherit;
+    text-decoration: underline;
+    pointer-events: none;
+  }
+
+  .peek-msgs :global(a.chat-act) {
+    display: none;
+  }
+
+  .peek-msgs :global(font),
+  .peek-msgs :global(b),
+  .peek-msgs :global(span) {
+    font-family: var(--font-ui) !important;
+    font-size: inherit !important;
+    line-height: inherit;
+  }
+
+  .dock-btn.peek-active {
+    --ctrl-fill: var(--ctrl-active-bg);
+    --ctrl-stroke-color: var(--ctrl-active-border);
+    color: var(--ctrl-active-color);
   }
 
   .chat-read {

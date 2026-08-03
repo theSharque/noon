@@ -1,6 +1,7 @@
 export const GALAXY_BG = '/app/img/ships/galaxy-bg.jpg';
 export const GALAXY_BG_SIZE = 2000;
 export const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
+export const GALAXY_MAX_RADIUS = 3000;
 
 export const RING_R = 4.5;
 export const RING_STROKE = 1.2;
@@ -72,4 +73,17 @@ export function galaxyLocalPoint(viewport, offset, bounds, e) {
     x: e.clientX - rect.left - offset.x + bounds.minX - 2,
     y: e.clientY - rect.top - offset.y + bounds.minY - 1,
   };
+}
+
+export function clampGalaxyPoint(x, y) {
+  const len = Math.hypot(x, y);
+  if (len <= 0 || len <= GALAXY_MAX_RADIUS) {
+    return { x: Math.round(x), y: Math.round(y) };
+  }
+  const scale = GALAXY_MAX_RADIUS / len;
+  return { x: Math.round(x * scale), y: Math.round(y * scale) };
+}
+
+export function isGalaxyPointValid(x, y) {
+  return Math.hypot(x, y) <= GALAXY_MAX_RADIUS;
 }

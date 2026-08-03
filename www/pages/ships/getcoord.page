@@ -28,12 +28,13 @@
       return;
     }
 
-    $xdiff = 340 - $x;
-    $ydiff = 220 - $y;
-    $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
-
-    if( $len < 25 ) {
+    $coord_err = system_validate_coord( $x, $y );
+    if( $coord_err === 'too_close' ) {
       printOut( "err=3" );
+      return;
+    }
+    if( $coord_err === 'too_far' ) {
+      printOut( "err=6" );
       return;
     }
 
@@ -42,14 +43,11 @@
         $planet = get_place_info( $place['place_id'], $place['place_type'] );
     
         $start = db_fetch_row( "SELECT orb, rad FROM planets WHERE id = ".$place['place_id'] );
-        $radx = $start['orb'] * 2;
-        $rady = $start['orb'] * 1.5;
-        $start_x = round( 340 + sin( deg2rad( $start['rad'] ) ) * $radx / 2 );
-        $start_y = round( 220 + cos( deg2rad( $start['rad'] ) ) * $rady / 2 );
+        $start_xy = system_planet_xy( $start['rad'], $start['orb'] );
+        $start_x = $start_xy['x'];
+        $start_y = $start_xy['y'];
     
-        $xdiff = $start_x - $x;
-        $ydiff = $start_y - $y;
-        $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+        $len = system_distance( $start_x, $start_y, $x, $y );
 
         $time = time_to_str( get_pmove_time( $len, $place['planet'] ) );
 
@@ -129,20 +127,14 @@
                                     WHERE p.star_id = {$planet->place_id} ORDER BY p.planet_pos" );
 
         foreach( $result as $item ) {
-          $radx = $item['orb'] * 2;
-          $rady = $item['orb'] * 1.5;
+          $planet_xy = system_planet_xy( $item['rad'], $item['orb'] );
+          $planet_x = $planet_xy['x'];
+          $planet_y = $planet_xy['y'];
     
-          $planet_x = round( 340 + sin( deg2rad( $item['rad'] ) ) * $radx / 2 );
-          $planet_y = round( 220 + cos( deg2rad( $item['rad'] ) ) * $rady / 2 );
-    
-          $xdiff = $planet_x - $x;
-          $ydiff = $planet_y - $y;
-          $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+          $len = system_distance( $planet_x, $planet_y, $x, $y );
     
           if( $len < 15 ) {
-            $xdiff = $start_x - $planet_x;
-            $ydiff = $start_y - $planet_y;
-            $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+            $len = system_distance( $start_x, $start_y, $planet_x, $planet_y );
 
             $time = time_to_str( get_pmove_time( $len, $place['planet'] ) );
 
@@ -260,9 +252,7 @@
         $start_x = $place['arg1'];
         $start_y = $place['arg2'];
     
-        $xdiff = $start_x - $x;
-        $ydiff = $start_y - $y;
-        $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+        $len = system_distance( $start_x, $start_y, $x, $y );
 
         $time = time_to_str( get_pmove_time( $len, $place['planet'] ) );
 
@@ -350,20 +340,14 @@
                                           ( d.status = 4 AND (SELECT u.id FROM users u WHERE u.id = d.user_id AND u.aliance = {$user->aliance}) is null ) )
                                     WHERE p.star_id = {$place['place_id']} ORDER BY p.planet_pos" );
         foreach( $result as $item ) {
-          $radx = $item['orb'] * 2;
-          $rady = $item['orb'] * 1.5;
+          $planet_xy = system_planet_xy( $item['rad'], $item['orb'] );
+          $planet_x = $planet_xy['x'];
+          $planet_y = $planet_xy['y'];
     
-          $planet_x = round( 340 + sin( deg2rad( $item['rad'] ) ) * $radx / 2 );
-          $planet_y = round( 220 + cos( deg2rad( $item['rad'] ) ) * $rady / 2 );
-    
-          $xdiff = $planet_x - $x;
-          $ydiff = $planet_y - $y;
-          $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+          $len = system_distance( $planet_x, $planet_y, $x, $y );
     
           if( $len < 15 ) {
-            $xdiff = $start_x - $planet_x;
-            $ydiff = $start_y - $planet_y;
-            $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+            $len = system_distance( $start_x, $start_y, $planet_x, $planet_y );
 
             $time = time_to_str( get_pmove_time( $len, $place['planet'] ) );
 

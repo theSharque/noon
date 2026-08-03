@@ -8,3 +8,6 @@ frontend/node_modules/
 **/desktop.ini
 deploy.sh
 deploy/*.tar
+deploy/db/
+deploy/docker/
+deploy/.tmp-*

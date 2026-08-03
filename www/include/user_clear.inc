@@ -56,19 +56,35 @@ function kill_users() {
           db_query( "DELETE FROM planets WHERE id = $planet_id" );
           db_query( "DELETE FROM planets_active WHERE id = $planet_id" );
 
-          db_query( "UPDATE ships s
-                        SET s.arg1=round(rand()*684), s.arg2=round(rand()*460), s.place_type = 7, s.place_id = {$base['star_id']}
-                      WHERE s.fleet_id IS NULL AND ( 
-                              ( s.place_type IN (0,1) AND s.place_id = $planet_id )
-                              OR
-                              ( s.place_type = 3 AND s.place_id IN ( SELECT ob.id FROM orbits_buildings ob WHERE ob.planet_id = $planet_id ) ) )" );
+          $ship_rows = db_fetch_array( "SELECT s.id
+                                          FROM ships s
+                                         WHERE s.fleet_id IS NULL AND (
+                                                 ( s.place_type IN (0,1) AND s.place_id = $planet_id )
+                                                 OR
+                                                 ( s.place_type = 3 AND s.place_id IN ( SELECT ob.id FROM orbits_buildings ob WHERE ob.planet_id = $planet_id ) )
+                                               )" );
+          foreach( $ship_rows as $ship_row ) {
+            $pos = system_random_coord();
+            db_query( "UPDATE ships s
+                          SET s.arg1 = {$pos['x']}, s.arg2 = {$pos['y']}, s.place_type = 7, s.place_id = {$base['star_id']}
+                        WHERE s.id = ".$ship_row['id'] );
+          }
 
-          db_query( "UPDATE fleets f, ships s
-                        SET f.arg1=round(rand()*684), f.arg2=round(rand()*460), f.place_type = 7, s.place_type = 7, s.place_id = {$base['star_id']}
-                      WHERE s.fleet_id = f.id AND ( 
-                              ( f.place_type IN (0,1) AND f.place_id = $planet_id )
-                              OR
-                              ( f.place_type = 3 AND f.place_id IN ( SELECT ob.id FROM orbits_buildings ob WHERE ob.planet_id = $planet_id ) ) )" );
+          $fleet_rows = db_fetch_array( "SELECT f.id
+                                           FROM fleets f
+                                          INNER JOIN ships s ON s.fleet_id = f.id
+                                          WHERE ( f.place_type IN (0,1) AND f.place_id = $planet_id )
+                                             OR ( f.place_type = 3 AND f.place_id IN ( SELECT ob.id FROM orbits_buildings ob WHERE ob.planet_id = $planet_id ) )
+                                          GROUP BY f.id" );
+          foreach( $fleet_rows as $fleet_row ) {
+            $pos = system_random_coord();
+            db_query( "UPDATE fleets f
+                          SET f.arg1 = {$pos['x']}, f.arg2 = {$pos['y']}, f.place_type = 7
+                        WHERE f.id = ".$fleet_row['id'] );
+            db_query( "UPDATE ships s
+                          SET s.arg1 = {$pos['x']}, s.arg2 = {$pos['y']}, s.place_type = 7, s.place_id = {$base['star_id']}
+                        WHERE s.fleet_id = ".$fleet_row['id'] );
+          }
 
           db_query( "UPDATE ships s, fleets f SET s.arg1=f.arg1, s.arg2=f.arg2
                       WHERE s.fleet_id = f.id AND f.place_type = 7" );

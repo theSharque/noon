@@ -17,8 +17,12 @@ chmod +x deploy.sh
 
 Requires Docker network `edge` (create via edge deploy).
 
-`deploy.sh` builds `noon-php` / `noon-nginx` / `noon-cron`, ships tarballs to the server,
-force-recreates app containers, and verifies that php and nginx serve the **same** SPA
+`deploy.sh` builds `noon-php` / `noon-nginx` / `noon-cron`, copies `db/` and `docker/mysql/`
+from the repo root into a temporary bundle, rsyncs to the server, then removes local copies
+and tarballs. **Flyway migrations live only in `db/migration/` at the repo root** — do not
+edit `deploy/db/` (it is recreated each deploy and not tracked in git).
+
+Force-recreates app containers and verifies that php and nginx serve the **same** SPA
 bundle (`page.php` reads `/var/www/noon/app/index.html` from php; static `/app/` from nginx).
 
 After first deploy, issue certificate from edge:

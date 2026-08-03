@@ -18,14 +18,9 @@ function gen_ship() {
     $ship = $stars[$sr-1]['id'];
     $star = $stars[$sr-1]['name'];
 
-    do {
-      $xr = mt_rand( 1, 684 );
-      $yr = mt_rand( 1, 460 );
-
-      $xdiff = 340 - $xr;
-      $ydiff = 220 - $yr;
-      $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
-    } while ( $len < 25 );
+    $pos = system_random_coord();
+    $xr = $pos['x'];
+    $yr = $pos['y'];
 
     user_report( $ship, 1, 120, t( "Астрономы зафиксировали странный корабль <font color=\"#00FF00\">в системе %s корабль</font> в рабочем состоянии, но не отвечает на опознавательные запросы.", array( $star ) ) );
 

@@ -36,6 +36,8 @@
     computeGalaxyBounds,
     galaxyCenterOffset,
     galaxyLocalPoint,
+    isGalaxyPointValid,
+    GALAXY_MAX_RADIUS,
   } from '../lib/galaxyMap.js';
   import { setMusicVolumeLocal, setSoundVolumeLocal } from '../lib/audioStore.js';
   import { askYesNo } from '../lib/confirmStore.js';
@@ -699,6 +701,10 @@
     if (atlasDragMoved) return;
     const pt = atlasLocal(e);
     if (!pt) return;
+    if (!isGalaxyPointValid(pt.x, pt.y)) {
+      atlasDesc = `<font color="#FF0000">Точка за пределами галактики (макс. ${GALAXY_MAX_RADIUS} от центра)</font>`;
+      return;
+    }
     atlasPlace = snapAtlasPoint(pt.x, pt.y);
     const data = await getStarCoord(atlasPlace.x, atlasPlace.y);
     if (String(data.err) !== '0') return;

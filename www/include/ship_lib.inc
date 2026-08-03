@@ -197,10 +197,9 @@
 
         $star_id = $start['star_id'];
 
-        $radx = $start['orb'] * 2;
-        $rady = $start['orb'] * 1.5;
-        $start_x = round( 340 + sin( deg2rad( $start['rad'] ) ) * $radx / 2 );
-        $start_y = round( 220 + cos( deg2rad( $start['rad'] ) ) * $rady / 2 );
+        $start_xy = system_planet_xy( $start['rad'], $start['orb'] );
+        $start_x = $start_xy['x'];
+        $start_y = $start_xy['y'];
         break;
 
       case 7:
@@ -221,15 +220,11 @@
     }
 
     if( $star_id == $end['star_id'] ) {
-      $radx = $end['orb'] * 2;
-      $rady = $end['orb'] * 1.5;
-      $end_x = round( 340 + sin( deg2rad( $end['rad'] ) ) * $radx / 2 );
-      $end_y = round( 220 + cos( deg2rad( $end['rad'] ) ) * $rady / 2 );
+      $end_xy = system_planet_xy( $end['rad'], $end['orb'] );
+      $end_x = $end_xy['x'];
+      $end_y = $end_xy['y'];
 
-      $xdiff = $start_x - $end_x;
-      $ydiff = $start_y - $end_y;
-
-      $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+      $len = system_distance( $start_x, $start_y, $end_x, $end_y );
       $fuel_need = round( $len/15 ) * $test['planet_cnt'];
       $time = get_pmove_time( $len, $test['planet'], $test['user_id'] );
 

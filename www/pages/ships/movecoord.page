@@ -28,17 +28,20 @@
       $a_type = 1;
     }
 
-    $xdiff = 340 - $x;
-    $ydiff = 220 - $y;
-    $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+    $coord_err = system_validate_coord( $x, $y );
 
     if( ( $place['place_type'] != 0 && $place['place_type'] != 7 ) || $place['place_type'] === null ) {
       printOut( "err=4" );
       return;
     }
 
-    if( $len < 25 ) {
+    if( $coord_err === 'too_close' ) {
       printOut( "err=3" );
+      return;
+    }
+
+    if( $coord_err === 'too_far' ) {
+      printOut( "err=6" );
       return;
     }
 
@@ -48,18 +51,15 @@
         $star_id = $planet->place_id;
   
         $start = db_fetch_row( "SELECT orb, rad FROM planets WHERE id = ".$place['place_id'] );
-        $radx = $start['orb'] * 2;
-        $rady = $start['orb'] * 1.5;
-        $start_x = round( 340 + sin( deg2rad( $start['rad'] ) ) * $radx / 2 );
-        $start_y = round( 220 + cos( deg2rad( $start['rad'] ) ) * $rady / 2 );
+        $start_xy = system_planet_xy( $start['rad'], $start['orb'] );
+        $start_x = $start_xy['x'];
+        $start_y = $start_xy['y'];
   
         $result = db_fetch_array( "SELECT p.id, p.name, p.orb, p.rad, d.status, d.user_id
                                      FROM planets p LEFT JOIN defence d ON d.place_id = p.id AND d.place_type = 0
                                     WHERE p.star_id = ".$planet->place_id." ORDER BY p.planet_pos" );
   
-        $xdiff = $start_x - $x;
-        $ydiff = $start_y - $y;
-        $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+        $len = system_distance( $start_x, $start_y, $x, $y );
 
         $time = get_pmove_time( $len, $place['planet'] );
 
@@ -75,20 +75,14 @@
         }
   
         foreach( $result as $item ) {
-          $radx = $item['orb'] * 2;
-          $rady = $item['orb'] * 1.5;
+          $planet_xy = system_planet_xy( $item['rad'], $item['orb'] );
+          $planet_x = $planet_xy['x'];
+          $planet_y = $planet_xy['y'];
     
-          $planet_x = round( 340 + sin( deg2rad( $item['rad'] ) ) * $radx / 2 );
-          $planet_y = round( 220 + cos( deg2rad( $item['rad'] ) ) * $rady / 2 );
-    
-          $xdiff = $planet_x - $x;
-          $ydiff = $planet_y - $y;
-          $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+          $len = system_distance( $planet_x, $planet_y, $x, $y );
   
           if( $len < 15 ) {
-            $xdiff = $start_x - $planet_x;
-            $ydiff = $start_y - $planet_y;
-            $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+            $len = system_distance( $start_x, $start_y, $planet_x, $planet_y );
 
             $time = get_pmove_time( $len, $place['planet'] );
 
@@ -115,9 +109,7 @@
                                      FROM planets p LEFT JOIN defence d ON d.place_id = p.id AND d.place_type = 0
                                     WHERE p.star_id = ".$place['place_id']." ORDER BY p.planet_pos" );
   
-        $xdiff = $start_x - $x;
-        $ydiff = $start_y - $y;
-        $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+        $len = system_distance( $start_x, $start_y, $x, $y );
 
         $time = get_pmove_time( $len, $place['planet'] );
 
@@ -133,20 +125,14 @@
         }
   
         foreach( $result as $item ) {
-          $radx = $item['orb'] * 2;
-          $rady = $item['orb'] * 1.5;
+          $planet_xy = system_planet_xy( $item['rad'], $item['orb'] );
+          $planet_x = $planet_xy['x'];
+          $planet_y = $planet_xy['y'];
     
-          $planet_x = round( 340 + sin( deg2rad( $item['rad'] ) ) * $radx / 2 );
-          $planet_y = round( 220 + cos( deg2rad( $item['rad'] ) ) * $rady / 2 );
-    
-          $xdiff = $planet_x - $x;
-          $ydiff = $planet_y - $y;
-          $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+          $len = system_distance( $planet_x, $planet_y, $x, $y );
   
           if( $len < 15 ) {
-            $xdiff = $start_x - $planet_x;
-            $ydiff = $start_y - $planet_y;
-            $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+            $len = system_distance( $start_x, $start_y, $planet_x, $planet_y );
 
             $time = get_pmove_time( $len, $place['planet'] );
 

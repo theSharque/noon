@@ -9,8 +9,9 @@ function gen_tritit() {
                               FROM stars s" );
 
   foreach( $ships as $item ) {
-    $xr = mt_rand( 1, 684 );
-    $yr = mt_rand( 1, 460 );
+    $pos = system_random_coord();
+    $xr = $pos['x'];
+    $yr = $pos['y'];
     $type = mt_rand( 1, 3 );
 
     if( isset( $item['shid'] ) && is_numeric( $item['shid'] ) ) {
@@ -26,8 +27,9 @@ function gen_tritit() {
 
   $fleets = db_fetch_array( "SELECT f.id shid FROM fleets f WHERE f.place_type = 7 AND f.user_id = 3 AND f.inwar = 0" );
   foreach( $fleets as $item ) {
-    $xr = mt_rand( 1, 684 );
-    $yr = mt_rand( 1, 460 );
+    $pos = system_random_coord();
+    $xr = $pos['x'];
+    $yr = $pos['y'];
 
     db_query( "UPDATE fleets SET arg1 = $xr, arg2 = $yr WHERE id = ".$item['shid'] );
     db_query( "UPDATE ships SET arg1 = $xr, arg2 = $yr WHERE fleet_id = ".$item['shid'] );

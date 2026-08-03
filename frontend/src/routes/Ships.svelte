@@ -32,14 +32,25 @@
   import ScifiButton from '../lib/ui/ScifiButton.svelte';
   import ScifiSelect from '../lib/ui/ScifiSelect.svelte';
   import GalaxyMap from '../lib/ui/GalaxyMap.svelte';
+  import SystemMap from '../lib/ui/SystemMap.svelte';
   import {
     RING_R,
     RING_STROKE,
     computeGalaxyBounds,
     galaxyCenterOffset,
     galaxyLocalPoint,
-    starFill,
+    isGalaxyPointValid,
+    GALAXY_MAX_RADIUS,
   } from '../lib/galaxyMap.js';
+  import {
+    SYSTEM_MAX_RADIUS,
+    computeSystemBounds,
+    isSystemPointValid,
+    systemCenterOffset,
+    systemClampOffset,
+    systemLocalPoint,
+    systemPlanetXy,
+  } from '../lib/systemMap.js';
   import { flashBgStyle } from '../lib/flashColor.js';
 
   const IMG = '/app/img/booklist';
@@ -51,13 +62,8 @@
   ]);
   const GALAXY_ORDERS = new Set([9, 41]);
   const SYSTEM_ORDERS = new Set([8]);
-  const SYSTEM_W = 680;
-  const SYSTEM_H = 440;
-  const SYSTEM_CX = 340;
-  const SYSTEM_CY = 220;
   const SYSTEM_IMG = '/app/img/ships/system';
   const PLANET_SIZE = { 1: 12, 2: 20, 3: 12, 4: 14, 5: 8 };
-  const STAR_R = { 1: 34, 2: 26, 3: 33 };
   const SYSTEM_MARKER_R = 2.5;
   const SYSTEM_CIRCLE_R = RING_R;
   const SYSTEM_TRASH_S = 4;
@@ -130,6 +136,12 @@
   let galaxyDragStart = { x: 0, y: 0, ox: 0, oy: 0 };
   let galaxyCoordTimer;
 
+  let systemBounds = computeSystemBounds();
+  let systemOffset = { x: 0, y: 0 };
+  let systemViewport;
+  let systemDragging = false;
+  let systemDragMoved = false;
+  let systemDragStart = { x: 0, y: 0, ox: 0, oy: 0 };
   let systemPlanets = [];
   let systemOrbits = [];
   let systemMarkers = [];
@@ -143,7 +155,6 @@
   let systemBg = '';
   let systemName = '';
   let systemStype = 1;
-  let systemSvg;
   let systemCoordTimer;
   let systemOrbitTimer;
   let systemOrbitBusy = false;
@@ -408,6 +419,8 @@
     systemBg = '';
     systemName = '';
     systemStype = 1;
+    systemBounds = computeSystemBounds();
+    systemOffset = { x: 0, y: 0 };
   }
 
   function clearSystemCoordTimer() {
@@ -835,6 +848,14 @@
     if (galaxyDragMoved) return;
     const pt = galaxyLocal(e);
     if (!pt) return;
+    if (!isGalaxyPointValid(pt.x, pt.y)) {
+      galaxyDesc = lightenGalaxyDesc(
+        `<font color="#FF0000">Точка за пределами галактики (макс. ${GALAXY_MAX_RADIUS} от центра)</font>`,
+      );
+      showOrderBtn = false;
+      orderGlow = false;
+      return;
+    }
     const snap = snapGalaxyPoint(pt.x, pt.y);
     await probeGalaxy(snap.x, snap.y);
   }
@@ -883,6 +904,14 @@
     const shid = primaryId();
     if (!shid) return;
     const data = await getStarCoord(mx, my, shid);
+    if (String(data.err) === '7') {
+      galaxyDesc = lightenGalaxyDesc(
+        `<font color="#FF0000">Точка за пределами галактики (макс. ${GALAXY_MAX_RADIUS} от центра)</font>`,
+      );
+      showOrderBtn = false;
+      orderGlow = false;
+      return;
+    }
     if (String(data.err) !== '0') {
       showOrderBtn = false;
       orderGlow = false;
@@ -905,17 +934,74 @@
     const mx = parseInt(galaxyCoordX, 10);
     const my = parseInt(galaxyCoordY, 10);
     if (Number.isNaN(mx) || Number.isNaN(my)) return;
+    if (!isGalaxyPointValid(mx, my)) {
+      galaxyDesc = lightenGalaxyDesc(
+        `<font color="#FF0000">Точка за пределами галактики (макс. ${GALAXY_MAX_RADIUS} от центра)</font>`,
+      );
+      showOrderBtn = false;
+      orderGlow = false;
+      return;
+    }
     if (mx === galaxyPlace.x && my === galaxyPlace.y && galaxyPreviewT > 0) return;
     playBuzz();
     await probeGalaxy(mx, my);
   }
 
   function systemPolarXy(angleDeg, orb) {
-    const rad = (angleDeg * Math.PI) / 180;
-    return {
-      x: Math.round(SYSTEM_CX + Math.sin(rad) * orb),
-      y: Math.round(SYSTEM_CY + Math.cos(rad) * orb * 0.75),
+    return systemPlanetXy(angleDeg, orb);
+  }
+
+  function centerSystem(cx, cy) {
+    const x = cx ?? systemShip?.x ?? 0;
+    const y = cy ?? systemShip?.y ?? 0;
+    systemOffset = systemCenterOffset(systemViewport, systemBounds, x, y);
+  }
+
+  function systemLocal(e) {
+    return systemLocalPoint(systemViewport, systemOffset, systemBounds, e);
+  }
+
+  function systemPointerDown(e) {
+    systemDragging = true;
+    systemDragMoved = false;
+    systemDragStart = {
+      x: e.clientX,
+      y: e.clientY,
+      ox: systemOffset.x,
+      oy: systemOffset.y,
     };
+  }
+
+  function systemPointerMove(e) {
+    if (!systemDragging) {
+      const pt = systemLocal(e);
+      if (pt) systemHover = `${Math.round(pt.x)}:${Math.round(pt.y)}`;
+      return;
+    }
+    const dx = e.clientX - systemDragStart.x;
+    const dy = e.clientY - systemDragStart.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) systemDragMoved = true;
+    systemOffset = systemClampOffset(systemViewport, systemBounds, {
+      x: systemDragStart.ox + dx,
+      y: systemDragStart.oy + dy,
+    });
+  }
+
+  async function systemPointerUp(e) {
+    if (!systemDragging) return;
+    systemDragging = false;
+    if (systemDragMoved) return;
+    const pt = systemLocal(e);
+    if (!pt) return;
+    if (!isSystemPointValid(pt.x, pt.y)) {
+      systemDesc = lightenGalaxyDesc(
+        `<font color="#FF0000">Точка за пределами системы (макс. ${SYSTEM_MAX_RADIUS} от звезды)</font>`,
+      );
+      showOrderBtn = false;
+      orderGlow = false;
+      return;
+    }
+    await probeSystem(Math.round(pt.x), Math.round(pt.y));
   }
 
   function systemStartFromData(data) {
@@ -953,37 +1039,10 @@
     return 6.28 - angle;
   }
 
-  function starRadius(stype) {
-    return STAR_R[stype] || STAR_R[1];
-  }
-
   function markerStroke(ct) {
     if (ct === 2) return '#5cff8a';
     if (ct === 3) return '#c8c8c8';
     return '#ff6a6a';
-  }
-
-  function systemLocal(e) {
-    const svg = systemSvg;
-    if (!svg) return null;
-    const ctm = svg.getScreenCTM();
-    if (!ctm) return null;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const sp = pt.matrixTransform(ctm.inverse());
-    return { x: Math.round(sp.x), y: Math.round(sp.y) };
-  }
-
-  function systemPointerMove(e) {
-    const pt = systemLocal(e);
-    if (pt) systemHover = `${pt.x}:${pt.y}`;
-  }
-
-  async function systemPointerUp(e) {
-    const pt = systemLocal(e);
-    if (!pt) return;
-    await probeSystem(pt.x, pt.y);
   }
 
   async function openSystemMap() {
@@ -998,6 +1057,8 @@
         return;
       }
       applySystemMapData(data, { resetPreview: true });
+      await svelteTick();
+      centerSystem(systemShip?.x, systemShip?.y);
       startSystemOrbitPoll();
     } catch {
       errorText = 'Ошибка карты системы';
@@ -1010,6 +1071,20 @@
     const shid = primaryId();
     if (!shid) return;
     const data = await getSystemCoord(mx, my, shid);
+    if (String(data.err) === '3') {
+      systemDesc = lightenGalaxyDesc('<font color="#FF0000">Слишком близко к звезде</font>');
+      showOrderBtn = false;
+      orderGlow = false;
+      return;
+    }
+    if (String(data.err) === '6') {
+      systemDesc = lightenGalaxyDesc(
+        `<font color="#FF0000">Точка за пределами системы (макс. ${SYSTEM_MAX_RADIUS} от звезды)</font>`,
+      );
+      showOrderBtn = false;
+      orderGlow = false;
+      return;
+    }
     if (String(data.err) !== '0') {
       showOrderBtn = false;
       orderGlow = false;
@@ -1032,6 +1107,14 @@
     const mx = parseInt(systemCoordX, 10);
     const my = parseInt(systemCoordY, 10);
     if (Number.isNaN(mx) || Number.isNaN(my)) return;
+    if (!isSystemPointValid(mx, my)) {
+      systemDesc = lightenGalaxyDesc(
+        `<font color="#FF0000">Точка за пределами системы (макс. ${SYSTEM_MAX_RADIUS} от звезды)</font>`,
+      );
+      showOrderBtn = false;
+      orderGlow = false;
+      return;
+    }
     if (mx === systemPlace.x && my === systemPlace.y && systemPreviewT > 0) return;
     playBuzz();
     await probeSystem(mx, my);
@@ -1629,142 +1712,111 @@
 
       {:else if monitor === 'system'}
         <div class="monitor-body galaxy-layout">
-          <div
-            class="galaxy-viewport system-viewport"
+          <SystemMap
+            bind:viewport={systemViewport}
+            offset={systemOffset}
+            bounds={systemBounds}
+            bgUrl={systemBg}
+            stype={systemStype}
+            hover={systemHover}
+            showDesc={true}
+            descHtml={systemDesc}
+            on:pointerdown={systemPointerDown}
             on:pointermove={systemPointerMove}
             on:pointerup={systemPointerUp}
             on:pointerleave={() => {
+              systemDragging = false;
               systemHover = '';
             }}
           >
-            <svg
-              class="system-svg"
-              bind:this={systemSvg}
-              viewBox={`0 0 ${SYSTEM_W} ${SYSTEM_H}`}
-              preserveAspectRatio="xMidYMid slice"
-            >
-              {#if systemBg}
+            {#each systemOrbits as orb}
+              <ellipse
+                cx="0"
+                cy="0"
+                rx={orb}
+                ry={orb * 0.75}
+                fill="none"
+                stroke="rgba(180, 220, 255, 0.28)"
+                stroke-width="1"
+              />
+            {/each}
+            {#each systemPlanets as p}
+              <image
+                href={planetImg(p.type)}
+                x={p.x - planetSize(p.type) / 2}
+                y={p.y - planetSize(p.type) / 2}
+                width={planetSize(p.type)}
+                height={planetSize(p.type)}
+              >
+                <title>{p.name}</title>
+              </image>
+              {#if p.type !== 5}
                 <image
-                  href={systemBg}
-                  x="0"
-                  y="0"
-                  width={SYSTEM_W}
-                  height={SYSTEM_H}
-                  opacity="0.5"
-                  preserveAspectRatio="xMidYMid slice"
-                />
-              {/if}
-              {#each systemOrbits as orb}
-                <ellipse
-                  cx={SYSTEM_CX}
-                  cy={SYSTEM_CY}
-                  rx={orb}
-                  ry={orb * 0.75}
-                  fill="none"
-                  stroke="rgba(180, 220, 255, 0.28)"
-                  stroke-width="1"
-                />
-              {/each}
-              {#key systemStype}
-                <defs>
-                  <radialGradient id={`system-star-glow-${systemStype}`} cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
-                    <stop offset="18%" stop-color={starFill(systemStype)} stop-opacity="1" />
-                    <stop offset="45%" stop-color={starFill(systemStype)} stop-opacity="0.55" />
-                    <stop offset="78%" stop-color={starFill(systemStype)} stop-opacity="0.12" />
-                    <stop offset="100%" stop-color={starFill(systemStype)} stop-opacity="0" />
-                  </radialGradient>
-                </defs>
-                <circle
-                  cx={SYSTEM_CX}
-                  cy={SYSTEM_CY}
-                  r={starRadius(systemStype)}
-                  fill={`url(#system-star-glow-${systemStype})`}
+                  href={`${SYSTEM_IMG}/shadow.png`}
+                  x={p.x - planetShadowSize(p.type) / 2}
+                  y={p.y - planetShadowSize(p.type) / 2}
+                  width={planetShadowSize(p.type)}
+                  height={planetShadowSize(p.type)}
+                  transform={`rotate(${planetShadowRotate(p.angle)} ${p.x} ${p.y})`}
                   pointer-events="none"
                 />
-              {/key}
-              {#each systemPlanets as p}
-                <image
-                  href={planetImg(p.type)}
-                  x={p.x - planetSize(p.type) / 2}
-                  y={p.y - planetSize(p.type) / 2}
-                  width={planetSize(p.type)}
-                  height={planetSize(p.type)}
-                >
-                  <title>{p.name}</title>
-                </image>
-                {#if p.type !== 5}
-                  <image
-                    href={`${SYSTEM_IMG}/shadow.png`}
-                    x={p.x - planetShadowSize(p.type) / 2}
-                    y={p.y - planetShadowSize(p.type) / 2}
-                    width={planetShadowSize(p.type)}
-                    height={planetShadowSize(p.type)}
-                    transform={`rotate(${planetShadowRotate(p.angle)} ${p.x} ${p.y})`}
-                    pointer-events="none"
-                  />
-                {/if}
-              {/each}
-              {#each systemMarkers as m}
-                {#if m.ct === 3}
-                  <rect
-                    x={m.x - SYSTEM_TRASH_S / 2}
-                    y={m.y - SYSTEM_TRASH_S / 2}
-                    width={SYSTEM_TRASH_S}
-                    height={SYSTEM_TRASH_S}
-                    fill="none"
-                    stroke={markerStroke(m.ct)}
-                    stroke-width={MAP_STROKE}
-                  />
-                {:else}
-                  <circle
-                    cx={m.x}
-                    cy={m.y}
-                    r={SYSTEM_MARKER_R}
-                    fill="none"
-                    stroke={markerStroke(m.ct)}
-                    stroke-width={MAP_STROKE}
-                  />
-                {/if}
-              {/each}
-              {#if systemShip}
-                <circle
-                  cx={systemShip.x}
-                  cy={systemShip.y}
-                  r={SYSTEM_CIRCLE_R}
+              {/if}
+            {/each}
+            {#each systemMarkers as m}
+              {#if m.ct === 3}
+                <rect
+                  x={m.x - SYSTEM_TRASH_S / 2}
+                  y={m.y - SYSTEM_TRASH_S / 2}
+                  width={SYSTEM_TRASH_S}
+                  height={SYSTEM_TRASH_S}
                   fill="none"
-                  stroke="#ffffff"
+                  stroke={markerStroke(m.ct)}
+                  stroke-width={MAP_STROKE}
+                />
+              {:else}
+                <circle
+                  cx={m.x}
+                  cy={m.y}
+                  r={SYSTEM_MARKER_R}
+                  fill="none"
+                  stroke={markerStroke(m.ct)}
                   stroke-width={MAP_STROKE}
                 />
               {/if}
-              {#if systemPreviewT > 0 && systemShip}
-                <line
-                  class="route-march"
-                  class:route-blocked={systemPreviewT === 3}
-                  x1={systemShip.x}
-                  y1={systemShip.y}
-                  x2={systemPlace.x}
-                  y2={systemPlace.y}
-                  fill="none"
-                  stroke={systemPreviewT === 3 ? '#ff5a5a' : 'var(--neon-cyan)'}
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-                <circle
-                  cx={systemPlace.x}
-                  cy={systemPlace.y}
-                  r={SYSTEM_CIRCLE_R}
-                  fill="none"
-                  stroke="var(--neon-cyan)"
-                  stroke-width={MAP_STROKE}
-                />
-              {/if}
-            </svg>
-            {#if systemHover}
-              <div class="galaxy-hover">{systemHover}</div>
+            {/each}
+            {#if systemShip}
+              <circle
+                cx={systemShip.x}
+                cy={systemShip.y}
+                r={SYSTEM_CIRCLE_R}
+                fill="none"
+                stroke="#ffffff"
+                stroke-width={MAP_STROKE}
+              />
             {/if}
-            <div class="html-rich galaxy-desc">{@html systemDesc || 'Кликните по карте'}</div>
-          </div>
+            {#if systemPreviewT > 0 && systemShip}
+              <line
+                class="route-march"
+                class:route-blocked={systemPreviewT === 3}
+                x1={systemShip.x}
+                y1={systemShip.y}
+                x2={systemPlace.x}
+                y2={systemPlace.y}
+                fill="none"
+                stroke={systemPreviewT === 3 ? '#ff5a5a' : 'var(--neon-cyan)'}
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+              <circle
+                cx={systemPlace.x}
+                cy={systemPlace.y}
+                r={SYSTEM_CIRCLE_R}
+                fill="none"
+                stroke="var(--neon-cyan)"
+                stroke-width={MAP_STROKE}
+              />
+            {/if}
+          </SystemMap>
         </div>
 
       {:else if monitor === 'war'}

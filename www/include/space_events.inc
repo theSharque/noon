@@ -400,14 +400,9 @@ function space_star( $event_id ) {
       $result['arg2'] = $new_star['id'];
     }
 
-    do {
-      $gx = mt_rand( 10, 670 );
-      $gy = mt_rand( 10, 430 );
-  
-      $xdiff = 340 - $gx;
-      $ydiff = 220 - $gy;
-      $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
-    } while ( $len < 25 );
+    $pos = system_random_coord();
+    $gx = $pos['x'];
+    $gy = $pos['y'];
 
     $ta = mt_rand( 1, 50 );
     if( $ta == 1 ) {

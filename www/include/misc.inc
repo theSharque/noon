@@ -10,6 +10,76 @@ function printOut( $text ) {
   $data = str_ireplace( "'", "\'", $text );
 }
 
+define( 'SYSTEM_MAX_RADIUS', 800 );
+define( 'SYSTEM_MIN_RADIUS', 25 );
+define( 'GALAXY_MAX_RADIUS', 3000 );
+
+function system_planet_xy( $rad_deg, $orb ) {
+  $rad = deg2rad( $rad_deg );
+  return array(
+    'x' => round( sin( $rad ) * $orb ),
+    'y' => round( cos( $rad ) * $orb * 0.75 ),
+  );
+}
+
+function system_distance( $x1, $y1, $x2, $y2 ) {
+  $xdiff = $x1 - $x2;
+  $ydiff = $y1 - $y2;
+  return round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
+}
+
+function system_validate_coord( $x, $y ) {
+  $len = system_distance( 0, 0, $x, $y );
+  if( $len < SYSTEM_MIN_RADIUS ) {
+    return 'too_close';
+  }
+  if( $len > SYSTEM_MAX_RADIUS ) {
+    return 'too_far';
+  }
+  return null;
+}
+
+function system_clamp_coord( $x, $y ) {
+  $len = system_distance( 0, 0, $x, $y );
+  if( $len <= 0 || $len <= SYSTEM_MAX_RADIUS ) {
+    return array( 'x' => $x, 'y' => $y );
+  }
+  $scale = SYSTEM_MAX_RADIUS / $len;
+  return array(
+    'x' => round( $x * $scale ),
+    'y' => round( $y * $scale ),
+  );
+}
+
+function system_random_coord( $min_radius = SYSTEM_MIN_RADIUS, $max_radius = SYSTEM_MAX_RADIUS ) {
+  do {
+    $angle = deg2rad( mt_rand( 0, 359999 ) / 1000 );
+    $radius = mt_rand( $min_radius, $max_radius );
+    $x = round( sin( $angle ) * $radius );
+    $y = round( cos( $angle ) * $radius );
+    $err = system_validate_coord( $x, $y );
+  } while( $err !== null );
+
+  return array( 'x' => $x, 'y' => $y );
+}
+
+function galaxy_validate_coord( $x, $y ) {
+  $len = round( sqrt( $x * $x + $y * $y ) );
+  return $len <= GALAXY_MAX_RADIUS;
+}
+
+function galaxy_clamp_coord( $x, $y ) {
+  $len = round( sqrt( $x * $x + $y * $y ) );
+  if( $len <= 0 || $len <= GALAXY_MAX_RADIUS ) {
+    return array( 'x' => $x, 'y' => $y );
+  }
+  $scale = GALAXY_MAX_RADIUS / $len;
+  return array(
+    'x' => round( $x * $scale ),
+    'y' => round( $y * $scale ),
+  );
+}
+
 function get_planet_info( $x, $y, $place_id = -1 ) {
   global $user;
   $place = new stdClass();

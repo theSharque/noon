@@ -3,8 +3,13 @@
   if( isset( $_GET['shid'] ) && isset( $_GET['x'] ) && isset( $_GET['y'] ) && is_numeric( substr( $_GET['shid'], 1 ) ) ) {
     $type = substr( $_GET['shid'], 0, 1 );
     $shid = substr( $_GET['shid'], 1 );
-    $x = $_GET['x'];
-    $y = $_GET['y'];
+    $x = intval( $_GET['x'] );
+    $y = intval( $_GET['y'] );
+
+    if( !galaxy_validate_coord( $x, $y ) ) {
+      printOut( 'err=7' );
+      return;
+    }
 
     levelUp( 25, $user->uid );
 

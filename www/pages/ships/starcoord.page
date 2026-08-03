@@ -5,9 +5,19 @@
     $shid = substr( $_GET['shid'], 1 );
     $x = intval( $_GET['mx'] );
     $y = intval( $_GET['my'] );
+
+    if( !galaxy_validate_coord( $x, $y ) ) {
+      printOut( 'err=7' );
+      return;
+    }
   } else {
     $x = intval( $_GET['mx'] );
     $y = intval( $_GET['my'] );
+
+    if( !galaxy_validate_coord( $x, $y ) ) {
+      printOut( 'err=7' );
+      return;
+    }
 
     $star = db_fetch_row( "SELECT s.id, s.name, s.x, s.y, u.login
                              FROM stars s

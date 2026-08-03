@@ -175,13 +175,9 @@ function quest_search_event( $event ) {
         db_query( "DELETE FROM users_quests WHERE id = ".$event['id'] );
       }
       if( isset( $test['cnt'] ) && $test['cnt'] > 0 ) {
-        do {
-          $xr = mt_rand( 1, 684 );
-          $yr = mt_rand( 1, 460 );
-          $xdiff = 340 - $xr;
-          $ydiff = 220 - $yr;
-          $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
-        } while ( $len < 30 );
+        $pos = system_random_coord( 30 );
+        $xr = $pos['x'];
+        $yr = $pos['y'];
         
         db_query( "INSERT INTO ships (object_id, place_id, place_type, user_id,  name,   arg1, arg2, fleet_id, shield, inwar, guard) VALUES
                                      (9010,     {$event['arg1']},   7,       1, 'S-O-S', $xr,  $yr,  NULL,     500,    0,     0    )" );
@@ -388,13 +384,9 @@ function quest_tritit_event( $event ) {
                          INNER JOIN ship_types st ON st.object_id = s.object_id
                               WHERE s.place_type = 7 AND s.place_id = {$event['arg0']} AND st.radar > 0 AND s.user_id = ".$event['user_id'] );
       if( isset( $test['cnt'] ) && $test['cnt'] > 0 ) {
-        do {
-          $xr = mt_rand( 1, 684 );
-          $yr = mt_rand( 1, 460 );
-          $xdiff = 340 - $xr;
-          $ydiff = 220 - $yr;
-          $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
-        } while ( $len < 30 );
+        $pos = system_random_coord( 30 );
+        $xr = $pos['x'];
+        $yr = $pos['y'];
 
         db_query( "INSERT INTO fleets ( user_id, place_type, place_id, arg1, arg2, inwar, guard ) VALUES ( 3, 7, {$event['arg0']}, $xr, $yr, 0, 1 )" );
         $fleet_id = mysql_insert_id();

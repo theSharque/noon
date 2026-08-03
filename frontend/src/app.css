@@ -40,15 +40,43 @@
   --ctrl-letter-spacing: 1px;
   --ctrl-padding: 6px 14px;
   --ctrl-line-height: 1.2;
-  --ctrl-clip: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  --ctrl-bevel: 8px;
+  --ctrl-stroke: 1px;
+  --ctrl-clip: polygon(
+    var(--ctrl-bevel) 0,
+    100% 0,
+    100% calc(100% - var(--ctrl-bevel)),
+    calc(100% - var(--ctrl-bevel)) 100%,
+    0 100%,
+    0 var(--ctrl-bevel)
+  );
   --ctrl-color: var(--text-muted);
   --ctrl-border-color: var(--border-light);
+  --ctrl-stroke-color: var(--ctrl-border-color);
   --ctrl-bg: transparent;
-  --ctrl-hover-bg: rgba(0, 229, 255, 0.1);
+  --ctrl-fill: var(--ctrl-bg);
+  --ctrl-hover-bg: rgba(255, 255, 255, 0.1);
+  --ctrl-hover-color: #ffffff;
+  --ctrl-hover-border: rgba(255, 255, 255, 0.85);
+  --ctrl-hover-shadow: inset 0 0 12px rgba(255, 255, 255, 0.18), 0 0 12px rgba(255, 255, 255, 0.22);
   --ctrl-active-bg: rgba(0, 229, 255, 0.14);
   --ctrl-active-color: var(--neon-cyan);
   --ctrl-active-border: var(--neon-cyan);
   --ctrl-active-shadow: inset 0 0 12px rgba(0, 229, 255, 0.2), var(--glow-soft);
+  --ctrl-edge: linear-gradient(var(--ctrl-stroke-color), var(--ctrl-stroke-color));
+  --ctrl-diag: linear-gradient(
+    to bottom right,
+    transparent calc(50% - var(--ctrl-stroke) * 0.5),
+    var(--ctrl-stroke-color) calc(50% - var(--ctrl-stroke) * 0.5),
+    var(--ctrl-stroke-color) calc(50% + var(--ctrl-stroke) * 0.5),
+    transparent calc(50% + var(--ctrl-stroke) * 0.5)
+  );
+  --ctrl-frame-image: var(--ctrl-edge), var(--ctrl-edge), var(--ctrl-edge), var(--ctrl-edge), var(--ctrl-diag),
+    var(--ctrl-diag);
+  --ctrl-frame-size: calc(100% - var(--ctrl-bevel)) var(--ctrl-stroke), var(--ctrl-stroke) calc(100% - var(--ctrl-bevel)),
+    calc(100% - var(--ctrl-bevel)) var(--ctrl-stroke), var(--ctrl-stroke) calc(100% - var(--ctrl-bevel)),
+    var(--ctrl-bevel) var(--ctrl-bevel), var(--ctrl-bevel) var(--ctrl-bevel);
+  --ctrl-frame-position: var(--ctrl-bevel) 0, 100% 0, 0 100%, 0 var(--ctrl-bevel), 0 0, 100% 100%;
 }
 
 html,
@@ -127,13 +155,16 @@ body {
 .scifi-btn,
 .scifi-tabs .tab,
 .scifi-nav-link {
+  --ctrl-fill: var(--ctrl-bg);
+  --ctrl-stroke-color: var(--ctrl-border-color);
+  --ctrl-shadow: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: var(--ctrl-bg);
+  background: transparent;
   color: var(--ctrl-color);
-  border: 1px solid var(--ctrl-border-color);
+  border: none;
   padding: var(--ctrl-padding);
   font-family: var(--ctrl-font);
   font-size: var(--ctrl-font-size);
@@ -144,42 +175,66 @@ body {
   text-decoration: none;
   cursor: pointer;
   position: relative;
-  clip-path: var(--ctrl-clip);
+  isolation: isolate;
   box-shadow: none;
   transform: translateY(0) scale(1);
   transition:
-    border-color 0.2s ease,
     color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease,
     transform 0.12s ease;
+}
+
+.scifi-btn::before,
+.scifi-tabs .tab::before,
+.scifi-nav-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ctrl-fill);
+  clip-path: var(--ctrl-clip);
+  box-shadow: var(--ctrl-shadow);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  pointer-events: none;
+}
+
+.scifi-btn::after,
+.scifi-tabs .tab::after,
+.scifi-nav-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--ctrl-frame-image);
+  background-size: var(--ctrl-frame-size);
+  background-position: var(--ctrl-frame-position);
+  background-repeat: no-repeat;
+  pointer-events: none;
 }
 
 .scifi-btn:hover:not(:disabled),
 .scifi-tabs .tab:hover,
 .scifi-nav-link:hover {
-  background: var(--ctrl-hover-bg);
-  border-color: var(--ctrl-active-border);
-  color: var(--ctrl-active-color);
-  box-shadow: var(--ctrl-active-shadow);
+  --ctrl-fill: var(--ctrl-hover-bg);
+  --ctrl-stroke-color: var(--ctrl-hover-border);
+  --ctrl-shadow: var(--ctrl-hover-shadow);
+  color: var(--ctrl-hover-color);
 }
 
 .scifi-btn:active:not(:disabled),
 .scifi-tabs .tab:active,
 .scifi-nav-link:active {
+  --ctrl-fill: rgba(0, 229, 255, 0.22);
+  --ctrl-stroke-color: var(--ctrl-active-border);
+  --ctrl-shadow: inset 0 0 14px rgba(0, 229, 255, 0.35), 0 0 10px rgba(0, 229, 255, 0.25);
   transform: translateY(1px) scale(0.97);
-  background: rgba(0, 229, 255, 0.22);
-  border-color: var(--ctrl-active-border);
   color: var(--ctrl-active-color);
-  box-shadow: inset 0 0 14px rgba(0, 229, 255, 0.35), 0 0 10px rgba(0, 229, 255, 0.25);
 }
 
 .scifi-btn:disabled {
+  --ctrl-fill: rgba(120, 130, 145, 0.22);
+  --ctrl-stroke-color: rgba(140, 150, 165, 0.35);
+  --ctrl-shadow: none;
   opacity: 1;
-  background: rgba(120, 130, 145, 0.22);
-  border-color: rgba(140, 150, 165, 0.35);
   color: rgba(180, 190, 205, 0.55);
-  box-shadow: none;
   cursor: not-allowed;
 }
 
@@ -188,75 +243,93 @@ body {
 .scifi-btn.warn:disabled,
 .scifi-btn.ghost:disabled,
 .scifi-btn.active:disabled {
-  background: rgba(120, 130, 145, 0.22);
-  border-color: rgba(140, 150, 165, 0.35);
+  --ctrl-fill: rgba(120, 130, 145, 0.22);
+  --ctrl-stroke-color: rgba(140, 150, 165, 0.35);
+  --ctrl-shadow: none;
   color: rgba(180, 190, 205, 0.55);
-  box-shadow: none;
 }
 
 .scifi-btn.primary,
 .scifi-btn.active,
 .scifi-tabs .tab.active,
 .scifi-nav-link.active {
-  background: var(--ctrl-active-bg);
-  border-color: var(--ctrl-active-border);
+  --ctrl-fill: var(--ctrl-active-bg);
+  --ctrl-stroke-color: var(--ctrl-active-border);
+  --ctrl-shadow: var(--ctrl-active-shadow);
   color: var(--ctrl-active-color);
-  box-shadow: var(--ctrl-active-shadow);
+}
+
+.scifi-btn.primary:hover:not(:disabled),
+.scifi-btn.active:hover:not(:disabled),
+.scifi-tabs .tab.active:hover,
+.scifi-nav-link.active:hover {
+  --ctrl-fill: var(--ctrl-active-bg);
+  --ctrl-stroke-color: var(--ctrl-active-border);
+  --ctrl-shadow: var(--ctrl-active-shadow);
+  color: var(--ctrl-active-color);
 }
 
 .scifi-btn.primary:active:not(:disabled),
 .scifi-btn.active:active:not(:disabled),
 .scifi-tabs .tab.active:active,
 .scifi-nav-link.active:active {
-  background: rgba(0, 229, 255, 0.28);
-  box-shadow: inset 0 0 16px rgba(0, 229, 255, 0.4), 0 0 12px rgba(0, 229, 255, 0.3);
+  --ctrl-fill: rgba(0, 229, 255, 0.28);
+  --ctrl-shadow: inset 0 0 16px rgba(0, 229, 255, 0.4), 0 0 12px rgba(0, 229, 255, 0.3);
 }
 
 .scifi-btn.ghost {
-  background: var(--ctrl-bg);
-  border-color: var(--ctrl-border-color);
+  --ctrl-fill: var(--ctrl-bg);
+  --ctrl-stroke-color: var(--ctrl-border-color);
   color: var(--ctrl-color);
 }
 
 .scifi-btn.warn {
+  --ctrl-fill: var(--ctrl-bg);
+  --ctrl-stroke-color: var(--accent-warn);
   color: var(--accent-warn);
-  border-color: var(--accent-warn);
 }
 
 .scifi-btn.warn:hover:not(:disabled) {
-  background: rgba(255, 154, 60, 0.14);
-  border-color: var(--accent-warn);
+  --ctrl-fill: rgba(255, 154, 60, 0.14);
+  --ctrl-stroke-color: var(--accent-warn);
+  --ctrl-shadow: inset 0 0 12px rgba(255, 154, 60, 0.2), 0 0 12px rgba(255, 154, 60, 0.25);
   color: var(--accent-warn);
-  box-shadow: inset 0 0 12px rgba(255, 154, 60, 0.2), 0 0 12px rgba(255, 154, 60, 0.25);
 }
 
 .scifi-btn.warn:active:not(:disabled) {
-  background: rgba(255, 154, 60, 0.28);
-  box-shadow: inset 0 0 14px rgba(255, 154, 60, 0.35), 0 0 10px rgba(255, 154, 60, 0.3);
+  --ctrl-fill: rgba(255, 154, 60, 0.28);
+  --ctrl-shadow: inset 0 0 14px rgba(255, 154, 60, 0.35), 0 0 10px rgba(255, 154, 60, 0.3);
 }
 
 .scifi-btn.danger {
+  --ctrl-fill: var(--ctrl-bg);
+  --ctrl-stroke-color: var(--accent-danger);
   color: var(--accent-danger);
-  border-color: var(--accent-danger);
 }
 
 .scifi-btn.danger:hover:not(:disabled) {
-  background: rgba(255, 59, 92, 0.14);
-  border-color: var(--accent-danger);
+  --ctrl-fill: rgba(255, 59, 92, 0.14);
+  --ctrl-stroke-color: var(--accent-danger);
+  --ctrl-shadow: inset 0 0 12px rgba(255, 59, 92, 0.2), 0 0 12px rgba(255, 59, 92, 0.25);
   color: var(--accent-danger);
-  box-shadow: inset 0 0 12px rgba(255, 59, 92, 0.2), 0 0 12px rgba(255, 59, 92, 0.25);
 }
 
 .scifi-btn.danger:active:not(:disabled) {
-  background: rgba(255, 59, 92, 0.28);
-  box-shadow: inset 0 0 14px rgba(255, 59, 92, 0.35), 0 0 10px rgba(255, 59, 92, 0.3);
+  --ctrl-fill: rgba(255, 59, 92, 0.28);
+  --ctrl-shadow: inset 0 0 14px rgba(255, 59, 92, 0.35), 0 0 10px rgba(255, 59, 92, 0.3);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .scifi-btn,
   .scifi-tabs .tab,
   .scifi-nav-link {
-    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    transition: color 0.2s ease;
+  }
+
+  .scifi-btn::before,
+  .scifi-tabs .tab::before,
+  .scifi-nav-link::before {
+    transition: none;
   }
 
   .scifi-btn:active:not(:disabled),

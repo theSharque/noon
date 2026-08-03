@@ -280,15 +280,16 @@
   }
 
   .scifi-nav-link.exit {
+    --ctrl-fill: var(--ctrl-bg);
+    --ctrl-stroke-color: rgba(255, 59, 92, 0.4);
     color: var(--accent-danger);
-    border-color: rgba(255, 59, 92, 0.4);
   }
 
   .scifi-nav-link.exit:hover {
+    --ctrl-fill: rgba(255, 59, 92, 0.1);
+    --ctrl-stroke-color: var(--accent-danger);
+    --ctrl-shadow: inset 0 0 12px rgba(255, 59, 92, 0.2), 0 0 12px rgba(255, 59, 92, 0.25);
     color: #ff7a90;
-    border-color: var(--accent-danger);
-    background: rgba(255, 59, 92, 0.1);
-    box-shadow: inset 0 0 12px rgba(255, 59, 92, 0.2), 0 0 12px rgba(255, 59, 92, 0.25);
   }
 
   .balances {
@@ -336,44 +337,71 @@
   }
 
   .tool-btn {
+    --ctrl-fill: var(--ctrl-bg);
+    --ctrl-stroke-color: var(--ctrl-border-color);
+    --ctrl-shadow: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 28px;
     height: 28px;
     padding: 0;
-    border: 1px solid var(--ctrl-border-color);
-    background: var(--ctrl-bg);
+    border: none;
+    background: transparent;
     color: var(--ctrl-color);
     cursor: pointer;
     text-decoration: none;
-    clip-path: var(--ctrl-clip);
+    position: relative;
+    isolation: isolate;
+    box-shadow: none;
     transform: translateY(0) scale(1);
     transition:
-      border-color 0.2s ease,
       color 0.2s ease,
-      background 0.2s ease,
-      box-shadow 0.2s ease,
       transform 0.12s ease;
   }
 
+  .tool-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--ctrl-fill);
+    clip-path: var(--ctrl-clip);
+    box-shadow: var(--ctrl-shadow);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+    pointer-events: none;
+  }
+
+  .tool-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--ctrl-frame-image);
+    background-size: var(--ctrl-frame-size);
+    background-position: var(--ctrl-frame-position);
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
+
   .tool-btn:hover {
-    color: var(--ctrl-active-color);
-    border-color: var(--ctrl-active-border);
-    box-shadow: var(--ctrl-active-shadow);
-    background: var(--ctrl-hover-bg);
+    --ctrl-fill: var(--ctrl-hover-bg);
+    --ctrl-stroke-color: var(--ctrl-hover-border);
+    --ctrl-shadow: var(--ctrl-hover-shadow);
+    color: var(--ctrl-hover-color);
   }
 
   .tool-btn:active {
+    --ctrl-fill: rgba(0, 229, 255, 0.22);
+    --ctrl-stroke-color: var(--ctrl-active-border);
+    --ctrl-shadow: inset 0 0 12px rgba(0, 229, 255, 0.35);
     transform: translateY(1px) scale(0.94);
-    background: rgba(0, 229, 255, 0.22);
-    box-shadow: inset 0 0 12px rgba(0, 229, 255, 0.35);
   }
 
   .tool-btn.mail.has-mail {
+    --ctrl-fill: var(--ctrl-bg);
+    --ctrl-stroke-color: var(--accent-warn);
     animation: mailPulse 1.2s ease-in-out infinite;
     color: var(--accent-warn);
-    border-color: var(--accent-warn);
   }
 
   @keyframes mailPulse {

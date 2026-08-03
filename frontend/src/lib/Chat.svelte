@@ -298,7 +298,7 @@
           placeholder="Сообщение"
           on:keydown={onKeydown}
         />
-        <button class="scifi-btn primary" type="submit" disabled={sending}>Отправить</button>
+        <button class="scifi-btn" type="submit" disabled={sending}>Отправить</button>
       </form>
     </div>
   {/if}
@@ -381,6 +381,9 @@
   }
 
   .dock-btn {
+    --ctrl-fill: var(--panel-bg-strong);
+    --ctrl-stroke-color: var(--ctrl-border-color);
+    --ctrl-shadow: var(--glow-soft);
     width: 28px;
     height: 28px;
     padding: 0;
@@ -388,18 +391,40 @@
     align-items: center;
     justify-content: center;
     color: var(--ctrl-color);
-    background: var(--panel-bg-strong);
-    border: 1px solid var(--ctrl-border-color);
-    border-radius: var(--radius-panel);
-    clip-path: var(--ctrl-clip);
+    background: transparent;
+    border: none;
+    position: relative;
+    isolation: isolate;
     cursor: pointer;
-    box-shadow: var(--glow-soft);
-    backdrop-filter: blur(8px);
+    box-shadow: none;
+  }
+
+  .dock-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--ctrl-fill);
+    clip-path: var(--ctrl-clip);
+    box-shadow: var(--ctrl-shadow);
+    pointer-events: none;
+  }
+
+  .dock-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--ctrl-frame-image);
+    background-size: var(--ctrl-frame-size);
+    background-position: var(--ctrl-frame-position);
+    background-repeat: no-repeat;
+    pointer-events: none;
   }
 
   .dock-btn:hover {
-    background: var(--ctrl-hover-bg);
-    color: var(--text-main);
+    --ctrl-fill: var(--ctrl-hover-bg);
+    --ctrl-stroke-color: var(--ctrl-hover-border);
+    color: var(--ctrl-hover-color);
   }
 
   .chat-msgs {

@@ -274,6 +274,7 @@
     height: 100%;
     overflow: hidden;
     background: #02060f;
+    user-select: none;
   }
 
   .orbit-bg {
@@ -291,6 +292,7 @@
     inset: 0;
     cursor: grab;
     touch-action: none;
+    user-select: none;
   }
 
   .orbit-viewport:active {

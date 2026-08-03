@@ -3,6 +3,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 DEPLOY_DIR="${REPO_ROOT}/deploy"
+DEPLOY_TMP="${DEPLOY_DIR}/.tmp"
+BUNDLE="${DEPLOY_TMP}/bundle"
 REMOTE="${REMOTE:-ubunew}"
 REMOTE_PATH="${REMOTE_PATH:-/opt/noon}"
 SSH_OPTS="-i ${SSH_KEY:-$HOME/.ssh/id_rsa} -o StrictHostKeyChecking=accept-new"
@@ -11,34 +13,37 @@ PHP_IMAGE="noon-php:latest"
 NGINX_IMAGE="noon-nginx:latest"
 CRON_IMAGE="noon-cron:latest"
 
+cleanup_local_bundle() {
+  rm -rf "${DEPLOY_TMP}"
+}
+
 echo "[deploy] 1/7 Сборка Docker-образов (php+nginx включают свежий frontend)..."
 cd "${REPO_ROOT}"
 docker compose build php nginx cron
 
-echo "[deploy] 2/7 Сохранение образов..."
-mkdir -p "${DEPLOY_DIR}"
-docker save "${PHP_IMAGE}" -o "${DEPLOY_DIR}/noon-php.tar"
-docker save "${NGINX_IMAGE}" -o "${DEPLOY_DIR}/noon-nginx.tar"
-docker save "${CRON_IMAGE}" -o "${DEPLOY_DIR}/noon-cron.tar"
+echo "[deploy] 2/7 Сохранение образов и подготовка bundle..."
+cleanup_local_bundle
+mkdir -p "${BUNDLE}/docker/mysql"
 
-echo "[deploy] 3/7 Подготовка deploy bundle (db/ и docker/ — только для rsync, источник: корень репо)..."
-cp "${REPO_ROOT}/.env.example" "${DEPLOY_DIR}/.env.example"
-rm -rf "${DEPLOY_DIR}/db" "${DEPLOY_DIR}/docker"
-cp -a "${REPO_ROOT}/db" "${DEPLOY_DIR}/db"
-mkdir -p "${DEPLOY_DIR}/docker/mysql"
-cp "${REPO_ROOT}/docker/mysql/charset.cnf" "${DEPLOY_DIR}/docker/mysql/charset.cnf"
+docker save "${PHP_IMAGE}" -o "${BUNDLE}/noon-php.tar"
+docker save "${NGINX_IMAGE}" -o "${BUNDLE}/noon-nginx.tar"
+docker save "${CRON_IMAGE}" -o "${BUNDLE}/noon-cron.tar"
+
+cp "${DEPLOY_DIR}/docker-compose.yml" "${DEPLOY_DIR}/.env.example" "${BUNDLE}/"
+cp -a "${REPO_ROOT}/db" "${BUNDLE}/db"
+cp "${REPO_ROOT}/docker/mysql/charset.cnf" "${BUNDLE}/docker/mysql/charset.cnf"
 if [ -f "${REPO_ROOT}/.env" ]; then
-  grep -E '^(RESEND_API_KEY|EMAIL_FROM|PUBLIC_BASE_URL)=' "${REPO_ROOT}/.env" > "${DEPLOY_DIR}/.env.sync" || true
+  grep -E '^(RESEND_API_KEY|EMAIL_FROM|PUBLIC_BASE_URL)=' "${REPO_ROOT}/.env" > "${BUNDLE}/.env.sync" || true
 else
-  : > "${DEPLOY_DIR}/.env.sync"
+  : > "${BUNDLE}/.env.sync"
 fi
 
-echo "[deploy] 4/7 rsync → ${REMOTE}:${REMOTE_PATH}/"
+echo "[deploy] 3/7 rsync → ${REMOTE}:${REMOTE_PATH}/"
 rsync -avz -e "ssh ${SSH_OPTS}" \
-  "${DEPLOY_DIR}/" \
+  "${BUNDLE}/" \
   "${REMOTE}:${REMOTE_PATH}/"
 
-echo "[deploy] 5/7 На сервере: load + recreate php/nginx/cron..."
+echo "[deploy] 4/7 На сервере: load + recreate php/nginx/cron..."
 ssh ${SSH_OPTS} "${REMOTE}" bash -s -- "${REMOTE_PATH}" <<'REMOTE_UP'
 set -euo pipefail
 RP="$1"
@@ -112,13 +117,12 @@ fi
 echo "[deploy][remote] SPA OK: ${PHP_JS}"
 REMOTE_UP
 
-echo "[deploy] 6/7 Проверка сайта..."
+echo "[deploy] 5/7 Проверка сайта..."
 HTTP_CODE="$(curl -sS -o /dev/null -w '%{http_code}' https://21noon.com/ || true)"
 echo "[deploy] https://21noon.com/ → HTTP ${HTTP_CODE}"
 
-echo "[deploy] 7/7 Очистка временных копий..."
-rm -rf "${DEPLOY_DIR}/db" "${DEPLOY_DIR}/docker"
-rm -f "${DEPLOY_DIR}"/noon-*.tar "${DEPLOY_DIR}"/.env.sync "${DEPLOY_DIR}"/.tmp-*
+echo "[deploy] 6/7 Очистка локального bundle..."
+cleanup_local_bundle
 
 echo ""
 echo "[deploy] Готово: ${REMOTE}:${REMOTE_PATH}"

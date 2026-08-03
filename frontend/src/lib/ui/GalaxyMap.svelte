@@ -191,6 +191,7 @@
     background: #000;
     cursor: crosshair;
     touch-action: none;
+    user-select: none;
   }
 
   .galaxy-viewport:active {

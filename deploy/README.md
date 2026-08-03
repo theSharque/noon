@@ -17,10 +17,10 @@ chmod +x deploy.sh
 
 Requires Docker network `edge` (create via edge deploy).
 
-`deploy.sh` builds `noon-php` / `noon-nginx` / `noon-cron`, copies `db/` and `docker/mysql/`
-from the repo root into a temporary bundle, rsyncs to the server, then removes local copies
-and tarballs. **Flyway migrations live only in `db/migration/` at the repo root** — do not
-edit `deploy/db/` (it is recreated each deploy and not tracked in git).
+`deploy.sh` builds `noon-php` / `noon-nginx` / `noon-cron`, assembles a temporary bundle under
+`deploy/.tmp/bundle/` (gitignored: tarballs, `db/`, `docker/`, `.env.sync`), rsyncs it to the
+server, then deletes `deploy/.tmp/`. **Flyway migrations live only in `db/migration/` at the
+repo root** — do not edit copies under `deploy/.tmp/` (recreated each deploy).
 
 From the repo-root `.env`, `RESEND_API_KEY`, `EMAIL_FROM`, and `PUBLIC_BASE_URL` are merged
 into the server `/opt/noon/.env` on each deploy (MySQL passwords on the server are left unchanged).

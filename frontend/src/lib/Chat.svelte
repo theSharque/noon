@@ -49,6 +49,16 @@
     };
   }
 
+  function peekFromBtn(_node, { duration = reduceMotion ? 0 : 340 } = {}) {
+    return {
+      duration,
+      easing: quintOut,
+      css: (t) =>
+        `opacity:${t};transform:scale(${0.06 + 0.94 * t});` +
+        `transform-origin:var(--peek-origin-x, 12px) var(--peek-origin-y, 100%);`,
+    };
+  }
+
   const tabs = [
     { id: 'main', label: 'Основной', icon: 'main' },
     { id: 'sys', label: 'Системный', icon: 'sys' },
@@ -76,6 +86,10 @@
   let peekTimer = null;
   let peekLeaveTimer = null;
   let peekMsgsEl;
+  let dockEl;
+  let peekEl;
+  let peekOriginX = 12;
+  let peekOriginY = 100;
 
   $: activeHtml = activeTab === 'main' ? mainHtml : activeTab === 'sys' ? sysHtml : privHtml;
   $: peekHtml = peekTab === 'main' ? mainHtml : peekTab === 'sys' ? sysHtml : peekTab === 'priv' ? privHtml : '';
@@ -95,13 +109,32 @@
     }
   }
 
-  function hidePeek() {
-    clearPeekTimer();
-    clearPeekLeave();
+  function computePeekOrigin(tabId) {
+    if (!dockEl || typeof window === 'undefined') return;
+    const btn = dockEl.querySelector(`[data-dock-tab="${tabId}"]`);
+    if (!btn) return;
+    const br = btn.getBoundingClientRect();
+    const peekW = Math.min(window.innerWidth * 0.42, 520);
+    const peekH = Math.min(window.innerHeight * 0.38, 340);
+    const peekLeft = 12;
+    const peekTop = window.innerHeight - 48 - peekH;
+    peekOriginX = br.left + br.width / 2 - peekLeft;
+    peekOriginY = br.top + br.height / 2 - peekTop;
+  }
+
+  function dismissPeek() {
+    if (peekTab) computePeekOrigin(peekTab);
     peekTab = null;
   }
 
+  function hidePeek() {
+    clearPeekTimer();
+    clearPeekLeave();
+    dismissPeek();
+  }
+
   async function showPeek(id) {
+    computePeekOrigin(id);
     peekTab = id;
     await tick();
     if (peekMsgsEl) peekMsgsEl.scrollTop = 0;
@@ -132,7 +165,7 @@
     clearPeekTimer();
     clearPeekLeave();
     peekLeaveTimer = setTimeout(() => {
-      peekTab = null;
+      dismissPeek();
       peekLeaveTimer = null;
     }, 220);
   }
@@ -145,7 +178,7 @@
   function onPeekLeave() {
     clearPeekLeave();
     peekLeaveTimer = setTimeout(() => {
-      peekTab = null;
+      dismissPeek();
       peekLeaveTimer = null;
     }, 180);
   }
@@ -294,7 +327,7 @@
 
 <div class="chat-stage" class:is-collapsed={collapsed}>
   {#if collapsed}
-    <div class="chat-dock" role="toolbar" aria-label="Чат" in:riseDock out:riseDock>
+    <div class="chat-dock" role="toolbar" aria-label="Чат" bind:this={dockEl} in:riseDock out:riseDock>
       {#each tabs as tab, i}
         <button
           type="button"
@@ -302,6 +335,7 @@
           class:blink={tab.id === 'sys' && unread.sys}
           class:blink-priv={tab.id === 'priv' && unread.priv}
           class:peek-active={peekTab === tab.id}
+          data-dock-tab={tab.id}
           title={tab.label}
           aria-label={tab.label}
           in:dockBtnIn={{ delay: 90 + i * 50 }}
@@ -333,8 +367,12 @@
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="chat-peek scifi-panel"
+        bind:this={peekEl}
+        style={`--peek-origin-x:${peekOriginX}px;--peek-origin-y:${peekOriginY}px`}
         role="dialog"
         aria-label={`Просмотр: ${peekLabel}`}
+        in:peekFromBtn
+        out:peekFromBtn={{ duration: reduceMotion ? 0 : 240 }}
         on:pointerenter={onPeekEnter}
         on:pointerleave={onPeekLeave}
       >
@@ -454,23 +492,13 @@
     width: min(42vw, 520px);
     height: min(38vh, 340px);
     pointer-events: auto;
-    animation: peekIn 0.22s ease-out;
-  }
-
-  @keyframes peekIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px) scale(0.96);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+    transform-origin: var(--peek-origin-x, 12px) var(--peek-origin-y, 100%);
+    will-change: transform, opacity;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .chat-peek {
-      animation: none;
+      will-change: auto;
     }
   }
 

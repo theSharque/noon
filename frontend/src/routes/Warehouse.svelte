@@ -675,6 +675,10 @@
     flex: 1;
   }
 
+  .table-wrap :global(.scifi-table tbody tr) {
+    user-select: none;
+  }
+
   .empty {
     color: var(--text-muted);
     font-style: italic;

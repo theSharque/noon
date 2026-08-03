@@ -34,6 +34,11 @@ export function flashTextColor(hex) {
     g = Math.min(255, Math.round(g * k));
     b = Math.min(255, Math.round(b * k));
   }
+  if (r > 150 && g < 140 && b < 140) {
+    const lift = 140 - Math.max(g, b);
+    g = Math.min(255, g + lift);
+    b = Math.min(255, b + lift);
+  }
   if (b > 150 && b > r * 2 && b > g * 2) {
     return 'rgb(0, 229, 255)';
   }

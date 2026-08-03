@@ -423,6 +423,7 @@
     border-radius: var(--radius-panel);
     overflow: hidden;
     background: radial-gradient(ellipse at 30% 20%, rgba(0, 40, 80, 0.55), rgba(2, 8, 20, 0.95));
+    user-select: none;
   }
 
   .planet-viewport {
@@ -431,6 +432,7 @@
     overflow: hidden;
     touch-action: none;
     cursor: default;
+    user-select: none;
   }
 
   .planet-viewport.dragging {

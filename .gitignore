@@ -7,7 +7,9 @@ frontend/node_modules/
 **/Thumbs.db
 **/desktop.ini
 deploy.sh
+deploy/.tmp/
 deploy/*.tar
 deploy/db/
 deploy/docker/
+deploy/.env.sync
 deploy/.tmp-*

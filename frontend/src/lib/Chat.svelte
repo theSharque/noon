@@ -244,30 +244,30 @@
   {:else}
     <div class="chat" in:foldPanel out:foldPanel>
       <div class="chat-read">
-        <div class="scifi-tabs chat-tabs">
-          <button
-            type="button"
-            class="tab collapse-btn"
-            aria-label="Свернуть"
-            title="Свернуть"
-            on:click={collapseChat}
-          >
-            ↙
-          </button>
-          {#each tabs as tab}
+        <div class="chat-main">
+          <div class="scifi-tabs chat-tabs">
             <button
               type="button"
-              class="tab"
-              class:active={activeTab === tab.id}
-              class:blink={tab.id === 'sys' && unread.sys && activeTab !== 'sys'}
-              class:blink-priv={tab.id === 'priv' && unread.priv && activeTab !== 'priv'}
-              on:click={() => selectTab(tab.id)}
+              class="tab collapse-btn"
+              aria-label="Свернуть"
+              title="Свернуть"
+              on:click={collapseChat}
             >
-              {tab.label}
+              ↙
             </button>
-          {/each}
-        </div>
-        <div class="chat-panes">
+            {#each tabs as tab}
+              <button
+                type="button"
+                class="tab"
+                class:active={activeTab === tab.id}
+                class:blink={tab.id === 'sys' && unread.sys && activeTab !== 'sys'}
+                class:blink-priv={tab.id === 'priv' && unread.priv && activeTab !== 'priv'}
+                on:click={() => selectTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            {/each}
+          </div>
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="chat-msgs" bind:this={msgsEl} on:click={onChatClick}>
@@ -277,13 +277,13 @@
               <span class="empty">…</span>
             {/if}
           </div>
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- svelte-ignore a11y-no-static-element-interactions -->
-          <div class="chat-online" bind:this={onlineEl} on:click={onChatClick}>
-            {#if usersHtml}
-              {@html usersHtml}
-            {/if}
-          </div>
+        </div>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div class="chat-online" bind:this={onlineEl} on:click={onChatClick}>
+          {#if usersHtml}
+            {@html usersHtml}
+          {/if}
         </div>
       </div>
       <form class="chat-write" on:submit|preventDefault={submitMessage}>
@@ -325,8 +325,8 @@
 
   .chat-dock {
     position: absolute;
-    left: 0;
-    bottom: 0;
+    left: 12px;
+    bottom: 12px;
     display: flex;
     gap: 6px;
     padding: 0;
@@ -335,6 +335,14 @@
 
   .chat-read {
     flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .chat-main {
+    flex: 1 1 auto;
+    min-width: 0;
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -394,19 +402,12 @@
     color: var(--text-main);
   }
 
-  .chat-panes {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    overflow: hidden;
-    margin-top: 4px;
-  }
-
   .chat-msgs {
     flex: 1 1 auto;
-    min-width: 0;
+    min-height: 0;
     overflow: auto;
     padding: 4px 10px;
+    margin-top: 4px;
     font-family: var(--font-ui);
     font-size: var(--font-size);
     line-height: 1.45;

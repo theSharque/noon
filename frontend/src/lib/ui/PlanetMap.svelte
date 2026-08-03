@@ -230,6 +230,16 @@
   }
 
   function miniFill(x, y) {
+    const bld = buildings[y]?.charAt(x) || '0';
+    if (bld !== '0') {
+      const t = timers.find((tm) => tm.x === x && tm.y === y);
+      if (t) {
+        if (t.cycles < 0) return '#FF00FF';
+        return timerColor(t.eventType, t.cycles, bld);
+      }
+      if (bld === 'K' || bld === 'M' || bld === 'O') return '#FFFFFF';
+      return '#000000';
+    }
     let ch = ground[y]?.charAt(x) || '0';
     let color = terrainColor(ch);
     if (mapLight) {

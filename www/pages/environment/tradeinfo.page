@@ -2,7 +2,7 @@
 
   global $user;
 
-  if( $user->place_type = 3 && isset( $_GET['oid'] ) && is_numeric( $_GET['oid'] ) ) {
+  if( $user->place_type == 3 && isset( $_GET['oid'] ) && is_numeric( $_GET['oid'] ) ) {
     $user_id = db_fetch_row( "SELECT p.user_id FROM planets p, orbits_buildings ob WHERE ob.planet_id = p.id AND ob.id = {$user->place_id}" );
 
     $oid = $_GET['oid'];

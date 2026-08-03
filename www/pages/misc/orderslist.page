@@ -750,8 +750,9 @@ debug_it( $gates );
                 } else {
                   $ship = get_place_info( $shid, 2 );
                 }
-                if( $ship->place_id == $user->real_id &&
-                    $ship->place_type == $user->real_type && ( !isset( $place['object_id'] ) || $place['object_id'] != 9310 || $place['object_id'] != 9355 ) ) {
+                if( ( ( $ship->place_id == $user->real_id && $ship->place_type == $user->real_type ) ||
+                      ( $user->real_type == 3 && $ship->place_type == 3 && $user->real_id == 0 && $ship->place_id == $place['place_id'] ) ) &&
+                    ( !isset( $place['object_id'] ) || $place['object_id'] != 9310 || $place['object_id'] != 9355 ) ) {
                   $out .= "&id$cnt=6&name$cnt=Переместиться в корабль";
                   $cnt++;
                 }

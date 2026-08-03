@@ -241,13 +241,22 @@
                 db_query( "UPDATE users SET place_type = 2, place_id = {$test['place_id']} WHERE id = ".$user->uid );
               }
             } else {
-              db_query( "UPDATE users SET place_type = {$test['place_type']}, place_id = {$test['place_id']} WHERE id = ".$user->uid );
+              $pt = intval( $test['place_type'] );
+              $pid = intval( $test['place_id'] );
+              if( $pt == 3 && $pid <= 0 && $type == 'S' ) {
+                $pid = intval( db_fetch_val( "SELECT place_id FROM ships WHERE id = $shid", 'place_id' ) );
+              }
+              db_query( "UPDATE users SET place_type = $pt, place_id = $pid WHERE id = ".$user->uid );
             }
           }
           break;
 
         case 6: // enter fleet or ship
-          if( ( $user->real_type == 1 || $user->real_type == 3 ) && $user->real_id == $test['place_id'] && $user->real_type == $test['place_type'] ) {
+          $can_board = ( $user->real_type == $test['place_type'] && $user->real_id == $test['place_id'] );
+          if( !$can_board && $user->real_type == 3 && $test['place_type'] == 3 && $user->real_id == 0 && $test['place_id'] > 0 ) {
+            $can_board = true;
+          }
+          if( ( $user->real_type == 1 || $user->real_type == 3 || $user->real_type == 0 ) && $can_board ) {
             db_query( "UPDATE users SET place_type = $plt, place_id = $shid WHERE id = ".$user->uid );
           }
           if( $user->real_type == 2 && $user->real_id == $test['place_id'] && $test['place_type'] == 2 ) {

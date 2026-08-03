@@ -86,7 +86,7 @@
       $result = db_fetch_array( "SELECT u.login, ua.char_level
                                    FROM users u
                              INNER JOIN users_active ua ON ua.id = u.id
-                                  WHERE u.status = 1 AND ua.char_level >=0
+                                  WHERE u.status = 1 AND u.admin = 0 AND ua.char_level >=0
                                ORDER BY ua.char_level DESC LIMIT $page,50" );
 
       $left_col = array_slice( $result, 0, 25 );

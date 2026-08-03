@@ -6,7 +6,7 @@
   $planets = db_fetch_val( "SELECT COUNT(id) cnt FROM planets", 'cnt' );
   $ships = db_fetch_val( "SELECT COUNT(id) cnt FROM ships", 'cnt' );
   $wars = db_fetch_val( "SELECT val FROM variables WHERE name = 'war_count'", 'val' );
-  $users = db_fetch_array( "SELECT u.login, ua.char_level FROM users u INNER JOIN users_active ua ON ua.id = u.id WHERE u.status = 1 ORDER BY ua.char_level DESC LIMIT 0,10" );
+  $users = db_fetch_array( "SELECT u.login, ua.char_level FROM users u INNER JOIN users_active ua ON ua.id = u.id WHERE u.status = 1 AND u.admin = 0 ORDER BY ua.char_level DESC LIMIT 0,10" );
 
   $top = '';
   foreach( $users as $user ) {

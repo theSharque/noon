@@ -163,12 +163,12 @@ export async function blockChatUser(id) {
 }
 
 export async function pollMail(mailId) {
-  const ts = Date.now();
-  const res = await fetch(`/page.php?id=15&li=${mailId}&p=${ts}`, {
+  const start = Date.now();
+  const res = await fetch(`/page.php?id=15&li=${mailId}&p=${start}`, {
     credentials: 'same-origin',
   });
   const text = await res.text();
-  return { data: parseVars(text), ts };
+  return { data: parseVars(text), rtt: Date.now() - start };
 }
 
 export async function listMail() {

@@ -122,9 +122,8 @@
 
   async function doPoll() {
     try {
-      const { data, ts } = await pollMail(get(mailLastId));
-      const sent = parseInt(data.png, 10);
-      if (!isNaN(sent)) setPing(ts - sent);
+      const { data, rtt } = await pollMail(get(mailLastId));
+      setPing(rtt);
       applyBalances(data);
       if (parseInt(data.err, 10) === 0) {
         const nextId = parseInt(data.id, 10) || get(mailLastId);

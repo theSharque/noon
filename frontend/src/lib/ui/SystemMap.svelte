@@ -50,7 +50,7 @@
         y={-SYSTEM_BG_SIZE / 2}
         width={SYSTEM_BG_SIZE}
         height={SYSTEM_BG_SIZE}
-        opacity="0.5"
+        opacity="0.25"
         preserveAspectRatio="none"
       />
     {/if}

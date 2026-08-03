@@ -72,7 +72,7 @@
       y={-GALAXY_BG_HALF}
       width={GALAXY_BG_SIZE}
       height={GALAXY_BG_SIZE}
-      opacity="0.5"
+      opacity="0.25"
       preserveAspectRatio="none"
     />
     {#each yellow as y}

@@ -4,7 +4,16 @@
 
   $out = "link=0";
 
-  $result = db_fetch_array( "SELECT id, name, class FROM objects WHERE price > 0 OR cprice > 0 ORDER BY class, name" );
+  $classFilter = '';
+  if( isset( $_GET['rf'] ) ) {
+    $rft = $_GET['rf'];
+    db_safe( $rft );
+    if( is_numeric( $rft ) && $rft != 0 ) {
+      $classFilter = " AND class = $rft";
+    }
+  }
+
+  $result = db_fetch_array( "SELECT id, name, class FROM objects WHERE (price > 0 OR cprice > 0)$classFilter ORDER BY class, name" );
 
   $out .= "&cnt=".count( $result );
   $l=0;

@@ -22,6 +22,9 @@ from the repo root into a temporary bundle, rsyncs to the server, then removes l
 and tarballs. **Flyway migrations live only in `db/migration/` at the repo root** — do not
 edit `deploy/db/` (it is recreated each deploy and not tracked in git).
 
+From the repo-root `.env`, `RESEND_API_KEY`, `EMAIL_FROM`, and `PUBLIC_BASE_URL` are merged
+into the server `/opt/noon/.env` on each deploy (MySQL passwords on the server are left unchanged).
+
 Force-recreates app containers and verifies that php and nginx serve the **same** SPA
 bundle (`page.php` reads `/var/www/noon/app/index.html` from php; static `/app/` from nginx).
 

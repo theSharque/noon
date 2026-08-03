@@ -1477,7 +1477,14 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
         }
         break;
       case 3:
-        $title .= "&place$l=".$item['planet']." - пристыкован";
+        $station = db_fetch_row( "SELECT o.name station
+                                    FROM orbits_buildings ob, objects o
+                                   WHERE o.id = ob.object_id AND ob.id = ".$item['place_id'], true );
+        if( isset( $station['station'] ) && $station['station'] != '' ) {
+          $title .= "&place$l=".$item['planet']." - ".$station['station'];
+        } else {
+          $title .= "&place$l=".$item['planet']." - торговая";
+        }
         $color = "&c$l=0x000033";
         break;
 

@@ -1549,7 +1549,7 @@
                 {#each quickOrders as opt}
                   <ScifiButton
                     className="quick-order-btn"
-                    variant={isDangerOrder(opt.value) ? 'danger' : 'primary'}
+                    variant={isDangerOrder(opt.value) ? 'danger' : 'ghost'}
                     disabled={busy}
                     on:click={() => quickOrder(opt.value)}
                   >
@@ -1884,7 +1884,7 @@
                 {#each quickOrders as opt}
                   <ScifiButton
                     className="quick-order-btn"
-                    variant={isDangerOrder(opt.value) ? 'danger' : 'primary'}
+                    variant={isDangerOrder(opt.value) ? 'danger' : 'ghost'}
                     disabled={busy}
                     on:click={() => quickOrder(opt.value)}
                   >

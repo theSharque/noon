@@ -1073,8 +1073,9 @@ export async function tradeSell({ shid, oid, ocnt }) {
   );
 }
 
-export async function loadTradeConfList() {
-  const data = await fetchPage(65);
+export async function loadTradeConfList({ rf = '0' } = {}) {
+  const params = rf !== '' && rf !== undefined ? `rf=${encodeURIComponent(rf)}` : '';
+  const data = await fetchPage(65, params);
   const items = parseIndexedList(data, 'cnt', {
     id: 'id',
     name: 'n',

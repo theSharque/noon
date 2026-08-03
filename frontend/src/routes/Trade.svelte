@@ -76,6 +76,7 @@
   let sellQtyGlow = '';
   let sellSumGlow = '';
 
+  let confRf = '0';
   let confItems = [];
   let confIdx = -1;
   let confDesc = '';
@@ -375,6 +376,29 @@
     recountConf();
   }
 
+  async function refreshConfList() {
+    const data = await loadTradeConfList({ rf: confRf });
+    confItems = data.items || [];
+  }
+
+  async function onConfFilter() {
+    confIdx = -1;
+    confDesc = '';
+    confMoney = '';
+    confCredits = '';
+    confPrice = '';
+    confConfPrice = '';
+    confCreditSum = '';
+    confConfSum = '';
+    confBtnMoney = false;
+    confBtnConf = false;
+    confCanMoney = false;
+    confCanConf = false;
+    confQty = '1';
+    playSelect();
+    await refreshConfList();
+  }
+
   async function onConfRow(idx) {
     confIdx = idx;
     playSelect();
@@ -460,10 +484,7 @@
         refreshComp(),
         refreshBayShips(false),
         refreshSellShips(false),
-        (async () => {
-          const data = await loadTradeConfList();
-          confItems = data.items || [];
-        })(),
+        refreshConfList(),
       ]);
     })();
   });
@@ -718,7 +739,16 @@
     </div>
   {:else if activeTab === 'conf'}
     <div class="dual-layout">
-      <ScifiPanel title="Каталог" className="pane">
+      <ScifiPanel className="pane conf-catalog-pane">
+        <div slot="header" class="catalog-header">
+          <span class="catalog-title">Каталог</span>
+          <ScifiSelect
+            className="class-select"
+            bind:value={confRf}
+            options={CLASS_FILTERS}
+            on:change={onConfFilter}
+          />
+        </div>
         <div class="table-wrap">
           <table class="scifi-table">
             <thead>
@@ -817,6 +847,32 @@
 
   .filter-bar :global(.class-select) {
     min-width: 160px;
+  }
+
+  .dual-layout :global(.conf-catalog-pane > .panel-header) {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .catalog-header {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .catalog-title {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .catalog-header :global(.class-select) {
+    flex: 1 1 8rem;
+    min-width: 7rem;
   }
 
   .min-wrap,

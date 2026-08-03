@@ -27,6 +27,11 @@ rm -rf "${DEPLOY_DIR}/db" "${DEPLOY_DIR}/docker"
 cp -a "${REPO_ROOT}/db" "${DEPLOY_DIR}/db"
 mkdir -p "${DEPLOY_DIR}/docker/mysql"
 cp "${REPO_ROOT}/docker/mysql/charset.cnf" "${DEPLOY_DIR}/docker/mysql/charset.cnf"
+if [ -f "${REPO_ROOT}/.env" ]; then
+  grep -E '^(RESEND_API_KEY|EMAIL_FROM|PUBLIC_BASE_URL)=' "${REPO_ROOT}/.env" > "${DEPLOY_DIR}/.env.sync" || true
+else
+  : > "${DEPLOY_DIR}/.env.sync"
+fi
 
 echo "[deploy] 4/7 rsync → ${REMOTE}:${REMOTE_PATH}/"
 rsync -avz -e "ssh ${SSH_OPTS}" \
@@ -45,6 +50,16 @@ fi
 if [ ! -f .env ]; then
   cp .env.example .env
   echo "[deploy][remote] Создан .env из .env.example — заполните пароли MySQL на сервере."
+fi
+if [ -s .env.sync ]; then
+  while IFS= read -r line || [ -n "$line" ]; do
+    key="${line%%=*}"
+    grep -v "^${key}=" .env > .env.tmp || true
+    mv .env.tmp .env
+    printf '%s\n' "$line" >> .env
+  done < .env.sync
+  rm -f .env.sync
+  echo "[deploy][remote] RESEND/email из локального .env применены (MySQL-пароли на сервере не трогаем)."
 fi
 
 docker load -i noon-php.tar
@@ -103,7 +118,7 @@ echo "[deploy] https://21noon.com/ → HTTP ${HTTP_CODE}"
 
 echo "[deploy] 7/7 Очистка временных копий..."
 rm -rf "${DEPLOY_DIR}/db" "${DEPLOY_DIR}/docker"
-rm -f "${DEPLOY_DIR}"/noon-*.tar "${DEPLOY_DIR}"/.tmp-*
+rm -f "${DEPLOY_DIR}"/noon-*.tar "${DEPLOY_DIR}"/.env.sync "${DEPLOY_DIR}"/.tmp-*
 
 echo ""
 echo "[deploy] Готово: ${REMOTE}:${REMOTE_PATH}"

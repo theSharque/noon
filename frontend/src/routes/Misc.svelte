@@ -765,7 +765,11 @@
     <ScifiTabs tabs={TAB_DEFS} active={activeTab} on:change={(e) => switchTab(e.detail)} />
   </div>
 
-  <div class="layout" class:layout-atlas={activeTab === 'atlas'} class:layout-top={activeTab === 'top'}>
+  <div
+    class="layout"
+    class:layout-atlas={activeTab === 'atlas'}
+    class:layout-top={activeTab === 'top' || activeTab === 'robots'}
+  >
     {#if activeTab === 'enc'}
       <ScifiPanel title="Объекты" className="col-list">
         <div class="table-container">

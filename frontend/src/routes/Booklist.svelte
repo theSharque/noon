@@ -210,11 +210,11 @@
           break;
         case '-100':
           timeLabel = 'Имплантант';
-          bgColor = '0x006600';
+          bgColor = '0x666600';
           break;
         case '-200':
           timeLabel = 'Установлен';
-          bgColor = '0x336633';
+          bgColor = '0x006600';
           break;
         case '-1000':
           timeLabel = 'Недоступно';

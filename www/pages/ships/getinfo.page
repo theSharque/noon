@@ -157,14 +157,15 @@
             "<br>Потребление урана: ".$ship['hyper_cnt'].
             "<br>Дополнительное оборудование: ".implode( ', ', $addons );
 
-        $fleet = db_fetch_array( "SELECT o.name, count(*) cnt
+        $fleet = db_fetch_array( "SELECT o.name, count(*) cnt, st.planet, st.hyper, st.cargo
                                     FROM ships s
                               INNER JOIN objects o ON o.id = s.object_id
+                              INNER JOIN ship_types st ON st.object_id = s.object_id
                                    WHERE s.fleet_id = $shid
-                                GROUP BY o.name" ); 
+                                GROUP BY o.name, st.planet, st.hyper, st.cargo" ); 
         $out .= "&info=<b>Состав флота:</b>\n";
         foreach( $fleet as $ship ) {
-          $out .= $ship['name'].' ('.$ship['cnt'].")\n";
+          $out .= $ship['name'].'|'.$ship['cnt'].'|'.$ship['planet'].'|'.$ship['hyper'].'|'.$ship['cargo']."\n";
         }
         break;
 

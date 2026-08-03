@@ -690,6 +690,15 @@ select.scifi-input option {
   line-height: 1.35;
 }
 
+.html-rich table.enc-table th {
+  padding: 0.22rem 0.55rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: left;
+}
+
+.html-rich table.enc-table th.enc-qty,
 .html-rich table.enc-table td.enc-qty {
   width: 4.25rem;
   text-align: right;

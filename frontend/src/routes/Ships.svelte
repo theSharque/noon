@@ -229,21 +229,38 @@
         title = plain;
         continue;
       }
-      const m = line.match(/^(.+?)\s+\((\d+)\)\s*$/);
-      if (m) rows.push({ name: m[1], cnt: m[2] });
+      const pipe = line.match(/^(.+)\|(\d+)\|(\d+)\|(\d+)\|(\d+)\s*$/);
+      if (pipe) {
+        rows.push({
+          name: pipe[1],
+          cnt: pipe[2],
+          planet: pipe[3],
+          hyper: pipe[4],
+          cargo: pipe[5],
+        });
+        continue;
+      }
+      const legacy = line.match(/^(.+?)\s+\((\d+)\)\s*$/);
+      if (legacy) rows.push({ name: legacy[1], cnt: legacy[2] });
       else rows.push({ name: line, cnt: '' });
     }
     if (!rows.length) return text;
 
+    const hasStats = rows.some((r) => r.planet != null);
+    const head = hasStats
+      ? '<thead><tr><th>Корабль</th><th class="enc-qty">Кол-во</th><th class="enc-qty">В системе</th><th class="enc-qty">В гипере</th><th class="enc-qty">Трюм</th></tr></thead>'
+      : '';
     const body = rows
-      .map(
-        (r) =>
-          `<tr><td>${r.name}</td><td class="enc-qty">${r.cnt}</td></tr>`,
-      )
+      .map((r) => {
+        if (hasStats && r.planet != null) {
+          return `<tr><td>${r.name}</td><td class="enc-qty">${r.cnt}</td><td class="enc-qty">${r.planet}</td><td class="enc-qty">${r.hyper}</td><td class="enc-qty">${r.cargo}</td></tr>`;
+        }
+        return `<tr><td>${r.name}</td><td class="enc-qty">${r.cnt}</td></tr>`;
+      })
       .join('');
     return (
       `<div class="enc-section"><div class="enc-section-title">${title}</div>` +
-      `<table class="enc-table"><tbody>${body}</tbody></table></div>`
+      `<table class="enc-table enc-fleet">${head}<tbody>${body}</tbody></table></div>`
     );
   }
 

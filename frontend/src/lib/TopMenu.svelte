@@ -104,12 +104,13 @@
   }
 
   function setPing(ms) {
-    if (ms === null || isNaN(ms)) {
+    if (ms === null || ms === undefined || Number.isNaN(ms)) {
       pingMs = '';
       pingClass = '';
       return;
     }
-    pingMs = String(ms);
+    const rounded = Math.round(ms);
+    pingMs = String(rounded > 0 ? rounded : 1);
     if (ms <= 1000) pingClass = '';
     else if (ms <= 3000) pingClass = 'warn';
     else pingClass = 'bad';

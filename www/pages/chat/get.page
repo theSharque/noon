@@ -13,7 +13,7 @@
   $sid = isset( $_COOKIE[ 'chat_sid' ] ) ? $_COOKIE[ 'chat_sid' ] : null;
   db_safe( $sid );
 
-  $out = "err=1";
+  $out = "err=99";
   $pre_hash = '';
 
   for( $i = 0; $i < 1; $i++ ) {
@@ -21,6 +21,7 @@
     $me = db_fetch_row( "SELECT id, aliance, login, admin FROM users WHERE ssid = '$sid'" );
 
     if( isset( $me['id'] ) && is_numeric( $me['id'] ) ) {
+      $out = "err=1";
       db_query( "UPDATE users_active SET lastlogin = NOW() WHERE id=".$me['id'] );
       $adm = $me['admin'];
       $login = $me['login'];

@@ -93,6 +93,12 @@ if [ -s .env.sync ]; then
 fi
 
 mkdir -p www/locks
+# php-fpm runs as www-data (uid 33); bind-mounted www from rsync is otherwise unwritable
+chown -R 33:33 www/locks
+chmod 775 www/locks
+touch www/debug.log
+chown 33:33 www/debug.log
+chmod 664 www/debug.log
 
 if [ "${LOAD_IMAGES}" = "1" ]; then
   docker load -i noon-php.tar

@@ -344,6 +344,10 @@
     return lastShip;
   }
 
+  function isInfoMonitor() {
+    return monitor === 'info' || monitor === 'conserv' || monitor === 'multi' || monitor === 'empty';
+  }
+
   function stopWarPoll() {
     if (warTimer) {
       clearInterval(warTimer);
@@ -491,7 +495,7 @@
     }, 500);
   }
 
-  async function refreshPlaces(keepSelection = true) {
+  async function refreshPlaces(keepSelection = true, { syncMonitor = true } = {}) {
     const gen = ++loadGen;
     const data = await loadShipsPlaces();
     if (gen !== loadGen) return;
@@ -501,10 +505,10 @@
       const last = data.lastPlace || '*';
       placeValue = placeOptions.some((p) => String(p.value) === String(last)) ? last : '*';
     }
-    await refreshShips(keepSelection);
+    await refreshShips(keepSelection, { syncMonitor });
   }
 
-  async function refreshShips(keepSelection = true) {
+  async function refreshShips(keepSelection = true, { syncMonitor = true } = {}) {
     const gen = ++loadGen;
     const prevIds = keepSelection ? selectedIds() : [];
     busy = true;
@@ -542,7 +546,7 @@
       selected = next;
       lastIdx = next.length ? next[next.length - 1] : -1;
       if (selected.length === 1) lastShip = ships[selected[0]]?.id || '';
-      await applySelection(false);
+      if (syncMonitor) await applySelection(false);
     } catch (e) {
       errorText = 'Ошибка загрузки флота';
     } finally {
@@ -1373,7 +1377,7 @@
         const remain = s.tp - (Date.now() - shipsStartMs) / 1000;
         return remain <= 0;
       });
-      if (needReload) refreshPlaces(true);
+      if (needReload) refreshPlaces(true, { syncMonitor: isInfoMonitor() });
     }, 1000);
   });
 

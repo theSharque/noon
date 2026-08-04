@@ -42,4 +42,6 @@
         echo '404 error';
         break;
     }  
+  } else {
+    printOut( 'err=99' );
   }

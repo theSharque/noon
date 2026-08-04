@@ -25,7 +25,11 @@
     $uid = ( is_object( $user ) && isset( $user->uid ) ) ? intval( $user->uid ) : 0;
 
     if( !$uid ) {
-      header( "Location: index.php" );
+      if( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) {
+        printOut( 'err=99' );
+      } else {
+        header( "Location: index.php" );
+      }
 
       return;
     }
@@ -750,7 +754,11 @@
         break;
     }  
   } else {
-    header( "Location: index.php" );
+    if( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) {
+      printOut( 'err=99' );
+    } else {
+      header( "Location: index.php" );
+    }
   }
 
 /*

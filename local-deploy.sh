@@ -70,6 +70,9 @@ rm -rf www/app www/admin
 cp -a frontend/dist www/app
 cp -a frontend/dist-admin www/admin
 mkdir -p www/locks
+# php-fpm (www-data uid 33) must create lock files on the bind-mounted www/
+# chown often fails without root on local; always ensure other-write for local dev
+chmod 777 www/locks
 
 if $REBUILD_IMAGES; then
   echo "==> docker compose build php nginx cron"

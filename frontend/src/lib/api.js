@@ -126,7 +126,7 @@ function parseMailRead(text) {
   if (textStart >= 0) {
     const from = textStart + 6;
     const replyIdx = raw.indexOf('&reply=', from);
-    data.text = replyIdx >= 0 ? raw.slice(from, replyIdx) : raw.slice(from);
+    data.text = decodeLoadVar(replyIdx >= 0 ? raw.slice(from, replyIdx) : raw.slice(from));
   }
   if (raw.includes('&reply=1')) data.reply = '1';
   return data;
@@ -147,9 +147,9 @@ function parseMailList(text) {
     messages.push({
       id: parseInt(id, 10),
       read: parseInt((raw.match(new RegExp(`&rd${i}=([^&]*)`)) || [])[1] || '0', 10),
-      from: (raw.match(new RegExp(`&from${i}=([^&]*)`)) || [])[1] || '',
+      from: decodeLoadVar((raw.match(new RegExp(`&from${i}=([^&]*)`)) || [])[1] || ''),
       time: (raw.match(new RegExp(`&time${i}=([^&]*)`)) || [])[1] || '',
-      preview: (raw.match(new RegExp(`&text${i}=([^&]*)`)) || [])[1] || '',
+      preview: decodeLoadVar((raw.match(new RegExp(`&text${i}=([^&]*)`)) || [])[1] || ''),
     });
   }
   data.messages = messages;
@@ -912,6 +912,8 @@ function parseWareShips(data) {
     ...data,
     ships,
     pos: data.pos !== undefined ? parseInt(data.pos, 10) : 0,
+    hit: data.hit !== undefined ? String(data.hit) : '',
+    pref: data.pref || '',
   };
 }
 

@@ -501,8 +501,14 @@
 
       case 4:
         $boot = '/ware';
+        $shid = '';
         if( isset( $_GET['shid'] ) && $_GET['shid'] !== '' ) {
-          $boot .= '?shid=' . rawurlencode( $_GET['shid'] );
+          $shid = $_GET['shid'];
+        } elseif( isset( $user->fid ) && $user->fid != '0' && $user->fid !== '' ) {
+          $shid = $user->fid;
+        }
+        if( $shid !== '' ) {
+          $boot .= '?shid=' . rawurlencode( $shid );
         }
         noon_render_spa( $boot );
         break;

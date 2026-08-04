@@ -792,10 +792,10 @@
             <ScifiButton variant="ghost" on:click={showRename}>Переименовать</ScifiButton>
           {/if}
           {#if showMine}
-            <ScifiButton variant="primary" on:click={() => statOrder(2)}>Старт добычи</ScifiButton>
+            <ScifiButton variant="ghost" on:click={() => statOrder(2)}>Старт добычи</ScifiButton>
           {/if}
           {#if showStop}
-            <ScifiButton variant="ghost" on:click={() => statOrder(6)}>Стоп добычи</ScifiButton>
+            <ScifiButton variant="warn" on:click={() => statOrder(6)}>Стоп добычи</ScifiButton>
           {/if}
           {#if showDispAll}
             <ScifiButton variant="ghost" on:click={() => statOrder(3)}>Переработать все</ScifiButton>

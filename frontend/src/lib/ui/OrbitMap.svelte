@@ -379,7 +379,7 @@
     width: max-content;
     min-width: 61px;
     padding: 4px 6px 3px;
-    margin: -4px 0 0;
+    margin: 8px 0 0;
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.55);
     box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.45);

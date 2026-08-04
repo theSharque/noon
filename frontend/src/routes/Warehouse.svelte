@@ -210,15 +210,22 @@
     wareFree = data.free || '';
   }
 
-  async function loadShipsForPlace() {
+  async function loadShipsForPlace(plOverride) {
     hideMoveUi();
     shipItemSelected = [];
     wareItemSelected = [];
-    const data = await loadWareShips(placeValue, bootShid);
+    const pl = plOverride !== undefined ? plOverride : placeValue;
+    const data = await loadWareShips(pl, bootShid);
+    if (String(data.hit) === '0' && data.pref && pl !== '*') {
+      if (placeValue !== '*') placeValue = '*';
+      return loadShipsForPlace('*');
+    }
     ships = data.ships || [];
-    const pos = Math.max(0, Math.min(data.pos || 0, ships.length - 1));
-    shipSelected = ships.length ? [pos] : [];
-    shipLastIdx = ships.length ? pos : -1;
+    const pos = ships.length
+      ? Math.max(0, Math.min(Number.isFinite(data.pos) ? data.pos : 0, ships.length - 1))
+      : -1;
+    shipSelected = pos >= 0 ? [pos] : [];
+    shipLastIdx = pos;
     await Promise.all([refreshShipItems(), refreshSilos()]);
   }
 

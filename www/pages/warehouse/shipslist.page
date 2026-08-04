@@ -71,8 +71,12 @@
     }
   }
 
-  $shid = $_GET['shid'];
+  $shid = isset( $_GET['shid'] ) ? $_GET['shid'] : '';
   db_safe( $shid );
+  if( $shid === '' || $shid === '0' ) {
+    $shid = isset( $user->fid ) ? $user->fid : '';
+    db_safe( $shid );
+  }
 
   if( $user->real_type == 2 ) {
     $ships = db_fetch_array( "SELECT DISTINCT s.id, s.name, s.place_id, s.place_type, st.cargo, s.fleet_id, f.name fleet
@@ -157,7 +161,12 @@
   }
 
   if( isset( $pos ) ) {
-    $out .= "&pos=$pos";
+    $out .= "&pos=$pos&hit=1";
+  } else {
+    $out .= "&pos=0&hit=0";
+  }
+  if( $shid !== '' && $shid !== '0' ) {
+    $out .= "&pref=$shid";
   }
 
   printOut( $out );

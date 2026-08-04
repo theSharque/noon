@@ -255,8 +255,8 @@
 </div>
 
 <audio bind:this={player} preload="none"></audio>
-<audio bind:this={sndHover} preload="auto" src="{ASSET}/sound7.wav"></audio>
-<audio bind:this={sndClick} preload="auto" src="{ASSET}/bleep.wav"></audio>
+<audio bind:this={sndHover} preload="auto" src="{ASSET}/sound7.mp3"></audio>
+<audio bind:this={sndClick} preload="auto" src="{ASSET}/bleep.mp3"></audio>
 
 <style>
   .bar {

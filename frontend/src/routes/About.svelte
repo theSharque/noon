@@ -274,13 +274,13 @@
       <div class="actions">
         <ScifiButton variant="danger" disabled={!profileLoaded} on:click={() => doRelation('foe')}>Враг</ScifiButton>
         <ScifiButton variant="ghost" disabled={!profileLoaded} on:click={() => doRelation('neutral')}>Нейтрален</ScifiButton>
-        <ScifiButton variant="primary" disabled={!profileLoaded} on:click={() => doRelation('friend')}>Друг</ScifiButton>
+        <ScifiButton variant="success" disabled={!profileLoaded} on:click={() => doRelation('friend')}>Друг</ScifiButton>
         {#if profileLoaded && ignore === '1'}
           <ScifiButton variant="warn" on:click={() => doIgnore('0')}>Снять игнор</ScifiButton>
         {:else if profileLoaded}
           <ScifiButton variant="warn" on:click={() => doIgnore('1')}>Игнорировать</ScifiButton>
         {/if}
-        <ScifiButton variant="primary" disabled={!profileLoaded} on:click={doSend}>Написать</ScifiButton>
+        <ScifiButton variant="ghost" disabled={!profileLoaded} on:click={doSend}>Написать</ScifiButton>
       </div>
 
       <div class="premium-row">

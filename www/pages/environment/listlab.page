@@ -17,7 +17,7 @@
     if( $av_energy >= 0 ) {
       if( get_lab_time( $oid, $x, $y ) > 0 ) {
         if( $class['class'] == 2 || $class['class'] == 9 ) {
-          $out = "dg_h=".t( 'Исследовать %s вероятность %s%%25', array( time_to_str( get_lab_time( $oid, $x, $y ) ), get_book_level( 7, $user->uid ) * 8 ) );
+          $out = "dg_h=".t( 'Исследовать %s вероятность %s%%', array( time_to_str( get_lab_time( $oid, $x, $y ) ), get_book_level( 7, $user->uid ) * 8 ) );
 
           $out .= "&btLabel=".t('Начать исследование')."&btOnClick=page.php?id=281%26oid=$oid%26l=$last%26x=$x%26y=$y";
         } else {

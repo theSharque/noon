@@ -22,6 +22,7 @@
   --accent-sell: #ff5c5c;
   --accent-warn: #ff9a3c;
   --accent-danger: #ff3b5c;
+  --accent-success: #3dff9a;
   --font-ui: 'Exo 2', 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --font-size: 0.85rem;
@@ -240,6 +241,7 @@ body {
 
 .scifi-btn.primary:disabled,
 .scifi-btn.danger:disabled,
+.scifi-btn.success:disabled,
 .scifi-btn.warn:disabled,
 .scifi-btn.ghost:disabled,
 .scifi-btn.active:disabled {
@@ -317,6 +319,24 @@ body {
 .scifi-btn.danger:active:not(:disabled) {
   --ctrl-fill: rgba(255, 59, 92, 0.28);
   --ctrl-shadow: inset 0 0 14px rgba(255, 59, 92, 0.35), 0 0 10px rgba(255, 59, 92, 0.3);
+}
+
+.scifi-btn.success {
+  --ctrl-fill: var(--ctrl-bg);
+  --ctrl-stroke-color: var(--accent-success);
+  color: var(--accent-success);
+}
+
+.scifi-btn.success:hover:not(:disabled) {
+  --ctrl-fill: rgba(61, 255, 154, 0.14);
+  --ctrl-stroke-color: var(--accent-success);
+  --ctrl-shadow: inset 0 0 12px rgba(61, 255, 154, 0.2), 0 0 12px rgba(61, 255, 154, 0.25);
+  color: var(--accent-success);
+}
+
+.scifi-btn.success:active:not(:disabled) {
+  --ctrl-fill: rgba(61, 255, 154, 0.28);
+  --ctrl-shadow: inset 0 0 14px rgba(61, 255, 154, 0.35), 0 0 10px rgba(61, 255, 154, 0.3);
 }
 
 @media (prefers-reduced-motion: reduce) {

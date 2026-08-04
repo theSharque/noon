@@ -1,12 +1,13 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { resolve } from 'path';
+import { svelteOnWarn } from './svelte-onwarn.js';
 
 const root = resolve(__dirname, 'admin');
 
 export default defineConfig({
   root,
-  plugins: [svelte()],
+  plugins: [svelte({ onwarn: svelteOnWarn })],
   base: '/admin/',
   build: {
     outDir: resolve(__dirname, 'dist-admin'),

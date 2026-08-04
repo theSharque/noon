@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { svelteOnWarn } from './svelte-onwarn.js';
 
 export default defineConfig({
-  plugins: [svelte()],
+  plugins: [svelte({ onwarn: svelteOnWarn })],
   base: '/app/',
   server: {
     port: 5173,

@@ -781,15 +781,76 @@
     if (String(data.err) !== '0') return;
     warLastMove = data.lastMove || warLastMove;
     if (data.shots?.length) {
+      applyWarShots(data.shots);
       warLog = [...warLog, ...data.shots.map(formatShot)].slice(-80);
     }
+  }
+
+  function applyWarShots(shots) {
+    let near = warNear.map((u) => ({ ...u }));
+    let far = warFar.map((u) => ({ ...u }));
+
+    const hitSide = (list, defId, defeat, power) => {
+      const idx = list.findIndex((u) => u.id === defId);
+      if (idx < 0) return list;
+      const u = { ...list[idx] };
+      let shield = parseInt(u.shield, 10) || 0;
+      let count = parseInt(u.count, 10) || 0;
+      let shieldTot = parseInt(u.shieldTot, 10) || 0;
+
+      if (defeat > 0) {
+        shield = Math.max(0, shield - (power || defeat));
+      } else if (defeat === -1 || defeat === -2) {
+        const perShip = count > 0 ? Math.round(shieldTot / count) : 0;
+        shield = Math.max(0, shield - (Number.isFinite(power) ? power : 0));
+        if (count > 1) {
+          count -= 1;
+          shieldTot = Math.max(0, shieldTot - perShip);
+        } else {
+          count = 0;
+          shield = 0;
+          shieldTot = 0;
+        }
+      }
+
+      u.shield = String(shield);
+      u.count = String(count);
+      u.shieldTot = String(shieldTot);
+      const next = list.slice();
+      if (count <= 0 && shield <= 0) next.splice(idx, 1);
+      else next[idx] = u;
+      return next;
+    };
+
+    for (const raw of shots) {
+      const parts = String(raw).split(':');
+      if (parts.length < 7) continue;
+      const defId = parts[2];
+      const defeat = parseInt(parts[5], 10);
+      const power = parseInt(parts[6], 10);
+      if (Number.isNaN(defeat)) continue;
+      if (defId.startsWith('a')) near = hitSide(near, defId, defeat, power);
+      else if (defId.startsWith('d')) far = hitSide(far, defId, defeat, power);
+      else {
+        near = hitSide(near, defId, defeat, power);
+        far = hitSide(far, defId, defeat, power);
+      }
+    }
+
+    warNear = near;
+    warFar = far;
   }
 
   function formatShot(raw) {
     const parts = String(raw).split(':');
     if (parts.length < 7) return raw;
-    const defeat = parts[5] === '1' ? 'поражение' : 'попадание';
-    return `${parts[0]} → ${parts[2]} · ${defeat} · сила ${parts[6]}`;
+    const defeat = parseInt(parts[5], 10);
+    const power = parts[6];
+    let result = 'попадание';
+    if (defeat === 0) result = 'промах';
+    else if (defeat === -1) result = 'уничтожен';
+    else if (defeat === -2) result = 'захвачен';
+    return `${parts[0]} → ${parts[2]} · ${result} · сила ${power}`;
   }
 
   function centerGalaxy(cx, cy) {
@@ -2200,88 +2261,6 @@
     min-height: 0;
     flex: 1 1 auto;
     overflow: hidden;
-  }
-
-  .galaxy-viewport {
-    position: relative;
-    flex: 1 1 auto;
-    width: 100%;
-    min-height: 0;
-    height: auto;
-    align-self: stretch;
-    overflow: hidden;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-panel, 4px);
-    background: #000;
-    cursor: crosshair;
-    touch-action: none;
-  }
-
-  .galaxy-viewport:active {
-    cursor: crosshair;
-  }
-
-  .galaxy-hover {
-    position: absolute;
-    right: 8px;
-    top: 8px;
-    z-index: 2;
-    padding: 2px 8px;
-    font-size: 0.75rem;
-    color: var(--neon-cyan-dim);
-    background: rgba(4, 8, 20, 0.55);
-    pointer-events: none;
-  }
-
-  .galaxy-desc {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    z-index: 2;
-    max-width: min(70%, 28rem);
-    margin: 0;
-    padding: 0.35rem 0.55rem;
-    font-size: 0.82rem;
-    line-height: 1.35;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.45);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
-    pointer-events: none;
-  }
-
-  .galaxy-desc :global(a) {
-    color: inherit;
-  }
-
-  .galaxy-desc :global(font) {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
-  }
-
-  .galaxy-desc :global(font[color='#FF0000']),
-  .galaxy-desc :global(font[color='#ff0000']) {
-    color: #ffb4b4 !important;
-  }
-
-  .galaxy-desc :global(font[color='#FFFF00']),
-  .galaxy-desc :global(font[color='#ffff00']) {
-    color: #ffe566 !important;
-  }
-
-  .galaxy-desc :global(font[color='#00FF00']),
-  .galaxy-desc :global(font[color='#00ff00']) {
-    color: #9dff9d !important;
-  }
-
-  .system-viewport {
-    cursor: crosshair;
-  }
-
-  .system-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
   }
 
   .route-march {

@@ -29,14 +29,14 @@
 
           case 0 :
             $a_res = db_fetch_array( "SELECT CONCAT( 's', s.object_id ) id, st.pic, 1 cnt, s.shield, st.code name, st.shield shtot
-                                         FROM ships s
+                                         FROM ships_war s
                                    INNER JOIN ship_types st ON st.object_id = s.object_id
                                         WHERE s.id = ".$war['a_object_id'] );
             break;
 
           case 1 :
             $a_res = db_fetch_array( "SELECT CONCAT( 's', s.object_id ) id, st.pic, count(*) cnt, SUM( s.shield ) shield, st.code name, SUM( st.shield ) shtot
-                                         FROM ships s
+                                         FROM ships_war s
                                    INNER JOIN ship_types st ON st.object_id = s.object_id
                                         WHERE s.fleet_id = ".$war['a_object_id']."
                                      GROUP BY s.object_id" );
@@ -77,14 +77,14 @@
 
           case 0 :
             $d_res = db_fetch_array( "SELECT CONCAT( 's', s.object_id ) id, st.pic, 1 cnt, s.shield, st.code name, st.shield shtot
-                                        FROM ships s
+                                        FROM ships_war s
                                   INNER JOIN ship_types st ON st.object_id = s.object_id
                                        WHERE s.id = ".$war['d_object_id'] );
             break;
 
           case 1 :
             $d_res = db_fetch_array( "SELECT CONCAT( 's', s.object_id ) id, st.pic, count(*) cnt, SUM( s.shield ) shield, st.code name, SUM( st.shield ) shtot
-                                        FROM ships s
+                                        FROM ships_war s
                                   INNER JOIN ship_types st ON st.object_id = s.object_id
                                        WHERE s.fleet_id = ".$war['d_object_id']."
                                     GROUP BY s.object_id" );

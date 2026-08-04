@@ -55,12 +55,14 @@
       />
     {/if}
     <circle
+      class="map-bound"
       cx="0"
       cy="0"
       r={SYSTEM_MAX_RADIUS}
       fill="none"
-      stroke="rgba(0, 229, 255, 0.08)"
-      stroke-width="1"
+      stroke="rgba(180, 220, 255, 0.35)"
+      stroke-width="1.5"
+      stroke-dasharray="14 10"
       pointer-events="none"
     />
     <defs>

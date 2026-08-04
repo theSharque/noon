@@ -3,7 +3,9 @@
 function gen_quest() {
   $type = db_fetch_row( "SELECT qt.type, count(uq.id) cur_cnt, qt.cnt max_cnt, qt.name, qt.desc, qt.status, qt.arg0, qt.arg1, qt.arg2, qt.arg3, qt.arg4, qt.arg5, qt.arg6, qt.arg7, qt.arg8, qt.arg9
                            FROM quest_types qt
+                      LEFT JOIN u2u_types ut ON ut.id = qt.type
                       LEFT JOIN users_quests uq ON ( uq.type = qt.type OR ( qt.type = 13 AND uq.type = 14 ) ) AND uq.user_id IS NULL AND uq.status > 0
+                          WHERE ut.id IS NULL AND qt.cnt > 0
                        GROUP BY qt.type
                          HAVING cur_cnt < max_cnt
                        ORDER BY rand()

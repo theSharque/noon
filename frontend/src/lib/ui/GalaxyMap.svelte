@@ -5,6 +5,7 @@
     GALAXY_BG,
     GALAXY_BG_HALF,
     GALAXY_BG_SIZE,
+    GALAXY_MAX_RADIUS,
     QUEST_MARK_S,
     RING_R,
     RING_STROKE,
@@ -74,6 +75,17 @@
       height={GALAXY_BG_SIZE}
       opacity="0.25"
       preserveAspectRatio="none"
+    />
+    <circle
+      class="map-bound"
+      cx="0"
+      cy="0"
+      r={GALAXY_MAX_RADIUS}
+      fill="none"
+      stroke="rgba(180, 220, 255, 0.35)"
+      stroke-width="1.5"
+      stroke-dasharray="18 14"
+      pointer-events="none"
     />
     {#each yellow as y}
       <circle

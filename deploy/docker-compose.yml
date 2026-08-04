@@ -1,5 +1,6 @@
 # Noon production — MySQL, Flyway, PHP-FPM, nginx, cron.
 # Public HTTP via edge network only (container_name: noon-nginx).
+# App code is bind-mounted from ./www (shared by php, nginx, cron).
 
 networks:
   noon-network:
@@ -64,6 +65,8 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY}
       EMAIL_FROM: "${EMAIL_FROM:-21noon <support@21noon.com>}"
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://21noon.com}
+    volumes:
+      - ./www:/var/www/noon
     depends_on:
       flyway:
         condition: service_completed_successfully
@@ -74,6 +77,8 @@ services:
     image: noon-nginx:latest
     container_name: noon-nginx
     restart: unless-stopped
+    volumes:
+      - ./www:/var/www/noon:ro
     depends_on:
       - php
     networks:
@@ -90,6 +95,8 @@ services:
       NOON_DB_USER: ${MYSQL_USER}
       NOON_DB_PASSWORD: ${MYSQL_PASSWORD}
       NOON_DB_NAME: ${MYSQL_DATABASE}
+    volumes:
+      - ./www:/var/www/noon
     depends_on:
       flyway:
         condition: service_completed_successfully

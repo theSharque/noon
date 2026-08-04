@@ -8,6 +8,7 @@ BUNDLE="${DEPLOY_TMP}/bundle"
 REMOTE="${REMOTE:-ubunew}"
 REMOTE_PATH="${REMOTE_PATH:-/opt/noon}"
 SSH_OPTS="-i ${SSH_KEY:-$HOME/.ssh/id_rsa} -o StrictHostKeyChecking=accept-new"
+DEPLOY_IMAGES="${DEPLOY_IMAGES:-0}"
 
 PHP_IMAGE="noon-php:latest"
 NGINX_IMAGE="noon-nginx:latest"
@@ -17,36 +18,60 @@ cleanup_local_bundle() {
   rm -rf "${DEPLOY_TMP}"
 }
 
-echo "[deploy] 1/7 Сборка Docker-образов (php+nginx включают свежий frontend)..."
+sync_spa_into_www() {
+  echo "[deploy] Сборка SPA → www/app + www/admin..."
+  if [[ ! -d "${REPO_ROOT}/frontend/node_modules" ]]; then
+    (cd "${REPO_ROOT}/frontend" && npm install)
+  fi
+  (cd "${REPO_ROOT}/frontend" && npm run build)
+  rm -rf "${REPO_ROOT}/www/app" "${REPO_ROOT}/www/admin"
+  cp -a "${REPO_ROOT}/frontend/dist" "${REPO_ROOT}/www/app"
+  cp -a "${REPO_ROOT}/frontend/dist-admin" "${REPO_ROOT}/www/admin"
+  mkdir -p "${REPO_ROOT}/www/locks"
+}
+
 cd "${REPO_ROOT}"
-docker compose build php nginx cron
+sync_spa_into_www
 
-echo "[deploy] 2/7 Сохранение образов и подготовка bundle..."
+if [[ "${DEPLOY_IMAGES}" == "1" ]]; then
+  echo "[deploy] Сборка Docker-образов (runtime only)..."
+  docker compose build php nginx cron
+fi
+
+echo "[deploy] Подготовка bundle..."
 cleanup_local_bundle
-mkdir -p "${BUNDLE}/docker/mysql"
-
-docker save "${PHP_IMAGE}" -o "${BUNDLE}/noon-php.tar"
-docker save "${NGINX_IMAGE}" -o "${BUNDLE}/noon-nginx.tar"
-docker save "${CRON_IMAGE}" -o "${BUNDLE}/noon-cron.tar"
+mkdir -p "${BUNDLE}/docker/mysql" "${BUNDLE}/www"
 
 cp "${DEPLOY_DIR}/docker-compose.yml" "${DEPLOY_DIR}/.env.example" "${BUNDLE}/"
 cp -a "${REPO_ROOT}/db" "${BUNDLE}/db"
 cp "${REPO_ROOT}/docker/mysql/charset.cnf" "${BUNDLE}/docker/mysql/charset.cnf"
-if [ -f "${REPO_ROOT}/.env" ]; then
+rsync -a --delete \
+  --exclude 'debug.log' \
+  "${REPO_ROOT}/www/" "${BUNDLE}/www/"
+
+if [[ -f "${REPO_ROOT}/.env" ]]; then
   grep -E '^(RESEND_API_KEY|EMAIL_FROM|PUBLIC_BASE_URL)=' "${REPO_ROOT}/.env" > "${BUNDLE}/.env.sync" || true
 else
   : > "${BUNDLE}/.env.sync"
 fi
 
-echo "[deploy] 3/7 rsync → ${REMOTE}:${REMOTE_PATH}/"
+if [[ "${DEPLOY_IMAGES}" == "1" ]]; then
+  echo "[deploy] Сохранение образов..."
+  docker save "${PHP_IMAGE}" -o "${BUNDLE}/noon-php.tar"
+  docker save "${NGINX_IMAGE}" -o "${BUNDLE}/noon-nginx.tar"
+  docker save "${CRON_IMAGE}" -o "${BUNDLE}/noon-cron.tar"
+fi
+
+echo "[deploy] rsync → ${REMOTE}:${REMOTE_PATH}/"
 rsync -avz -e "ssh ${SSH_OPTS}" \
   "${BUNDLE}/" \
   "${REMOTE}:${REMOTE_PATH}/"
 
-echo "[deploy] 4/7 На сервере: load + recreate php/nginx/cron..."
-ssh ${SSH_OPTS} "${REMOTE}" bash -s -- "${REMOTE_PATH}" <<'REMOTE_UP'
+echo "[deploy] На сервере: apply + verify..."
+ssh ${SSH_OPTS} "${REMOTE}" bash -s -- "${REMOTE_PATH}" "${DEPLOY_IMAGES}" <<'REMOTE_UP'
 set -euo pipefail
 RP="$1"
+LOAD_IMAGES="$2"
 cd "$RP"
 if ! docker network inspect edge >/dev/null 2>&1; then
   echo "[deploy][remote] Ошибка: нет Docker-сети edge. Сначала задеплойте /qs/edge."
@@ -67,15 +92,22 @@ if [ -s .env.sync ]; then
   echo "[deploy][remote] RESEND/email из локального .env применены (MySQL-пароли на сервере не трогаем)."
 fi
 
-docker load -i noon-php.tar
-docker load -i noon-nginx.tar
-docker load -i noon-cron.tar
-rm -f noon-php.tar noon-nginx.tar noon-cron.tar
+mkdir -p www/locks
 
-docker compose up -d --remove-orphans
-docker compose up -d --force-recreate --no-deps php nginx cron
+if [ "${LOAD_IMAGES}" = "1" ]; then
+  docker load -i noon-php.tar
+  docker load -i noon-nginx.tar
+  docker load -i noon-cron.tar
+  rm -f noon-php.tar noon-nginx.tar noon-cron.tar
+  docker compose up -d --remove-orphans
+  docker compose up -d --force-recreate --no-deps php nginx cron
+else
+  rm -f noon-php.tar noon-nginx.tar noon-cron.tar
+  docker compose up -d --remove-orphans
+  docker compose up -d --force-recreate --no-deps php nginx cron
+fi
 
-echo "[deploy][remote] Ожидание php/nginx..."
+echo "[deploy][remote] Ожидание общего www mount..."
 for i in $(seq 1 30); do
   if docker exec noon-php test -f /var/www/noon/app/index.html \
     && docker exec noon-nginx test -f /var/www/noon/app/index.html; then
@@ -88,45 +120,35 @@ PHP_JS="$(docker exec noon-php sed -n 's/.*src="\(\/app\/assets\/[^"]*\.js\)".*/
 NGX_JS="$(docker exec noon-nginx sed -n 's/.*src="\(\/app\/assets\/[^"]*\.js\)".*/\1/p' /var/www/noon/app/index.html | head -n1)"
 
 if [ -z "${PHP_JS}" ] || [ -z "${NGX_JS}" ]; then
-  echo "[deploy][remote] Ошибка: не найден SPA bundle в php/nginx index.html"
+  echo "[deploy][remote] Ошибка: не найден SPA bundle в общем www"
   echo "  php: ${PHP_JS:-<empty>}"
   echo "  nginx: ${NGX_JS:-<empty>}"
   exit 1
 fi
 
 if [ "${PHP_JS}" != "${NGX_JS}" ]; then
-  echo "[deploy][remote] SPA php≠nginx (${PHP_JS} vs ${NGX_JS}) — синхронизирую из nginx..."
-  TMP="$(mktemp -d)"
-  docker cp noon-nginx:/var/www/noon/app/. "${TMP}/"
-  docker exec noon-php rm -rf /var/www/noon/app
-  docker exec noon-php mkdir -p /var/www/noon/app
-  docker cp "${TMP}/." noon-php:/var/www/noon/app/
-  docker exec noon-php chown -R www-data:www-data /var/www/noon/app
-  docker exec noon-php chmod -R u+rwX,go+rX /var/www/noon/app
-  rm -rf "${TMP}"
-  PHP_JS="$(docker exec noon-php sed -n 's/.*src="\(\/app\/assets\/[^"]*\.js\)".*/\1/p' /var/www/noon/app/index.html | head -n1)"
-fi
-
-if [ "${PHP_JS}" != "${NGX_JS}" ]; then
-  echo "[deploy][remote] Ошибка: SPA всё ещё расходится после sync"
+  echo "[deploy][remote] Ошибка: php и nginx видят разный SPA (mount сломан?)"
   echo "  php: ${PHP_JS}"
   echo "  nginx: ${NGX_JS}"
   exit 1
 fi
 
-echo "[deploy][remote] SPA OK: ${PHP_JS}"
+echo "[deploy][remote] SPA OK (shared www): ${PHP_JS}"
 REMOTE_UP
 
-echo "[deploy] 5/7 Проверка сайта..."
+echo "[deploy] Проверка сайта..."
 HTTP_CODE="$(curl -sS -o /dev/null -w '%{http_code}' https://21noon.com/ || true)"
 echo "[deploy] https://21noon.com/ → HTTP ${HTTP_CODE}"
 
-echo "[deploy] 6/7 Очистка локального bundle..."
+echo "[deploy] Очистка локального bundle..."
 cleanup_local_bundle
 
 echo ""
 echo "[deploy] Готово: ${REMOTE}:${REMOTE_PATH}"
-echo "  Стек: mysql, flyway, php, nginx, cron (без публичных портов)."
-echo "  TLS: /opt/edge — после up: ISSUE_NOON_CERT=1 в /qs/edge/deploy.sh"
-echo "  SPA shell (page.php) и статика /app/ используют один bundle."
+echo "  Код: общий bind-mount ./www → php/nginx/cron"
+if [[ "${DEPLOY_IMAGES}" == "1" ]]; then
+  echo "  Образы: обновлены (DEPLOY_IMAGES=1)"
+else
+  echo "  Образы: без переноса (DEPLOY_IMAGES=1 ./deploy.sh — когда меняется runtime)"
+fi
 echo ""

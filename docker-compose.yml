@@ -48,6 +48,8 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY}
       EMAIL_FROM: "${EMAIL_FROM:-21noon <support@21noon.com>}"
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://21noon.com}
+    volumes:
+      - ./www:/var/www/noon
     depends_on:
       flyway:
         condition: service_completed_successfully
@@ -59,6 +61,8 @@ services:
     image: noon-nginx:latest
     ports:
       - "${NGINX_PORT}:80"
+    volumes:
+      - ./www:/var/www/noon:ro
     depends_on:
       - php
 
@@ -73,6 +77,8 @@ services:
       NOON_DB_USER: ${MYSQL_USER}
       NOON_DB_PASSWORD: ${MYSQL_PASSWORD}
       NOON_DB_NAME: ${MYSQL_DATABASE}
+    volumes:
+      - ./www:/var/www/noon
     depends_on:
       flyway:
         condition: service_completed_successfully

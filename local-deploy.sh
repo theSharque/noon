@@ -5,25 +5,25 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
 SKIP_ICONS=false
-USE_CACHE=false
+REBUILD_IMAGES=false
 
 usage() {
   cat <<'EOF'
-Local deploy: rebuild planet icons, then php + nginx containers.
+Local deploy: build SPA into www/, optionally rebuild planet icons / runtime images.
 
 Usage: ./local-deploy.sh [options]
 
 Options:
-  --skip-icons   Skip icon reprocessing (frontend-only change)
-  --cache        Use Docker layer cache (faster, may miss changes)
-  -h, --help     Show this help
+  --skip-icons      Skip icon reprocessing (frontend-only change)
+  --rebuild-images  Rebuild noon-php / noon-nginx images (runtime Dockerfile changes)
+  -h, --help        Show this help
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --skip-icons) SKIP_ICONS=true ;;
-    --cache) USE_CACHE=true ;;
+    --rebuild-images|--cache) REBUILD_IMAGES=true ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage >&2; exit 1 ;;
   esac
@@ -61,17 +61,23 @@ else
   echo "==> Skipping icon reprocessing"
 fi
 
-BUILD_ARGS=(build)
-if ! $USE_CACHE; then
-  BUILD_ARGS+=(--no-cache)
+echo "==> Building SPA → www/app + www/admin"
+if [[ ! -d frontend/node_modules ]]; then
+  (cd frontend && npm install)
 fi
-BUILD_ARGS+=(php nginx)
+(cd frontend && npm run build)
+rm -rf www/app www/admin
+cp -a frontend/dist www/app
+cp -a frontend/dist-admin www/admin
+mkdir -p www/locks
 
-echo "==> docker compose ${BUILD_ARGS[*]}"
-docker compose "${BUILD_ARGS[@]}"
+if $REBUILD_IMAGES; then
+  echo "==> docker compose build php nginx cron"
+  docker compose build php nginx cron
+fi
 
-echo "==> docker compose up -d php nginx"
-docker compose up -d php nginx
+echo "==> docker compose up -d php nginx cron"
+docker compose up -d php nginx cron
 
 PHP_JS="$(docker compose exec -T php grep -o 'index-[^"]*\.js' /var/www/noon/app/index.html | head -1)"
 NGINX_JS="$(docker compose exec -T nginx sh -c 'basename "$(ls /var/www/noon/app/assets/*.js)"')"
@@ -81,7 +87,7 @@ echo "    php   index: $PHP_JS"
 echo "    nginx index: $NGINX_JS"
 
 if [[ "$PHP_JS" != "$NGINX_JS" ]]; then
-  echo "WARNING: php and nginx asset hashes differ — hard refresh may not be enough" >&2
+  echo "WARNING: php and nginx asset hashes differ — shared www mount broken?" >&2
   exit 1
 fi
 

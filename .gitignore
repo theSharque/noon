@@ -2,7 +2,10 @@ old_data
 .env
 www/debug.log
 www/app/
+www/admin/
+www/locks/
 frontend/dist/
+frontend/dist-admin/
 frontend/node_modules/
 **/Thumbs.db
 **/desktop.ini

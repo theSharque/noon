@@ -1795,11 +1795,10 @@
             }}
           >
             {#each systemOrbits as orb}
-              <ellipse
+              <circle
                 cx="0"
                 cy="0"
-                rx={orb}
-                ry={orb * 0.75}
+                r={orb}
                 fill="none"
                 stroke="rgba(180, 220, 255, 0.28)"
                 stroke-width="1"

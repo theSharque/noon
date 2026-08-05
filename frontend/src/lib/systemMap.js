@@ -7,7 +7,7 @@ export function systemPlanetXy(angleDeg, orb) {
   const rad = (angleDeg * Math.PI) / 180;
   return {
     x: Math.round(Math.sin(rad) * orb),
-    y: Math.round(Math.cos(rad) * orb * 0.75),
+    y: Math.round(Math.cos(rad) * orb),
   };
 }
 

@@ -18,7 +18,7 @@ function system_planet_xy( $rad_deg, $orb ) {
   $rad = deg2rad( $rad_deg );
   return array(
     'x' => round( sin( $rad ) * $orb ),
-    'y' => round( cos( $rad ) * $orb * 0.75 ),
+    'y' => round( cos( $rad ) * $orb ),
   );
 }
 

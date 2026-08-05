@@ -315,11 +315,6 @@
                 break;
             }
 
-            $build = db_fetch_val( "SELECT id FROM planets_buildings WHERE planet_id = {$user->place_id} AND object_id = 32" );
-            if( $build ) {
-              $fnd .= ' b.id != 32 AND';
-            }
-    
             if( $user->native ) {
               $items = db_fetch_array( "SELECT o.id, o.name
                                           FROM objects o, buildings b
@@ -579,40 +574,6 @@
                 default:
                   $out = "detail=Что-то не так ".$info->busy_type;
                   break;
-              }
-            }
-            break;
-
-          case 'A':
-            $name = db_fetch_val( "SELECT a.sname
-                                     FROM academy a
-                               INNER JOIN academy_build ab ON ab.type = a.id
-                                    WHERE ab.build_id = {$info->bid}", 'sname' );
-            if( $name ) {
-              $out = "detail=<u><a href='page.php?id=6%26itm=Академия'>Академия $name</a></u>";
-            } else {
-              $out = "detail=<u><a href='page.php?id=6%26itm=Академия'>Академия</a></u>";
-            }
-
-            if( $info->level == 1 || $name == '' ) {
-              if( $info->busy_type == 5 ) {
-                $out = "detail=Академия улучшается";
-              } else {
-                $research = db_fetch_array( "SELECT a.id, a.name
-                                               FROM academy a
-                                              WHERE a.id NOT IN( SELECT type FROM academy_build WHERE user_id = {$user->uid} )" );
-
-                if( count( $research ) > 0 ) {
-                  $out .= "&cb_h=Возможные исследования";
-                  $out .= "&cb_c=".count( $research );
-                  $i=0;
-                  foreach( $research as $item ) {
-                    $out .= "&cb_l$i={$item['name']}&cb_d$i=page.php?id=286%26x=$x%26y=$y%26rf={$item['id']}";
-                    $i++;
-                  }
-                } else {
-                  $out .= "&cb_h=Все типы академий построены";
-                }
               }
             }
             break;

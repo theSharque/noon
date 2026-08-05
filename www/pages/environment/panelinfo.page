@@ -34,16 +34,7 @@
     if( $buildings[ $y ]{$x} == '0' || $info->building === null ) {
       $out = 'info=<b><font color="#FFFF00">'.$top_decode[ $content[ $y ]{$x} ].'</font></b>';
     } else {
-      if( $buildings[ $y ]{$x} == 'A' ) {
-        $name = db_fetch_val( "SELECT a.sname
-                                 FROM academy a
-                           INNER JOIN academy_build ab ON ab.type = a.id
-                                WHERE ab.build_id = {$info->bid}", 'sname' );
-
-        $out = "info=<b><font color=\"#00FFFF\"><u><a href='page.php?id=6%26itm=".$bld_decode[ $buildings[ $y ]{$x} ]."'>".$bld_decode[ $buildings[ $y ]{$x} ]." $name</a></u> ".$info->level.' уровня</font></b>';
-      } else {
-        $out = "info=<b><font color=\"#00FFFF\"><u><a href='page.php?id=6%26itm=".$bld_decode[ $buildings[ $y ]{$x} ]."'>".$bld_decode[ $buildings[ $y ]{$x} ]."</a></u> ".$info->level.' уровня</font></b>';
-      }
+      $out = "info=<b><font color=\"#00FFFF\"><u><a href='page.php?id=6%26itm=".$bld_decode[ $buildings[ $y ]{$x} ]."'>".$bld_decode[ $buildings[ $y ]{$x} ]."</a></u> ".$info->level.' уровня</font></b>';
     }
 
     $out .= "\n\n<b>Поверхность</b> : <u><a href='page.php?id=6%26itm=".$top_data[ $content[ $y ]{ $x } ][0]."'>".$top_data[ $content[ $y ]{ $x } ][0]."</a></u>";

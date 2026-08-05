@@ -262,13 +262,6 @@
         include './pages/environment/defence.page';
         break;
 
-      case 286:
-        include './pages/environment/listacad.page';
-        break;
-      case 287:
-        include './pages/environment/setacad.page';
-        break;
-
       case 28:
         include './pages/environment/listbuild.page';
         break;

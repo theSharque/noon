@@ -66,9 +66,6 @@
           db_query( "UPDATE planets_maps SET bld = '".join( "\n", $buildings )."' WHERE id = $planet_id" );
 
           $building = db_fetch_row( "SELECT id, object_id, level FROM planets_buildings WHERE x=$x AND y=$y AND planet_id=$planet_id" );
-          if( $building['object_id'] == 32 ) {
-            db_query( "DELETE FROM academy_build WHERE build_id = {$building['id']}" );
-          }
 
           if( $building['object_id'] ) {
             $restore = db_fetch_array( "SELECT res_id, res_cnt FROM objects_sub WHERE object_id = ".$building['object_id'] );

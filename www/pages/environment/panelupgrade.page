@@ -156,18 +156,8 @@
         if( $info->busy == 0 && $info->level < 10 && $info->level > 0 ) {
     
           $result = db_fetch_row( "SELECT o.name, b.desc FROM objects o, buildings b WHERE o.id = b.id AND o.id = ".$info->building );
-    
-          if( $info->building == 32 ) {
-            $name = db_fetch_val( "SELECT a.sname
-                                     FROM academy a
-                               INNER JOIN academy_build ab ON ab.type = a.id
-                                    WHERE ab.build_id = {$info->bid}", 'sname' );
 
-            $out  = "title=".$result['name'].' '.$name;
-          } else {
-            $out  = "title=".$result['name'];
-          }
-
+          $out  = "title=".$result['name'];
           $out .= "&level=Уровень ".$info->level;
   
           switch( $info->building ) {

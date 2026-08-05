@@ -591,13 +591,7 @@ function get_book_level( $book_id, $uid = -1 ) {
                             INNER JOIN medals_type mt ON mt.object_id = um.object_id
                                  WHERE um.user_id = $uid AND mt.book_id = $book_id ) a", 'level', true );
 
-  $alev = db_fetch_val( "SELECT ( ( IF( IFNULL( pb.level, 1 ) = 1, 0, pb.level ) ) * a.multiply ) level
-                           FROM academy_build ab
-                     INNER JOIN planets_buildings pb ON pb.id = ab.build_id
-                     INNER JOIN academy a ON a.id = ab.type
-                          WHERE ab.user_id = $uid AND a.book_id = $book_id", 'level', true );
-
-  $out = $blev + $ilev + $mlev + $alev;
+  $out = $blev + $ilev + $mlev;
 
   $l_cache[$uid.':'.$book_id] = $out;
 

@@ -9,19 +9,18 @@ export const SPRITE_Y_OFFSET = -CELL_H / 2 + 8;
 
 export const TERRAIN_COLORS = {
   '0': '#0066CC',
-  '1': '#663300',
-  '2': '#999999',
-  '3': '#CCCCCC',
-  '4': '#CCCC33',
-  '5': '#006600',
-  '6': '#009900',
-  '7': '#006600',
-  '8': '#DDDDDD',
-  '9': '#DD9900',
+  '1': '#0E2F7A',
+  '2': '#2A1A10',
+  '3': '#8B4A2B',
+  '4': '#D9CDB8',
+  '5': '#2E7A32',
+  '6': '#6B3A1C',
+  '7': '#1C1C1C',
+  '8': '#F0EEE6',
+  '9': '#D4A017',
 };
 
 export const BLD_LABELS = {
-  A: 'Академия',
   B: 'Строительство',
   C: 'Капсула',
   K: 'Карьер',
@@ -146,7 +145,7 @@ export function selectionPos(x, y) {
   return tileDrawPos(x, y);
 }
 
-export const HEX_POINTS = '65,2 128,34 128,65 65,97 2,65 2,34';
+export const HEX_POINTS = '65,0 125,32 125,61 65,93 5,61 5,32';
 
 export function clampMapOffset(ox, oy, mapW, mapH, viewW, viewH, zoom) {
   const scaledW = (mapW * zoom) / 4;

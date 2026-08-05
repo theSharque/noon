@@ -145,7 +145,7 @@ export function selectionPos(x, y) {
   return tileDrawPos(x, y);
 }
 
-export const HEX_POINTS = '65,0 125,32 125,61 65,93 5,61 5,32';
+export const HEX_POINTS = '65,0 75,1 84,6 92,12 100,16 110,19 118,24 125,31 128,36 129,40 129,44 129,49 129,53 128,57 128,61 118,69 111,76 101,78 93,83 84,87 75,91 65,94 55,92 46,87 36,85 29,78 20,74 12,68 5,62 2,57 0,53 0,49 0,44 0,40 2,36 2,32 12,25 21,20 28,13 37,9 45,5 55,1';
 
 export function clampMapOffset(ox, oy, mapW, mapH, viewW, viewH, zoom) {
   const scaledW = (mapW * zoom) / 4;

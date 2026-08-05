@@ -1,7 +1,6 @@
 <script>
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import {
-    HEX_POINTS,
     TILE_H,
     TILE_W,
     buildingSrc,
@@ -282,9 +281,9 @@
       {/each}
 
       <div class="sel-frame" style={`left:${sel.x}px; top:${sel.y}px; width:${TILE_W}px; height:${TILE_H}px`}>
-        <svg class="sel-hex" viewBox={`0 0 ${TILE_W} ${TILE_H}`} aria-hidden="true">
-          <polygon class="sel-hex-glow" points={HEX_POINTS} />
-          <polygon class="sel-hex-stroke" points={HEX_POINTS} />
+        <svg class="sel-oval" viewBox={`0 0 ${TILE_W} ${TILE_H}`} aria-hidden="true">
+          <ellipse class="sel-oval-glow" cx="65" cy="48" rx="60" ry="35" />
+          <ellipse class="sel-oval-stroke" cx="65" cy="48" rx="60" ry="35" />
         </svg>
       </div>
 
@@ -581,7 +580,7 @@
     color: #ff6868;
   }
 
-  .sel-hex {
+  .sel-oval {
     display: block;
     width: 100%;
     height: 100%;
@@ -589,20 +588,18 @@
     animation: sel-frame-pulse 2.286s linear infinite;
   }
 
-  .sel-hex-glow {
+  .sel-oval-glow {
     fill: rgba(0, 229, 255, 0.1);
     stroke: var(--neon-cyan);
     stroke-width: 6;
-    stroke-linejoin: round;
     opacity: 0.45;
     filter: blur(2px);
   }
 
-  .sel-hex-stroke {
+  .sel-oval-stroke {
     fill: rgba(0, 229, 255, 0.08);
     stroke: var(--neon-cyan);
     stroke-width: 2.5;
-    stroke-linejoin: round;
   }
 
   @keyframes sel-frame-pulse {

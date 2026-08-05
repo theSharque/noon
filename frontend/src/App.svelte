@@ -7,9 +7,13 @@
   import ScifiConfirm from './lib/ui/ScifiConfirm.svelte';
   import { routes } from './lib/router.js';
   import { getNoonConfig } from './lib/api.js';
+  import { get } from 'svelte/store';
+  import { chatCollapsed as chatCollapsedStore, setChatCollapsed } from './lib/chatUiStore.js';
 
   const config = getNoonConfig();
-  let chatCollapsed = false;
+  let chatCollapsed = get(chatCollapsedStore);
+
+  $: setChatCollapsed(chatCollapsed);
 
   onMount(() => {
     if (config.boot) {

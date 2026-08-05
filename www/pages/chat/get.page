@@ -43,6 +43,7 @@
                               INNER JOIN tituls t ON t.id = u.titul
                                    WHERE ci.user_id IS NULL AND c.id > $cid AND ( c.user_id = $me OR c.to_user = $me OR c.to_user IS NULL )
                                 ORDER BY c.id DESC LIMIT $lim");
+        $result = array_reverse( $result );
       } else {
         $main = db_fetch_array("SELECT c.id, c.msgtime, t.name titul, u.login, c.text, c.to_user, c.user_id, u.level
                                   FROM chat c
@@ -87,7 +88,7 @@
         $result = array_merge( $main, $priv, $sys );
         usort( $result, function( $a, $b ) {
           if( $a['id'] == $b['id'] ) return 0;
-          return ( $a['id'] < $b['id'] ) ? 1 : -1;
+          return ( $a['id'] < $b['id'] ) ? -1 : 1;
         } );
         $seen = array();
         $deduped = array();
@@ -99,8 +100,9 @@
         $result = $deduped;
       }
 
-      if( count( $result ) && $cid != $result[0]['id'] && isset( $result[0]['id'] ) && is_numeric( $result[0]['id'] ) ) {
-        $out = "err=0&id=".$result[0]['id'];
+      $last = count( $result ) ? $result[count( $result ) - 1] : null;
+      if( $last && $cid != $last['id'] && isset( $last['id'] ) && is_numeric( $last['id'] ) ) {
+        $out = "err=0&id=".$last['id'];
         $msg_sys = '';
         $msg_priv = '';
         $msg_main = '';

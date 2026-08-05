@@ -133,11 +133,16 @@
     dismissPeek();
   }
 
+  function scrollMsgsToBottom(el) {
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }
+
   async function showPeek(id) {
     computePeekOrigin(id);
     peekTab = id;
     await tick();
-    if (peekMsgsEl) peekMsgsEl.scrollTop = 0;
+    scrollMsgsToBottom(peekMsgsEl);
   }
 
   function schedulePeek(id) {
@@ -190,6 +195,7 @@
   async function doPoll() {
     const pollCid = cid;
     const pollUh = uh;
+    let updated = false;
     try {
       const data = await pollChat(pollCid, pollUh);
       if (data.err !== '0') return;
@@ -200,10 +206,20 @@
         mainHtml = data.msgm || '';
         sysHtml = data.msgs || '';
         privHtml = data.msgp || '';
+        updated = true;
       } else {
-        if (data.msgm) mainHtml = mergeChatHtml(mainHtml, data.msgm);
-        if (data.msgs) sysHtml = mergeChatHtml(sysHtml, data.msgs);
-        if (data.msgp) privHtml = mergeChatHtml(privHtml, data.msgp);
+        if (data.msgm) {
+          mainHtml = mergeChatHtml(mainHtml, data.msgm);
+          updated = true;
+        }
+        if (data.msgs) {
+          sysHtml = mergeChatHtml(sysHtml, data.msgs);
+          updated = true;
+        }
+        if (data.msgp) {
+          privHtml = mergeChatHtml(privHtml, data.msgp);
+          updated = true;
+        }
       }
 
       if (data.msgs && activeTab !== 'sys') unread.sys = true;
@@ -213,13 +229,21 @@
         usersHtml = data.users;
         if (data.uh) uh = data.uh;
       }
+
+      if (updated) {
+        await tick();
+        scrollMsgsToBottom(msgsEl);
+        if (peekTab) scrollMsgsToBottom(peekMsgsEl);
+      }
     } catch (e) {}
   }
 
-  function selectTab(id) {
+  async function selectTab(id) {
     activeTab = id;
     if (id === 'sys') unread.sys = false;
     if (id === 'priv') unread.priv = false;
+    await tick();
+    scrollMsgsToBottom(msgsEl);
   }
 
   function collapseChat() {
@@ -227,10 +251,10 @@
     collapsed = true;
   }
 
-  function expandToTab(id) {
+  async function expandToTab(id) {
     hidePeek();
     collapsed = false;
-    selectTab(id);
+    await selectTab(id);
   }
 
   function prefillNick(nick) {
@@ -247,8 +271,6 @@
     privHtml = '';
     usersHtml = '';
     await doPoll();
-    await tick();
-    if (msgsEl) msgsEl.scrollTop = 0;
   }
 
   async function adminDelete(id) {
@@ -299,8 +321,6 @@
       if (res.err === '0') {
         draft = '';
         await doPoll();
-        await tick();
-        if (msgsEl) msgsEl.scrollTop = 0;
       }
     } finally {
       sending = false;

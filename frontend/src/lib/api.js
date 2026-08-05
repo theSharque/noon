@@ -161,10 +161,12 @@ const MAX_CHAT_LINES = 60;
 export function mergeChatHtml(prev, chunk) {
   if (!chunk) return prev;
   if (!prev) return chunk;
-  const merged = chunk + prev;
-  const lines = merged.split('<br>');
+  const merged = prev + chunk;
+  const endsWithBr = /<br\s*\/?>$/i.test(merged);
+  const lines = merged.split(/<br\s*\/?>/i);
+  if (lines.length && lines[lines.length - 1] === '') lines.pop();
   if (lines.length <= MAX_CHAT_LINES) return merged;
-  return lines.slice(0, MAX_CHAT_LINES).join('<br>') + (lines[MAX_CHAT_LINES - 1] ? '<br>' : '');
+  return lines.slice(-MAX_CHAT_LINES).join('<br>') + (endsWithBr ? '<br>' : '');
 }
 
 export async function pollChat(cid, uh) {

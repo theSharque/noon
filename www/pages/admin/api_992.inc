@@ -50,7 +50,7 @@ if( $objectId > 0 ) {
   $item = db_fetch_row( "SELECT * FROM objects o WHERE o.id = $objectId" );
   $calcMass = db_fetch_row( "SELECT SUM( o.mass * os.res_cnt ) mass
                                FROM objects_sub os
-                         INNER JOIN objects o ON os.res_id = o.id AND o.id not in (1026, 1019, 1030, 1010)
+                         INNER JOIN objects o ON os.res_id = o.id AND o.id not in (1026, 1019, 1030)
                               WHERE os.object_id = $objectId" );
 }
 

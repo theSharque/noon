@@ -43,7 +43,7 @@
               break;
             case 3:
               for( $i = 0; $i < $cycle; $i++ ) {
-                $out .= '&l'.$i.'c0='.t('Хлор');
+                $out .= '&l'.$i.'c0='.t('Углекислый газ');
                 $out .= '&l'.$i.'c1='.get_mine_count( 3006, $planet_type );
               }
               break;

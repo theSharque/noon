@@ -70,7 +70,7 @@
                   db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1019, $total_count, -1 )" );
                   break;
                 case 3:
-                  db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1010, $total_count, -1 )" );
+                  db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 5001, $total_count, -1 )" );
                   break;
                 case 4:
                   db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1026, $total_count, -1 )" );
@@ -86,7 +86,7 @@
                   db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1019, $total_count, $cycle )" );
                   break;
                 case 3:
-                  db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1010, $total_count, $cycle )" );
+                  db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 5001, $total_count, $cycle )" );
                   break;
                 case 4:
                   db_query( "INSERT INTO orbits_mines ( event_id, res_id, res_cnt, cycle ) VALUES ( $id, 1026, $total_count, $cycle )" );

@@ -357,23 +357,23 @@ function generate_planet( $planet_id, $width = 50, $height = 50, $ptype, $max_cn
 
   $empty = str_repeat( '0', $width )."\n";
   if( $ptype == 1 ) {
-    $variant = "0123456789QWERTYUIOPASDFG";
+    $variant = "0123456789";
   } else {
     switch( mt_rand( 0, 4 ) ) {
       case 0:
-        $variant = "56789QWERTYUIOPASDFG";
+        $variant = "56789";
         break;
       case 1:
-        $variant = "01234QWERTYUIOPASDFG";
+        $variant = "01234";
         break;
       case 2:
-        $variant = "0123456789YUIOPASDFG";
+        $variant = "0123456789";
         break;
       case 3:
-        $variant = "0123456789QWERTASDFG";
+        $variant = "0123456789";
         break;
       case 4:
-        $variant = "0123456789QWERTYUIOP";
+        $variant = "0123456789";
         break;
     }
   }

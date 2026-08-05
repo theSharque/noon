@@ -6,7 +6,7 @@ function formatEncLinkTable(html, title, mode) {
   while (pos < html.length && (html[pos] === '\n' || html[pos] === '\r')) pos += 1;
 
   const qtyFirst = /^(\d+)\t+<u><a href='([^']*)'>([^<]*)<\/a><\/u>\n?/;
-  const nameFirst = /^<u><a href='([^']*)'>([^<]*)<\/a><\/u>\t+(\d+)\n?/;
+  const nameFirst = /^<u><a href='([^']*)'>([^<]*)<\/a><\/u>\t*(\d+)\n?/;
 
   const rows = [];
   let cursor = pos;

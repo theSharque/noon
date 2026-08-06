@@ -4,7 +4,7 @@
   $wtp = array( 0 => 'Лазер', 1 => 'Плазма', 2 => 'Квант' );
 
   if( isset( $_GET['oid'] ) && is_numeric( $_GET['oid'] ) ) {
-    $oid = $_GET['oid'];
+    $oid = encyclopedia_canonical_oid( $_GET['oid'] );
     db_safe( $oid );
 
     if( $oid == 5015 ) {
@@ -15,72 +15,50 @@
       levelUp( 11, $user->uid );
     }
 
-    $mass = '';
-    $result = db_fetch_row( "SELECT o.class, o.mass FROM objects o WHERE o.id = $oid" );
+    $obj = db_fetch_row( "SELECT o.class, o.mass FROM objects o WHERE o.id = $oid" );
+    $class = intval( $obj['class'] );
+    $mass = $obj['mass'];
 
-    switch( $result['class'] ) {
+    $result = db_fetch_row( "SELECT e.desc FROM enciclopedia e WHERE e.object_id = $oid" );
+    $desc = $result ? $result['desc'] : '';
 
-      case 2:
-        $mass = $result['mass'];
-        $result = db_fetch_row( "SELECT e.desc, o.class
-                                   FROM enciclopedia e
-                             INNER JOIN objects o ON o.id = e.object_id
-                             INNER JOIN objects_sub os ON os.res_id = e.object_id
-                                  WHERE o.class = 6 AND os.object_id = $oid" );
-        break;
-
-      case 9:
-        $mass = $result['mass'];
-        $result = db_fetch_row( "SELECT e.desc, o.class, st.agrav, st.planet, st.hyper, st.shield, st.cargo, st.w_power, st.w_count, st.missile,
-                                        st.code, st.planet_cnt, st.hyper_cnt, st.radar, st.remote, st.interupt, st.cloak, st.w_type, o2.mass dockmass
-                                   FROM enciclopedia e
-                             INNER JOIN objects o ON o.id = e.object_id
-                             INNER JOIN objects_sub os ON os.res_id = e.object_id
-                             INNER JOIN ship_types st ON st.conserv_id = os.object_id
-                             INNER JOIN objects o2 ON o2.id = st.object_id
-                                  WHERE o.class = 7 AND os.object_id = $oid" );
-        break;
-
-      default:
-        $result = db_fetch_row( "SELECT e.desc, o.class FROM enciclopedia e, objects o WHERE o.id = e.object_id AND e.object_id = $oid" );
-        break;
+    if( $class == 4 ) {
+      $st = db_fetch_row( "SELECT st.agrav, st.planet, st.hyper, st.shield, st.cargo, st.w_power, st.w_count, st.missile,
+                                  st.code, st.planet_cnt, st.hyper_cnt, st.radar, st.remote, st.interupt, st.cloak, st.w_type,
+                                  st.conserv_id, o.mass dockmass
+                             FROM ship_types st
+                       INNER JOIN objects o ON o.id = st.object_id
+                            WHERE st.object_id = $oid" );
+    } else {
+      $st = null;
     }
 
-    switch( $result['class'] ) {
-
-      case 3:
-      case 6:
-      case 7:
-      case 8:
-        $subs = db_fetch_array( "SELECT o.name, os.res_cnt
-                                   FROM objects_sub os
-                             INNER JOIN objects o ON o.id = os.res_id
-                                  WHERE o.class NOT IN ( 6, 7, 4 ) AND os.object_id = $oid ORDER BY o.class, o.name" );
-        break;
-
-      default:
-        $subs = array();
-        break;
+    $subs = array();
+    if( $class == 2 || $class == 3 || $class == 8 ) {
+      $subs = db_fetch_array( "SELECT o.name, os.res_cnt
+                                 FROM objects_sub os
+                           INNER JOIN objects o ON o.id = os.res_id
+                                WHERE o.class NOT IN ( 6, 7, 4 ) AND os.object_id = $oid ORDER BY o.class, o.name" );
+    } elseif( $class == 4 && $st && $st['conserv_id'] ) {
+      $kid = intval( $st['conserv_id'] );
+      $subs = db_fetch_array( "SELECT o.name, os.res_cnt
+                                 FROM objects_sub os
+                           INNER JOIN objects o ON o.id = os.res_id
+                                WHERE o.class NOT IN ( 6, 7, 4 ) AND os.object_id = $kid ORDER BY o.class, o.name" );
     }
 
-    switch( $result['class'] ) {
-
-      case 1:
-      case 2:
-      case 6:
-        $used = db_fetch_array( "SELECT o.name, os.res_cnt
-                                   FROM objects_sub os
-                             INNER JOIN objects o ON o.id = os.object_id
-                                  WHERE o.class IN ( 2, 8, 9 ) AND os.res_id = $oid ORDER BY o.class, o.name" );
-        break;
-
-      default:
-        $used = array();
-        break;
+    $used = array();
+    if( $class == 1 || $class == 2 ) {
+      $used = db_fetch_array( "SELECT IFNULL(ship.name, o.name) AS name, os.res_cnt
+                                 FROM objects_sub os
+                           INNER JOIN objects o ON o.id = os.object_id
+                            LEFT JOIN ship_types st ON o.class = 9 AND st.conserv_id = o.id
+                            LEFT JOIN objects ship ON ship.id = st.object_id
+                                WHERE o.class IN ( 2, 8, 9 ) AND os.res_id = $oid
+                             ORDER BY o.class, name" );
     }
 
-    $desc = $result['desc'];
-    if( $mass ) {
+    if( $mass !== '' && $mass !== null ) {
       $desc .= "\n\nМасса объекта: $mass";
     }
 
@@ -92,48 +70,32 @@
       }
     }
 
-    if( $result['class'] == 7 ) {
+    if( $class == 4 && $st ) {
       $desc .= "\n\nТТХ корабля:\n";
-      $desc .= 'Масса стыковки: '.$result['dockmass']."\n";
-      $desc .= 'Вместительность трюма: '.$result['cargo']."\n";
-      $desc .= 'Максимальный уровень защиты: '.$result['shield']."\n";
-      $desc .= 'Количество выстрелов: '.$result['w_count']."\n";
-      $desc .= 'Мощность выстрела: '.$result['w_power']."\n";
-      $desc .= 'Тип вооружения: '.$wtp[$result['w_type']]."\n";
-      $desc .= 'Скорость перемещения в пространстве: '.$result['planet']."\n";
-      $desc .= 'Потребление водорода: '.$result['planet_cnt']."\n";
-      $desc .= 'Скорость перемещения в гиперпространстве: '.$result['hyper']."\n";
-      $desc .= 'Потребление урана: '.$result['hyper_cnt']."\n";
-      $desc .= 'Именование по реестру: '.$result['code']."\n";
-      $desc .= 'Антигравитационный двигатель: '.($result['agrav']?'установлен':'не установлен')."\n";
-      $desc .= 'Радар: '.$result['radar']."\n";
-      $desc .= 'Антирадар: '.$result['cloak']."\n";
-      $desc .= 'Модуль удаленного управления: '.($result['remote']?'установлен':'не установлен')."\n";
-      $desc .= 'Модуль гиперперехвата: '.($result['interupt']?'установлен':'не установлен')."\n";
-      $desc .= 'Максимальный тип ракет: '.$result['missile'];
+      $desc .= 'Масса стыковки: '.$st['dockmass']."\n";
+      $desc .= 'Вместительность трюма: '.$st['cargo']."\n";
+      $desc .= 'Максимальный уровень защиты: '.$st['shield']."\n";
+      $desc .= 'Количество выстрелов: '.$st['w_count']."\n";
+      $desc .= 'Мощность выстрела: '.$st['w_power']."\n";
+      $desc .= 'Тип вооружения: '.$wtp[$st['w_type']]."\n";
+      $desc .= 'Скорость перемещения в пространстве: '.$st['planet']."\n";
+      $desc .= 'Потребление водорода: '.$st['planet_cnt']."\n";
+      $desc .= 'Скорость перемещения в гиперпространстве: '.$st['hyper']."\n";
+      $desc .= 'Потребление урана: '.$st['hyper_cnt']."\n";
+      $desc .= 'Именование по реестру: '.$st['code']."\n";
+      $desc .= 'Антигравитационный двигатель: '.($st['agrav']?'установлен':'не установлен')."\n";
+      $desc .= 'Радар: '.$st['radar']."\n";
+      $desc .= 'Антирадар: '.$st['cloak']."\n";
+      $desc .= 'Модуль удаленного управления: '.($st['remote']?'установлен':'не установлен')."\n";
+      $desc .= 'Модуль гиперперехвата: '.($st['interupt']?'установлен':'не установлен')."\n";
+      $desc .= 'Максимальный тип ракет: '.$st['missile'];
     }
 
     if( count( $subs ) ) {
       $desc .= "\n\nДля изготовления необходимо:\n";
 
       foreach( $subs as $item ) {
-        switch( strlen( $item['res_cnt'] ) ) {
-          case 0:
-            $desc .= $item['res_cnt']."\t\t\t<u><a href='page.php?id=6%26itm=".$item['name']."'>".$item['name']."</a></u>\n";
-            break;
-          case 1:
-          case 2:
-          case 3:
-          case 4:
-          case 5:
-          case 6:
-          case 7:
-            $desc .= $item['res_cnt']."\t\t<u><a href='page.php?id=6%26itm=".$item['name']."'>".$item['name']."</a></u>\n";
-            break;
-          default:
-            $desc .= $item['res_cnt']."\t<u><a href='page.php?id=6%26itm=".$item['name']."'>".$item['name']."</a></u>\n";
-            break;
-        }
+        $desc .= encyclopedia_format_bom_line( $item['res_cnt'], $item['name'], true );
       }
     }
 
@@ -141,20 +103,7 @@
       $desc .= "\n\nИспользуется при постройке:\n";
 
       foreach( $used as $item ) {
-        switch( strlen( $item['res_cnt'] ) ) {
-          case 0:
-            $desc .= $item['res_cnt']."\t\t\t<u><a href='page.php?id=6%26itm=".$item['name']."'>".$item['name']."</a></u>\n";
-            break;
-          case 1:
-          case 2:
-          case 3:
-          case 4:
-            $desc .= $item['res_cnt']."\t\t<u><a href='page.php?id=6%26itm=".$item['name']."'>".$item['name']."</a></u>\n";
-            break;
-          default:
-            $desc .= $item['res_cnt']."\t<u><a href='page.php?id=6%26itm=".$item['name']."'>".$item['name']."</a></u>\n";
-            break;
-        }
+        $desc .= encyclopedia_format_bom_line( $item['res_cnt'], $item['name'], true );
       }
     }
 

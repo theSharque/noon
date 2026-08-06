@@ -10,6 +10,65 @@ function printOut( $text ) {
   $data = str_ireplace( "'", "\'", $text );
 }
 
+function encyclopedia_canonical_oid( $oid ) {
+  $oid = intval( $oid );
+  $class = intval( db_fetch_val( "SELECT class FROM objects WHERE id = $oid", 'class' ) );
+
+  if( $class == 9 ) {
+    $ship = intval( db_fetch_val( "SELECT object_id FROM ship_types WHERE conserv_id = $oid", 'object_id' ) );
+    if( $ship ) {
+      return $ship;
+    }
+  }
+
+  if( $class == 7 ) {
+    $ship = intval( db_fetch_val( "SELECT st.object_id
+                                      FROM objects_sub os
+                                INNER JOIN ship_types st ON st.conserv_id = os.object_id
+                                     WHERE os.res_id = $oid
+                                     LIMIT 1", 'object_id' ) );
+    if( $ship ) {
+      return $ship;
+    }
+  }
+
+  if( $class == 6 ) {
+    $part = intval( db_fetch_val( "SELECT os.object_id
+                                      FROM objects_sub os
+                                INNER JOIN objects o ON o.id = os.object_id AND o.class = 2
+                                     WHERE os.res_id = $oid
+                                     LIMIT 1", 'object_id' ) );
+    if( $part ) {
+      return $part;
+    }
+  }
+
+  return $oid;
+}
+
+function encyclopedia_format_bom_line( $cnt, $name, $with_link ) {
+  if( $with_link ) {
+    $name_html = "<u><a href='page.php?id=6%26itm=".$name."'>".$name."</a></u>";
+  } else {
+    $name_html = $name;
+  }
+
+  switch( strlen( strval( $cnt ) ) ) {
+    case 0:
+      return $cnt."\t\t\t".$name_html."\n";
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+      return $cnt."\t\t".$name_html."\n";
+    default:
+      return $cnt."\t".$name_html."\n";
+  }
+}
+
 define( 'SYSTEM_MAX_RADIUS', 800 );
 define( 'SYSTEM_MIN_RADIUS', 25 );
 define( 'GALAXY_MAX_RADIUS', 3000 );

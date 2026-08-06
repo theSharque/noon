@@ -800,11 +800,11 @@
         case 28: // Conserve into ship
           if( ( $test['place_type'] == 7 || $test['place_type'] == 8 ) && $test['inwar'] == 0 ) {
             $mother = db_fetch_row( "SELECT id, fleet_id FROM ships
-                                      WHERE object_id IN (9161, 9180, 9399) AND place_type={$test['place_type']} AND place_id={$test['place_id']} AND
+                                      WHERE object_id IN (9161, 9180) AND place_type={$test['place_type']} AND place_id={$test['place_id']} AND
                                             arg1={$test['arg1']} AND arg2={$test['arg2']} AND id=$x" );
           } else {
             $mother = db_fetch_row( "SELECT id, fleet_id FROM ships
-                                      WHERE ( object_id IN (9161, 9180, 9399) AND place_type={$test['place_type']} AND place_id={$test['place_id']} AND id=$x ) OR
+                                      WHERE ( object_id IN (9161, 9180) AND place_type={$test['place_type']} AND place_id={$test['place_id']} AND id=$x ) OR
                                             ( id=$x AND {$test['place_type']} = 2 AND $x = {$test['place_id']} )" );
           }
           if( $mother['fleet_id'] ) {

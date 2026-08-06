@@ -631,7 +631,7 @@
                   $ships = db_fetch_array( "SELECT s.id, s.name, s.fleet_id
                                               FROM ships s
                                         INNER JOIN ship_types st ON st.object_id = s.object_id
-                                             WHERE st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180, 9399) AND s.user_id = {$user->uid} AND s.place_type=0 AND s.place_id={$place['place_id']}
+                                             WHERE st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180) AND s.user_id = {$user->uid} AND s.place_type=0 AND s.place_id={$place['place_id']}
                                           ORDER BY s.name" );
 
                   $fleets = array();
@@ -910,7 +910,7 @@
                 $ships = db_fetch_array( "SELECT s.id, s.name, s.fleet_id
                                             FROM ships s
                                       INNER JOIN ship_types st ON st.object_id = s.object_id
-                                           WHERE st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180, 9399) AND s.user_id = {$user->uid} AND s.place_type=1 AND s.place_id={$place['place_id']}
+                                           WHERE st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180) AND s.user_id = {$user->uid} AND s.place_type=1 AND s.place_id={$place['place_id']}
                                         ORDER BY s.name" );
 
                 $fleets = array();
@@ -1003,7 +1003,7 @@
               $ships = db_fetch_array( "SELECT s.id, s.name, s.fleet_id
                                           FROM ships s
                                     INNER JOIN ship_types st ON st.object_id = s.object_id
-                                         WHERE ( st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180, 9399) AND s.user_id = {$user->uid} AND
+                                         WHERE ( st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180) AND s.user_id = {$user->uid} AND
                                                s.place_type=2 AND s.place_id={$place['place_id']} ) OR ( id = {$place['place_id']} )
                                       ORDER BY s.name" );
 
@@ -1248,7 +1248,7 @@
                   $ships = db_fetch_array( "SELECT s.id, s.name, s.fleet_id
                                               FROM ships s
                                         INNER JOIN ship_types st ON st.object_id = s.object_id
-                                             WHERE st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180, 9399) AND s.user_id = {$user->uid} AND
+                                             WHERE st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180) AND s.user_id = {$user->uid} AND
                                                    s.place_type=7 AND s.place_id={$place['place_id']} AND arg1={$place['arg1']} AND arg2={$place['arg2']} 
                                           ORDER BY s.name" );
 
@@ -1406,7 +1406,7 @@
                   $ships = db_fetch_array( "SELECT s.id, s.name, s.fleet_id
                                               FROM ships s
                                         INNER JOIN ship_types st ON st.object_id = s.object_id
-                                             WHERE st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180, 9399) AND s.user_id = {$user->uid} AND
+                                             WHERE st.cargo > {$need_free['cmass']} AND s.object_id IN (9161, 9180) AND s.user_id = {$user->uid} AND
                                                    s.place_type=8 AND s.place_id={$place['place_id']} AND arg1={$place['arg1']} AND arg2={$place['arg2']} 
                                           ORDER BY s.name" );
                 } else {

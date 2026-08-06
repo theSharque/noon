@@ -61,10 +61,22 @@
 
   $subs = array();
   if( $class == 2 || $class == 3 || $class == 8 ) {
-    $subs = db_fetch_array( "SELECT o.name, os.res_cnt FROM objects o, objects_sub os WHERE o.class NOT IN ( 6, 7, 4 ) AND os.res_id = o.id AND os.object_id = $oid ORDER BY o.class, o.name" );
+    $subs = db_fetch_array( "SELECT IFNULL(ship.name, o.name) AS name, os.res_cnt
+                               FROM objects_sub os
+                         INNER JOIN objects o ON o.id = os.res_id
+                          LEFT JOIN ship_types st ON o.class = 9 AND st.conserv_id = o.id
+                          LEFT JOIN objects ship ON ship.id = st.object_id
+                              WHERE o.class NOT IN ( 6, 7, 4 ) AND os.object_id = $oid
+                           ORDER BY o.class, name" );
   } elseif( $class == 4 && $st && $st['conserv_id'] ) {
     $kid = intval( $st['conserv_id'] );
-    $subs = db_fetch_array( "SELECT o.name, os.res_cnt FROM objects o, objects_sub os WHERE o.class NOT IN ( 6, 7, 4 ) AND os.res_id = o.id AND os.object_id = $kid ORDER BY o.class, o.name" );
+    $subs = db_fetch_array( "SELECT IFNULL(ship.name, o.name) AS name, os.res_cnt
+                               FROM objects_sub os
+                         INNER JOIN objects o ON o.id = os.res_id
+                          LEFT JOIN ship_types st ON o.class = 9 AND st.conserv_id = o.id
+                          LEFT JOIN objects ship ON ship.id = st.object_id
+                              WHERE o.class NOT IN ( 6, 7, 4 ) AND os.object_id = $kid
+                           ORDER BY o.class, name" );
   }
 
   $used = array();

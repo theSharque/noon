@@ -173,8 +173,7 @@
 
       $time = get_smove_time( $len * 20, $place['hyper'] );
 
-      $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
-      $fuel_need = $fuel_need - round( ( $fuel_need / 100 ) * get_book_level( 38, $user->uid ) );
+      $fuel_need = hyper_fuel_need( $len, $place['hyper_cnt'] );
 
       $out = "err=0&rx=".$star['x']."&ry=".$star['y'];
 
@@ -228,8 +227,7 @@
 
       $time = get_smove_time( $len * 20, $place['hyper'] );
 
-      $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
-      $fuel_need = $fuel_need - round( ( $fuel_need / 100 ) * get_book_level( 38, $user->uid ) );
+      $fuel_need = hyper_fuel_need( $len, $place['hyper_cnt'] );
 
       $out = "err=0&rx=$x&ry=$y";
 

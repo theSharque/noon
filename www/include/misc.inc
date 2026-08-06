@@ -456,6 +456,19 @@ function get_smove_time( $len, $speed, $uid = -1 ) {
   return round( $time - $level_time - $titul_time );
 }
 
+function hyper_fuel_need( $len, $hyper_cnt, $uid = -1 ) {
+  global $user;
+
+  if( $uid == -1 ) {
+    $uid = $user->uid;
+  }
+
+  $fuel_need = round( pow( $len / 15.0, 2 ) ) * $hyper_cnt;
+  $fuel_need = $fuel_need - round( ( $fuel_need / 100 ) * get_book_level( 38, $uid ) );
+
+  return $fuel_need;
+}
+
 function teach_time( $real_time ) {
 
   $level_time = ( $real_time / 20 ) * get_book_level( 4 );

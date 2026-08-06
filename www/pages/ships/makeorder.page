@@ -1729,7 +1729,7 @@
           if( isset( $hot['id_to'] ) && $hot['id_to'] > 8 ) {
             $len = $hot['len'];
             $time = get_smove_time( $len * 20, 50 );
-            $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
+            $fuel_need = hyper_fuel_need( $len, $place['hyper_cnt'] );
 
             if( $fuel_need > $fuel['cnt'] ) {
               $out = "err=3";
@@ -1741,7 +1741,7 @@
           } else {
             $len = $hot['len'];
             $time = get_smove_time( $len * 20, 50 );
-            $fuel_need = round( $len/15 ) * $place['hyper_cnt'];
+            $fuel_need = hyper_fuel_need( $len, $place['hyper_cnt'] );
 
             if( $fuel_need > $fuel['cnt'] ) {
               $out = "err=2";

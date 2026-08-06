@@ -344,8 +344,7 @@
     $len = round( sqrt( $xdiff * $xdiff + $ydiff * $ydiff ) );
     $time = get_smove_time( $len * 20, $test['hyper'], $test['user_id'] );
 
-    $fuel_need = round( $len/15 ) * $test['hyper_cnt'];
-    $fuel_need = $fuel_need - round( ( $fuel_need / 100 ) * get_book_level( 38, $test['user_id'] ) );
+    $fuel_need = hyper_fuel_need( $len, $test['hyper_cnt'], $test['user_id'] );
 
     if( $fuel_need <= $fuel ) {
       if( $is_fleet ) {

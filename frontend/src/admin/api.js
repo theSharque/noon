@@ -37,6 +37,10 @@ export function adminUser(login, params = {}) {
   return adminRequest(980, { login, ...params });
 }
 
+export function adminUsersRecent() {
+  return adminRequest(980, { act: 'recent' });
+}
+
 export function adminUserAction(login, act, params = {}) {
   return adminRequest(980, { login, act, ...params }, 'POST');
 }

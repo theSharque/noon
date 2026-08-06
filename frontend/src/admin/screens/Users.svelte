@@ -1,8 +1,7 @@
 <script>
-  import { onMount } from 'svelte';
   import { push, params as routeParams } from 'svelte-spa-router';
   import TermConfirm from '../ui/TermConfirm.svelte';
-  import { adminUser, adminUserAction } from '../api.js';
+  import { adminUser, adminUserAction, adminUsersRecent } from '../api.js';
 
   const tabs = ['overview', 'money', 'trade', 'planets', 'ships', 'fleets'];
   const tabLabels = {
@@ -16,18 +15,43 @@
 
   let loginInput = '';
   let data = null;
+  let recent = [];
   let tab = 'overview';
   let err = '';
   let loading = false;
+  let recentLoading = false;
   let paySum = '';
   let addObject = '';
   let addCnt = '1';
   let confirm = { open: false, title: '', message: '', act: null, danger: false };
 
+  let lastRouteLogin = null;
+
   $: routeLogin = $routeParams?.login ? decodeURIComponent($routeParams.login) : '';
-  $: if (routeLogin && routeLogin !== loginInput) {
-    loginInput = routeLogin;
-    loadUser(routeLogin);
+  $: if (routeLogin !== lastRouteLogin) {
+    lastRouteLogin = routeLogin;
+    if (routeLogin) {
+      loginInput = routeLogin;
+      loadUser(routeLogin);
+    } else {
+      data = null;
+      loadRecent();
+    }
+  }
+  $: showRecent = !routeLogin;
+
+  async function loadRecent() {
+    recentLoading = true;
+    err = '';
+    try {
+      const res = await adminUsersRecent();
+      recent = res?.ok ? res.recent || [] : [];
+      if (!res?.ok) err = res?.err || 'load failed';
+    } catch {
+      err = 'load failed';
+      recent = [];
+    }
+    recentLoading = false;
   }
 
   async function loadUser(login) {
@@ -59,7 +83,11 @@
     confirm = { ...confirm, open: false };
     if (!act || !data?.profile?.login) return;
     try {
-      await adminUserAction(data.profile.login, act, act === 'pay' ? { summ: paySum } : act === 'add' ? { object: addObject, cnt: addCnt } : {});
+      await adminUserAction(
+        data.profile.login,
+        act,
+        act === 'pay' ? { summ: paySum } : act === 'add' ? { object: addObject, cnt: addCnt } : {}
+      );
       await loadUser(data.profile.login);
     } catch {
       err = 'action failed';
@@ -69,6 +97,14 @@
   function userLink(name) {
     if (!name) return;
     push(`/users/${encodeURIComponent(name)}`);
+  }
+
+  function formatAgo(ago) {
+    const s = Math.max(0, parseInt(ago, 10) || 0);
+    if (s <= 60) return 'online';
+    if (s < 3600) return `${Math.floor(s / 60)}м назад`;
+    if (s < 86400) return `${Math.floor(s / 3600)}ч назад`;
+    return `${Math.floor(s / 86400)}д назад`;
   }
 </script>
 
@@ -81,9 +117,47 @@
   </div>
 </section>
 
+{#if showRecent}
+  <section class="term-panel">
+    <h2 class="term-panel-title">Последние в сети (25)</h2>
+    {#if recentLoading}
+      <div class="term-empty">загрузка...</div>
+    {:else if recent.length === 0}
+      <div class="term-empty">нет данных</div>
+    {:else}
+      <table class="term-table">
+        <thead>
+          <tr><th>login</th><th>level</th><th>lastlogin</th><th>ago</th></tr>
+        </thead>
+        <tbody>
+          {#each recent as row}
+            <tr
+              class:online={Number(row.ago) <= 60}
+              class="clickable"
+              on:click={() => userLink(row.login)}
+              on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && userLink(row.login)}
+              role="link"
+              tabindex="0"
+            >
+              <td>
+                <a href="#/users/{encodeURIComponent(row.login)}" on:click|preventDefault={() => userLink(row.login)}
+                  >{row.login}</a
+                >
+              </td>
+              <td>{row.level}</td>
+              <td>{row.lastlogin}</td>
+              <td>{formatAgo(row.ago)}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    {/if}
+  </section>
+{/if}
+
 {#if loading}
   <div class="term-empty">загрузка...</div>
-{:else if err}
+{:else if err && !showRecent}
   <p class="term-error">{err}</p>
 {:else if data?.profile}
   <div class="term-tabs">
@@ -229,5 +303,18 @@
     padding: 0;
     color: var(--term-fg-bright);
     text-decoration: underline;
+    cursor: pointer;
+  }
+
+  tr.clickable {
+    cursor: pointer;
+  }
+
+  tr.clickable:hover td {
+    background: color-mix(in srgb, var(--term-fg, #ccc) 8%, transparent);
+  }
+
+  tr.online td {
+    color: var(--term-ok, #6f6);
   }
 </style>

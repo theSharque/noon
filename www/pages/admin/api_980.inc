@@ -5,12 +5,20 @@ require_once './pages/admin/log_labels.inc';
 admin_require();
 
 $login = admin_param( 'login' );
-if( $login === '' ) {
-  admin_json( array( 'ok' => false, 'err' => 'login_required' ) );
-}
-admin_esc( $login );
-
 $act = admin_param( 'act' );
+
+if( $login === '' || $act === 'recent' ) {
+  $recent = db_fetch_array( "SELECT u.login, u.level, u.status, ua.lastlogin,
+                                    UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(ua.lastlogin) ago
+                               FROM users u
+                         INNER JOIN users_active ua ON ua.id = u.id
+                              WHERE u.status = 1 AND u.id > 16
+                           ORDER BY ua.lastlogin DESC
+                              LIMIT 25" );
+  admin_json( array( 'ok' => true, 'recent' => $recent ? $recent : array() ) );
+}
+
+admin_esc( $login );
 
 $data = db_fetch_row( "SELECT u.id, u.login, up.id pid, up.login parent, (SELECT group_concat( login ) FROM users WHERE parent_id = u.id) child,
                               a.name aliance, a.level aliance_level, t.name titul, u.last_ip, u.register_date, u.tutorial_time, ua.lastlogin,

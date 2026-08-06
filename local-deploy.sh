@@ -79,6 +79,9 @@ if $REBUILD_IMAGES; then
   docker compose build php nginx cron
 fi
 
+echo "==> flyway repair (V1/V2 edited in place — refresh checksums)"
+docker compose run --rm flyway repair
+
 echo "==> docker compose up -d php nginx cron"
 docker compose up -d php nginx cron
 

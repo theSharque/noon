@@ -2024,6 +2024,27 @@ function victim_fleet( $ch_status, $move_id, $oid, $place_hash, &$fw, $step, $us
         $fw->fire_power = ceil( $fw->power / 2 );
         break;
 
+      case 9021:
+      case 9395:
+      case 9127:
+      case 9167:
+      case 9128:
+      case 9421:
+      case 9423:
+      case 9424:
+      case 9425:
+      case 9428:
+      case 9429:
+      case 9426:
+      case 9427:
+      case 9430:
+      case 9431:
+      case 9468:
+        if( $fw->wtype == 2 ) {
+          $fw->fire_power = 0;
+        }
+        break;
+
       default:
         $fw->fire_power = $fw->power;
         break;

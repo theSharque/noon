@@ -9,7 +9,7 @@ function gen_ship() {
   if( $cnt < round( $max / 4 ) ) {
     $type = db_fetch_val( "SELECT object_id
                              FROM ship_types
-                            WHERE object_id NOT IN ( 4002, 4003, 9421, 9424, 9428, 9426, 9430, 9465, 9321, 9268, 9358, 9485 ) AND hyper > 0 AND planet > 0
+                            WHERE object_id NOT IN ( 4002, 4003, 9421, 9423, 9424, 9425, 9426, 9427, 9428, 9429, 9430, 9431, 9468, 9395, 9465, 9321, 9268, 9358, 9485 ) AND hyper > 0 AND planet > 0
                          ORDER BY rand()
                             LIMIT 0, 1", 'object_id' );
 

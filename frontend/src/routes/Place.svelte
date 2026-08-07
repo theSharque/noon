@@ -57,9 +57,11 @@
     if (params.get('demo') !== 'infly') return null;
     return {
       st: Math.max(1, parseInt(params.get('st') || '1', 10) || 1),
+      ptype: Math.max(0, parseInt(params.get('ptype') || '1', 10) || 0),
       remain: Math.max(1, parseInt(params.get('remain') || '120', 10) || 120),
       total: Math.max(1, parseInt(params.get('total') || '240', 10) || 240),
       sname: params.get('sname') || 'Демо-система',
+      pname: params.get('pname') || '',
     };
   }
 
@@ -126,8 +128,8 @@
   }
 
   function demoPlanetName(ptype) {
-    if (ptype === 3) return 'Демо-пустыня';
-    if (ptype === 4) return 'Демо-мёртвая';
+    if (ptype === 3) return 'Демо-мёртвая';
+    if (ptype === 4) return 'Демо-пустыня';
     if (ptype === 2) return 'Демо-гигант';
     return 'Демо-земля';
   }
@@ -224,7 +226,9 @@
         total: demo.total,
         st: demo.st,
         sname: demo.sname,
-        et: 2,
+        ptype: demo.ptype,
+        pname: demo.pname,
+        et: 3,
       };
       demoInfly = true;
       mode = 'infly';
@@ -429,6 +433,7 @@
     <Infly
       starType={flight.st}
       starName={flight.sname || starName}
+      planetType={flight.ptype || 0}
       remain={flight.remain}
       total={flight.total || flight.remain || 1}
       demo={demoInfly}

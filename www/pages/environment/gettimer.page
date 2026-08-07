@@ -58,9 +58,11 @@
       $sname = $star['name'];
     }
 
-    if( $et == 0 || $et == 1 || $et == 6 || $et == 8 || $et == 100 || $et == 101 ) {
+    if( $et == 0 || $et == 1 || $et == 6 || $et == 8 || $et == 100 || $et == 101 || $et == 3 || $et == 103 ) {
       $planet_id = 0;
-      if( isset( $timer['arg1'] ) && intval( $timer['arg1'] ) > 0 ) {
+      if( ( $et == 3 || $et == 103 ) && isset( $timer['arg2'] ) && intval( $timer['arg2'] ) > 0 ) {
+        $planet_id = intval( $timer['arg2'] );
+      } else if( isset( $timer['arg1'] ) && intval( $timer['arg1'] ) > 0 ) {
         $planet_id = intval( $timer['arg1'] );
       } else if( intval( $user->place_id ) > 0 ) {
         $planet_id = intval( $user->place_id );

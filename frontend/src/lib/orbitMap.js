@@ -23,6 +23,38 @@ export function planetBgSrc(pid) {
   return `/images/p${id}.png`;
 }
 
+export function orbitPlanetFullSize(viewW, viewH) {
+  const vmin = Math.min(viewW || 0, viewH || 0);
+  return Math.min(vmin * 0.7, 520);
+}
+
+export function planetApproachScale(progress) {
+  const t = Math.max(0, Math.min(1, Number(progress) || 0));
+  const s0 = 0.01;
+  const s80 = 0.1;
+  const s1 = 1;
+  const v0 = 0.05;
+  const v80 = 0.35;
+  const v1 = 8;
+  if (t <= 0.8) {
+    const u = t / 0.8;
+    return hermite(s0, s80, v0 * 0.8, v80 * 0.8, u);
+  }
+  const u = (t - 0.8) / 0.2;
+  return hermite(s80, s1, v80 * 0.2, v1 * 0.2, u);
+}
+
+function hermite(p0, p1, m0, m1, u) {
+  const u2 = u * u;
+  const u3 = u2 * u;
+  return (
+    (2 * u3 - 3 * u2 + 1) * p0 +
+    (u3 - 2 * u2 + u) * m0 +
+    (-2 * u3 + 3 * u2) * p1 +
+    (u3 - u2) * m1
+  );
+}
+
 export function emptySrc() {
   return `${ORBIT_IMG}/jpeg0.png`;
 }

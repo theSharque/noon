@@ -9,7 +9,7 @@ export function isLandEvent(et) {
 
 export function planetPalette(ptype) {
   const n = parseInt(ptype, 10) || 1;
-  if (n === 3) {
+  if (n === 4) {
     return {
       space: '#050208',
       atmNear: { r: 180, g: 55, b: 30 },
@@ -33,7 +33,7 @@ export function planetPalette(ptype) {
       kind: 'desert',
     };
   }
-  if (n === 4 || n === 5) {
+  if (n === 3 || n === 5) {
     return {
       space: '#02060c',
       atmNear: { r: 140, g: 150, b: 170 },

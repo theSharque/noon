@@ -8,9 +8,15 @@
     starPalette,
     stepInflyField,
   } from '../lib/inflyFx.js';
+  import {
+    orbitPlanetFullSize,
+    planetApproachScale,
+    planetBgSrc,
+  } from '../lib/orbitMap.js';
 
   export let starType = 1;
   export let starName = '';
+  export let planetType = 0;
   export let remain = 90;
   export let total = 180;
   export let demo = false;
@@ -28,6 +34,8 @@
   let baseRemain = Number(remain) || 0;
   let lastTs = 0;
   let ended = false;
+  let planetImg = null;
+  let planetImgKey = '';
 
   $: palette = starPalette(starType);
   $: progress = Math.max(0, Math.min(1, (totalLive - remainLive) / totalLive));
@@ -35,6 +43,7 @@
   $: timeLabel = formatFlyTime(remainLive);
 
   $: ensureField(starType, starName);
+  $: ensurePlanetImg(planetType);
   $: armTimer(remain, total);
 
   function seedFromName(name) {
@@ -49,6 +58,27 @@
     if (key === fieldKey && field) return;
     fieldKey = key;
     field = createInflyField(type, (Number(type) * 9973 + (seedFromName(name) || 1)) >>> 0);
+  }
+
+  function ensurePlanetImg(ptype) {
+    const n = parseInt(ptype, 10) || 0;
+    if (n < 1 || n > 5) {
+      planetImg = null;
+      planetImgKey = '';
+      return;
+    }
+    const key = String(n);
+    if (key === planetImgKey && planetImg) return;
+    planetImgKey = key;
+    planetImg = null;
+    const img = new Image();
+    img.onload = () => {
+      if (planetImgKey === key) planetImg = img;
+    };
+    img.onerror = () => {
+      if (planetImgKey === key) planetImg = null;
+    };
+    img.src = planetBgSrc(n);
   }
 
   function armTimer(r, t) {
@@ -89,12 +119,21 @@
 
     if (!field) return;
     const layoutPos = stepInflyField(field, dt, speedFactor, w, h);
+    const planet =
+      planetImg && (parseInt(planetType, 10) || 0) >= 1
+        ? {
+            img: planetImg,
+            fullSize: orbitPlanetFullSize(w, h),
+            scale: planetApproachScale(journeyProgress),
+          }
+        : null;
     drawInflyField(
       ctx,
       field,
       { w, h, cx: layoutPos.cx, cy: layoutPos.cy, maxR: layoutPos.maxR },
       speedFactor,
       ts / 1000,
+      planet,
     );
 
     if (!ended && remainLive <= 0 && !demo) {

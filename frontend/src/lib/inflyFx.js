@@ -194,7 +194,7 @@ export function stepInflyField(field, dt, speedFactor, w, h) {
   return { cx, cy, maxR };
 }
 
-export function drawInflyField(ctx, field, layout, speedFactor, time) {
+export function drawInflyField(ctx, field, layout, speedFactor, time, planet) {
   const { w, h, cx, cy, maxR } = layout;
   const p = field.palette;
 
@@ -210,6 +210,10 @@ export function drawInflyField(ctx, field, layout, speedFactor, time) {
   drawStarLayer(ctx, field.far, w, h, p.starDim, 0.7);
   drawStarLayer(ctx, field.mid, w, h, p.star, 0.9);
   drawStarLayer(ctx, field.near, w, h, p.star, 1.15);
+
+  if (planet?.img && planet.fullSize > 0 && planet.scale > 0) {
+    drawApproachPlanet(ctx, cx, cy, planet.img, planet.fullSize, planet.scale);
+  }
 
   ctx.save();
   for (const mote of field.motes) {
@@ -260,6 +264,16 @@ export function drawInflyField(ctx, field, layout, speedFactor, time) {
 
   ctx.globalAlpha = 1;
   void time;
+}
+
+function drawApproachPlanet(ctx, cx, cy, img, fullSize, scale) {
+  const size = fullSize * scale;
+  if (size < 0.5) return;
+  const half = size / 2;
+  ctx.save();
+  ctx.globalAlpha = Math.min(1, 0.35 + scale * 0.9);
+  ctx.drawImage(img, cx - half, cy - half, size, size);
+  ctx.restore();
 }
 
 function drawStarLayer(ctx, stars, w, h, color, sizeMul) {

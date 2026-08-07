@@ -163,6 +163,93 @@
         break;
     }
 
+    $uid = $user->uid;
+
+    if( isset( $_GET['pts'] ) && $_GET['pts'] != '' ) {
+      $waypoints = starmove_parse_pts( $_GET['pts'], $uid );
+      if( $waypoints === null ) {
+        printOut( 'err=7' );
+        return;
+      }
+
+      $fuel_need = route_estimate_total( $sx, $sy, $waypoints, $place['hyper_cnt'], $uid );
+      $time = 0;
+      $cx = $sx;
+      $cy = $sy;
+      $rpts = '';
+
+      foreach( $waypoints as $wp ) {
+        $xy = route_waypoint_galaxy_xy( $wp );
+        $lx = $xy['x'] - $cx;
+        $ly = $xy['y'] - $cy;
+        $len = round( sqrt( $lx * $lx + $ly * $ly ) );
+        $time += get_smove_time( $len * 20, $place['hyper'], $uid );
+        $cx = $xy['x'];
+        $cy = $xy['y'];
+
+        if( $rpts != '' ) {
+          $rpts .= ';';
+        }
+        $rpts .= $xy['x'].','.$xy['y'];
+      }
+
+      $last = $waypoints[count( $waypoints ) - 1];
+      $lx = intval( $_GET['mx'] );
+      $ly = intval( $_GET['my'] );
+      $star = db_fetch_row( "SELECT s.id, s.name, s.x, s.y, u.login
+                               FROM stars s
+                          LEFT JOIN planets p ON p.star_id = s.id AND user_id IS NOT NULL
+                          LEFT JOIN users u ON u.id = p.user_id
+                              WHERE s.x BETWEEN ".($lx-3)." AND ".($lx+3)." AND s.y BETWEEN ".($ly-3)." AND ".($ly+3) );
+
+      $hints = db_fetch_row( "SELECT text name, x, y
+                                FROM hyper_hint
+                               WHERE x BETWEEN ".($lx-3)." AND ".($lx+3)." AND
+                                     y BETWEEN ".($ly-3)." AND ".($ly+3)." AND
+                                     user_id = ".$user->uid );
+
+      $hint = '';
+      $htext = '';
+      if( is_numeric( $hints['x'] ) ) {
+        $hint = $hints['name'];
+        $htext = $hints['name'];
+      }
+
+      $last_xy = route_waypoint_galaxy_xy( $last );
+      $rx = $last_xy['x'];
+      $ry = $last_xy['y'];
+      $wp_cnt = count( $waypoints );
+      $route_hdr = "Маршрут: $wp_cnt ".( $wp_cnt == 1 ? 'точка' : ( $wp_cnt < 5 ? 'точки' : 'точек' ) )."<br>";
+
+      if( $last['dest_type'] == 7 ) {
+        $dest_star = db_fetch_row( "SELECT s.name, u.login
+                                      FROM stars s
+                                 LEFT JOIN planets p ON p.star_id = s.id AND user_id IS NOT NULL
+                                 LEFT JOIN users u ON u.id = p.user_id
+                                     WHERE s.id = ".intval( $last['dest_id'] ) );
+        $dest_line = "Место назначения: звезда ".$dest_star['name']." - ".$dest_star['login']." $hint";
+        $dest_t = 2;
+      } else {
+        $dest_line = "Место назначения: точка $rx:$ry $hint";
+        $dest_t = 1;
+      }
+
+      $out = "err=0&rx=$rx&ry=$ry&rpts=$rpts";
+
+      if( $fuel_need > $fuel['cnt'] ) {
+        $out .= "&t=3&desc=".$route_hdr.$dest_line."<br>Время в пути: ".time_to_str( $time )."<br><font color=\"#FF0000\">Необходимо урана: ".$fuel_need." (".$fuel['cnt'].")&hint=$htext";
+      } else {
+        if( $fuel_need * 2 > $fuel['cnt'] ) {
+          $out .= "&t=".intval( $dest_t )."&desc=".$route_hdr.$dest_line."<br>Время в пути: ".time_to_str( $time )."<br><font color=\"#FFFF00\">Необходимо урана: ".$fuel_need." (".$fuel['cnt'].")&hint=$htext";
+        } else {
+          $out .= "&t=".intval( $dest_t )."&desc=".$route_hdr.$dest_line."<br>Время в пути: ".time_to_str( $time )."<br><font color=\"#00FF00\">Необходимо урана: ".$fuel_need." (".$fuel['cnt'].")&hint=$htext";
+        }
+      }
+
+      printOut( $out );
+      return;
+    }
+
     $hint = '';
 
     if( isset( $star['id'] ) && $star['id'] > 0 ) {
@@ -171,9 +258,9 @@
       $slogin = $star['login'];
       $len = round( sqrt( $lx * $lx + $ly * $ly ) );
 
-      $time = get_smove_time( $len * 20, $place['hyper'] );
+      $time = get_smove_time( $len * 20, $place['hyper'], $uid );
 
-      $fuel_need = hyper_fuel_need( $len, $place['hyper_cnt'] );
+      $fuel_need = hyper_fuel_need( $len, $place['hyper_cnt'], $uid );
 
       $out = "err=0&rx=".$star['x']."&ry=".$star['y'];
 
@@ -225,9 +312,9 @@
       $ly = $y - $sy;
       $len = round( sqrt( $lx * $lx + $ly * $ly ) );
 
-      $time = get_smove_time( $len * 20, $place['hyper'] );
+      $time = get_smove_time( $len * 20, $place['hyper'], $uid );
 
-      $fuel_need = hyper_fuel_need( $len, $place['hyper_cnt'] );
+      $fuel_need = hyper_fuel_need( $len, $place['hyper_cnt'], $uid );
 
       $out = "err=0&rx=$x&ry=$y";
 

@@ -36,10 +36,19 @@
   import {
     RING_R,
     RING_STROKE,
+    applyRouteWaypoint,
     computeGalaxyBounds,
+    findRouteWaypointIndex,
+    formatRoutePts,
     galaxyCenterOffset,
     galaxyLocalPoint,
     isGalaxyPointValid,
+    isNearPoint,
+    parseRoutePts,
+    routePolylinePoints,
+    routeIncludesPoint,
+    ROUTE_RING_R,
+    sameGalaxyPoint,
     GALAXY_MAX_RADIUS,
   } from '../lib/galaxyMap.js';
   import {
@@ -126,6 +135,10 @@
   let galaxyOffset = { x: 0, y: 0 };
   let galaxyHover = '';
   let galaxyDesc = '';
+  let galaxyRoute = [];
+  let galaxyRouteSkill = 0;
+  let galaxyBaseDesc = '';
+  let galaxyHomeJump = false;
   let galaxyPlace = { x: 0, y: 0 };
   let galaxyCoordX = '';
   let galaxyCoordY = '';
@@ -172,6 +185,9 @@
 
   $: qs = new URLSearchParams($querystring || '');
   $: bootLs = qs.get('ls') || '';
+  $: galaxyHomeInRoute =
+    galaxyHome && galaxyRoute.length > 0 && routeIncludesPoint(galaxyRoute, galaxyHome);
+
   $: displayShips = ships.map((ship, i) => ({
     ...ship,
     location: formatLocation(ship, tick),
@@ -383,6 +399,9 @@
     galaxyQuest = null;
     galaxyShip = null;
     galaxyDesc = '';
+    galaxyRoute = [];
+    galaxyBaseDesc = '';
+    galaxyHomeJump = false;
     galaxyPlace = { x: 0, y: 0 };
     galaxyCoordX = '';
     galaxyCoordY = '';
@@ -922,7 +941,51 @@
       return;
     }
     const snap = snapGalaxyPoint(pt.x, pt.y);
-    await probeGalaxy(snap.x, snap.y);
+    const idx = findRouteWaypointIndex(snap.x, snap.y, galaxyRoute);
+    if (idx >= 0) {
+      galaxyRoute = galaxyRoute.slice(0, idx + 1);
+    } else if (
+      galaxyRoute.length &&
+      galaxyShip &&
+      isNearPoint(snap.x, snap.y, galaxyShip.x, galaxyShip.y)
+    ) {
+      await resetGalaxyMonitor();
+      return;
+    } else {
+      galaxyRoute = applyRouteWaypoint(galaxyRoute, snap, galaxyRouteSkill);
+    }
+    await refreshGalaxyRoutePreview();
+  }
+
+  async function applyGalaxyMonitorOpen(homeJump) {
+    galaxyHomeJump = homeJump;
+    galaxyRoute = [];
+    galaxyPreviewT = 0;
+    galaxyCoordX = '';
+    galaxyCoordY = '';
+    galaxyPlace = { x: 0, y: 0 };
+    showOrderBtn = false;
+    orderGlow = false;
+    galaxyDesc = galaxyBaseDesc;
+    if (homeJump && galaxyHome) {
+      centerGalaxy(galaxyHome.x, galaxyHome.y);
+      galaxyRoute = [{ x: galaxyHome.x, y: galaxyHome.y }];
+      await refreshGalaxyRoutePreview();
+    } else {
+      centerGalaxy(galaxyShip?.x, galaxyShip?.y);
+    }
+  }
+
+  async function resetGalaxyMonitor() {
+    await applyGalaxyMonitorOpen(galaxyHomeJump);
+  }
+
+  function onGalaxyKeydown(e) {
+    if (monitor !== 'galaxy') return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      resetGalaxyMonitor();
+    }
   }
 
   async function openGalaxyMap(homeJump) {
@@ -942,15 +1005,11 @@
           : null;
       galaxyShip =
         data.shx != null && data.shy != null ? { x: data.shx, y: data.shy } : null;
+      galaxyRouteSkill = data.routeSkill || 0;
       galaxyBounds = computeGalaxyBounds(galaxyStars);
-      galaxyDesc = lightenGalaxyDesc(data.desc || '');
+      galaxyBaseDesc = lightenGalaxyDesc(data.desc || '');
       await svelteTick();
-      if (homeJump && galaxyHome) {
-        centerGalaxy(galaxyHome.x, galaxyHome.y);
-        await probeGalaxy(galaxyHome.x, galaxyHome.y);
-      } else {
-        centerGalaxy(galaxyShip?.x, galaxyShip?.y);
-      }
+      await applyGalaxyMonitorOpen(homeJump);
     } catch {
       errorText = 'Ошибка карты галактики';
     } finally {
@@ -965,10 +1024,20 @@
       .replace(/#00FF00/gi, '#9DFF9D');
   }
 
-  async function probeGalaxy(mx, my) {
+  async function refreshGalaxyRoutePreview() {
     const shid = primaryId();
-    if (!shid) return;
-    const data = await getStarCoord(mx, my, shid);
+    if (!shid || !galaxyRoute.length) {
+      galaxyPreviewT = 0;
+      galaxyPlace = { x: 0, y: 0 };
+      galaxyCoordX = '';
+      galaxyCoordY = '';
+      showOrderBtn = false;
+      orderGlow = false;
+      if (!galaxyRoute.length) galaxyDesc = galaxyBaseDesc;
+      return;
+    }
+    const last = galaxyRoute[galaxyRoute.length - 1];
+    const data = await getStarCoord(last.x, last.y, shid, formatRoutePts(galaxyRoute));
     if (String(data.err) === '7') {
       galaxyDesc = lightenGalaxyDesc(
         `<font color="#FF0000">Точка за пределами галактики (макс. ${GALAXY_MAX_RADIUS} от центра)</font>`,
@@ -982,8 +1051,12 @@
       orderGlow = false;
       return;
     }
-    const rx = parseInt(data.rx != null ? data.rx : mx, 10);
-    const ry = parseInt(data.ry != null ? data.ry : my, 10);
+    if (data.rpts) {
+      galaxyRoute = parseRoutePts(data.rpts);
+    }
+    const tail = galaxyRoute[galaxyRoute.length - 1] || last;
+    const rx = parseInt(data.rx != null ? data.rx : tail.x, 10);
+    const ry = parseInt(data.ry != null ? data.ry : tail.y, 10);
     const t = parseInt(data.t != null ? data.t : '3', 10);
     const desc = data.desc || '';
     galaxyPlace = { x: rx, y: ry };
@@ -1007,9 +1080,12 @@
       orderGlow = false;
       return;
     }
-    if (mx === galaxyPlace.x && my === galaxyPlace.y && galaxyPreviewT > 0) return;
+    const snap = snapGalaxyPoint(mx, my);
+    const last = galaxyRoute[galaxyRoute.length - 1];
+    if (last && last.x === snap.x && last.y === snap.y && galaxyPreviewT > 0) return;
     playBuzz();
-    await probeGalaxy(mx, my);
+    galaxyRoute = applyRouteWaypoint(galaxyRoute, snap, galaxyRouteSkill);
+    await refreshGalaxyRoutePreview();
   }
 
   function systemPolarXy(angleDeg, orb) {
@@ -1205,8 +1281,7 @@
       if (GALAXY_ORDERS.has(id)) {
         data = await shipsStarMove({
           shid: primaryId(),
-          x: galaxyPlace.x,
-          y: galaxyPlace.y,
+          pts: formatRoutePts(galaxyRoute),
         });
       } else if (SYSTEM_ORDERS.has(id)) {
         data = await shipsSystemMove({
@@ -1450,6 +1525,8 @@
     stopSystemOrbitPoll();
   });
 </script>
+
+<svelte:window on:keydown={onGalaxyKeydown} />
 
 <div class="ships-screen">
   <div class="ships-toolbar">
@@ -1735,6 +1812,7 @@
             stars={galaxyStars}
             yellow={galaxyYellow}
             home={galaxyHome}
+            hideHomeRing={galaxyHomeInRoute}
             quest={galaxyQuest}
             ship={galaxyShip}
             offset={galaxyOffset}
@@ -1750,27 +1828,29 @@
               galaxyHover = '';
             }}
           >
-            {#if galaxyPreviewT > 0 && galaxyShip}
-              <line
+            {#if galaxyPreviewT > 0 && galaxyShip && galaxyRoute.length}
+              <polyline
                 class="route-march"
                 class:route-blocked={galaxyPreviewT === 3}
-                x1={galaxyShip.x}
-                y1={galaxyShip.y}
-                x2={galaxyPlace.x}
-                y2={galaxyPlace.y}
+                points={routePolylinePoints(galaxyShip, galaxyRoute)}
                 fill="none"
                 stroke={galaxyPreviewT === 3 ? '#ff5a5a' : 'var(--neon-cyan)'}
                 stroke-width="1.5"
                 stroke-linecap="round"
+                stroke-linejoin="round"
               />
-              <circle
-                cx={galaxyPlace.x}
-                cy={galaxyPlace.y}
-                r={SYSTEM_CIRCLE_R}
-                fill="none"
-                stroke="var(--neon-cyan)"
-                stroke-width={MAP_STROKE}
-              />
+              {#each galaxyRoute as wp}
+                {#if !(galaxyShip && sameGalaxyPoint(galaxyShip, wp))}
+                  <circle
+                    cx={wp.x}
+                    cy={wp.y}
+                    r={ROUTE_RING_R}
+                    fill="none"
+                    stroke="var(--neon-cyan)"
+                    stroke-width={MAP_STROKE}
+                  />
+                {/if}
+              {/each}
             {/if}
           </GalaxyMap>
         </div>

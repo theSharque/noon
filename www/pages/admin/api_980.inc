@@ -103,6 +103,40 @@ if( $act === 'add' ) {
   admin_json( array( 'ok' => true, 'act' => 'add' ) );
 }
 
+if( $act === 'set_skill' ) {
+  $bookId = admin_int( 'book' );
+  $level = admin_int( 'level' );
+
+  if( $bookId <= 0 ) {
+    admin_json( array( 'ok' => false, 'err' => 'bad_book' ) );
+  }
+
+  $bookOk = db_fetch_val( "SELECT id FROM books WHERE id = $bookId", 'id' );
+  if( !$bookOk ) {
+    admin_json( array( 'ok' => false, 'err' => 'bad_book' ) );
+  }
+
+  if( $level < 0 ) {
+    $level = 0;
+  }
+  if( $level > 10 ) {
+    $level = 10;
+  }
+
+  if( $level <= 0 ) {
+    db_query( "DELETE FROM users_books WHERE user_id = $uid AND book_id = $bookId" );
+  } else {
+    $cnt = db_fetch_val( "SELECT count(*) cnt FROM users_books WHERE user_id = $uid AND book_id = $bookId", 'cnt' );
+    if( $cnt == 0 ) {
+      db_query( "INSERT INTO users_books ( user_id, book_id, level ) VALUES ( $uid, $bookId, $level )" );
+    } else {
+      db_query( "UPDATE users_books SET level = $level WHERE user_id = $uid AND book_id = $bookId" );
+    }
+  }
+
+  admin_json( array( 'ok' => true, 'act' => 'set_skill' ) );
+}
+
 $children = array();
 if( $data['child'] ) {
   $children = array_values( array_filter( explode( ',', $data['child'] ) ) );
@@ -162,6 +196,12 @@ $fleets = db_fetch_array( "SELECT f.id, f.name, f.inwar, f.w_count, f.w_power,
                             WHERE f.user_id = $uid" );
 
 $objects = db_fetch_array( "SELECT o.class, o.name, o.id FROM objects o ORDER BY o.class, o.name" );
+$books = db_fetch_array( "SELECT b.id, b.name FROM books b ORDER BY b.id" );
+$skills = db_fetch_array( "SELECT ub.book_id, b.name, ub.level
+                             FROM users_books ub
+                       INNER JOIN books b ON b.id = ub.book_id
+                            WHERE ub.user_id = $uid
+                         ORDER BY ub.book_id" );
 
 admin_json( array(
   'ok' => true,
@@ -174,4 +214,6 @@ admin_json( array(
   'ships' => $ships ? $ships : array(),
   'fleets' => $fleets ? $fleets : array(),
   'objects' => $objects ? $objects : array(),
+  'books' => $books ? $books : array(),
+  'skills' => $skills ? $skills : array(),
 ) );

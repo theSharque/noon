@@ -7,6 +7,9 @@
     GALAXY_BG_SIZE,
     GALAXY_MAX_RADIUS,
     QUEST_MARK_S,
+    FRIEND_RING_R,
+    FOE_RING_R,
+    HOME_RING_R,
     RING_R,
     RING_STROKE,
     STAR_CORE_R,
@@ -22,6 +25,7 @@
   export let stars = [];
   export let yellow = [];
   export let home = null;
+  export let hideHomeRing = false;
   export let quest = null;
   export let ship = null;
   export let cross = null;
@@ -102,7 +106,7 @@
         <circle
           cx={s.x}
           cy={s.y}
-          r={RING_R}
+          r={FRIEND_RING_R}
           fill="none"
           stroke={ringStroke('friend')}
           stroke-width={RING_STROKE}
@@ -112,7 +116,7 @@
         <circle
           cx={s.x}
           cy={s.y}
-          r={RING_R}
+          r={FOE_RING_R}
           fill="none"
           stroke={ringStroke('foe')}
           stroke-width={RING_STROKE}
@@ -141,26 +145,28 @@
         <circle cx={s.x} cy={s.y} r={STAR_CORE_R} fill={starFill(s.type)} />
       {/if}
     {/each}
-    {#if home}
+    {#if home && !hideHomeRing}
       <circle
         cx={home.x}
         cy={home.y}
-        r={RING_R}
+        r={HOME_RING_R}
         fill="none"
         stroke={ringStroke('home')}
         stroke-width={RING_STROKE}
       />
     {/if}
     {#if quest}
-      <rect
-        x={quest.x - QUEST_MARK_S / 2}
-        y={quest.y - QUEST_MARK_S / 2}
-        width={QUEST_MARK_S}
-        height={QUEST_MARK_S}
-        fill="none"
-        stroke="#ffffff"
-        stroke-width={RING_STROKE}
-      />
+      <g transform={`rotate(45 ${quest.x} ${quest.y})`}>
+        <rect
+          x={quest.x - QUEST_MARK_S / 2}
+          y={quest.y - QUEST_MARK_S / 2}
+          width={QUEST_MARK_S}
+          height={QUEST_MARK_S}
+          fill="none"
+          stroke="#ffffff"
+          stroke-width={RING_STROKE}
+        />
+      </g>
     {/if}
     {#if ship}
       <circle

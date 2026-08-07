@@ -4,8 +4,12 @@ export const GALAXY_BG_SIZE = GALAXY_MAX_RADIUS;
 export const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
 
 export const RING_R = 4.5;
+export const HOME_RING_R = RING_R;
+export const FRIEND_RING_R = RING_R + 1;
+export const FOE_RING_R = FRIEND_RING_R;
+export const ROUTE_RING_R = RING_R;
 export const RING_STROKE = 1.2;
-export const QUEST_MARK_S = 8;
+export const QUEST_MARK_S = 10;
 export const STAR_CORE_R = 0.7;
 export const BH_GLOW_R = 10.4;
 export const BH_CORE_R = 2.9;
@@ -84,6 +88,81 @@ export function clampGalaxyPoint(x, y) {
   return { x: Math.round(x * scale), y: Math.round(y * scale) };
 }
 
+export function sameGalaxyPoint(a, b) {
+  if (!a || !b) return false;
+  return a.x === b.x && a.y === b.y;
+}
+
+export function routeIncludesPoint(route, point) {
+  if (!point || !route?.length) return false;
+  return route.some((wp) => sameGalaxyPoint(wp, point));
+}
+
 export function isGalaxyPointValid(x, y) {
   return Math.hypot(x, y) <= GALAXY_MAX_RADIUS;
+}
+
+export const ROUTE_HIT_R = 6;
+
+export function isNearPoint(x, y, px, py, radius = ROUTE_HIT_R) {
+  const dx = px - x;
+  const dy = py - y;
+  return dx * dx + dy * dy <= radius * radius;
+}
+
+export function routeMaxWaypoints(routeSkill) {
+  const skill = parseInt(routeSkill, 10) || 0;
+  if (skill <= 0) return 1;
+  return skill + 1;
+}
+
+export function applyRouteWaypoint(route, snap, routeSkill) {
+  const max = routeMaxWaypoints(routeSkill);
+  if (max <= 1) {
+    return [snap];
+  }
+  if (!route?.length) {
+    return [snap];
+  }
+  if (route.length < max) {
+    return [...route, snap];
+  }
+  return [...route.slice(0, -1), snap];
+}
+
+export function formatRoutePts(waypoints) {
+  return (waypoints || [])
+    .map((p) => `${parseInt(p.x, 10)},${parseInt(p.y, 10)}`)
+    .join(';');
+}
+
+export function parseRoutePts(rpts) {
+  if (!rpts) return [];
+  return String(rpts)
+    .split(';')
+    .map((chunk) => chunk.trim())
+    .filter(Boolean)
+    .map((chunk) => {
+      const [xs, ys] = chunk.split(',');
+      return { x: parseInt(xs, 10), y: parseInt(ys, 10) };
+    })
+    .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
+}
+
+export function findRouteWaypointIndex(x, y, waypoints, radius = ROUTE_HIT_R) {
+  if (!waypoints?.length) return -1;
+  for (let i = waypoints.length - 1; i >= 0; i -= 1) {
+    const p = waypoints[i];
+    if (isNearPoint(x, y, p.x, p.y, radius)) return i;
+  }
+  return -1;
+}
+
+export function routePolylinePoints(ship, waypoints) {
+  const pts = [];
+  if (ship) pts.push(`${ship.x},${ship.y}`);
+  for (const p of waypoints || []) {
+    pts.push(`${p.x},${p.y}`);
+  }
+  return pts.join(' ');
 }

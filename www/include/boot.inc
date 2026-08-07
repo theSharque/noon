@@ -15,6 +15,7 @@ function bootup() {
   require_once( "include/auth.inc" );
   require_once( "include/db.inc" );
   require_once( "include/misc.inc" );
+  require_once( "include/route_lib.inc" );
   require_once( "include/messages.inc" );
 
   message_init();

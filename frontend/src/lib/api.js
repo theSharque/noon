@@ -779,6 +779,7 @@ function parseStarMap(data) {
     qsx: data.qsx !== undefined ? parseInt(data.qsx, 10) : null,
     qsy: data.qsy !== undefined ? parseInt(data.qsy, 10) : null,
     desc: data.desc || '',
+    routeSkill: parseInt(data.rs || '0', 10),
   };
 }
 
@@ -787,24 +788,24 @@ export async function loadStarMap(shid = '') {
   return parseStarMap(await fetchPage(371, params));
 }
 
-export async function getStarCoord(mx, my, shid = '') {
+export async function getStarCoord(mx, my, shid = '', pts = '') {
   const parts = [
     `mx=${encodeURIComponent(mx)}`,
     `my=${encodeURIComponent(my)}`,
   ];
   if (shid) parts.push(`shid=${encodeURIComponent(shid)}`);
+  if (pts) parts.push(`pts=${encodeURIComponent(pts)}`);
   return fetchPage(372, parts.join('&'));
 }
 
-export async function shipsStarMove({ shid, x, y }) {
-  return fetchPage(
-    373,
-    [
-      `shid=${encodeURIComponent(shid)}`,
-      `x=${encodeURIComponent(x)}`,
-      `y=${encodeURIComponent(y)}`,
-    ].join('&'),
-  );
+export async function shipsStarMove({ shid, x, y, pts }) {
+  const parts = [`shid=${encodeURIComponent(shid)}`];
+  if (pts) {
+    parts.push(`pts=${encodeURIComponent(pts)}`);
+  } else {
+    parts.push(`x=${encodeURIComponent(x)}`, `y=${encodeURIComponent(y)}`);
+  }
+  return fetchPage(373, parts.join('&'));
 }
 
 function parseSystemMap(data) {

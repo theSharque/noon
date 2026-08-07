@@ -199,4 +199,6 @@
     $l++;
   }
 
+  $out .= '&rs='.get_book_level( 38, $user->uid );
+
   printOut( $out );

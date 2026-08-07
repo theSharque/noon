@@ -1,5 +1,7 @@
 <?php
 
+require_once( "include/route_lib.inc" );
+
 function space_event_all() {
 
   $microtime_start = microtime(true);
@@ -330,8 +332,10 @@ function space_point( $event_id ) {
           StartWar( 1, $fleet['id'], 1, $result['ship_id'], $result['event_time'], 1 );
         }
       }
+      route_clear_event( $result['ship_id'], $result['event_type'] );
     } else {
       send_msg( 1, $result['user_id'], t( "Перелет флота '%s' к точке %d:%d завершен успешно.", array( $names['name'], $result['arg1'], $result['arg2'] ) ), 5, $result['event_time'] );
+      route_try_continue_event( $result['ship_id'], $result['event_type'], $result['user_id'] );
     }
   } else {
     db_query( "UPDATE ships SET place_type = 7, arg1 = ".$result['arg1'].", arg2 = ".$result['arg2']." WHERE id = ".$result['ship_id'] );
@@ -355,8 +359,10 @@ function space_point( $event_id ) {
           StartWar( 1, $fleet['id'], 0, $result['ship_id'], $result['event_time'], 1 );
         }
       }
+      route_clear_event( $result['ship_id'], $result['event_type'] );
     } else {
       send_msg( 1, $result['user_id'], t( "Перелет корабля '%s' к точке %d:%d завершен успешно.", array( $names['name'], $result['arg1'], $result['arg2'] ) ), 5, $result['event_time'] );
+      route_try_continue_event( $result['ship_id'], $result['event_type'], $result['user_id'] );
     }
   }
 }
@@ -389,7 +395,12 @@ function space_star( $event_id ) {
                                 WHERE s.id = ".$result['ship_id'], 'corsar' );
     }
 
+    $bh_reroute = false;
+
     if( $result['type'] == 4 ) {
+      $bh_reroute = true;
+      route_clear_event( $result['ship_id'], $result['event_type'] );
+
       $new_star = db_fetch_row( "SELECT s.id, s.name sname
                                    FROM stars s
                                   WHERE s.type !=4
@@ -438,6 +449,7 @@ function space_star( $event_id ) {
         } else {
           StartWar( 0, $trit['id'], 1, $result['ship_id'], $result['event_time'] );      
         }
+        route_clear_event( $result['ship_id'], $result['event_type'] );
       } elseif( isset( $inter['id'] ) ) {
         send_msg( 1, $result['user_id'], t( "Ваш флот '%s' во время перелета к звезде %s перехвачен!", array( $names['name'], $result['sname'] ) ), 5, $result['event_time'] );
 
@@ -465,6 +477,9 @@ function space_star( $event_id ) {
 
         db_query( "UPDATE fleets SET place_type = 7, place_id = ".$result['arg2'].", arg1 = $gx, arg2 = $gy WHERE id = ".$result['ship_id'] );
         db_query( "UPDATE ships SET place_type = 7, place_id = ".$result['arg2'].", arg1 = $gx, arg2 = $gy WHERE fleet_id = ".$result['ship_id'] );
+        if( !$bh_reroute ) {
+          route_try_continue_event( $result['ship_id'], $result['event_type'], $result['user_id'] );
+        }
       }
     } else {
       $names = db_fetch_row( "SELECT s.name, s.object_id, u.login FROM ships s INNER JOIN users u ON u.id = s.user_id WHERE s.id = ".$result['ship_id'] );
@@ -479,6 +494,7 @@ function space_star( $event_id ) {
         } else {
           StartWar( 0, $trit['id'], 0, $result['ship_id'], $result['event_time'] );      
         }
+        route_clear_event( $result['ship_id'], $result['event_type'] );
       } elseif( $names['object_id'] != 9310 && $names['object_id'] != 9355 && isset( $inter['id'] ) ) {
         send_msg( 1, $result['user_id'], t( "Ваш корабль '%s' во время перелета к звезде %s перехвачен!", array( $names['name'], $result['sname'] ) ), 6, $result['event_time'] );
 
@@ -496,6 +512,9 @@ function space_star( $event_id ) {
       } else {
         send_msg( 1, $result['user_id'], "Перелет корабля '{$names['name']}' к звезде {$result['sname']} завершен успешно.", 6, $result['event_time'] );
         db_query( "UPDATE ships SET place_type = 7, place_id = ".$result['arg2'].", arg1 = $gx, arg2 = $gy WHERE id = ".$result['ship_id'] );
+        if( !$bh_reroute ) {
+          route_try_continue_event( $result['ship_id'], $result['event_type'], $result['user_id'] );
+        }
       }
     }
   }
@@ -578,8 +597,10 @@ function space_move( $event_id ) {
           StartWar( 1, $fleet['id'], 1, $result['ship_id'], $result['event_time'], 1 );
         }
       }
+      route_clear_event( $result['ship_id'], $result['event_type'] );
     } else {
       send_msg( 1, $result['user_id'], t( "Перелет флота '%s' к точке гиперпространства %d:%d завершен успешно.", array( $names['name'], $result['arg1'], $result['arg2'] ) ), 6, $result['event_time'] );
+      route_try_continue_event( $result['ship_id'], $result['event_type'], $result['user_id'] );
     }
   } else {
     db_query( "UPDATE ships SET place_id = 0, place_type = 8, arg1 = ".$result['arg1'].", arg2 = ".$result['arg2']." WHERE id = ".$result['ship_id'] );
@@ -603,8 +624,10 @@ function space_move( $event_id ) {
           StartWar( 1, $fleet['id'], 0, $result['ship_id'], $result['event_time'], 1 );
         }
       }
+      route_clear_event( $result['ship_id'], $result['event_type'] );
     } else {
       send_msg( 1, $result['user_id'], t( "Перелет корабля '%s' к точке гиперпространства %d:%d завершен успешно.", array( $names['name'], $result['arg1'], $result['arg2'] ) ), 6, $result['event_time'] );
+      route_try_continue_event( $result['ship_id'], $result['event_type'], $result['user_id'] );
     }
   }
 }

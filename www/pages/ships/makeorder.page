@@ -916,6 +916,12 @@
                             WHERE id = ".$timer['id'] );
 
                 db_query( "UPDATE space_events SET from_arg1 = 0, from_arg2 = 0, from_type = 0 WHERE id = ".$timer['id'] );
+
+                if( $type == 'S' ) {
+                  route_clear( 0, $shid );
+                } else {
+                  route_clear( 1, $shid );
+                }
                 break;
 
               default:

@@ -3,9 +3,10 @@
   import TermConfirm from '../ui/TermConfirm.svelte';
   import { adminUser, adminUserAction, adminUsersRecent } from '../api.js';
 
-  const tabs = ['overview', 'money', 'trade', 'planets', 'ships', 'fleets'];
+  const tabs = ['overview', 'skills', 'money', 'trade', 'planets', 'ships', 'fleets'];
   const tabLabels = {
     overview: 'Обзор',
+    skills: 'Навыки',
     money: 'Платежи',
     trade: 'Торговля',
     planets: 'Планеты',
@@ -23,6 +24,8 @@
   let paySum = '';
   let addObject = '';
   let addCnt = '1';
+  let skillBook = '';
+  let skillLevel = '0';
   let confirm = { open: false, title: '', message: '', act: null, danger: false };
 
   let lastRouteLogin = null;
@@ -105,6 +108,29 @@
     if (s < 3600) return `${Math.floor(s / 60)}м назад`;
     if (s < 86400) return `${Math.floor(s / 3600)}ч назад`;
     return `${Math.floor(s / 86400)}д назад`;
+  }
+
+  async function saveSkill() {
+    if (!data?.profile?.login || !skillBook) return;
+    err = '';
+    try {
+      const res = await adminUserAction(data.profile.login, 'set_skill', {
+        book: skillBook,
+        level: skillLevel,
+      });
+      if (!res?.ok) {
+        err = res?.err || 'save failed';
+        return;
+      }
+      await loadUser(data.profile.login);
+    } catch {
+      err = 'save failed';
+    }
+  }
+
+  function pickSkill(row) {
+    skillBook = String(row.book_id);
+    skillLevel = String(row.level);
   }
 </script>
 
@@ -214,6 +240,44 @@
         <button type="button" on:click={() => askConfirm('Add item', 'Добавить предмет на склад?', 'add', false)}>[ ADD ]</button>
       </div>
     </section>
+  {:else if tab === 'skills'}
+    <section class="term-panel">
+      <h2 class="term-panel-title">Изученные навыки (users_books)</h2>
+      <table class="term-table">
+        <thead><tr><th>id</th><th>навык</th><th>уровень</th></tr></thead>
+        <tbody>
+          {#each data.skills || [] as row}
+            <tr
+              class="clickable"
+              on:click={() => pickSkill(row)}
+              on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && pickSkill(row)}
+              role="button"
+              tabindex="0"
+            >
+              <td>{row.book_id}</td>
+              <td>{row.name}</td>
+              <td>{row.level}</td>
+            </tr>
+          {:else}
+            <tr><td colspan="3" class="term-empty">нет изученных навыков</td></tr>
+          {/each}
+        </tbody>
+      </table>
+    </section>
+    <section class="term-panel">
+      <h2 class="term-panel-title">Редактор</h2>
+      <div class="term-row">
+        <select bind:value={skillBook}>
+          <option value="">навык</option>
+          {#each data.books || [] as b}
+            <option value={b.id}>{b.id} {b.name}</option>
+          {/each}
+        </select>
+        <input bind:value={skillLevel} type="number" min="0" max="10" style="width:80px" />
+        <button type="button" disabled={!skillBook} on:click={saveSkill}>[ SET ]</button>
+      </div>
+      <p class="term-hint">Уровень 0 — удалить запись. Импланты и медали здесь не редактируются.</p>
+    </section>
   {:else if tab === 'money'}
     <section class="term-panel">
       <table class="term-table">
@@ -316,5 +380,11 @@
 
   tr.online td {
     color: var(--term-ok, #6f6);
+  }
+
+  .term-hint {
+    margin: 0.5rem 0 0;
+    font-size: 0.85rem;
+    color: var(--term-fg-dim, #888);
   }
 </style>

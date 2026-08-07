@@ -1005,6 +1005,7 @@
                             INNER JOIN ship_types st ON st.object_id = s.object_id
                                  WHERE st.dock = 1 AND s.id = $x" );
 
+          $docked = false;
           if( $mks['fleet_id'] != $shid && $mks['place_id'] == $test['place_id'] && $mks['place_type'] == $test['place_type'] && $test['inwar'] == 0 ) {
             if( $type == 'S' ) {
               $need_free = db_fetch_row( "SELECT o2.mass omass
@@ -1014,6 +1015,7 @@
 
               if( get_cargo( $mks['id'], true ) >= $need_free['omass'] && $mks['id'] != $shid ) {
                 db_query( "UPDATE ships SET guard = 0, place_id = $x, place_type = 2, arg1=null, arg2=null WHERE id = $shid" );
+                $docked = true;
               }
             } else {
               $need_free = db_fetch_row( "SELECT SUM( o2.mass ) omass
@@ -1024,9 +1026,12 @@
               if( get_cargo( $mks['id'], true ) >= $need_free['omass'] && $mks['fleet_id'] != $shid ) {
                 db_query( "UPDATE fleets SET guard = 0, place_id = $x, place_type = 2, arg1=null, arg2=null WHERE id = $shid" );
                 db_query( "UPDATE ships SET guard = 0, place_id = $x, place_type = 2, arg1=null, arg2=null WHERE fleet_id = $shid" );
+                $docked = true;
               }
             }
+          }
 
+          if( $docked ) {
             $out = 'err=0';
             if( $mks['fleet_id'] ) {
               $out .= '&fid=F'.$mks['fleet_id'];

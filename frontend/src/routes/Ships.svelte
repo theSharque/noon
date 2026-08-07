@@ -516,7 +516,7 @@
     }, 500);
   }
 
-  async function refreshPlaces(keepSelection = true, { syncMonitor = true } = {}) {
+  async function refreshPlaces(keepSelection = true, { syncMonitor = true, focusId = '' } = {}) {
     const gen = ++loadGen;
     const data = await loadShipsPlaces();
     if (gen !== loadGen) return;
@@ -526,12 +526,12 @@
       const last = data.lastPlace || '*';
       placeValue = placeOptions.some((p) => String(p.value) === String(last)) ? last : '*';
     }
-    await refreshShips(keepSelection, { syncMonitor });
+    await refreshShips(keepSelection, { syncMonitor, focusId });
   }
 
-  async function refreshShips(keepSelection = true, { syncMonitor = true } = {}) {
+  async function refreshShips(keepSelection = true, { syncMonitor = true, focusId = '' } = {}) {
     const gen = ++loadGen;
-    const prevIds = keepSelection ? selectedIds() : [];
+    const prevIds = keepSelection && !focusId ? selectedIds() : [];
     busy = true;
     errorText = '';
     try {
@@ -544,14 +544,17 @@
       shipsStartMs = Date.now();
       ships = data.ships || [];
       tick = 0;
-      if (data.fid) lastShip = data.fid;
+      if (focusId) lastShip = focusId;
+      else if (data.fid) lastShip = data.fid;
 
       const prefer =
-        keepSelection && prevIds.length
-          ? prevIds
-          : lastShip || bootLs
-            ? [lastShip || bootLs]
-            : [];
+        focusId
+          ? [focusId]
+          : keepSelection && prevIds.length
+            ? prevIds
+            : lastShip || bootLs
+              ? [lastShip || bootLs]
+              : [];
 
       let next = [];
       if (prefer.length) {
@@ -1282,11 +1285,12 @@
   }
 
   async function afterOrder(data) {
-    if (data?.fid) {
-      lastShip = data.fid;
+    const focusId = data?.fid || '';
+    if (focusId) {
+      lastShip = focusId;
       selected = [];
     }
-    await refreshPlaces(true);
+    await refreshPlaces(true, { focusId });
   }
 
   async function clickOrder() {
@@ -2149,6 +2153,10 @@
   .ships-grid :global(.ships-list-pane .scifi-table th),
   .ships-grid :global(.ships-list-pane .scifi-table td) {
     white-space: nowrap;
+  }
+
+  .ships-grid :global(.ships-list-pane .scifi-table tbody tr) {
+    user-select: none;
   }
 
   .ships-grid :global(.ships-list-pane .kind-col) {

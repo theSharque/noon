@@ -3,6 +3,12 @@
 function printOut( $text ) {
   global $user;
 
+  if( isset( $user->uid ) && preg_match( '/(?:^|&)fid=([ASFCZ][0-9]+)/', $text, $m ) ) {
+    $fid = $m[1];
+    db_query( "UPDATE users SET fid = '$fid' WHERE id = ".$user->uid );
+    $user->fid = $fid;
+  }
+
   if( !headers_sent() ) {
     header( 'Content-Type: text/plain; charset=UTF-8' );
   }

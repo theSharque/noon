@@ -1289,7 +1289,7 @@ function forward_fleet( $oid, $last_id, $step, &$log_text, $user_id ) {
                      INNER JOIN users_active ua ON ua.id = IFNULL( s.user_id, 10 )
                      INNER JOIN ship_types st ON st.object_id = s.object_id
                           WHERE s.fire = 0 AND IFNULL( s.user_id, 10 ) = $user_id AND s.order_id <= $step AND ( st.w_power > 0 OR st.missile > 0 ) AND s.fleet_id = $oid
-                       ORDER BY IF( st.tactik <= $tactic, st.tactik - 10, 10 - st.tactik ) DESC, s.id
+                       ORDER BY IF( st.tactik <= $tactic, CAST( st.tactik AS SIGNED ) - 10, 10 - CAST( st.tactik AS SIGNED ) ) DESC, s.id
                           LIMIT 0, 1" );
 
   if( !isset( $shid['id'] ) ) {

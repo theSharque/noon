@@ -1,3 +1,4 @@
+-- Noon V1: structure
 SET NAMES utf8;
 SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';
 
@@ -20,21 +21,6 @@ CREATE TABLE `2pay_pays` (
   `user_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `2pay_id` (`2pay_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE `academy` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `book_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `multiply` int(10) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE `academy_build` (
-  `build_id` int(10) unsigned NOT NULL,
-  `user_id` int(10) unsigned NOT NULL,
-  `type` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`build_id`),
-  KEY `by_user` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `aliance` (
@@ -74,7 +60,7 @@ CREATE TABLE `bay_log` (
   `summ` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `log_time` (`log_time`,`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `books` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -85,7 +71,7 @@ CREATE TABLE `books` (
   `parent_level` int(10) unsigned DEFAULT NULL,
   `teach_time` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `books_teach` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -96,7 +82,7 @@ CREATE TABLE `books_teach` (
   UNIQUE KEY `bt_index` (`user_id`,`end_time`),
   UNIQUE KEY `by_book_user` (`book_id`,`user_id`),
   KEY `by_time` (`end_time`)
-) ENGINE=MyISAM AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `bot_analyze` (
   `user_id` int(10) unsigned NOT NULL,
@@ -118,7 +104,7 @@ CREATE TABLE `bot_out` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `text` varchar(1400) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `buildings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -144,7 +130,7 @@ CREATE TABLE `buildings` (
   KEY `by_atack` (`atack`),
   KEY `by_place_type` (`place_type`),
   KEY `by_place_type_id` (`place_type`,`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3011 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `chat` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -156,7 +142,7 @@ CREATE TABLE `chat` (
   KEY `user_id` (`user_id`),
   KEY `from_to` (`to_user`,`user_id`),
   KEY `by_msgtime` (`msgtime`)
-) ENGINE=MyISAM AUTO_INCREMENT=2504 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `chat_ignore` (
   `user_id` int(10) unsigned NOT NULL,
@@ -183,7 +169,7 @@ CREATE TABLE `cron` (
   `period` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `laststart` (`laststart`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `defence` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -194,7 +180,7 @@ CREATE TABLE `defence` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `place_and_type` (`place_id`,`place_type`),
   KEY `by_user` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `drones` (
   `ship_id` int(10) unsigned NOT NULL,
@@ -207,7 +193,7 @@ CREATE TABLE `enciclopedia` (
   `object_id` int(11) NOT NULL AUTO_INCREMENT,
   `desc` longtext NOT NULL,
   PRIMARY KEY (`object_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9355 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `fleets` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -248,7 +234,7 @@ CREATE TABLE `fleets` (
   KEY `by_interupt` (`interupt`),
   KEY `by_cloack` (`cloak`),
   KEY `group` (`user_id`,`group`)
-) ENGINE=MyISAM AUTO_INCREMENT=500015 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `foe` (
   `user_id` int(10) unsigned NOT NULL,
@@ -346,7 +332,7 @@ CREATE TABLE `info_page` (
   `data` longtext NOT NULL,
   PRIMARY KEY (`id`),
   KEY `type` (`type`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `interupt_msg` (
   `type` int(10) unsigned NOT NULL,
@@ -419,7 +405,7 @@ CREATE TABLE `objects` (
   KEY `classification` (`class`),
   KEY `by_name` (`name`),
   KEY `by_class_name` (`class`,`name`)
-) ENGINE=MyISAM AUTO_INCREMENT=9355 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `objects_sub` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -429,7 +415,7 @@ CREATE TABLE `objects_sub` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `fuse` (`object_id`,`res_id`),
   KEY `by_res` (`res_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4766 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `orbit_events` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -445,7 +431,7 @@ CREATE TABLE `orbit_events` (
   KEY `by_time` (`event_time`),
   KEY `event4group` (`event_type`,`x`),
   KEY `by_user_time` (`user_id`,`event_time`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `orbits_buildings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -459,7 +445,7 @@ CREATE TABLE `orbits_buildings` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `by_planet_x` (`planet_id`,`x`),
   KEY `by_object` (`object_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `orbits_make` (
   `event_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -492,7 +478,7 @@ CREATE TABLE `pay_log` (
   PRIMARY KEY (`id`),
   KEY `log_time` (`log_time`,`user_id`),
   KEY `by_trade_id` (`trade_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `pilot_events` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -530,13 +516,13 @@ CREATE TABLE `planet_events` (
   KEY `event4group` (`event_type`,`x`,`y`),
   KEY `by_coord` (`x`,`y`),
   KEY `by_user_time` (`user_id`,`event_time`)
-) ENGINE=MyISAM AUTO_INCREMENT=393 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `planet_types` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(45) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `planets` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -560,7 +546,7 @@ CREATE TABLE `planets` (
   UNIQUE KEY `by_user` (`user_id`),
   KEY `by_star` (`star_id`),
   KEY `by_name` (`name`)
-) ENGINE=MyISAM AUTO_INCREMENT=56991 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `planets_active` (
   `id` int(10) unsigned NOT NULL,
@@ -583,7 +569,7 @@ CREATE TABLE `planets_buildings` (
   UNIQUE KEY `by_x_y` (`planet_id`,`x`,`y`),
   KEY `by_planets_objects` (`planet_id`,`object_id`),
   KEY `for_upgrade` (`planet_id`,`level`)
-) ENGINE=MyISAM AUTO_INCREMENT=120 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `planets_disp` (
   `event_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -591,7 +577,7 @@ CREATE TABLE `planets_disp` (
   `res_cnt` int(10) unsigned NOT NULL,
   `level` int(10) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`event_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=393 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `planets_make` (
   `event_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -616,7 +602,7 @@ CREATE TABLE `planets_mines` (
   `res_cnt` int(10) unsigned NOT NULL,
   `cycle` int(10) NOT NULL,
   PRIMARY KEY (`event_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=386 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `promo` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -645,7 +631,7 @@ CREATE TABLE `quest_types` (
   `arg9` varchar(256) NOT NULL DEFAULT 'null',
   `gen_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`type`)
-) ENGINE=MyISAM AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `research` (
   `from_object` int(10) unsigned NOT NULL,
@@ -666,7 +652,22 @@ CREATE TABLE `robots` (
   KEY `status` (`status`),
   KEY `by_user` (`user_id`,`status`),
   KEY `build_type` (`build_id`,`build_type`)
-) ENGINE=MyISAM AUTO_INCREMENT=109 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE `routes` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `obj_type` tinyint(3) unsigned NOT NULL COMMENT '0=ship,1=fleet',
+  `obj_id` int(10) unsigned NOT NULL,
+  `seq` smallint(5) unsigned NOT NULL,
+  `dest_type` tinyint(3) unsigned NOT NULL COMMENT '7=star,8=coords',
+  `dest_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `arg1` int(11) DEFAULT NULL,
+  `arg2` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `by_obj_seq` (`obj_type`,`obj_id`,`seq`),
+  KEY `by_obj` (`obj_type`,`obj_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `ship_types` (
   `object_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -703,7 +704,7 @@ CREATE TABLE `ship_types` (
   KEY `by_cloack` (`cloak`),
   KEY `by_missile` (`missile`),
   KEY `dock` (`dock`)
-) ENGINE=MyISAM AUTO_INCREMENT=9333 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `ships` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -736,7 +737,7 @@ CREATE TABLE `ships` (
   KEY `group` (`user_id`,`group`),
   KEY `by_place` (`place_id`,`place_type`),
   KEY `order_id` (`fleet_id`,`order_id`,`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=500371 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `ships_war` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -769,7 +770,7 @@ CREATE TABLE `ships_war` (
   KEY `group` (`user_id`,`group`),
   KEY `by_place` (`place_id`,`place_type`),
   KEY `order_id` (`fleet_id`,`order_id`,`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=500369 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `sintez` (
   `res_id` int(10) unsigned NOT NULL,
@@ -795,7 +796,7 @@ CREATE TABLE `space_events` (
   UNIQUE KEY `by_ship_type` (`ship_id`,`event_type`),
   KEY `by_time` (`event_time`),
   KEY `by_user` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `star_pos` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -804,7 +805,7 @@ CREATE TABLE `star_pos` (
   PRIMARY KEY (`id`),
   KEY `by_x` (`x`),
   KEY `by_y` (`y`)
-) ENGINE=MyISAM AUTO_INCREMENT=30296 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `stars` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -817,7 +818,7 @@ CREATE TABLE `stars` (
   UNIQUE KEY `by_name` (`name`),
   KEY `by_x` (`x`),
   KEY `by_y` (`y`)
-) ENGINE=MyISAM AUTO_INCREMENT=30201 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tituls` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -825,7 +826,7 @@ CREATE TABLE `tituls` (
   `object_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `by_object` (`object_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `trade_in` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -838,7 +839,7 @@ CREATE TABLE `trade_in` (
   KEY `by_ob` (`ob_id`),
   KEY `by_ob_object` (`ob_id`,`object_id`),
   KEY `by_count` (`object_cnt`)
-) ENGINE=MyISAM AUTO_INCREMENT=52 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `trade_log` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -862,7 +863,7 @@ CREATE TABLE `trade_out` (
   KEY `by_ob` (`ob_id`),
   KEY `by_ob_object` (`ob_id`,`object_id`),
   KEY `by_count` (`object_cnt`)
-) ENGINE=MyISAM AUTO_INCREMENT=52 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `trash` (
   `place_id` int(10) unsigned NOT NULL,
@@ -882,7 +883,7 @@ CREATE TABLE `tutorials` (
   `premium` int(10) unsigned NOT NULL DEFAULT '0',
   `tutorial` longtext NOT NULL,
   PRIMARY KEY (`level`)
-) ENGINE=MyISAM AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `u2u_quests` (
   `event_id` int(11) NOT NULL,
@@ -986,7 +987,7 @@ CREATE TABLE `users` (
   KEY `by_status` (`status`),
   KEY `by_aliance` (`aliance`),
   KEY `by_vk_id` (`vk_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `users_active` (
   `id` int(10) unsigned NOT NULL,
@@ -1044,7 +1045,7 @@ CREATE TABLE `users_messages` (
   KEY `by_date` (`msg_date`),
   KEY `by_from_date` (`from_user`,`msg_date`),
   KEY `by_user_hash` (`to_user`,`hash`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `users_msg_settings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -1054,7 +1055,7 @@ CREATE TABLE `users_msg_settings` (
   `mail` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `by_user_type` (`user_id`,`type`)
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `users_premium` (
   `user_id` int(10) unsigned NOT NULL,
@@ -1083,7 +1084,7 @@ CREATE TABLE `users_quests` (
   KEY `by_type` (`type`),
   KEY `by_status` (`status`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `users_report` (
   `user_id` int(10) unsigned NOT NULL,
@@ -1130,7 +1131,7 @@ CREATE TABLE `war_events` (
   KEY `by_a` (`a_type`,`a_object_id`),
   KEY `by_d` (`d_type`,`d_object_id`),
   KEY `by_hash_step` (`place_hash`,`place_step`)
-) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `war_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1140,7 +1141,7 @@ CREATE TABLE `war_log` (
   PRIMARY KEY (`id`),
   KEY `msg_time` (`msg_time`),
   KEY `by_war` (`war_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2076 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `war_online` (
   `war_id` int(10) unsigned NOT NULL,
@@ -1166,7 +1167,7 @@ CREATE TABLE `war_places` (
   `sent` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `by_place` (`place`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `war_test` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -1184,7 +1185,7 @@ CREATE TABLE `warehouse` (
   KEY `by_object_id` (`object_id`),
   KEY `by_count` (`object_cnt`),
   KEY `i_rev_place` (`place_id`,`place_type`)
-) ENGINE=MyISAM AUTO_INCREMENT=143 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `warequest` (
   `place_id` int(10) unsigned NOT NULL,

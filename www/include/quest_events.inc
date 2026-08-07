@@ -196,6 +196,7 @@ function quest_search_event( $event ) {
 
         send_msg( 1, $event['user_id'], t( "Корабль просивший вас о помощи потерян, вы нарушили договоренность! Конфедерация не одобряет ваших действий." ), 7 );
         step_up( $event['id'], -4 );
+        break;
       }
 
       $test = db_fetch_row( "SELECT count(*) cnt
@@ -215,12 +216,15 @@ function quest_search_event( $event ) {
 
         send_msg( 1, $event['user_id'], t( "Корабль просивший вас о помощи потерян, вы нарушили договоренность! Конфедерация не одобряет ваших действий." ), 7 );
         step_up( $event['id'], -3 );
+        break;
       }
 
-      $test = db_fetch_row( "SELECT IFNULL(fleet_id,0) fleet FROM ships WHERE id = ".$event['arg5'] );
-      if( $test['fleet'] ) {
+      $test = db_fetch_row( "SELECT IFNULL( fleet_id, 0 ) fleet, place_type FROM ships WHERE id = ".$event['arg5'] );
+      if( $test['fleet'] || $test['place_type'] == 2 ) {
         send_msg( 1, $event['user_id'], t( "В составе флота отбуксируйте корабль на ближайшую станцию конфедерации." ), 7 );
         step_up( $event['id'] );
+      } elseif( $test['place_type'] == 3 ) {
+        step_up( $event['id'], -2 );
       }
     break;
 
@@ -230,10 +234,16 @@ function quest_search_event( $event ) {
         setChar( 'status', -1 * $event['arg3'], $event['user_id'] );
         send_msg( 1, $event['user_id'], t( "Корабль просивший вас о помощи потерян, вы нарушили договоренность! Конфедерация не одобряет ваших действий." ), 7 );
         step_up( $event['id'], -2 );
+        break;
       }
 
-      $test = db_fetch_row( "SELECT place_type FROM ships WHERE id = ".$event['arg5'] );
-      if( $test['place_type'] == 3 ) {
+      $test = db_fetch_row( "SELECT s.place_type,
+                                      IF( s.place_type = 2,
+                                          ( SELECT s2.place_type FROM ships s2 WHERE s2.id = s.place_id ),
+                                          s.place_type ) host_place
+                               FROM ships s
+                              WHERE s.id = ".$event['arg5'] );
+      if( $test['place_type'] == 3 || $test['host_place'] == 3 ) {
         send_msg( 1, $event['user_id'], t( "Корабль доставлен на станцию, расформируйте флот для завершения задания." ), 7 );
         step_up( $event['id'] );
       }
@@ -245,10 +255,11 @@ function quest_search_event( $event ) {
         setChar( 'status', -1 * $event['arg3'], $event['user_id'] );
         send_msg( 1, $event['user_id'], t( "Корабль просивший вас о помощи потерян, вы нарушили договоренность! Конфедерация не одобряет ваших действий." ), 7 );
         step_up( $event['id'], -1 );
+        break;
       }
 
       $test = db_fetch_row( "SELECT place_type FROM ships WHERE fleet_id is null AND id = ".$event['arg5'] );
-      if( $test['place_type'] == 3 ) {
+      if( isset( $test['place_type'] ) && $test['place_type'] == 3 ) {
         db_query( "UPDATE users u SET u.money = u.money + {$event['arg2']} WHERE u.id = {$event['user_id']}" );
         setChar( 'status', $event['arg3'], $event['user_id'] );
 

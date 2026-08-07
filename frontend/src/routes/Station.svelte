@@ -338,16 +338,7 @@
         starName = info.sname || '';
         planetName = info.pname || '';
       }
-      if (initialGoods?.items?.length) {
-        goods = initialGoods.items.map((g) => ({
-          value: String(g.id),
-          label: g.name || String(g.id),
-        }));
-        if (goods.length) goodsValue = goods[0].value;
-      } else {
-        await refreshGoods();
-      }
-      await refreshLots();
+      await Promise.all([refreshLots(), refreshGoods()]);
       if (goodsValue) {
         await loadDetail(goodsValue);
         const idx = lots.findIndex((r) => String(r.id) === String(goodsValue));

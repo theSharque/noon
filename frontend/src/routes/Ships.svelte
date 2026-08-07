@@ -1577,10 +1577,10 @@
         <thead>
           <tr>
             <th class="kind-col" aria-hidden="true"></th>
-            <th>
+            <th class="name-col">
               <button type="button" class="th-btn" on:click={() => sortBy(0)}>Имя</button>
             </th>
-            <th>
+            <th class="place-col">
               <button type="button" class="th-btn" on:click={() => sortBy(1)}>Расположение</button>
             </th>
           </tr>
@@ -1614,8 +1614,8 @@
                   </span>
                 {/if}
               </td>
-              <td>{ship.name}</td>
-              <td>{ship.location}</td>
+              <td class="name-col" title={ship.name}>{ship.name}</td>
+              <td class="place-col" title={ship.location}>{ship.location}</td>
             </tr>
           {:else}
             <tr>
@@ -2150,9 +2150,16 @@
     min-height: 0;
   }
 
+  .ships-grid :global(.ships-list-pane .scifi-table) {
+    table-layout: fixed;
+    width: 100%;
+  }
+
   .ships-grid :global(.ships-list-pane .scifi-table th),
   .ships-grid :global(.ships-list-pane .scifi-table td) {
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .ships-grid :global(.ships-list-pane .scifi-table tbody tr) {
@@ -2166,6 +2173,14 @@
     padding-right: 2px;
     text-align: center;
     vertical-align: middle;
+  }
+
+  .ships-grid :global(.ships-list-pane .name-col) {
+    width: 42%;
+  }
+
+  .ships-grid :global(.ships-list-pane .place-col) {
+    width: auto;
   }
 
   .kind-icon {

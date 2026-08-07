@@ -945,12 +945,12 @@
     const snap = snapGalaxyPoint(pt.x, pt.y);
     const idx = findRouteWaypointIndex(snap.x, snap.y, galaxyRoute);
     if (idx >= 0) {
-      galaxyRoute = galaxyRoute.slice(0, idx + 1);
+      galaxyRoute = [...galaxyRoute.slice(0, idx), ...galaxyRoute.slice(idx + 1)];
     } else if (
-      galaxyRoute.length &&
       galaxyShip &&
       isNearPoint(snap.x, snap.y, galaxyShip.x, galaxyShip.y)
     ) {
+      if (!galaxyRoute.length) return;
       await onGalaxyEscape();
       return;
     } else {
@@ -1093,6 +1093,7 @@
       return;
     }
     const snap = snapGalaxyPoint(mx, my);
+    if (galaxyShip && sameGalaxyPoint(snap, galaxyShip) && !galaxyRoute.length) return;
     const last = galaxyRoute[galaxyRoute.length - 1];
     if (last && last.x === snap.x && last.y === snap.y && galaxyPreviewT > 0) return;
     playBuzz();

@@ -136,7 +136,6 @@ function GenerateSystem( $user_id ) {
         db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 1, 7001, 1 )" );
 
         db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 6006, 1 )" );
-        db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 6008, 1 )" );
         db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 7002, 1 )" );
 
         db_query( "INSERT INTO warehouse (place_id, place_type, object_id, object_cnt) VALUES ( $planet_id, 0, 6007, 1 )" );

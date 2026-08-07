@@ -780,6 +780,7 @@ function parseStarMap(data) {
     qsy: data.qsy !== undefined ? parseInt(data.qsy, 10) : null,
     desc: data.desc || '',
     routeSkill: parseInt(data.rs || '0', 10),
+    hyperCnt: parseInt(data.hc || '0', 10),
   };
 }
 

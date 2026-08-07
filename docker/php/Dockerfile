@@ -1,6 +1,7 @@
 FROM php:5.6-fpm
 
 RUN docker-php-ext-install mysql mbstring shmop \
+ && echo "date.timezone=Europe/Moscow" > /usr/local/etc/php/conf.d/timezone.ini \
  && echo "default_charset = UTF-8" > /usr/local/etc/php/conf.d/charset.ini
 
 WORKDIR /var/www/noon

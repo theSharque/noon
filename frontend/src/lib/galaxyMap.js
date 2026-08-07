@@ -1,6 +1,10 @@
 export const GALAXY_BG = '/app/img/ships/galaxy-bg.jpg';
 export const GALAXY_MAX_RADIUS = 3000;
 export const GALAXY_STAR_SNAP = 10;
+export const ROUTE_AUTONAV_PAD_MIN = 40;
+export const ROUTE_AUTONAV_PAD_RATIO = 0.12;
+export const ROUTE_AUTONAV_EDGE_MAX = 400;
+export const ROUTE_AUTONAV_FUEL_SAVE = 0.05;
 export const GALAXY_BG_SIZE = GALAXY_MAX_RADIUS;
 export const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
 
@@ -186,4 +190,180 @@ export function routePolylinePoints(ship, waypoints) {
     pts.push(`${p.x},${p.y}`);
   }
   return pts.join(' ');
+}
+
+export function hyperFuelNeed(len, hyperCnt, routeSkill) {
+  const skill = parseInt(routeSkill, 10) || 0;
+  const cnt = parseInt(hyperCnt, 10) || 0;
+  let fuel = Math.round((len / 15.0) ** 2) * cnt;
+  fuel -= Math.round((fuel / 100) * skill);
+  return fuel;
+}
+
+function segmentFuel(x1, y1, x2, y2, hyperCnt, routeSkill) {
+  const len = Math.round(Math.hypot(x2 - x1, y2 - y1));
+  return hyperFuelNeed(len, hyperCnt, routeSkill);
+}
+
+function starsInCorridor(x1, y1, x2, y2, pad, stars) {
+  const xmin = Math.min(x1, x2) - pad;
+  const xmax = Math.max(x1, x2) + pad;
+  const ymin = Math.min(y1, y2) - pad;
+  const ymax = Math.max(y1, y2) + pad;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 <= 0) return [];
+
+  const len = Math.sqrt(len2);
+  const out = [];
+
+  for (const star of stars || []) {
+    if (star.x < xmin || star.x > xmax || star.y < ymin || star.y > ymax) continue;
+    const px = star.x - x1;
+    const py = star.y - y1;
+    const proj = (px * dx + py * dy) / len2;
+    if (proj < -0.01) continue;
+    const perp = Math.abs(px * dy - py * dx) / len;
+    if (perp > pad) continue;
+    out.push(star);
+  }
+
+  return out;
+}
+
+function findStarAt(x, y, stars) {
+  for (const star of stars || []) {
+    if (star.x === x && star.y === y) return star;
+  }
+  return null;
+}
+
+export function planRouteSegment(fromX, fromY, to, stars, hyperCnt, routeSkill, maxWaypoints) {
+  const max = parseInt(maxWaypoints, 10) || 1;
+  if (max <= 1) return [to];
+
+  const toX = to.x;
+  const toY = to.y;
+  const fuelDirect = segmentFuel(fromX, fromY, toX, toY, hyperCnt, routeSkill);
+  const dx = toX - fromX;
+  const dy = toY - fromY;
+  const dist = Math.hypot(dx, dy);
+  if (dist <= 0) return [to];
+
+  const pad = Math.max(ROUTE_AUTONAV_PAD_MIN, Math.round(ROUTE_AUTONAV_PAD_RATIO * dist));
+  const corridor = starsInCorridor(fromX, fromY, toX, toY, pad, stars);
+  const toStar = findStarAt(toX, toY, stars);
+
+  const nodes = [{ x: fromX, y: fromY, isEnd: false }];
+  for (const star of corridor) {
+    if (toStar && star.x === toStar.x && star.y === toStar.y) continue;
+    nodes.push({ x: star.x, y: star.y, isEnd: false });
+  }
+  const endIdx = nodes.length;
+  nodes.push({ x: toX, y: toY, isEnd: true });
+
+  const n = nodes.length;
+  const maxStars = max - 1;
+  const distMap = new Map();
+  const prev = new Map();
+  const queue = [{ cost: 0, u: 0, starHops: 0 }];
+
+  distMap.set('0:0', 0);
+
+  while (queue.length) {
+    let minI = 0;
+    for (let qi = 1; qi < queue.length; qi += 1) {
+      if (queue[qi].cost < queue[minI].cost) minI = qi;
+    }
+    const { cost, u, starHops } = queue[minI];
+    queue.splice(minI, 1);
+
+    const ukey = `${u}:${starHops}`;
+    if (distMap.get(ukey) !== cost) continue;
+    if (nodes[u].isEnd) continue;
+
+    for (let v = 0; v < n; v += 1) {
+      if (v === u || v === 0) continue;
+
+      const edgeLen = Math.hypot(nodes[v].x - nodes[u].x, nodes[v].y - nodes[u].y);
+      if (edgeLen > ROUTE_AUTONAV_EDGE_MAX) continue;
+
+      const isEnd = nodes[v].isEnd;
+      let newStarHops = starHops;
+
+      if (isEnd) {
+        if (starHops + 1 > max) continue;
+      } else {
+        newStarHops = starHops + 1;
+        if (newStarHops > maxStars) continue;
+      }
+
+      const w = segmentFuel(nodes[u].x, nodes[u].y, nodes[v].x, nodes[v].y, hyperCnt, routeSkill);
+      const newCost = cost + w;
+      const vkey = `${v}:${newStarHops}`;
+
+      if (!distMap.has(vkey) || newCost < distMap.get(vkey)) {
+        distMap.set(vkey, newCost);
+        prev.set(vkey, { node: u, starHops });
+        queue.push({ cost: newCost, u: v, starHops: newStarHops });
+      }
+    }
+  }
+
+  let bestCost = null;
+  let bestKey = null;
+  for (let sh = 0; sh <= maxStars; sh += 1) {
+    const ekey = `${endIdx}:${sh}`;
+    if (!distMap.has(ekey)) continue;
+    const c = distMap.get(ekey);
+    if (bestCost === null || c < bestCost) {
+      bestCost = c;
+      bestKey = ekey;
+    }
+  }
+
+  if (bestKey === null) return [to];
+
+  const saveThreshold = fuelDirect * (1 - ROUTE_AUTONAV_FUEL_SAVE);
+  if (bestCost >= saveThreshold) return [to];
+
+  const pathNodes = [];
+  let key = bestKey;
+  while (prev.has(key)) {
+    const colon = key.indexOf(':');
+    const node = parseInt(key.slice(0, colon), 10);
+    if (node !== 0 && !nodes[node].isEnd) pathNodes.unshift(node);
+    const p = prev.get(key);
+    key = `${p.node}:${p.starHops}`;
+  }
+
+  const segment = pathNodes.map((idx) => ({ x: nodes[idx].x, y: nodes[idx].y }));
+  segment.push(to);
+  return segment;
+}
+
+export function applyAutonavTail(shipPos, waypoints, stars, routeSkill, hyperCnt) {
+  if (!waypoints?.length) return waypoints || [];
+  if ((parseInt(routeSkill, 10) || 0) <= 1) return waypoints;
+
+  const prefix = waypoints.length > 1 ? waypoints.slice(0, -1) : [];
+  const to = waypoints[waypoints.length - 1];
+  const remaining = routeMaxWaypoints(routeSkill) - prefix.length;
+  if (remaining <= 1) return waypoints;
+
+  let fromX;
+  let fromY;
+  if (prefix.length) {
+    fromX = prefix[prefix.length - 1].x;
+    fromY = prefix[prefix.length - 1].y;
+  } else if (shipPos) {
+    fromX = shipPos.x;
+    fromY = shipPos.y;
+  } else {
+    return waypoints;
+  }
+
+  const segment = planRouteSegment(fromX, fromY, to, stars, hyperCnt, routeSkill, remaining);
+  return [...prefix, ...segment];
 }

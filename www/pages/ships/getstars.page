@@ -51,9 +51,13 @@
 
   if( isset( $shid ) ) {
     if( $type == 'S' ) {
-      $place = db_fetch_row( "SELECT place_id, place_type, arg1, arg2 FROM ships WHERE id = $shid" );
+      $place = db_fetch_row( "SELECT place_id, place_type, arg1, arg2, st.hyper_cnt FROM ships s INNER JOIN ship_types st ON st.object_id = s.object_id WHERE s.id = $shid" );
     } else {
-      $place = db_fetch_row( "SELECT place_id, place_type, arg1, arg2 FROM fleets WHERE id = $shid" );
+      $place = db_fetch_row( "SELECT place_id, place_type, arg1, arg2, hyper_cnt FROM fleets WHERE id = $shid" );
+    }
+
+    if( isset( $place['hyper_cnt'] ) ) {
+      $out .= '&hc='.$place['hyper_cnt'];
     }
   } else {
     $place['place_type'] = 7;

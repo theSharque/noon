@@ -36,6 +36,7 @@
   import {
     RING_R,
     RING_STROKE,
+    applyAutonavTail,
     applyGalaxyRouteClick,
     computeGalaxyBounds,
     findRouteWaypointIndex,
@@ -45,7 +46,6 @@
     galaxyLocalPoint,
     isGalaxyPointValid,
     isNearPoint,
-    parseRoutePts,
     routePolylinePoints,
     routeIncludesPoint,
     ROUTE_RING_R,
@@ -138,6 +138,7 @@
   let galaxyDesc = '';
   let galaxyRoute = [];
   let galaxyRouteSkill = 0;
+  let galaxyHyperCnt = 0;
   let galaxyBaseDesc = '';
   let galaxyHomeJump = false;
   let galaxyPlace = { x: 0, y: 0 };
@@ -950,10 +951,17 @@
       galaxyShip &&
       isNearPoint(snap.x, snap.y, galaxyShip.x, galaxyShip.y)
     ) {
-      await resetGalaxyMonitor();
+      await onGalaxyEscape();
       return;
     } else {
       galaxyRoute = applyGalaxyRouteClick(galaxyRoute, snap, galaxyRouteSkill, galaxyStars);
+      galaxyRoute = applyAutonavTail(
+        galaxyShip,
+        galaxyRoute,
+        galaxyStars,
+        galaxyRouteSkill,
+        galaxyHyperCnt,
+      );
     }
     await refreshGalaxyRoutePreview();
   }
@@ -977,15 +985,20 @@
     }
   }
 
-  async function resetGalaxyMonitor() {
-    await applyGalaxyMonitorOpen(galaxyHomeJump);
+  async function onGalaxyEscape() {
+    if (galaxyRoute.length > 0) {
+      galaxyRoute = [];
+      await refreshGalaxyRoutePreview();
+      return;
+    }
+    centerGalaxy(galaxyShip?.x, galaxyShip?.y);
   }
 
   function onGalaxyKeydown(e) {
     if (monitor !== 'galaxy') return;
     if (e.key === 'Escape') {
       e.preventDefault();
-      resetGalaxyMonitor();
+      onGalaxyEscape();
     }
   }
 
@@ -1007,6 +1020,7 @@
       galaxyShip =
         data.shx != null && data.shy != null ? { x: data.shx, y: data.shy } : null;
       galaxyRouteSkill = data.routeSkill || 0;
+      galaxyHyperCnt = data.hyperCnt || 0;
       galaxyBounds = computeGalaxyBounds(galaxyStars);
       galaxyBaseDesc = lightenGalaxyDesc(data.desc || '');
       await svelteTick();
@@ -1052,9 +1066,6 @@
       orderGlow = false;
       return;
     }
-    if (data.rpts) {
-      galaxyRoute = parseRoutePts(data.rpts);
-    }
     const tail = galaxyRoute[galaxyRoute.length - 1] || last;
     const rx = parseInt(data.rx != null ? data.rx : tail.x, 10);
     const ry = parseInt(data.ry != null ? data.ry : tail.y, 10);
@@ -1086,6 +1097,13 @@
     if (last && last.x === snap.x && last.y === snap.y && galaxyPreviewT > 0) return;
     playBuzz();
     galaxyRoute = applyGalaxyRouteClick(galaxyRoute, snap, galaxyRouteSkill, galaxyStars);
+    galaxyRoute = applyAutonavTail(
+      galaxyShip,
+      galaxyRoute,
+      galaxyStars,
+      galaxyRouteSkill,
+      galaxyHyperCnt,
+    );
     await refreshGalaxyRoutePreview();
   }
 

@@ -1,5 +1,6 @@
 export const GALAXY_BG = '/app/img/ships/galaxy-bg.jpg';
 export const GALAXY_MAX_RADIUS = 3000;
+export const GALAXY_STAR_SNAP = 10;
 export const GALAXY_BG_SIZE = GALAXY_MAX_RADIUS;
 export const GALAXY_BG_HALF = GALAXY_BG_SIZE / 2;
 
@@ -108,6 +109,26 @@ export function isNearPoint(x, y, px, py, radius = ROUTE_HIT_R) {
   const dx = px - x;
   const dy = py - y;
   return dx * dx + dy * dy <= radius * radius;
+}
+
+export function isGalaxyStarPoint(point, stars) {
+  if (!point || !stars?.length) return false;
+  return stars.some((s) => s.x === point.x && s.y === point.y);
+}
+
+export function applyGalaxyRouteClick(route, snap, routeSkill, stars) {
+  const max = routeMaxWaypoints(routeSkill);
+  if (max <= 1) {
+    return [snap];
+  }
+  if (!route?.length) {
+    return [snap];
+  }
+  const last = route[route.length - 1];
+  if (isGalaxyStarPoint(last, stars)) {
+    return applyRouteWaypoint(route, snap, routeSkill);
+  }
+  return [...route.slice(0, -1), snap];
 }
 
 export function routeMaxWaypoints(routeSkill) {

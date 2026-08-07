@@ -72,6 +72,7 @@ function encyclopedia_format_bom_line( $cnt, $name, $with_link ) {
 define( 'SYSTEM_MAX_RADIUS', 800 );
 define( 'SYSTEM_MIN_RADIUS', 25 );
 define( 'GALAXY_MAX_RADIUS', 3000 );
+define( 'GALAXY_STAR_SNAP', 10 );
 
 function system_planet_xy( $rad_deg, $orb ) {
   $rad = deg2rad( $rad_deg );

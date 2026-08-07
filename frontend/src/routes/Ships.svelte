@@ -36,11 +36,12 @@
   import {
     RING_R,
     RING_STROKE,
-    applyRouteWaypoint,
+    applyGalaxyRouteClick,
     computeGalaxyBounds,
     findRouteWaypointIndex,
     formatRoutePts,
     galaxyCenterOffset,
+    GALAXY_STAR_SNAP,
     galaxyLocalPoint,
     isGalaxyPointValid,
     isNearPoint,
@@ -908,7 +909,7 @@
     };
   }
 
-  function snapGalaxyPoint(x, y, radius = 3) {
+  function snapGalaxyPoint(x, y, radius = GALAXY_STAR_SNAP) {
     let best = null;
     let bestD = Infinity;
     const consider = (px, py) => {
@@ -952,7 +953,7 @@
       await resetGalaxyMonitor();
       return;
     } else {
-      galaxyRoute = applyRouteWaypoint(galaxyRoute, snap, galaxyRouteSkill);
+      galaxyRoute = applyGalaxyRouteClick(galaxyRoute, snap, galaxyRouteSkill, galaxyStars);
     }
     await refreshGalaxyRoutePreview();
   }
@@ -1084,7 +1085,7 @@
     const last = galaxyRoute[galaxyRoute.length - 1];
     if (last && last.x === snap.x && last.y === snap.y && galaxyPreviewT > 0) return;
     playBuzz();
-    galaxyRoute = applyRouteWaypoint(galaxyRoute, snap, galaxyRouteSkill);
+    galaxyRoute = applyGalaxyRouteClick(galaxyRoute, snap, galaxyRouteSkill, galaxyStars);
     await refreshGalaxyRoutePreview();
   }
 

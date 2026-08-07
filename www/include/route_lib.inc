@@ -43,6 +43,22 @@ function route_trim_waypoints( $waypoints, $uid = -1 ) {
   return array_slice( $waypoints, 0, $max );
 }
 
+function route_validate_waypoints( $waypoints ) {
+  $cnt = count( $waypoints );
+
+  if( $cnt <= 1 ) {
+    return true;
+  }
+
+  for( $i = 0; $i < $cnt - 1; $i++ ) {
+    if( intval( $waypoints[$i]['dest_type'] ) != 7 ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function route_insert( $user_id, $obj_type, $obj_id, $waypoints ) {
   db_safe( $user_id );
   db_safe( $obj_type );
@@ -64,7 +80,8 @@ function route_insert( $user_id, $obj_type, $obj_id, $waypoints ) {
 }
 
 function starmove_resolve_click( $x, $y ) {
-  $star = db_fetch_row( "SELECT id, name, x, y FROM stars WHERE x BETWEEN ".($x-3)." AND ".($x+3)." AND y BETWEEN ".($y-3)." AND ".($y+3) );
+  $snap = GALAXY_STAR_SNAP;
+  $star = db_fetch_row( "SELECT id, name, x, y FROM stars WHERE x BETWEEN ".($x-$snap)." AND ".($x+$snap)." AND y BETWEEN ".($y-$snap)." AND ".($y+$snap) );
 
   if( isset( $star['id'] ) && $star['id'] > 0 ) {
     return array(
@@ -448,6 +465,10 @@ function starmove_parse_pts( $pts, $uid = -1 ) {
   }
 
   if( !count( $waypoints ) ) {
+    return null;
+  }
+
+  if( !route_validate_waypoints( $waypoints ) ) {
     return null;
   }
 

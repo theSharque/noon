@@ -1,5 +1,7 @@
 <?php
 
+  $gsnap = GALAXY_STAR_SNAP;
+
   if( isset( $_GET['shid'] ) && isset( $_GET['mx'] ) && isset( $_GET['my'] ) ) {
     $type = substr( $_GET['shid'], 0, 1 );
     $shid = substr( $_GET['shid'], 1 );
@@ -23,31 +25,31 @@
                              FROM stars s
                         LEFT JOIN planets p ON p.star_id = s.id AND user_id IS NOT NULL
                         LEFT JOIN users u ON u.id = p.user_id
-                            WHERE s.x BETWEEN ".($x-3)." AND ".($x+3)." AND s.y BETWEEN ".($y-3)." AND ".($y+3) );
+                            WHERE s.x BETWEEN ".($x-$gsnap)." AND ".($x+$gsnap)." AND s.y BETWEEN ".($y-$gsnap)." AND ".($y+$gsnap) );
 
     $ships = db_fetch_row( "SELECT GROUP_CONCAT( DISTINCT name ORDER BY name DESC SEPARATOR ',' ) name, MAX( arg1 ) x, MAX( arg2 ) y
                               FROM ships
-                             WHERE arg1 BETWEEN ".($x-3)." AND ".($x+3)." AND
-                                   arg2 BETWEEN ".($y-3)." AND ".($y+3)." AND
+                             WHERE arg1 BETWEEN ".($x-$gsnap)." AND ".($x+$gsnap)." AND
+                                   arg2 BETWEEN ".($y-$gsnap)." AND ".($y+$gsnap)." AND
                                    fleet_id IS NULL AND place_type = 8 AND user_id = ".$user->uid );
 
     $fleets = db_fetch_row( "SELECT GROUP_CONCAT( DISTINCT name ORDER BY name DESC SEPARATOR ',' ) name, MAX( arg1 ) x, MAX( arg2 ) y
                                FROM fleets
-                              WHERE arg1 BETWEEN ".($x-3)." AND ".($x+3)." AND
-                                    arg2 BETWEEN ".($y-3)." AND ".($y+3)." AND
+                              WHERE arg1 BETWEEN ".($x-$gsnap)." AND ".($x+$gsnap)." AND
+                                    arg2 BETWEEN ".($y-$gsnap)." AND ".($y+$gsnap)." AND
                                     place_type = 8 AND user_id = ".$user->uid );
 
     if( $user->aliance > 0 ) {
       $hints = db_fetch_row( "SELECT text name, x, y
                                 FROM hyper_hint
-                               WHERE x BETWEEN ".($x-3)." AND ".($x+3)." AND
-                                     y BETWEEN ".($y-3)." AND ".($y+3)." AND
+                               WHERE x BETWEEN ".($x-$gsnap)." AND ".($x+$gsnap)." AND
+                                     y BETWEEN ".($y-$gsnap)." AND ".($y+$gsnap)." AND
                                      ( user_id = {$user->uid} OR aliance = {$user->aliance})" );
     } else {
       $hints = db_fetch_row( "SELECT text name, x, y
                                 FROM hyper_hint
-                               WHERE x BETWEEN ".($x-3)." AND ".($x+3)." AND
-                                     y BETWEEN ".($y-3)." AND ".($y+3)." AND
+                               WHERE x BETWEEN ".($x-$gsnap)." AND ".($x+$gsnap)." AND
+                                     y BETWEEN ".($y-$gsnap)." AND ".($y+$gsnap)." AND
                                      user_id = ".$user->uid );
     }
 
@@ -110,24 +112,24 @@
                              FROM stars s
                         LEFT JOIN planets p ON p.star_id = s.id AND user_id IS NOT NULL
                         LEFT JOIN users u ON u.id = p.user_id
-                            WHERE s.x BETWEEN ".($x-3)." AND ".($x+3)." AND s.y BETWEEN ".($y-3)." AND ".($y+3) );
+                            WHERE s.x BETWEEN ".($x-$gsnap)." AND ".($x+$gsnap)." AND s.y BETWEEN ".($y-$gsnap)." AND ".($y+$gsnap) );
 
     $ships = db_fetch_row( "SELECT GROUP_CONCAT( DISTINCT name ORDER BY name DESC SEPARATOR ',' ) name, MAX( arg1 ) x, MAX( arg2 ) y
                               FROM ships
-                             WHERE arg1 BETWEEN ".($x-3)." AND ".($x+3)." AND
-                                   arg2 BETWEEN ".($y-3)." AND ".($y+3)." AND
+                             WHERE arg1 BETWEEN ".($x-$gsnap)." AND ".($x+$gsnap)." AND
+                                   arg2 BETWEEN ".($y-$gsnap)." AND ".($y+$gsnap)." AND
                                    fleet_id IS NULL AND place_type = 8 AND user_id = ".$user->uid );
 
     $fleets = db_fetch_row( "SELECT GROUP_CONCAT( DISTINCT name ORDER BY name DESC SEPARATOR ',' ) name, MAX( arg1 ) x, MAX( arg2 ) y
                                FROM fleets
-                              WHERE arg1 BETWEEN ".($x-3)." AND ".($x+3)." AND
-                                    arg2 BETWEEN ".($y-3)." AND ".($y+3)." AND
+                              WHERE arg1 BETWEEN ".($x-$gsnap)." AND ".($x+$gsnap)." AND
+                                    arg2 BETWEEN ".($y-$gsnap)." AND ".($y+$gsnap)." AND
                                     place_type = 8 AND user_id = ".$user->uid );
 
     $hints = db_fetch_row( "SELECT text name, x, y
                               FROM hyper_hint
-                             WHERE x BETWEEN ".($x-3)." AND ".($x+3)." AND
-                                   y BETWEEN ".($y-3)." AND ".($y+3)." AND
+                             WHERE x BETWEEN ".($x-$gsnap)." AND ".($x+$gsnap)." AND
+                                   y BETWEEN ".($y-$gsnap)." AND ".($y+$gsnap)." AND
                                    user_id = ".$user->uid );
     $sx = 0;
     $sy = 0;
@@ -200,12 +202,12 @@
                                FROM stars s
                           LEFT JOIN planets p ON p.star_id = s.id AND user_id IS NOT NULL
                           LEFT JOIN users u ON u.id = p.user_id
-                              WHERE s.x BETWEEN ".($lx-3)." AND ".($lx+3)." AND s.y BETWEEN ".($ly-3)." AND ".($ly+3) );
+                              WHERE s.x BETWEEN ".($lx-$gsnap)." AND ".($lx+$gsnap)." AND s.y BETWEEN ".($ly-$gsnap)." AND ".($ly+$gsnap) );
 
       $hints = db_fetch_row( "SELECT text name, x, y
                                 FROM hyper_hint
-                               WHERE x BETWEEN ".($lx-3)." AND ".($lx+3)." AND
-                                     y BETWEEN ".($ly-3)." AND ".($ly+3)." AND
+                               WHERE x BETWEEN ".($lx-$gsnap)." AND ".($lx+$gsnap)." AND
+                                     y BETWEEN ".($ly-$gsnap)." AND ".($ly+$gsnap)." AND
                                      user_id = ".$user->uid );
 
       $hint = '';

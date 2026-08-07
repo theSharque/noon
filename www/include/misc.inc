@@ -74,6 +74,11 @@ define( 'SYSTEM_MIN_RADIUS', 25 );
 define( 'GALAXY_MAX_RADIUS', 3000 );
 define( 'GALAXY_STAR_SNAP', 10 );
 
+function system_orbit_radius( $planet_pos ) {
+  $k = max( 0, intval( $planet_pos ) - 1 );
+  return (int) round( 60 + 30 * $k + 10.3 * $k * ( $k - 1 ) );
+}
+
 function system_planet_xy( $rad_deg, $orb ) {
   $rad = deg2rad( $rad_deg );
   return array(

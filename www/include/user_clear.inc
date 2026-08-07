@@ -96,7 +96,7 @@ function kill_users() {
           for( $i = 0; $i < $as_count; $i++ ) {
             $rad += ( 360 / $as_count ) + mt_rand( 0, 6 ) - 3;
             db_query( "INSERT INTO planets ( type,     name,            star_id,  planet_pos,  rad,                         orb, cycles )
-                                    VALUES (    5, 'Астер.', {$base['star_id']}, $planet_pos, $rad, ".($planet_pos * 30 + 30).",   2000 )" );
+                                    VALUES (    5, 'Астер.', {$base['star_id']}, $planet_pos, $rad, ".system_orbit_radius( $planet_pos ).",   2000 )" );
 
             $aster_id = mysql_insert_id();
 

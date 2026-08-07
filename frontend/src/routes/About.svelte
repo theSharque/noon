@@ -24,6 +24,7 @@
     { key: 'aliance', label: 'Альянс' },
     { key: 'titul', label: 'Титул' },
     { key: 'star', label: 'Родная звезда' },
+    { key: 'planet', label: 'Родная планета' },
     { key: 'war', label: 'Звание' },
     { key: 'status', label: 'Статус' },
     { key: 'level', label: 'Опыт' },

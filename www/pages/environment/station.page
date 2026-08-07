@@ -3,8 +3,21 @@
   global $user;
   if( $user->place_type == 3 ) {
 
-    if( isset( $_GET['rf'] ) && is_numeric( $_GET['rf'] ) && $_GET['rf'] > 0 ) {
-      $rf = 'o.class = '.$_GET['rf'].' AND ';
+    $rft = isset( $_GET['rf'] ) ? $_GET['rf'] : '0';
+    db_safe( $rft );
+
+    if( $rft === 'S' ) {
+      $rf = "o.id IN (
+               SELECT w.object_id FROM warehouse w
+                 INNER JOIN orbits_buildings ob ON ob.planet_id = w.place_id AND ob.id = {$user->place_id}
+                WHERE w.place_type = 0 AND w.object_cnt > 0
+               UNION
+               SELECT ti.object_id FROM trade_in ti WHERE ti.ob_id = {$user->place_id}
+               UNION
+               SELECT tu.object_id FROM trade_out tu WHERE tu.ob_id = {$user->place_id}
+             ) AND ";
+    } elseif( is_numeric( $rft ) && $rft > 0 ) {
+      $rf = 'o.class = '.$rft.' AND ';
     } else {
       $rf = '';
     }

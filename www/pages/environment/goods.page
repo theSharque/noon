@@ -5,36 +5,65 @@
   if( $user->place_type == 3 ) {
 
     $out = "err=0";
-    if( isset( $_GET['rf'] ) && is_numeric( $_GET['rf'] ) && $_GET['rf'] > 0 ) {
-      $rf = 'o.class = '.$_GET['rf'];
-    } else {
+    $rft = isset( $_GET['rf'] ) ? $_GET['rf'] : '0';
+    db_safe( $rft );
+
+    if( $rft === 'S' ) {
       $rf = 'o.class IN ( 1, 2, 5, 6, 7, 9 )';
+      $arr1 = db_fetch_array( "SELECT DISTINCT o.id id, o.name name
+                                 FROM warehouse w
+                           INNER JOIN objects o ON o.id = w.object_id
+                           INNER JOIN orbits_buildings ob ON ob.planet_id = w.place_id AND ob.id = {$user->place_id}
+                                WHERE w.place_type = 0 AND w.object_cnt > 0 AND $rf
+                             ORDER BY o.class, o.name" );
+
+      $arr2 = db_fetch_array( "SELECT DISTINCT ti.object_id id, o.name name
+                                 FROM trade_in ti
+                           INNER JOIN objects o ON o.id = ti.object_id
+                                WHERE ti.ob_id = {$user->place_id} AND $rf" );
+
+      $arr3 = db_fetch_array( "SELECT DISTINCT tu.object_id id, o.name name
+                                 FROM trade_out tu
+                           INNER JOIN objects o ON o.id = tu.object_id
+                                WHERE tu.ob_id = {$user->place_id} AND $rf" );
+    } else {
+      if( is_numeric( $rft ) && $rft > 0 ) {
+        $rf = 'o.class = '.$rft;
+      } else {
+        $rf = 'o.class IN ( 1, 2, 5, 6, 7, 9 )';
+      }
+
+      $arr1 = db_fetch_array( "SELECT DISTINCT o.id id, o.name name
+                                 FROM objects o
+                                WHERE o.soldable = 1 AND $rf
+                             ORDER BY o.class, o.name" );
+
+      $arr2 = db_fetch_array( "SELECT DISTINCT ti.object_id id, o.name name
+                                 FROM trade_in ti
+                           INNER JOIN objects o ON o.id = ti.object_id
+                                WHERE $rf" );
+
+      $arr3 = db_fetch_array( "SELECT DISTINCT tu.object_id id, o.name name
+                                 FROM trade_out tu
+                           INNER JOIN objects o ON o.id = tu.object_id
+                                WHERE $rf" );
     }
-
-    $arr1 = db_fetch_array( "SELECT DISTINCT o.id id, o.name name
-                               FROM objects o
-                              WHERE o.soldable = 1 AND $rf
-                           ORDER BY o.class, o.name" );
-
-    $arr2 = db_fetch_array( "SELECT DISTINCT ti.object_id id, o.name name
-                               FROM trade_in ti
-                         INNER JOIN objects o ON o.id = ti.object_id
-                              WHERE $rf" );
-
-    $arr3 = db_fetch_array( "SELECT DISTINCT tu.object_id id, o.name name
-                               FROM trade_out tu
-                         INNER JOIN objects o ON o.id = tu.object_id
-                              WHERE $rf" );
 
     $goods = array();
-    foreach( $arr1 as $item ) {
-      $goods['i'.$item['id']] = $item['name'];
+    if( is_array( $arr1 ) ) {
+      foreach( $arr1 as $item ) {
+        $goods['i'.$item['id']] = $item['name'];
+      }
     }
-    foreach( $arr2 as $item ) {
-      $goods['i'.$item['id']] = $item['name'];
+    if( is_array( $arr2 ) ) {
+      foreach( $arr2 as $item ) {
+        $goods['i'.$item['id']] = $item['name'];
+      }
     }
-    foreach( $arr3 as $item ) {
-      $goods['i'.$item['id']] = $item['name'];
+    if( is_array( $arr3 ) ) {
+      foreach( $arr3 as $item ) {
+        $goods['i'.$item['id']] = $item['name'];
+      }
     }
 
     $l=0;

@@ -16,6 +16,7 @@
   const IMG = '/app/img/booklist';
   const CLASS_FILTERS = [
     { value: '0', label: 'Все' },
+    { value: 'S', label: 'В наличии' },
     { value: '1', label: 'Ресурсы' },
     { value: '5', label: 'Ископаемые' },
     { value: '2', label: 'Детали' },
@@ -31,7 +32,6 @@
     '4': 'Недостаточно кредитов',
   };
 
-  export let initialGoods = null;
   export let starName = '';
   export let planetName = '';
 

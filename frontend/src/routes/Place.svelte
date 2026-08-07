@@ -27,7 +27,6 @@
   let errorText = '';
   let starName = '';
   let planetName = '';
-  let stationGoods = null;
   let mapLight = 0;
   let initialMap = null;
   let initialOrbit = null;
@@ -144,7 +143,6 @@
     errorText = '';
     initialMap = null;
     initialOrbit = null;
-    stationGoods = null;
     flight = null;
     space = null;
     deep = null;
@@ -283,7 +281,6 @@
 
     const stationProbe = await loadStationGoods('1');
     if (stationProbe.ok) {
-      stationGoods = stationProbe;
       mode = 'station';
       return;
     }
@@ -389,7 +386,7 @@
   </div>
 {:else if mode === 'station'}
   <div class="place-screen">
-    <Station initialGoods={stationGoods} {starName} {planetName} />
+    <Station {starName} {planetName} />
   </div>
 {:else if mode === 'inspace' && space}
   <div class="place-screen place-screen--map">

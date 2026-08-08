@@ -2394,14 +2394,50 @@ function quest_field( $user, $ft, $fv ) {
   return $ret;
 }
 
+function noon_is_private_ip( $ip ) {
+  if( !filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+    return false;
+  }
+  return filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) === false;
+}
+
+function noon_client_ip() {
+  $remote = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+
+  if( filter_var( $remote, FILTER_VALIDATE_IP ) && !noon_is_private_ip( $remote ) ) {
+    return $remote;
+  }
+
+  if( !empty( $_SERVER['HTTP_X_REAL_IP'] ) ) {
+    $ip = trim( $_SERVER['HTTP_X_REAL_IP'] );
+    if( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+      return $ip;
+    }
+  }
+
+  if( !empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+    $parts = explode( ',', $_SERVER['HTTP_X_FORWARDED_FOR'] );
+    foreach( $parts as $part ) {
+      $ip = trim( $part );
+      if( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+        return $ip;
+      }
+    }
+  }
+
+  return $remote;
+}
+
 function on_login() {
   $login = $_POST['login'];
   $pass = md5( $_POST['pass'] );
   $sid = isset( $_COOKIE[ 'chat_sid' ] ) ? $_COOKIE[ 'chat_sid' ] : 0;
+  $ip = noon_client_ip();
 
   db_safe( $login );
   db_safe( $pass );
   db_safe( $sid );
+  db_safe( $ip );
 
   $uid = db_fetch_val( "SELECT u.id FROM users u WHERE u.status = 1 AND u.login='$login' AND u.password='$pass'", 'id' );
 
@@ -2415,7 +2451,7 @@ function on_login() {
     db_query( "INSERT INTO bot_analyze ( user_id, clone_id, size )
                     SELECT $uid, id, 10
                       FROM users
-                     WHERE id != $uid AND last_ip = '{$_SERVER["REMOTE_ADDR"]}'
+                     WHERE id != $uid AND last_ip = '$ip'
    ON DUPLICATE KEY UPDATE size = size + 10" );
 
     db_query( "INSERT INTO bot_analyze ( user_id, clone_id, size )

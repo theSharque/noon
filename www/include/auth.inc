@@ -161,6 +161,9 @@ function authorization() {
 
       on_login();
 
+      $ip = noon_client_ip();
+      db_safe( $ip );
+
       $row = db_fetch_row( "SELECT u.id, u.full_log, u.login, u.titul, u.admin, u.email, u.ssid, u.level, u.lastlevel,
                                    u.place_id, u.place_type, u.block, u.money, u.credits, u.donate, u.aliance, IF( u.mute < NOW(), 0, 1 ) mute, u.mute mute_date,
                                    ua.char_status, ua.char_war, ua.char_level,
@@ -172,7 +175,7 @@ function authorization() {
                         INNER JOIN planets p ON p.user_id = u.id
                         INNER JOIN users_active ua ON ua.id = u.id
                          LEFT JOIN users_quests uq ON uq.user_id = u.id AND uq.status > 0
-                             WHERE IFNULL( pu.last_ip, 0 ) != '{$_SERVER["REMOTE_ADDR"]}' AND u.status = 1 AND u.login='$login' AND u.password='$pass' AND u.err_login < NOW()" );
+                             WHERE IFNULL( pu.last_ip, 0 ) != '$ip' AND u.status = 1 AND u.login='$login' AND u.password='$pass' AND u.err_login < NOW()" );
     }
 
     if( isset( $row['id'] ) && is_numeric( $row['id'] ) ) {
@@ -261,7 +264,9 @@ function authorization() {
     
       $user->slave = db_fetch_val( "SELECT event_id FROM u2u_quests WHERE user_id = ".$row['id'] );
 
-      db_query( "UPDATE users SET ssid='$sid', last_ip='{$_SERVER["REMOTE_ADDR"]}' WHERE id=$id" );
+      $ip = noon_client_ip();
+      db_safe( $ip );
+      db_query( "UPDATE users SET ssid='$sid', last_ip='$ip' WHERE id=$id" );
       db_query( "UPDATE users_active SET lastlogin=NOW() WHERE id=$id" );
 
       gen_report( $id );

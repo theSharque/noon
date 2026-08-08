@@ -20,7 +20,9 @@
     $sid = session_id();
 
     $id = $result['id'];
-    db_query( "UPDATE users SET ssid='$sid', last_ip='{$_SERVER["REMOTE_ADDR"]}' WHERE id=$id" );
+    $ip = noon_client_ip();
+    db_safe( $ip );
+    db_query( "UPDATE users SET ssid='$sid', last_ip='$ip' WHERE id=$id" );
     db_query( "UPDATE users_active SET lastlogin=NOW() WHERE id=$id" );
     setcookie( 'chat_sid', $sid );
     setcookie( 'chat_uid', $id );

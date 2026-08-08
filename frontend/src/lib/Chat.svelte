@@ -71,6 +71,10 @@
   let draft = '';
   let sending = false;
   let pollTimer;
+  let pollGen = 0;
+  let pollBusy = false;
+  let pollAgain = false;
+  let pollGate = Promise.resolve();
   let msgsEl;
   let onlineEl;
   let inputEl;
@@ -192,15 +196,21 @@
     e.preventDefault();
   }
 
-  async function doPoll() {
+  async function runPollOnce() {
     const pollCid = cid;
     const pollUh = uh;
+    const gen = pollGen;
     let updated = false;
     try {
       const data = await pollChat(pollCid, pollUh);
+      if (gen !== pollGen) return;
       if (data.err !== '0') return;
+      if (pollCid !== cid) return;
 
-      if (data.id) cid = parseInt(data.id, 10) || cid;
+      if (data.id) {
+        const nextId = parseInt(data.id, 10) || 0;
+        if (nextId > cid) cid = nextId;
+      }
 
       if (pollCid === 0) {
         mainHtml = data.msgm || '';
@@ -238,6 +248,26 @@
     } catch (e) {}
   }
 
+  function doPoll() {
+    pollAgain = true;
+    const done = pollGate.then(drainPoll);
+    pollGate = done.catch(() => {});
+    return done;
+  }
+
+  async function drainPoll() {
+    if (pollBusy) return;
+    pollBusy = true;
+    try {
+      while (pollAgain) {
+        pollAgain = false;
+        await runPollOnce();
+      }
+    } finally {
+      pollBusy = false;
+    }
+  }
+
   async function selectTab(id) {
     activeTab = id;
     if (id === 'sys') unread.sys = false;
@@ -264,6 +294,7 @@
   }
 
   async function refreshChat() {
+    pollGen += 1;
     cid = 0;
     uh = 'first';
     mainHtml = '';

@@ -158,15 +158,41 @@ function parseMailList(text) {
 
 const MAX_CHAT_LINES = 60;
 
+function splitChatLines(html) {
+  const endsWithBr = /<br\s*\/?>$/i.test(html);
+  const lines = html.split(/<br\s*\/?>/i);
+  if (lines.length && lines[lines.length - 1] === '') lines.pop();
+  return { lines: lines.filter((line) => line.length > 0), endsWithBr };
+}
+
+function chatLineKey(line) {
+  const msgId = (line.match(/\bdata-msg-id=['"](\d+)['"]/i) || [])[1];
+  if (msgId) return `m:${msgId}`;
+  const delId = (line.match(/\bdata-id=['"](\d+)['"]/i) || [])[1];
+  if (delId) return `m:${delId}`;
+  return `t:${line}`;
+}
+
 export function mergeChatHtml(prev, chunk) {
   if (!chunk) return prev;
   if (!prev) return chunk;
-  const merged = prev + chunk;
-  const endsWithBr = /<br\s*\/?>$/i.test(merged);
-  const lines = merged.split(/<br\s*\/?>/i);
-  if (lines.length && lines[lines.length - 1] === '') lines.pop();
-  if (lines.length <= MAX_CHAT_LINES) return merged;
-  return lines.slice(-MAX_CHAT_LINES).join('<br>') + (endsWithBr ? '<br>' : '');
+
+  const prevParts = splitChatLines(prev);
+  const chunkParts = splitChatLines(chunk);
+  const seen = new Set();
+  const unique = [];
+  for (const line of [...prevParts.lines, ...chunkParts.lines]) {
+    const key = chatLineKey(line);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(line);
+  }
+
+  const trimmed =
+    unique.length > MAX_CHAT_LINES ? unique.slice(-MAX_CHAT_LINES) : unique;
+  if (!trimmed.length) return '';
+  const endsWithBr = prevParts.endsWithBr || chunkParts.endsWithBr;
+  return trimmed.join('<br>') + (endsWithBr ? '<br>' : '');
 }
 
 export async function pollChat(cid, uh) {

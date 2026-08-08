@@ -99,29 +99,16 @@
       break;
   }
 
-  if( $user->uid == 16 ) {
-    $yellowStars = db_fetch_array( "SELECT s.x, s.y
-                                      FROM (SELECT DISTINCT IFNULL( IFNULL( s.id, p.star_id ), p2.star_id ) sid
-                                              FROM ships sh
-                                         LEFT JOIN stars s ON sh.place_type = 7 AND s.id = sh.place_id
-                                         LEFT JOIN planets p ON sh.place_type IN ( 0, 1 ) AND p.id = sh.place_id
-                                         LEFT JOIN orbits_buildings ob ON sh.place_type = 3 AND ob.id = sh.place_id
-                                         LEFT JOIN planets p2 ON p2.id = ob.planet_id
-                                             WHERE sh.user_id IS NULL AND sh.place_type IN ( 0, 1, 3, 7 )
-                                         ) ys
-                                INNER JOIN stars s ON s.id = ys.sid" );
-  } else {
-    $yellowStars = db_fetch_array( "SELECT s.x, s.y
-                                      FROM (SELECT DISTINCT IFNULL( IFNULL( s.id, p.star_id ), p2.star_id ) sid
-                                              FROM ships sh
-                                         LEFT JOIN stars s ON sh.place_type = 7 AND s.id = sh.place_id
-                                         LEFT JOIN planets p ON sh.place_type IN ( 0, 1 ) AND p.id = sh.place_id
-                                         LEFT JOIN orbits_buildings ob ON sh.place_type = 3 AND ob.id = sh.place_id
-                                         LEFT JOIN planets p2 ON p2.id = ob.planet_id
-                                             WHERE sh.user_id = {$user->uid} AND sh.place_type IN ( 0, 1, 3, 7 )
-                                         ) ys
-                                INNER JOIN stars s ON s.id = ys.sid" );
-  }
+  $yellowStars = db_fetch_array( "SELECT s.x, s.y
+                                    FROM (SELECT DISTINCT IFNULL( IFNULL( s.id, p.star_id ), p2.star_id ) sid
+                                            FROM ships sh
+                                       LEFT JOIN stars s ON sh.place_type = 7 AND s.id = sh.place_id
+                                       LEFT JOIN planets p ON sh.place_type IN ( 0, 1 ) AND p.id = sh.place_id
+                                       LEFT JOIN orbits_buildings ob ON sh.place_type = 3 AND ob.id = sh.place_id
+                                       LEFT JOIN planets p2 ON p2.id = ob.planet_id
+                                           WHERE sh.user_id = {$user->uid} AND sh.place_type IN ( 0, 1, 3, 7 )
+                                       ) ys
+                              INNER JOIN stars s ON s.id = ys.sid" );
 
   if( count( $yellowStars ) ) {
     $l=0;

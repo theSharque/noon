@@ -571,11 +571,11 @@
 
       {#if activeTab === 'messages'}
         <div class="table-container">
-          <table class="scifi-table">
+          <table class="scifi-table mail-table">
             <thead>
               <tr>
-                <th>От</th>
-                <th>Дата</th>
+                <th class="col-from">От</th>
+                <th class="col-date">Дата</th>
                 <th>Текст</th>
               </tr>
             </thead>
@@ -586,8 +586,8 @@
                   class:unread={msg.read === 0}
                   on:click={(e) => selectMail(i, e)}
                 >
-                  <td>{msg.from}</td>
-                  <td class="num">{msg.time}</td>
+                  <td class="col-from">{msg.from}</td>
+                  <td class="num col-date">{msg.time}</td>
                   <td>{msg.preview}</td>
                 </tr>
               {/each}
@@ -919,6 +919,24 @@
     gap: 10px;
     min-height: 0;
     overflow: hidden;
+  }
+
+  .mail-table {
+    table-layout: fixed;
+  }
+
+  .mail-table .col-from {
+    width: 7.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mail-table .col-date {
+    width: 10.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .bars {

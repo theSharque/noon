@@ -92,6 +92,7 @@ function formatEncKvTable(html, title) {
 
 export function formatEncHtml(raw) {
   let html = String(raw || '');
+  html = html.replace(/(<img\b[^>]*\bsrc=["'])img\//gi, '$1/img/');
   html = formatEncLinkTable(html, 'Для изготовления необходимо:', 'qty-first');
   html = formatEncLinkTable(html, 'Используется при постройке:', 'qty-first');
   html = formatEncLinkTable(html, 'Содержится в минералах:', 'name-first');

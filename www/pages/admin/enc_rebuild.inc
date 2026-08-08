@@ -48,18 +48,18 @@ foreach( $top_data as $idx => $item ) {
   db_query( "UPDATE enciclopedia SET `desc` = '$text' WHERE object_id = ".$item[2] );
 }
 
-foreach( $mdl_data as $idx => $item ) {
+foreach( $mdl_data as $item ) {
   $items = db_fetch_array( "SELECT o.name, os.res_cnt FROM objects o, objects_sub os WHERE o.id = os.res_id AND os.object_id = {$item[2]} ORDER BY res_cnt desc" );
-  $text = "<img src='/app/img/planet/jpeg{$idx}.png'><b>{$item[0]}</b>\nПриродный минерал <font color=\'#00FFFF\'>второй</font> группы.\n\nСодержит полезные ископаемые:";
+  $text = "<b>{$item[0]}</b>\nПриродный минерал <font color=\'#00FFFF\'>второй</font> группы.\n\nСодержит полезные ископаемые:";
   foreach( $items as $line ) {
     $text .= "\n<u><a href=\'page.php?id=6%26itm={$line['name']}\'>{$line['name']}</a></u>\t{$line['res_cnt']}";
   }
   db_query( "UPDATE enciclopedia SET `desc` = '$text' WHERE object_id = ".$item[2] );
 }
 
-foreach( $btm_data as $idx => $item ) {
+foreach( $btm_data as $item ) {
   $items = db_fetch_array( "SELECT o.name, os.res_cnt FROM objects o, objects_sub os WHERE o.id = os.res_id AND os.object_id = {$item[2]} ORDER BY res_cnt desc" );
-  $text = "<img src='/app/img/planet/jpeg{$idx}.png'><b>{$item[0]}</b>\nПриродный минерал <font color=\'#00FFFF\'>третьей</font> группы.\n\nСодержит полезные ископаемые:";
+  $text = "<b>{$item[0]}</b>\nПриродный минерал <font color=\'#00FFFF\'>третьей</font> группы.\n\nСодержит полезные ископаемые:";
   foreach( $items as $line ) {
     $text .= "\n<u><a href=\'page.php?id=6%26itm={$line['name']}\'>{$line['name']}</a></u>\t{$line['res_cnt']}";
   }

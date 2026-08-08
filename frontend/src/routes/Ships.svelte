@@ -65,7 +65,7 @@
   import { flashBgStyle } from '../lib/flashColor.js';
 
   const IMG = '/app/img/booklist';
-  const ATTACK_ORDERS = new Set([14, 16, 17, 18, 32, 33, 49, 51]);
+  const ATTACK_ORDERS = new Set([14, 16, 17, 18, 20, 32, 33, 49, 51]);
   const ATTACK_RPC = new Set([14, 16, 17, 18, 49, 51]);
   const ORDER_BTN = new Set([
     0, 1, 2, 3, 4, 5, 6, 7, 12, 14, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,

@@ -100,15 +100,26 @@ function drawCenterStar(ctx, cx, cy, radius, hex) {
 }
 
 export function drawInspaceField(ctx, field, layout, tSec = 0) {
-  const { w, h, nebulaImg } = layout;
-  ctx.fillStyle = '#03060c';
-  ctx.fillRect(0, 0, w, h);
+  const {
+    w,
+    h,
+    nebulaImg,
+    nebulaAlpha = 0.22,
+    showStar = true,
+    showVignette = true,
+    clearColor = '#03060c',
+  } = layout;
 
-  drawNebula(ctx, nebulaImg, w, h, 0.22);
-  drawVignette(ctx, w, h);
+  if (clearColor) {
+    ctx.fillStyle = clearColor;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  drawNebula(ctx, nebulaImg, w, h, nebulaAlpha);
+  if (showVignette) drawVignette(ctx, w, h);
 
   const st = field.starType;
-  if (st && !isBlackHole(st)) {
+  if (showStar && st && !isBlackHole(st)) {
     const cx = w * 0.5;
     const cy = h * 0.5;
     drawCenterStar(ctx, cx, cy, Math.min(w, h) * 0.16, starFill(st));

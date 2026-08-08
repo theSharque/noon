@@ -1,5 +1,5 @@
 export const ORBIT_IMG = '/app/img/orbit';
-export const CELL = 100;
+export const CELL = 150;
 export const SLOT_W = 150;
 export const SLOT_H = 150;
 
@@ -64,7 +64,7 @@ export function buildingSrc(ch) {
 }
 
 export function hitTest(mapX, length) {
-  let giX = Math.floor((mapX + 50) / CELL);
+  let giX = Math.floor((mapX + CELL / 2) / CELL);
   if (giX < 0) giX = 0;
   if (giX >= length) giX = Math.max(0, length - 1);
   return giX;

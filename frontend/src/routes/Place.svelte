@@ -27,6 +27,7 @@
   let errorText = '';
   let starName = '';
   let planetName = '';
+  let spaceBgUrl = '';
   let mapLight = 0;
   let initialMap = null;
   let initialOrbit = null;
@@ -237,6 +238,7 @@
     const info = await getUserInfo();
     starName = info.sname || '';
     planetName = info.pname || '';
+    spaceBgUrl = info.bgUrl || '';
     const pt = parseInt(info.pt, 10) || 0;
 
     if (pt === 7) {
@@ -382,7 +384,7 @@
   </div>
 {:else if mode === 'orbit'}
   <div class="place-screen place-screen--map">
-    <Orbit initialMap={initialOrbit} on:placeChanged={onPlaceChanged} />
+    <Orbit initialMap={initialOrbit} bgUrl={spaceBgUrl} on:placeChanged={onPlaceChanged} />
   </div>
 {:else if mode === 'station'}
   <div class="place-screen">

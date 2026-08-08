@@ -11,6 +11,7 @@
   import PlaceControlPanel from '../lib/ui/PlaceControlPanel.svelte';
 
   export let initialMap = null;
+  export let bgUrl = '';
 
   const dispatch = createEventDispatcher();
 
@@ -92,6 +93,7 @@
       {timers}
       {selected}
       {pid}
+      {bgUrl}
       {frameActions}
       on:select={onSelect}
       on:timerDone={onTimerDone}

@@ -5,7 +5,6 @@
     SLOT_W,
     buildingSrc,
     clampOrbitOffset,
-    emptySrc,
     formatRemain,
     hitTest,
     mapPixelWidth,
@@ -13,16 +12,26 @@
     slotCenterX,
     timerColor,
   } from '../orbitMap.js';
+  import {
+    createInspaceField,
+    drawInspaceField,
+    nebulaBgUrl,
+    stepInspaceField,
+  } from '../inspaceFx.js';
 
   export let line = '';
   export let timers = [];
   export let selected = 0;
   export let pid = 1;
+  export let bgUrl = '';
   export let frameActions = { use: false, stop: false, upgrade: false };
 
   const dispatch = createEventDispatcher();
+  const ORBIT_NEBULA_ALPHA = 0.15;
 
   let viewport;
+  let wrap;
+  let spaceCanvas;
   let offsetX = 0;
   let stripY = 0;
   let dragging = false;
@@ -31,11 +40,76 @@
   let now = Date.now();
   let tickId;
   let doneKeys = new Set();
+  let spaceField;
+  let spaceRaf = 0;
+  let spaceLastTs = 0;
+  let nebulaImg = null;
+  let nebulaKey = '';
 
   $: length = line.length;
   $: mapW = mapPixelWidth(length || 1);
   $: bgSrc = planetBgSrc(pid);
   $: selX = slotCenterX(selected);
+  $: ensureSpaceField(pid);
+  $: loadNebula(bgUrl || nebulaBgUrl(0));
+
+  function ensureSpaceField(planetId) {
+    const seed = ((Number(planetId) || 1) * 4243 + 17) >>> 0;
+    if (spaceField?.seed === seed) return;
+    spaceField = createInspaceField(0, seed);
+  }
+
+  function loadNebula(url) {
+    const src = String(url || '');
+    if (!src || src === nebulaKey) return;
+    nebulaKey = src;
+    const img = new Image();
+    img.onload = () => {
+      if (nebulaKey === src) nebulaImg = img;
+    };
+    img.onerror = () => {
+      if (nebulaKey === src) nebulaImg = null;
+    };
+    img.src = src;
+  }
+
+  function resizeSpaceCanvas() {
+    if (!spaceCanvas || !wrap) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(1, wrap.clientWidth);
+    const h = Math.max(1, wrap.clientHeight);
+    spaceCanvas.width = Math.floor(w * dpr);
+    spaceCanvas.height = Math.floor(h * dpr);
+    spaceCanvas.style.width = `${w}px`;
+    spaceCanvas.style.height = `${h}px`;
+    const ctx = spaceCanvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function spaceFrame(ts) {
+    spaceRaf = requestAnimationFrame(spaceFrame);
+    if (!spaceCanvas || !spaceField || !wrap) return;
+    const ctx = spaceCanvas.getContext('2d');
+    const w = wrap.clientWidth;
+    const h = wrap.clientHeight;
+    const dt = spaceLastTs ? Math.min(0.05, (ts - spaceLastTs) / 1000) : 0.016;
+    spaceLastTs = ts;
+    stepInspaceField(spaceField, dt);
+    drawInspaceField(
+      ctx,
+      spaceField,
+      {
+        w,
+        h,
+        nebulaImg,
+        nebulaAlpha: ORBIT_NEBULA_ALPHA,
+        showStar: false,
+        showVignette: false,
+        clearColor: '#02060f',
+      },
+      ts / 1000,
+    );
+  }
 
   $: liveTimers = timers.map((t) => {
     const elapsed = (now - (t._started || now)) / 1000;
@@ -72,6 +146,7 @@
 
   onMount(() => {
     const layout = () => {
+      resizeSpaceCanvas();
       if (!viewport) return;
       stripY = Math.max(80, viewport.clientHeight * 0.45);
       offsetX = clampOrbitOffset(offsetX, mapW, viewport.clientWidth);
@@ -79,7 +154,8 @@
     layout();
     window.addEventListener('resize', layout);
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(layout) : null;
-    if (ro && viewport) ro.observe(viewport);
+    if (ro && wrap) ro.observe(wrap);
+    spaceRaf = requestAnimationFrame(spaceFrame);
     tickId = setInterval(() => {
       now = Date.now();
       for (const t of liveTimers) {
@@ -93,11 +169,13 @@
     return () => {
       window.removeEventListener('resize', layout);
       ro?.disconnect();
+      if (spaceRaf) cancelAnimationFrame(spaceRaf);
     };
   });
 
   onDestroy(() => {
     if (tickId) clearInterval(tickId);
+    if (spaceRaf) cancelAnimationFrame(spaceRaf);
   });
 
   export function centerOn(x) {
@@ -167,7 +245,8 @@
 
 <svelte:window on:keydown={onKeydown} />
 
-<div class="orbit-map-wrap">
+<div class="orbit-map-wrap" bind:this={wrap}>
+  <canvas bind:this={spaceCanvas} class="orbit-space" aria-hidden="true"></canvas>
   <div class="orbit-bg" style={`background-image:url('${bgSrc}')`}></div>
   <div
     class="orbit-viewport"
@@ -184,17 +263,9 @@
     >
       {#each Array(length) as _, i}
         {@const ch = line.charAt(i)}
-        {@const isWide = ch === '0' || !ch || ch === 'B'}
-        {@const half = isWide ? SLOT_W / 2 : 50}
-        {#if ch === '0' || !ch}
-          <img
-            class="slot empty"
-            src={emptySrc()}
-            alt=""
-            draggable="false"
-            style={`left:${slotCenterX(i) - half}px; top:-25px; width:${SLOT_W}px; height:${SLOT_H}px`}
-          />
-        {:else}
+        {#if ch && ch !== '0'}
+          {@const isWide = ch === 'B'}
+          {@const half = isWide ? SLOT_W / 2 : 50}
           <img
             class="slot bld"
             src={buildingSrc(ch)}
@@ -277,6 +348,16 @@
     user-select: none;
   }
 
+  .orbit-space {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
   .orbit-bg {
     position: absolute;
     inset: 0;
@@ -285,11 +366,13 @@
     background-size: min(70vmin, 520px);
     filter: saturate(1.05);
     pointer-events: none;
+    z-index: 1;
   }
 
   .orbit-viewport {
     position: absolute;
     inset: 0;
+    z-index: 2;
     cursor: grab;
     touch-action: none;
     user-select: none;
@@ -314,11 +397,6 @@
     pointer-events: none;
     user-select: none;
     z-index: 3;
-  }
-
-  .slot.empty {
-    z-index: 1;
-    opacity: 0.85;
   }
 
   .sel-frame {

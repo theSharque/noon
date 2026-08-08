@@ -1139,7 +1139,7 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
         $parents[$item['id']] = array(
           'place_type' => $item['place_type'],
           'planet' => $item['planet'],
-          'star' => 1,
+          'star' => ' ',
           'order' => '0'.$item['name'],
           'name' => $item['name']
         );

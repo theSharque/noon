@@ -58,7 +58,7 @@
         $test = db_fetch_row( "SELECT f.id, f.planet, f.planet_cnt, f.place_id, f.place_type, f.arg1,
                                       f.arg2, f.radar, f.remote, f.interupt, f.agrav, f.inwar, f.user_id, f.cloak
                                  FROM fleets f
-                                WHERE f.id = $shid AND f.user_id = ".$user->uid );
+                                WHERE f.id = $shid" );
 
         $corsar = db_fetch_val( "SELECT MIN( st.corsar ) corsar
                                    FROM ships s
@@ -244,6 +244,7 @@
 
         case 17: // Attack fleet
           if( $test['user_id'] != $user->uid ) {
+            $fleet_target = ( $type == 'F' ) ? $test['id'] : $test['fleet_id'];
             switch( $test['place_type'] ) {
               case 0:
               case 1:
@@ -266,9 +267,9 @@
   
             foreach( $shl as $id ) {
               if( $id['guard'] == 4 ) {
-                StartWar( 0, $id['id'], 1, $test['fleet_id'], null, 8 );
+                StartWar( 0, $id['id'], 1, $fleet_target, null, 8 );
               } else {
-                StartWar( 0, $id['id'], 1, $test['fleet_id'], null, 1 );
+                StartWar( 0, $id['id'], 1, $fleet_target, null, 1 );
               }
             }
   
@@ -292,9 +293,9 @@
 
             foreach( $fll as $id ) {
               if( $id['guard'] == 4 ) {
-                StartWar( 1, $id['id'], 1, $test['fleet_id'], null, 8 );
+                StartWar( 1, $id['id'], 1, $fleet_target, null, 8 );
               } else {
-                StartWar( 1, $id['id'], 1, $test['fleet_id'], null, 1 );
+                StartWar( 1, $id['id'], 1, $fleet_target, null, 1 );
               }
             }
           }

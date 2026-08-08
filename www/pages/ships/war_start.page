@@ -2,6 +2,18 @@
 
   global $user;
 
+  function war_start_pic_token( $pic, $side_prefix ) {
+    if( !$pic ) {
+      return '';
+    }
+
+    if( strpos( $pic, '/' ) !== false ) {
+      return $pic;
+    }
+
+    return $side_prefix.$pic;
+  }
+
   if( isset( $_GET['wid'] ) ) {
     $place_hash = $_GET['wid'];
     db_safe( $place_hash );
@@ -95,7 +107,8 @@
                                         FROM planets_buildings pb
                                   INNER JOIN objects o ON o.id = pb.object_id
                                   INNER JOIN buildings b ON b.id = pb.object_id
-                                       WHERE pb.planet_id = ".$war['d_object_id'] );
+                                       WHERE pb.planet_id = ".$war['d_object_id']."
+                                    GROUP BY pb.object_id" );
             break;
 
           case 3 :
@@ -103,7 +116,8 @@
                                         FROM orbits_buildings ob
                                   INNER JOIN objects o ON o.id = ob.object_id
                                   INNER JOIN buildings b ON b.id = ob.object_id
-                                       WHERE ob.planet_id = ".$war['d_object_id'] );
+                                       WHERE ob.planet_id = ".$war['d_object_id']."
+                                    GROUP BY ob.object_id" );
             break;
         }
 
@@ -133,7 +147,7 @@
 
         foreach( $a_list as $item ) {
           if( $item['pic'] ) {
-            $out .= "&nid$l=a{$item['id']}&npc$l=n{$item['pic']}&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
+            $out .= "&nid$l=a{$item['id']}&npc$l=".war_start_pic_token( $item['pic'], 'n' )."&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
           } else {
             $out .= "&nid$l=a{$item['id']}&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
           }
@@ -145,7 +159,7 @@
 
         foreach( $d_list as $item ) {
           if( $item['pic'] ) {
-            $out .= "&fid$l=d{$item['id']}&fpc$l=f{$item['pic']}&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
+            $out .= "&fid$l=d{$item['id']}&fpc$l=".war_start_pic_token( $item['pic'], 'f' )."&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
           } else {
             $out .= "&fid$l=d{$item['id']}&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
           }
@@ -159,7 +173,7 @@
 
         foreach( $d_list as $item ) {
           if( $item['pic'] ) {
-            $out .= "&nid$l=a{$item['id']}&npc$l=n{$item['pic']}&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
+            $out .= "&nid$l=a{$item['id']}&npc$l=".war_start_pic_token( $item['pic'], 'n' )."&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
           } else {
             $out .= "&nid$l=a{$item['id']}&nsh$l={$item['shield']}&nst$l={$item['shtot']}&nname$l={$item['name']}&nc$l={$item['cnt']}";
           }
@@ -171,7 +185,7 @@
 
         foreach( $a_list as $item ) {
           if( $item['pic'] ) {
-            $out .= "&fid$l=d{$item['id']}&fpc$l=f{$item['pic']}&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
+            $out .= "&fid$l=d{$item['id']}&fpc$l=".war_start_pic_token( $item['pic'], 'f' )."&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
           } else {
             $out .= "&fid$l=d{$item['id']}&fsh$l={$item['shield']}&fst$l={$item['shtot']}&fname$l={$item['name']}&fc$l={$item['cnt']}";
           }

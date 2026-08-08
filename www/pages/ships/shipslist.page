@@ -1041,7 +1041,7 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
                                  INNER JOIN planets p ON p.id = s.place_id
                                  INNER JOIN stars a ON a.id = p.star_id
                                       WHERE s.place_type = $place_type AND s.place_id IN ( $place ) AND
-                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+                                            s.user_id != {$user->uid} AND s.user_id is not null AND s.fleet_id IS NULL" );
         }
         break;
 
@@ -1053,7 +1053,7 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
                                        FROM ships s
                                  INNER JOIN ship_types st ON st.object_id = s.object_id
                                       WHERE s.place_type = $place_type AND s.place_id IN ( $place ) AND
-                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+                                            s.user_id != {$user->uid} AND s.user_id is not null AND s.fleet_id IS NULL" );
         }
 
       case 3:
@@ -1067,7 +1067,7 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
                                  INNER JOIN planets p ON p.id = ob.planet_id
                                  INNER JOIN stars a ON a.id = p.star_id
                                       WHERE s.place_type = $place_type AND s.place_id IN ( $place ) AND
-                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+                                            s.user_id != {$user->uid} AND s.user_id is not null AND s.fleet_id IS NULL" );
         }
         break;
 
@@ -1080,7 +1080,12 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
                                  INNER JOIN ship_types st ON st.object_id = s.object_id
                                  INNER JOIN stars a ON a.id = s.place_id
                                       WHERE s.place_type = $place_type AND ( s.place_id, s.arg1, s.arg2 ) IN ( $place ) AND
-                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+                                            s.user_id != {$user->uid} AND s.user_id is not null AND s.fleet_id IS NULL" );
+          $guests = array_merge( $guests, db_fetch_array( "SELECT CONCAT( 'F', f.id ) id, f.name, f.group, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, '' planet, a.name star
+                                       FROM fleets f
+                                 LEFT JOIN stars a ON a.id = f.place_id
+                                      WHERE f.place_type = $place_type AND ( f.place_id, f.arg1, f.arg2 ) IN ( $place ) AND
+                                            f.user_id != {$user->uid}" ) );
         }
         break;
 
@@ -1092,7 +1097,11 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
                                        FROM ships s
                                  INNER JOIN ship_types st ON st.object_id = s.object_id
                                       WHERE s.place_type = $place_type AND ( s.arg1, s.arg2 ) IN ( $place ) AND
-                                            s.user_id != {$user->uid} AND s.user_id is not null" );
+                                            s.user_id != {$user->uid} AND s.user_id is not null AND s.fleet_id IS NULL" );
+          $guests = array_merge( $guests, db_fetch_array( "SELECT CONCAT( 'F', f.id ) id, f.name, f.group, f.place_id, f.place_type, f.arg1, f.arg2, f.inwar, f.guard, '' planet, '' star
+                                       FROM fleets f
+                                      WHERE f.place_type = $place_type AND ( f.arg1, f.arg2 ) IN ( $place ) AND
+                                            f.user_id != {$user->uid}" ) );
         }
         break;
     }
@@ -1366,6 +1375,35 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
 
 // print_r( $g_all );
 // print_r( $all );
+
+  function shipslist_owner_rel( $type, $shid, $uid ) {
+    if( $type == 'A' ) {
+      return 0;
+    }
+
+    $owner_id = null;
+    if( $type == 'Z' || $type == 'S' ) {
+      $owner_id = db_fetch_val( "SELECT user_id FROM ships WHERE id = ".intval( $shid ), 'user_id' );
+    } elseif( $type == 'F' ) {
+      $owner_id = db_fetch_val( "SELECT user_id FROM fleets WHERE id = ".intval( $shid ), 'user_id' );
+    } else {
+      return null;
+    }
+
+    if( !$owner_id || $owner_id == $uid ) {
+      return null;
+    }
+
+    if( db_fetch_val( "SELECT user_id FROM foe WHERE user_id = $owner_id AND foe_id = $uid", 'user_id' ) ) {
+      return 2;
+    }
+
+    if( db_fetch_val( "SELECT user_id FROM friend WHERE user_id = $owner_id AND friend_id = $uid", 'user_id' ) ) {
+      return 1;
+    }
+
+    return 0;
+  }
 
   $l=0;
   foreach( $all as $item ) {
@@ -1660,6 +1698,11 @@ WHERE us.group = '$group' AND s.user_id IS NULL AND s.fleet_id IS NULL
 
     if( ( ( $user->real_type == 2 && $type == 'S' ) || ( $user->real_type == 6 && $type == 'F' ) ) && $user->real_id == $shid ) {
       $title .= "&you$l=1";
+    }
+
+    $rel = shipslist_owner_rel( $type, $shid, $user->uid );
+    if( $rel !== null ) {
+      $title .= "&rel$l=".$rel;
     }
 
     $out .= $title;

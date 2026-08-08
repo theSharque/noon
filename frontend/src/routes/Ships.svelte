@@ -33,6 +33,7 @@
   import ScifiSelect from '../lib/ui/ScifiSelect.svelte';
   import GalaxyMap from '../lib/ui/GalaxyMap.svelte';
   import SystemMap from '../lib/ui/SystemMap.svelte';
+  import WarArena from '../lib/ui/WarArena.svelte';
   import {
     RING_R,
     RING_STROKE,
@@ -122,6 +123,7 @@
   let warNear = [];
   let warFar = [];
   let warLog = [];
+  let warFxBatch = null;
   let warSide = '0';
   let warLastMove = '0';
   let warPlaceHash = '';
@@ -201,12 +203,20 @@
     if (ship.you) return 'pilot';
     const p = String(ship.id || '').charAt(0);
     if (p === 'F') return 'fleet';
-    if (p === 'S' || p === 'C' || p === 'Z') return 'ship';
+    if (p === 'S' || p === 'C' || p === 'Z' || p === 'A') return 'ship';
     return '';
   }
 
-  function kindLabel(kind) {
+  function kindIconClass(ship) {
+    if (ship.rel == null) return '';
+    return `kind-icon--foreign kind-icon--rel-${ship.rel}`;
+  }
+
+  function kindLabel(kind, ship) {
     if (kind === 'pilot') return 'Вы здесь';
+    if (ship?.rel === '2') return 'Враг';
+    if (ship?.rel === '1') return 'Друг';
+    if (ship?.rel === '0') return 'Нейтрален';
     if (kind === 'fleet') return 'Флот';
     if (kind === 'ship') return 'Корабль';
     return '';
@@ -388,6 +398,7 @@
     warNear = [];
     warFar = [];
     warLog = [];
+    warFxBatch = null;
     warWid = '';
     resetGalaxy();
     resetSystem();
@@ -559,7 +570,7 @@
       let next = [];
       if (prefer.length) {
         prefer.forEach((id) => {
-          const idx = ships.findIndex((s) => s.id === id && s.bgColor !== '0xCC0000');
+          const idx = ships.findIndex((s) => s.id === id);
           if (idx >= 0 && !next.includes(idx)) next.push(idx);
         });
       }
@@ -805,6 +816,12 @@
     if (String(data.err) !== '0') return;
     warLastMove = data.lastMove || warLastMove;
     if (data.shots?.length) {
+      warFxBatch = {
+        t: Date.now(),
+        shots: [...data.shots],
+        near: warNear.map((u) => ({ ...u })),
+        far: warFar.map((u) => ({ ...u })),
+      };
       applyWarShots(data.shots);
       warLog = [...warLog, ...data.shots.map(formatShot)].slice(-80);
     }
@@ -1285,11 +1302,8 @@
   }
 
   async function afterOrder(data) {
-    const focusId = data?.fid || '';
-    if (focusId) {
-      lastShip = focusId;
-      selected = [];
-    }
+    const focusId = data?.fid || primaryId();
+    if (focusId) lastShip = focusId;
     await refreshPlaces(true, { focusId });
   }
 
@@ -1594,7 +1608,11 @@
             >
               <td class="kind-col">
                 {#if ship.kind}
-                  <span class="kind-icon" title={kindLabel(ship.kind)} aria-label={kindLabel(ship.kind)}>
+                  <span
+                    class="kind-icon {kindIconClass(ship)}"
+                    title={kindLabel(ship.kind, ship)}
+                    aria-label={kindLabel(ship.kind, ship)}
+                  >
                     {#if ship.kind === 'pilot'}
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                         <circle cx="12" cy="5" r="3.4" />
@@ -1989,47 +2007,7 @@
 
       {:else if monitor === 'war'}
         <div class="monitor-body war-layout">
-          <div class="war-sides">
-            <div>
-              <h4>Свои</h4>
-              <table class="scifi-table">
-                <thead>
-                  <tr><th>Тип</th><th>N</th><th>Щит</th></tr>
-                </thead>
-                <tbody>
-                  {#each warNear as unit}
-                    <tr>
-                      <td>{unit.name}</td>
-                      <td>{unit.count}</td>
-                      <td>{unit.shield}/{unit.shieldTot}</td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
-            <div>
-              <h4>Противник</h4>
-              <table class="scifi-table">
-                <thead>
-                  <tr><th>Тип</th><th>N</th><th>Щит</th></tr>
-                </thead>
-                <tbody>
-                  {#each warFar as unit}
-                    <tr>
-                      <td>{unit.name}</td>
-                      <td>{unit.count}</td>
-                      <td>{unit.shield}/{unit.shieldTot}</td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="war-log">
-            {#each warLog as line}
-              <div>{line}</div>
-            {/each}
-          </div>
+          <WarArena near={warNear} far={warFar} shotBatch={warFxBatch} debugLog={warLog} />
         </div>
 
       {:else if monitor === 'attack' || monitor === 'action' || monitor === 'land' || monitor === 'flyout' || monitor === 'dock' || monitor === 'undock' || monitor === 'make_fleet'}
@@ -2139,7 +2117,7 @@
   }
 
   .ships-grid :global(.ships-list-pane .panel-content) {
-    overflow: hidden;
+    overflow: auto;
     min-height: 0;
   }
 
@@ -2189,6 +2167,22 @@
     justify-content: center;
     color: var(--neon-cyan);
     opacity: 0.9;
+  }
+
+  .kind-icon--foreign {
+    transform: scaleY(-1);
+  }
+
+  .kind-icon--rel-0 {
+    color: #e8f0f4;
+  }
+
+  .kind-icon--rel-1 {
+    color: #4cff7a;
+  }
+
+  .kind-icon--rel-2 {
+    color: #ff5252;
   }
 
   .kind-icon svg {
@@ -2352,30 +2346,11 @@
   }
 
   .war-layout {
-    gap: 0.75rem;
-  }
-
-  .war-sides {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.65rem;
-  }
-
-  .war-sides h4 {
-    margin: 0 0 0.35rem;
-    color: var(--neon-cyan-dim);
-    font-weight: 600;
-    font-size: 0.85rem;
-  }
-
-  .war-log {
-    max-height: 10rem;
-    overflow: auto;
-    font-family: var(--font-mono, var(--font-ui));
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    border-top: 1px solid rgba(0, 229, 255, 0.15);
-    padding-top: 0.45rem;
+    padding: 0;
+    gap: 0;
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
   }
 
   .galaxy-layout {
@@ -2423,10 +2398,6 @@
 
   @media (max-width: 500px) {
     .ships-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .war-sides {
       grid-template-columns: 1fr;
     }
   }

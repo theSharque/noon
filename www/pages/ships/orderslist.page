@@ -184,6 +184,68 @@
 
       case 'F' :
       case 'S' :
+        if( $type == 'F' ) {
+          $foreign_fleet = db_fetch_row( "SELECT place_id, place_type
+                                             FROM fleets
+                                            WHERE id = $shid AND user_id IS NOT NULL AND user_id != ".$user->uid );
+          if( isset( $foreign_fleet['place_id'] ) ) {
+            if( $limit < 0 ) {
+              $out .= "&id$cnt=15&name$cnt=".t( 'Превышен лимит управления' );
+              $cnt++;
+            }
+
+            db_query( 'UPDATE users SET fid = \'0\' WHERE id = '.$user->uid );
+
+            switch( $foreign_fleet['place_type'] ) {
+              case 0:
+              case 1:
+                $home = db_fetch_row( "SELECT user_id FROM planets WHERE id = ".$foreign_fleet['place_id'] );
+                if( $limit >= 0 ) {
+                  if( isset( $home['user_id'] ) ) {
+                    $out .= "&id$cnt=15&name$cnt=Нет возможности атаковать";
+                    $cnt++;
+                  } else {
+                    if( $user->block == 0 ) {
+                      $out .= "&id$cnt=17&name$cnt=Атаковать флот всеми кораблями";
+                      $cnt++;
+                      $out .= "&id$cnt=49&name$cnt=Атаковать все корабли этого игрока";
+                      $cnt++;
+                    } else {
+                      $out .= "&id$cnt=15&name$cnt=Коммандиры кораблей в отставке";
+                      $cnt++;
+                    }
+                  }
+                }
+                break;
+
+              case 5:
+              case 7:
+              case 8:
+              case 9:
+                if( $limit >= 0 ) {
+                  if( $user->block == 0 ) {
+                    $out .= "&id$cnt=17&name$cnt=Атаковать флот всеми кораблями";
+                    $cnt++;
+                    $out .= "&id$cnt=49&name$cnt=Атаковать все корабли этого игрока";
+                    $cnt++;
+                  } else {
+                    $out .= "&id$cnt=15&name$cnt=Коммандиры кораблей в отставке";
+                    $cnt++;
+                  }
+                }
+                break;
+
+              default:
+                if( $limit >= 0 ) {
+                  $out .= "&id$cnt=15&name$cnt=Нет возможности атаковать";
+                  $cnt++;
+                }
+                break;
+            }
+            break;
+          }
+        }
+
         if( $limit < 0 ) {
           $out .= "&id$cnt=15&name$cnt=".t( 'Превышен лимит управления' );
           $cnt++;

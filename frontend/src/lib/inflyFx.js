@@ -287,3 +287,35 @@ function drawStarLayer(ctx, stars, w, h, color, sizeMul) {
   }
   ctx.globalAlpha = 1;
 }
+
+function drawStarLayerTimed(ctx, stars, w, h, color, sizeMul, tSec) {
+  ctx.fillStyle = color;
+  for (const s of stars) {
+    const tw = 0.65 + 0.35 * Math.sin(s.tw + tSec * s.twSpeed);
+    ctx.globalAlpha = s.a * tw;
+    ctx.beginPath();
+    ctx.arc(s.x * w, s.y * h, s.r * sizeMul, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/** Static starfield backdrop (no hyperspace dust) — same palette as Infly. */
+export function paintStarfield(ctx, field, w, h, tSec = 0) {
+  const p = field.palette;
+  ctx.fillStyle = p.bg;
+  ctx.fillRect(0, 0, w, h);
+
+  const cx = w * 0.5;
+  const cy = h * 0.5;
+  const maxR = Math.hypot(cx, cy);
+  const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 0.7);
+  glow.addColorStop(0, p.bgGlow);
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, w, h);
+
+  drawStarLayerTimed(ctx, field.far, w, h, p.starDim, 0.7, tSec);
+  drawStarLayerTimed(ctx, field.mid, w, h, p.star, 0.9, tSec);
+  drawStarLayerTimed(ctx, field.near, w, h, p.star, 1.15, tSec);
+}
